@@ -1,0 +1,17 @@
+{
+    "scripts": {
+        "test": "hardhat test",
+        "format": "prettier --write contracts/**/*.sol *.js *.json test/**/*.js",
+        "pretty-quick": "pretty-quick",
+        "coverage": "hardhat coverage"
+    },
+    "devDependencies": {
+        "@sushiswap/hardhat-framework": "sushiswap/hardhat-framework#44c25f9f9d861e812399a2d5773449b368f31619"
+    },
+    "dependencies": {
+        "@boringcrypto/boring-solidity": "boringcrypto/BoringSolidity#371a01c11465eb1c881193c60a53c0bf15ee8a19",
+        "@sushiswap/bentobox-sdk": "sushiswap/bentobox-sdk#e3f809870b86afbd57e0930662221d2362a160db",
+        "@sushiswap/core": "^1.4.2",
+        "hardhat-deploy-ethers": "^0.3.0-beta.7"
+    }
+}
