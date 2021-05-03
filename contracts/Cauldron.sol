@@ -88,12 +88,6 @@ contract Cauldron is BoringOwnable, IMasterContract {
 
     uint256 private constant COLLATERIZATION_RATE = 75000; // 75%
     uint256 private constant COLLATERIZATION_RATE_PRECISION = 1e5; // Must be less than EXCHANGE_RATE_PRECISION (due to optimization in math)
-    uint256 private constant MINIMUM_TARGET_UTILIZATION = 7e17; // 70%
-    uint256 private constant MAXIMUM_TARGET_UTILIZATION = 8e17; // 80%
-    uint256 private constant UTILIZATION_PRECISION = 1e18;
-    uint256 private constant FULL_UTILIZATION = 1e18;
-    uint256 private constant FULL_UTILIZATION_MINUS_MAX = FULL_UTILIZATION - MAXIMUM_TARGET_UTILIZATION;
-    uint256 private constant FACTOR_PRECISION = 1e18;
 
     uint256 private constant EXCHANGE_RATE_PRECISION = 1e18;
 
