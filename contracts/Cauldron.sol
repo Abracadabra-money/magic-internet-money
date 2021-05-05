@@ -533,15 +533,15 @@ contract Cauldron is BoringOwnable, IMasterContract {
     }
 
     /// @notice deposits supply of MIM into Bento
-    function depositSupply() public {
-        uint256 amount = magicInternetMoney.balanceOf(address(this));
+    function depositSupply(uint256 amount) public {
         magicInternetMoney.safeTransfer(address(bentoBox), amount);
-        bentoBox.deposit(magicInternetMoney, address(this), address(this), amount, 0);
+        bentoBox.deposit(magicInternetMoney, address(bentoBox), address(this), amount, 0);
     }
 
     /// @notice reduces the supply of MIM
     /// @param amount amount to reduce supply by
-    function reduceSupply(uint256 amount) public onlyOwner {
+    function reduceSupply(uint256 amount) public {
+        require(msg.sender == masterContract.owner(), "Caller is not the owner");
         bentoBox.withdraw(magicInternetMoney, address(this), address(this), amount, 0);
         MagicInternetMoney(address(magicInternetMoney)).burn(amount);
     }
