@@ -14,6 +14,7 @@
 pragma solidity 0.6.12;
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol";
 import "@boringcrypto/boring-solidity/contracts/ERC20.sol";
+import "@sushiswap/bentobox-sdk/contracts/IBentoBoxV1.sol";
 import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
 
 /// @title Cauldron
@@ -49,6 +50,11 @@ contract MagicInternetMoney is ERC20, BoringOwnable {
         totalSupply = totalSupply + amount;
         balanceOf[to] += balanceOf[to];
         emit Transfer(address(0), to, amount);
+    }
+
+    function mintToBentoBox(address clone, uint256 amount, IBentoBoxV1 bentoBox) public onlyOwner {
+        mint(address(bentoBox), amount);
+        bentoBox.deposit(IERC20(address(this)), address(bentoBox), clone, amount, 0);
     }
 
     function burn(uint256 amount) public {
