@@ -26,6 +26,7 @@ import "@boringcrypto/boring-solidity/contracts/interfaces/IMasterContract.sol";
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringRebase.sol";
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
 import "@sushiswap/bentobox-sdk/contracts/IBentoBoxV1.sol";
+import "./MagicInternetMoney.sol";
 import "./interfaces/IOracle.sol";
 import "./interfaces/ISwapper.sol";
 
@@ -93,6 +94,9 @@ contract Cauldron is BoringOwnable, IMasterContract {
 
     uint256 private constant LIQUIDATION_MULTIPLIER = 112000; // add 12%
     uint256 private constant LIQUIDATION_MULTIPLIER_PRECISION = 1e5;
+
+    uint256 private constant BORROW_OPENING_FEE = 50; // 0.05%
+    uint256 private constant BORROW_OPENING_FEE_PRECISION = 1e5;
 
     /// @notice The constructor is only used for the initial master contract. Subsequent clones are initialised via `init`.
     constructor(IBentoBoxV1 bentoBox_, IERC20 magicInternetMoney_) public {
@@ -201,7 +205,7 @@ contract Cauldron is BoringOwnable, IMasterContract {
 
     /// @notice Adds `collateral` from msg.sender to the account `to`.
     /// @param to The receiver of the tokens.
-    /// @param skim True if the amount should be skimmed from the deposit balance of msg.sender.
+    /// @param skim True if the amount should be skimmed from the deposit balance of msg.sender.x
     /// False if tokens from msg.sender in `bentoBox` should be transferred.
     /// @param share The amount of shares to add for `to`.
     function addCollateral(
@@ -235,15 +239,15 @@ contract Cauldron is BoringOwnable, IMasterContract {
 
     /// @dev Concrete implementation of `borrow`.
     function _borrow(address to, uint256 amount) internal returns (uint256 part, uint256 share) {
-        (totalBorrow, part) = totalBorrow.add(amount, true);
+        uint256 feeAmount = amount.mul(BORROW_OPENING_FEE) / BORROW_OPENING_FEE_PRECISION; // A flat % fee is charged for any borrow
+        (totalBorrow, part) = totalBorrow.add(amount.add(feeAmount), true);
         userBorrowPart[msg.sender] = userBorrowPart[msg.sender].add(part);
 
         // As long as there are tokens on this contract you can 'mint'... this enables limiting borrows
         share = bentoBox.toShare(magicInternetMoney, amount, false);
         bentoBox.transfer(magicInternetMoney, address(this), to, share);
-        magicInternetMoney.safeTransfer(to, amount);
 
-        emit LogBorrow(msg.sender, to, amount, part);
+        emit LogBorrow(msg.sender, to, amount.add(feeAmount), part);
     }
 
     /// @notice Sender borrows `amount` and transfers it to `to`.
@@ -526,5 +530,19 @@ contract Cauldron is BoringOwnable, IMasterContract {
     function setFeeTo(address newFeeTo) public onlyOwner {
         feeTo = newFeeTo;
         emit LogFeeTo(newFeeTo);
+    }
+
+    /// @notice deposits supply of MIM into Bento
+    function depositSupply() public {
+        uint256 amount = magicInternetMoney.balanceOf(address(this));
+        magicInternetMoney.safeTransfer(address(bentoBox), amount);
+        bentoBox.deposit(magicInternetMoney, address(this), address(this), amount, 0);
+    }
+
+    /// @notice reduces the supply of MIM
+    /// @param amount amount to reduce supply by
+    function reduceSupply(uint256 amount) public onlyOwner {
+        bentoBox.withdraw(magicInternetMoney, address(this), address(this), amount, 0);
+        MagicInternetMoney(address(magicInternetMoney)).burn(amount);
     }
 }
