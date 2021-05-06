@@ -14,7 +14,7 @@ import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
 /// @author 0xMerlin
 /// @dev This contract allows contract calls to any contract (except BentoBox)
 /// from arbitrary callers thus, don't trust calls from this contract in any circumstances.
-contract MagicInternetMoney is ERC20, BoringOwnable {
+contract Spell is ERC20, BoringOwnable {
     using BoringMath for uint256;
     // ERC20 'variables'
     string public constant symbol = "SPELL";
