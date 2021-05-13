@@ -45,10 +45,6 @@ contract sSpell is IERC20, Domain {
         return users[user].balance;
     }
 
-    function pricePerShare() public view returns (uint256 price) {
-        return (1e18 * totalSupply) / token.balanceOf(address(this));
-    }
-
     function _transfer(
         address from,
         address to,

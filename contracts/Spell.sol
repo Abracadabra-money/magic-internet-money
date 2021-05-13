@@ -23,13 +23,12 @@ contract Spell is ERC20, BoringOwnable {
     uint256 public totalSupply;
     uint256 public constant MAX_SUPPLY = 420000 * 1e18;
 
-
     function mint(address to, uint256 amount) public onlyOwner {
         require(to != address(0), "SPELL: no mint to zero address");
         require(MAX_SUPPLY >= totalSupply.add(amount), "SPELL: Don't go over MAX");
 
         totalSupply = totalSupply + amount;
-        balanceOf[to] += balanceOf[to];
+        balanceOf[to] += amount;
         emit Transfer(address(0), to, amount);
     }
 }
