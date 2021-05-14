@@ -35,20 +35,21 @@ contract MagicInternetMoney is ERC20, BoringOwnable {
 
     Minting public lastMint;
     uint256 private constant MINTING_PERIOD = 24 hours;
-    uint256 private constant MINTING_INCREASE = 2e4;
+    uint256 private constant MINTING_INCREASE = 15000;
     uint256 private constant MINTING_PRECISION = 1e5;
 
     function mint(address to, uint256 amount) public onlyOwner {
         require(to != address(0), "MIM: no mint to zero address");
 
-        uint256 mintedAmount = lastMint.time < block.timestamp - MINTING_PERIOD ? 0 : lastMint.time;
-        require(totalSupply == 0 || totalSupply.mul(MINTING_INCREASE) / MINTING_PRECISION >= amount + mintedAmount);
+        // Limits the amount minted per period to a convergence function, with the period duration restarting on every mint
+        uint256 totalMintedAmount = (lastMint.time < block.timestamp - MINTING_PERIOD ? 0 : lastMint.amount).add(amount);
+        require(totalSupply == 0 || totalSupply.mul(MINTING_INCREASE) / MINTING_PRECISION >= totalMintedAmount);
 
         lastMint.time = block.timestamp.to128();
-        lastMint.amount = amount.to128();
+        lastMint.amount = totalMintedAmount.to128();
 
         totalSupply = totalSupply + amount;
-        balanceOf[to] += balanceOf[to];
+        balanceOf[to] += amount;
         emit Transfer(address(0), to, amount);
     }
 
