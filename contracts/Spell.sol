@@ -21,7 +21,7 @@ contract Spell is ERC20, BoringOwnable {
     string public constant name = "Spell Token";
     uint8 public constant decimals = 18;
     uint256 public totalSupply;
-    uint256 public constant MAX_SUPPLY = 420000 * 1e18;
+    uint256 public constant MAX_SUPPLY = 420 * 1e27;
 
     function mint(address to, uint256 amount) public onlyOwner {
         require(to != address(0), "SPELL: no mint to zero address");
