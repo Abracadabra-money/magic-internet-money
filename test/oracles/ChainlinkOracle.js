@@ -9,7 +9,7 @@ describe("ChainLink Oracle", function () {
         fixture = await createFixture(deployments, this, async (cmd) => {
             await cmd.deploy("oracle", "ChainlinkOracle")
             const SUSHI_ETH = "0xe572CeF69f43c2E488b33924AF04BDacE19079cf"
-            this.oracleData = await this.oracle.getDataParameter(SUSHI_ETH, ADDRESS_ZERO, getBigNumber(1,36))
+            this.oracleData = await this.oracle.getDataParameter(SUSHI_ETH, ADDRESS_ZERO, getBigNumber(1, 36))
             this.oracleData2 = await this.oracle.getDataParameter(ADDRESS_ZERO, SUSHI_ETH, getBigNumber(1))
         })
     })

@@ -1,8 +1,9 @@
 //SPDX-License-Identifier: MIT
-pragma solidity ^0.6.12;
+pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol";
+import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
 import "@boringcrypto/boring-solidity/contracts/Domain.sol";
 import "@boringcrypto/boring-solidity/contracts/ERC20.sol";
 import "@boringcrypto/boring-solidity/contracts/BoringBatchable.sol";
@@ -13,6 +14,8 @@ import "@boringcrypto/boring-solidity/contracts/BoringBatchable.sol";
 
 contract sSpell is IERC20, Domain {
     using BoringMath for uint256;
+    using BoringMath128 for uint128;
+    using BoringERC20 for IERC20;
 
     string public constant symbol = "sSPELL";
     string public constant name = "Staked Spell Tokens";
@@ -156,7 +159,7 @@ contract sSpell is IERC20, Domain {
         users[msg.sender] = user;
         totalSupply += shares;
 
-        token.transferFrom(msg.sender, address(this), amount);
+        token.safeTransferFrom(msg.sender, address(this), amount);
 
         emit Transfer(address(0), msg.sender, shares);
         return true;
@@ -174,7 +177,7 @@ contract sSpell is IERC20, Domain {
         users[from].balance = user.balance.sub(shares.to128()); // Must check underflow
         totalSupply -= shares;
 
-        token.transfer(to, amount);
+        token.safeTransfer(to, amount);
 
         emit Transfer(from, address(0), shares);
     }

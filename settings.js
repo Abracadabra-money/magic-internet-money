@@ -29,6 +29,69 @@ module.exports = {
                         },
                     },
                 },
+                "contracts/flat/YearnChainlinkOracleV1.sol": {
+                    version: "0.6.12",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 999999,
+                        },
+                    },
+                },
+                "contracts/flat/YearnChainlinkOracleV2.sol": {
+                    version: "0.6.12",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 999999,
+                        },
+                    },
+                },
+                "contracts/flat/sSpellFlat.sol": {
+                    version: "0.6.12",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 999999,
+                        },
+                    },
+                },
+                "contracts/flat/MagicInternetMoneyFlat.sol": {
+                    version: "0.6.12",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 999999,
+                        },
+                    },
+                },
+                "contracts/flat/MinimalTimeLockFlat.sol": {
+                    version: "0.6.12",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 999999,
+                        },
+                    },
+                },
+                "contracts/flat/CauldronMediumRiskV1.sol": {
+                    version: "0.6.12",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 350,
+                        },
+                    },
+                },
+                "contracts/flat/CauldronLowRiskV1.sol": {
+                    version: "0.6.12",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 350,
+                        },
+                    },
+                },
                 "contracts/flat/KashiPairFlat.sol": {
                     version: "0.6.12",
                     settings: {

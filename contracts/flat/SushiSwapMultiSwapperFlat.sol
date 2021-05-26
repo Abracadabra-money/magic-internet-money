@@ -235,7 +235,8 @@ contract SushiSwapMultiSwapper {
             path[3] = address(tokenOut);
         }
         path[0] = address(tokenIn);
-        (uint256 amountIn, ) = bentoBox.withdraw(tokenIn, address(this), UniswapV2Library.pairFor(factory, path[0], path[1], pairCodeHash), 0, shareIn);
+        (uint256 amountIn, ) =
+            bentoBox.withdraw(tokenIn, address(this), UniswapV2Library.pairFor(factory, path[0], path[1], pairCodeHash), 0, shareIn);
         uint256 amount = _swapExactTokensForTokens(amountIn, amountMinOut, path, address(bentoBox));
         (, uint256 share) = bentoBox.deposit(tokenOut, address(bentoBox), to, amount, 0);
         return baseShare.add(share);
