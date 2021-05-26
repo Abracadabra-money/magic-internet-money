@@ -15,13 +15,16 @@ contract YearnLiquidityMigrationHelper {
     // Local variables
     IBentoBoxV1 public immutable bentoBox;
 
-    constructor(
-        IBentoBoxV1 bentoBox_
-    ) public {
+    constructor(IBentoBoxV1 bentoBox_) public {
         bentoBox = bentoBox_;
     }
 
-    function migrate(IERC20 token, IYearnVault vault, uint256 amount, address recipient) external {
+    function migrate(
+        IERC20 token,
+        IYearnVault vault,
+        uint256 amount,
+        address recipient
+    ) external {
         token.approve(address(vault), amount);
         uint256 shares = vault.deposit(amount, address(bentoBox));
         bentoBox.deposit(token, address(bentoBox), recipient, shares, 0);

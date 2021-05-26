@@ -34,9 +34,9 @@ contract YearnChainlinkOracle is IOracle {
         if (divide != address(0)) {
             price = price / uint256(IAggregator(divide).latestAnswer());
         }
-        
+
         // @note decimals have to take into account the decimals of the vault asset
-        return price.mul(IYearnVault(yearnVault).pricePerShare()) / decimals;
+        return price / decimals.mul(IYearnVault(yearnVault).pricePerShare());
     }
 
     function getDataParameter(

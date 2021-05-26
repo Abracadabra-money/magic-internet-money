@@ -1,6 +1,7 @@
 const { weth, getBigNumber } = require("@sushiswap/hardhat-framework")
 
 module.exports = async function (hre) {
+    /*
     const factory_abi = [
         {
             inputs: [],
@@ -10,10 +11,13 @@ module.exports = async function (hre) {
             type: "function",
         },
     ]
+    */
 
     const signers = await hre.ethers.getSigners()
     const deployer = signers[0]
     const funder = signers[1]
+
+    console.log("START")
 
     const chainId = await hre.getChainId()
     if (chainId == "31337" || hre.network.config.forking) {
@@ -27,9 +31,9 @@ module.exports = async function (hre) {
     console.log("Balance:", (await funder.getBalance()).div("1000000000000000000").toString())
     const deployerBalance = await deployer.getBalance()
 
-    let sushiOwner = "0x10601b88F47e5FAfE9Da5Ac855c9E98e79903280"
+    let mimOwner = "0xfddfE525054efaAD204600d00CA86ADb1Cc2ea8a"
     if (chainId == "1") {
-        let sushiOwner = "0x19B3Eb3Af5D93b77a5619b047De0EED7115A19e7"
+        let mimOwner = "0x5f0DeE98360d8200b20812e174d139A1a633EDd2"
     }
 
     let gasPrice = await funder.provider.getGasPrice()
@@ -39,13 +43,14 @@ module.exports = async function (hre) {
     let multiplier = hre.network.tags && hre.network.tags.staging ? 2 : 1
     let finalGasPrice = gasPrice.mul(multiplier)
 
-    //const gasLimit = 5000000 + 5500000 + 1300000 + 300000 + 1000000 + 1000000 + 500000 + 5200000 + 450000 + 500000
-    gasLimit = 5700000
+    const gasLimit = 5000000 + 5500000 + 5500000 + 1000000 + 300000 - 2500000
+    //gasLimit = 5700000
     if (chainId == "88" || chainId == "89") {
         finalGasPrice = getBigNumber("10000", 9)
     }
     console.log("Gasprice:", gasPrice.toString(), " with multiplier ", multiplier, "final", finalGasPrice.toString())
 
+    /*
     let factory = "0xc35DADB65012eC5796536bD9864eD8773aBc74C4"
     if (chainId == "1") {
         factory = "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac"
@@ -53,9 +58,11 @@ module.exports = async function (hre) {
 
     const initCodeHash = await new ethers.Contract(factory, factory_abi, deployer).pairCodeHash()
     console.log("InitCodeHash is", initCodeHash)
+    */
 
     console.log("Deployer balance", deployerBalance.toString())
     console.log("Needed", finalGasPrice.mul(gasLimit).toString(), finalGasPrice.toString(), gasLimit.toString())
+    /*
     if (deployerBalance.lt(finalGasPrice.mul(gasLimit))) {
         console.log("Sending native token to fund deployment:", finalGasPrice.mul(gasLimit).sub(deployerBalance).toString())
         let tx = await funder.sendTransaction({
@@ -66,6 +73,104 @@ module.exports = async function (hre) {
         await tx.wait()
     }
 
+    /*
+    console.log("Deploying MIM contract")
+    tx = await hre.deployments.deploy("MagicInternetMoneyV1", {
+        from: deployer.address,
+        args: [],
+        log: true,
+        deterministicDeployment: false,
+        gasLimit: 2500000,
+        gasPrice: finalGasPrice,
+    })
+    */
+
+    const mim = (await hre.ethers.getContractFactory("MagicInternetMoneyV1")).attach((await deployments.get("MagicInternetMoneyV1")).address)
+
+    const spell = (await hre.ethers.getContractFactory("SpellV1")).attach("0x090185f2135308BaD17527004364eBcC2D37e5F6")
+
+    const bentobox = (await hre.ethers.getContractFactory("BentoBoxV1")).attach("0xF5BCE5077908a1b7370B9ae04AdC565EBd643966")
+
+    /*
+    console.log("Deploying sSpell contract, using Spell", spell.address)
+    tx = await hre.deployments.deploy("sSpellV1", {
+        from: deployer.address,
+        args: [spell.address],
+        log: true,
+        deterministicDeployment: false,
+        gasLimit: 2500000,
+        gasPrice: finalGasPrice,
+    })
+
+    console.log("Deploying Cauldron Medium Risk contract, using BentoBox and MIM", bentobox.address, mim.address)
+    tx = await hre.deployments.deploy("CauldronMediumRiskV1", {
+        from: deployer.address,
+        args: [bentobox.address, mim.address],
+        log: true,
+        deterministicDeployment: false,
+        gasLimit: 5500000,
+        gasPrice: finalGasPrice,
+    })
+
+    console.log("Deploying Cauldron Low Risk contract, using BentoBox and MIM", bentobox.address, mim.address)
+    tx = await hre.deployments.deploy("CauldronLowRiskV1", {
+        from: deployer.address,
+        args: [bentobox.address, mim.address],
+        log: true,
+        deterministicDeployment: false,
+        gasLimit: 5500000,
+        gasPrice: finalGasPrice,
+    })
+    */
+    /*
+    console.log("Deploying YearnChainlinkOracle contract")
+    tx = await hre.deployments.deploy("YearnChainlinkOracleV1", {
+        from: deployer.address,
+        args: [],
+        log: true,
+        deterministicDeployment: false,
+        gasLimit: 1000000,
+        gasPrice: finalGasPrice,
+    }) */
+    console.log("Deploying YearnChainlinkOracle contract")
+    tx = await hre.deployments.deploy("YearnChainlinkOracleV2", {
+        from: deployer.address,
+        args: [],
+        log: true,
+        deterministicDeployment: false,
+        gasLimit: 1000000,
+        gasPrice: finalGasPrice,
+    })
+    /*
+    const mediumRisk = (await hre.ethers.getContractFactory("CauldronMediumRiskV1")).attach(
+        (await deployments.get("CauldronMediumRiskV1")).address
+    )
+
+    console.log("Update mediumRisk Owner")
+    tx = await mediumRisk.connect(deployer).transferOwnership(mimOwner, true, false, {
+        gasLimit: 100000,
+        gasPrice: finalGasPrice,
+    })
+    await tx.wait()
+
+    const lowRisk = (await hre.ethers.getContractFactory("CauldronLowRiskV1")).attach(
+        "0xC9faCFA2fC50C9A30C77a2ad14E2dB107d591918"
+    )
+
+    console.log("Update lowRisk Owner")
+    tx = await lowRisk.connect(deployer).transferOwnership(mimOwner, true, false, {
+        gasLimit: 100000,
+        gasPrice: finalGasPrice,
+    })
+    await tx.wait()
+    
+    console.log("Update mim Owner")
+    tx = await mim.connect(deployer).transferOwnership(mimOwner, true, false, {
+        gasLimit: 100000,
+        gasPrice: finalGasPrice,
+    })
+    await tx.wait()
+    
     /*
     console.log("Deploying Bentobox contract")
     tx = await hre.deployments.deploy("BentoBoxV1", {
@@ -79,6 +184,7 @@ module.exports = async function (hre) {
 
     const bentobox = (await hre.ethers.getContractFactory("BentoBoxV1")).attach((await deployments.get("BentoBoxV1")).address)
     */
+    /*
     const bentobox = (await hre.ethers.getContractFactory("BentoBoxV1")).attach("0xF5BCE5077908a1b7370B9ae04AdC565EBd643966")
     console.log("Deploying KashiPair contract, using BentoBox", bentobox.address)
     tx = await hre.deployments.deploy("KashiPairMediumRiskV1", {
@@ -89,6 +195,7 @@ module.exports = async function (hre) {
         gasLimit: 5500000,
         gasPrice: finalGasPrice,
     })
+    */
     /*
     console.log("Deploying Swapper contract")
     tx = await hre.deployments.deploy("SushiSwapSwapperV1", {
@@ -171,12 +278,13 @@ module.exports = async function (hre) {
         gasLimit: 5200000,
         gasPrice: finalGasPrice,
     })
-*/
+*/  
+    /*
     const kashipair = (await hre.ethers.getContractFactory("KashiPairMediumRiskV1")).attach(
         (await deployments.get("KashiPairMediumRiskV1")).address
     )
-    /*  const swapper = (await hre.ethers.getContractFactory("SushiSwapSwapperV1")).attach((await deployments.get("SushiSwapSwapperV1")).address)
-     */
+    const swapper = (await hre.ethers.getContractFactory("SushiSwapSwapperV1")).attach((await deployments.get("SushiSwapSwapperV1")).address)
+     
     const swapper = (await hre.ethers.getContractFactory("SushiSwapSwapperV1")).attach("0x1766733112408b95239aD1951925567CB1203084")
     console.log("Whitelisting Swapper")
     tx = await kashipair.connect(deployer).setSwapper(swapper.address, true, {
@@ -186,11 +294,12 @@ module.exports = async function (hre) {
     await tx.wait()
 
     console.log("Update KashiPair Owner")
-    tx = await kashipair.connect(deployer).transferOwnership(sushiOwner, true, false, {
+    tx = await kashipair.connect(deployer).transferOwnership(mimOwner, true, false, {
         gasLimit: 100000,
         gasPrice: finalGasPrice,
     })
     await tx.wait()
+    */
     /*
     console.log("Whitelisting KashiPair")
     tx = await bentobox.whitelistMasterContract(kashipair.address, true, {
@@ -200,7 +309,7 @@ module.exports = async function (hre) {
     await tx.wait()
 
     console.log("Update BentoBox Owner")
-    await bentobox.transferOwnership(sushiOwner, true, false, {
+    await bentobox.transferOwnership(mimOwner, true, false, {
         gasLimit: 100000,
         gasPrice: finalGasPrice,
     })*/
