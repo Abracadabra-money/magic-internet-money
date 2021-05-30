@@ -30,27 +30,28 @@ contract MagicInternetMoney is ERC20, BoringOwnable {
 
     struct Minting {
         uint128 time;
-        uint128 amount;
+        uint128 totalSupply;
     }
 
-    Minting public lastMint;
+    Minting public maxMint;
     uint256 private constant MINTING_PERIOD = 24 hours;
     uint256 private constant MINTING_INCREASE = 15000;
     uint256 private constant MINTING_PRECISION = 1e5;
 
     function mint(address to, uint256 amount) public onlyOwner {
         require(to != address(0), "MIM: no mint to zero address");
+        
+        uint256 newTotalSupply = totalSupply.add(amount);
+        require(totalSupply == 0 || newTotalSupply < maxMint.totalSupply, "MIM: mint too large");
 
-        // Limits the amount minted per period to a convergence function, with the period duration restarting on every mint
-        uint256 totalMintedAmount = uint256(lastMint.time < block.timestamp - MINTING_PERIOD ? 0 : lastMint.amount).add(amount);
-        require(totalSupply == 0 || totalSupply.mul(MINTING_INCREASE) / MINTING_PRECISION >= totalMintedAmount);
-
-        lastMint.time = block.timestamp.to128();
-        lastMint.amount = totalMintedAmount.to128();
-
-        totalSupply = totalSupply + amount;
+        totalSupply = newTotalSupply;
         balanceOf[to] += amount;
         emit Transfer(address(0), to, amount);
+
+        if (block.timestamp > maxMint.time) {
+            maxMint.time = (block.timestamp.add(MINTING_PERIOD)).to128();
+            maxMint.amount = (newTotalSupply.mul(MINTING_INCREASE) / MINTING_PRECISION).to128();
+        }
     }
 
     function mintToBentoBox(address clone, uint256 amount, IBentoBoxV1 bentoBox) public onlyOwner {
@@ -64,5 +65,11 @@ contract MagicInternetMoney is ERC20, BoringOwnable {
         balanceOf[msg.sender] -= amount;
         totalSupply -= amount;
         emit Transfer(msg.sender, address(0), amount);
+
+        uint256 newMax = totalSupply.mul(MINTING_INCREASE) / MINTING_PRECISION;
+        if (newMax < maxMint.amount) {
+            maxMint.time = block.timestamp.to128();
+            maxMint.amount = newMax.to128();
+        }
     }
 }
