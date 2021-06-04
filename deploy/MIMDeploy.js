@@ -100,7 +100,7 @@ module.exports = async function (hre) {
         deterministicDeployment: false,
         gasLimit: 2500000,
         gasPrice: finalGasPrice,
-    })
+    }) 
 
     console.log("Deploying Cauldron Medium Risk contract, using BentoBox and MIM", bentobox.address, mim.address)
     tx = await hre.deployments.deploy("CauldronMediumRiskV1", {
@@ -111,6 +111,7 @@ module.exports = async function (hre) {
         gasLimit: 5500000,
         gasPrice: finalGasPrice,
     })
+    
 
     console.log("Deploying Cauldron Low Risk contract, using BentoBox and MIM", bentobox.address, mim.address)
     tx = await hre.deployments.deploy("CauldronLowRiskV1", {
@@ -121,7 +122,7 @@ module.exports = async function (hre) {
         gasLimit: 5500000,
         gasPrice: finalGasPrice,
     })
-    */
+    
     /*
     console.log("Deploying YearnChainlinkOracle contract")
     tx = await hre.deployments.deploy("YearnChainlinkOracleV1", {
@@ -131,7 +132,7 @@ module.exports = async function (hre) {
         deterministicDeployment: false,
         gasLimit: 1000000,
         gasPrice: finalGasPrice,
-    }) */
+    }) 
     console.log("Deploying YearnChainlinkOracle contract")
     tx = await hre.deployments.deploy("YearnChainlinkOracleV2", {
         from: deployer.address,
@@ -140,8 +141,8 @@ module.exports = async function (hre) {
         deterministicDeployment: false,
         gasLimit: 1000000,
         gasPrice: finalGasPrice,
-    })
-    /*
+    }) */
+    
     const mediumRisk = (await hre.ethers.getContractFactory("CauldronMediumRiskV1")).attach(
         (await deployments.get("CauldronMediumRiskV1")).address
     )
@@ -154,7 +155,7 @@ module.exports = async function (hre) {
     await tx.wait()
 
     const lowRisk = (await hre.ethers.getContractFactory("CauldronLowRiskV1")).attach(
-        "0xC9faCFA2fC50C9A30C77a2ad14E2dB107d591918"
+        (await deployments.get("CauldronLowRiskV1")).address
     )
 
     console.log("Update lowRisk Owner")
@@ -164,13 +165,14 @@ module.exports = async function (hre) {
     })
     await tx.wait()
     
+    /*
     console.log("Update mim Owner")
     tx = await mim.connect(deployer).transferOwnership(mimOwner, true, false, {
         gasLimit: 100000,
         gasPrice: finalGasPrice,
     })
     await tx.wait()
-    
+    */
     /*
     console.log("Deploying Bentobox contract")
     tx = await hre.deployments.deploy("BentoBoxV1", {
