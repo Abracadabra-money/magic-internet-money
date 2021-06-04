@@ -3,6 +3,7 @@
 // File @boringcrypto/boring-solidity/contracts/BoringOwnable.sol@v1.2.2
 // License-Identifier: MIT
 pragma solidity 0.6.12;
+pragma experimental ABIEncoderV2;
 
 // Audit on 5-Jan-2021 by Keno and BoringCrypto
 // Source: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol + Claimable.sol
@@ -68,9 +69,6 @@ contract BoringOwnable is BoringOwnableData {
 
 // File contracts/MinimalTimeLock.sol
 //License-Identifier: BSD-3-Clause
-
-pragma solidity ^0.6.12;
-pragma experimental ABIEncoderV2;
 
 // Modified from https://etherscan.io/address/0x6d903f6003cca6255d85cca4d3b5e5146dc33925#code and https://github.com/boringcrypto/dictator-dao/blob/main/contracts/DictatorDAO.sol#L225
 contract MinimalTimeLockFlat is BoringOwnable {

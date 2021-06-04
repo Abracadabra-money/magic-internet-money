@@ -1401,7 +1401,8 @@ contract CauldronLowRiskV1 is BoringOwnable, IMasterContract {
         accrue();
         address _feeTo = masterContract.feeTo();
         uint256 _feesEarned = accrueInfo.feesEarned;
-        bentoBox.transfer(magicInternetMoney, address(this), _feeTo, _feesEarned);
+        uint256 share = bentoBox.toShare(magicInternetMoney, _feesEarned, false);
+        bentoBox.transfer(magicInternetMoney, address(this), _feeTo, share);
         accrueInfo.feesEarned = 0;
 
         emit LogWithdrawFees(_feeTo, _feesEarned);
