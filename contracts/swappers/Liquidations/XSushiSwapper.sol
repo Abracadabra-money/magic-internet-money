@@ -14,6 +14,10 @@ interface SushiBar {
     function leave(uint256 share) external;
 }
 
+interface Sushi is IERC20 {
+    function transfer(address _to, uint256 _value) external returns (bool success);
+}
+
 interface TetherToken {
     function approve(address _spender, uint256 _value) external;
 }
@@ -26,7 +30,7 @@ contract YVXSushiSwapper is ISwapper {
     CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
     TetherToken public constant TETHER = TetherToken(0xdAC17F958D2ee523a2206206994597C13D831ec7);    
     SushiBar public constant xSushi = SushiBar(0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272);
-    IERC20 public constant SUSHI = IERC20(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2);
+    Sushi public constant SUSHI = Sushi(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2);
     IUniswapV2Pair constant SUSHI_WETH = IUniswapV2Pair(0x795065dCc9f64b5614C407a6EFDC400DA6221FB0);
     IUniswapV2Pair constant pair = IUniswapV2Pair(0x06da0fd433C1A5d7a4faa01111c044910A184553);
 
@@ -82,6 +86,8 @@ contract YVXSushiSwapper is ISwapper {
         {
 
         uint256 amountFrom = SUSHI.balanceOf(address(this));
+
+        SUSHI.transfer(address(SUSHI_WETH), amountFrom);
 
         (uint256 reserve0, uint256 reserve1, ) = SUSHI_WETH.getReserves();
         
