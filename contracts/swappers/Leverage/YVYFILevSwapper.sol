@@ -86,7 +86,7 @@ contract YVYFILevSwapper {
         (uint256 reserve0, uint256 reserve1, ) = pair.getReserves();
         
         amountIntermediate  = getAmountOut(amountFirst, reserve1, reserve0);
-        pair.swap(amountFirst, 0, address(YFI_WETH), new bytes(0));
+        pair.swap(amountIntermediate, 0, address(YFI_WETH), new bytes(0));
 
         }
 
