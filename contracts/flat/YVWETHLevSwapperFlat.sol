@@ -459,7 +459,7 @@ contract YVWETHLevSwapper{
         uint256 shareFrom
     ) public returns (uint256 extraShare, uint256 shareReturned) {
 
-        (uint256 amountFrom, ) = bentoBox.withdraw(MIM, address(this), address(pair), 0, shareFrom);
+        (uint256 amountFrom, ) = bentoBox.withdraw(MIM, address(this), address(this), 0, shareFrom);
 
         uint256 amountIntermediate = MIM3POOL.exchange_underlying(0, 3, amountFrom, 0, address(bentoBox));
 
