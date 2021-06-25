@@ -80,19 +80,18 @@ contract CauldronV2 is BoringOwnable, IMasterContract {
     struct AccrueInfo {
         uint64 lastAccrued;
         uint128 feesEarned;
+        uint64 INTEREST_PER_SECOND;
     }
 
     AccrueInfo public accrueInfo;
 
     // Settings
-    uint256 private constant INTEREST_PER_SECOND = 317097920;
-
-    uint256 private constant COLLATERIZATION_RATE = 75000; // 75%
+    uint256 public COLLATERIZATION_RATE;
     uint256 private constant COLLATERIZATION_RATE_PRECISION = 1e5; // Must be less than EXCHANGE_RATE_PRECISION (due to optimization in math)
 
     uint256 private constant EXCHANGE_RATE_PRECISION = 1e18;
 
-    uint256 private constant LIQUIDATION_MULTIPLIER = 112000; // add 12%
+    uint256 public LIQUIDATION_MULTIPLIER; 
     uint256 private constant LIQUIDATION_MULTIPLIER_PRECISION = 1e5;
 
     uint256 private constant BORROW_OPENING_FEE = 50; // 0.05%
@@ -109,7 +108,7 @@ contract CauldronV2 is BoringOwnable, IMasterContract {
     /// @dev `data` is abi encoded in the format: (IERC20 collateral, IERC20 asset, IOracle oracle, bytes oracleData)
     function init(bytes calldata data) public payable override {
         require(address(collateral) == address(0), "Cauldron: already initialized");
-        (collateral, oracle, oracleData) = abi.decode(data, (IERC20, IOracle, bytes));
+        (collateral, oracle, oracleData, accrueInfo.INTEREST_PER_SECOND, LIQUIDATION_MULTIPLIER, COLLATERIZATION_RATE) = abi.decode(data, (IERC20, IOracle, bytes, uint64, uint256, uint256));
         require(address(collateral) != address(0), "Cauldron: bad pair");
     }
 
@@ -130,7 +129,7 @@ contract CauldronV2 is BoringOwnable, IMasterContract {
         }
 
         // Accrue interest
-        uint128 extraAmount = (uint256(_totalBorrow.elastic).mul(INTEREST_PER_SECOND).mul(elapsedTime) / 1e18).to128();
+        uint128 extraAmount = (uint256(_totalBorrow.elastic).mul(_accrueInfo.INTEREST_PER_SECOND).mul(elapsedTime) / 1e18).to128();
         _totalBorrow.elastic = _totalBorrow.elastic.add(extraAmount);
 
         _accrueInfo.feesEarned = _accrueInfo.feesEarned.add(extraAmount);
@@ -241,6 +240,7 @@ contract CauldronV2 is BoringOwnable, IMasterContract {
     function _borrow(address to, uint256 amount) internal returns (uint256 part, uint256 share) {
         uint256 feeAmount = amount.mul(BORROW_OPENING_FEE) / BORROW_OPENING_FEE_PRECISION; // A flat % fee is charged for any borrow
         (totalBorrow, part) = totalBorrow.add(amount.add(feeAmount), true);
+        accrueInfo.feesEarned = accrueInfo.feesEarned.add(feeAmount);
         userBorrowPart[msg.sender] = userBorrowPart[msg.sender].add(part);
 
         // As long as there are tokens on this contract you can 'mint'... this enables limiting borrows
