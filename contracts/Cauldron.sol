@@ -241,7 +241,7 @@ contract Cauldron is BoringOwnable, IMasterContract {
     function _borrow(address to, uint256 amount) internal returns (uint256 part, uint256 share) {
         uint256 feeAmount = amount.mul(BORROW_OPENING_FEE) / BORROW_OPENING_FEE_PRECISION; // A flat % fee is charged for any borrow
         (totalBorrow, part) = totalBorrow.add(amount.add(feeAmount), true);
-        accrueInfo.feesEarned = accrueInfo.feesEarned.add(feeAmount);
+        accrueInfo.feesEarned = accrueInfo.feesEarned.add(uint128(feeAmount));
         userBorrowPart[msg.sender] = userBorrowPart[msg.sender].add(part);
 
         // As long as there are tokens on this contract you can 'mint'... this enables limiting borrows
