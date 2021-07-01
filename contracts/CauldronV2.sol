@@ -97,6 +97,9 @@ contract CauldronV2 is BoringOwnable, IMasterContract {
     uint256 public constant BORROW_OPENING_FEE;
     uint256 private constant BORROW_OPENING_FEE_PRECISION = 1e5;
 
+    uint256 private constant DISTRIBUTION_PART = 10;
+    uint256 private constant DISTRIBUTION_PRECISION = 100;
+
     /// @notice The constructor is only used for the initial master contract. Subsequent clones are initialised via `init`.
     constructor(IBentoBoxV1 bentoBox_, IERC20 magicInternetMoney_) public {
         bentoBox = bentoBox_;
@@ -500,6 +503,14 @@ contract CauldronV2 is BoringOwnable, IMasterContract {
         _totalBorrow.base = _totalBorrow.base.sub(allBorrowPart.to128());
         totalBorrow = _totalBorrow;
         totalCollateralShare = totalCollateralShare.sub(allCollateralShare);
+
+        // Apply a percentual fee share to sSpell holders
+        allBorrowAmount = allBorrowAmount.add((allBorrowAmount.mul(LIQUIDATION_MULTIPLIER) / LIQUIDATION_MULTIPLIER_PRECISION).sub(allBorrowAmount).mul(DISTRIBUTION_PART) / DISTRIBUTION_PRECISION);
+        
+        {
+            uint256 distributionAmount = amount.mul(DISTRIBUTION_PART) / DISTRIBUTION_PRECISION; // Distribution Amount
+            accrueInfo.feesEarned = accrueInfo.feesEarned.add(uint128(distributionAmount));
+        }
 
         uint256 allBorrowShare = bentoBox.toShare(magicInternetMoney, allBorrowAmount, true);
 
