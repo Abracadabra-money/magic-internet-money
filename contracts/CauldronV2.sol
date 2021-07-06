@@ -505,11 +505,11 @@ contract CauldronV2 is BoringOwnable, IMasterContract {
         totalCollateralShare = totalCollateralShare.sub(allCollateralShare);
 
         // Apply a percentual fee share to sSpell holders
-        allBorrowAmount = allBorrowAmount.add((allBorrowAmount.mul(LIQUIDATION_MULTIPLIER) / LIQUIDATION_MULTIPLIER_PRECISION).sub(allBorrowAmount).mul(DISTRIBUTION_PART) / DISTRIBUTION_PRECISION);
         
         {
-            uint256 distributionAmount = amount.mul(DISTRIBUTION_PART) / DISTRIBUTION_PRECISION; // Distribution Amount
-            accrueInfo.feesEarned = accrueInfo.feesEarned.add(uint128(distributionAmount));
+            uint256 distributionAmount = (allBorrowAmount.mul(LIQUIDATION_MULTIPLIER) / LIQUIDATION_MULTIPLIER_PRECISION).sub(allBorrowAmount).mul(DISTRIBUTION_PART) / DISTRIBUTION_PRECISION; // Distribution Amount
+            allBorrowAmount = allBorrowAmount.add(distributionAmount);
+            accrueInfo.feesEarned = accrueInfo.feesEarned.add(distributionAmount.to128());
         }
 
         uint256 allBorrowShare = bentoBox.toShare(magicInternetMoney, allBorrowAmount, true);
