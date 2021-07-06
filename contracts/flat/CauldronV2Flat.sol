@@ -843,7 +843,7 @@ pragma experimental ABIEncoderV2;
 /// @title Cauldron
 /// @dev This contract allows contract calls to any contract (except BentoBox)
 /// from arbitrary callers thus, don't trust calls from this contract in any circumstances.
-contract CauldronV2FTM is BoringOwnable, IMasterContract {
+contract CauldronV2Flat is BoringOwnable, IMasterContract {
     using BoringMath for uint256;
     using BoringMath128 for uint128;
     using RebaseLibrary for Rebase;
@@ -860,7 +860,7 @@ contract CauldronV2FTM is BoringOwnable, IMasterContract {
 
     // Immutables (for MasterContract and all clones)
     IBentoBoxV1 public immutable bentoBox;
-    CauldronV2FTM public immutable masterContract;
+    CauldronV2 public immutable masterContract;
     IERC20 public immutable magicInternetMoney;
 
     // MasterContract variables
@@ -901,8 +901,11 @@ contract CauldronV2FTM is BoringOwnable, IMasterContract {
     uint256 public LIQUIDATION_MULTIPLIER; 
     uint256 private constant LIQUIDATION_MULTIPLIER_PRECISION = 1e5;
 
-    uint256 private constant BORROW_OPENING_FEE = 50; // 0.05%
+    uint256 public constant BORROW_OPENING_FEE;
     uint256 private constant BORROW_OPENING_FEE_PRECISION = 1e5;
+
+    uint256 private constant DISTRIBUTION_PART = 10;
+    uint256 private constant DISTRIBUTION_PRECISION = 100;
 
     /// @notice The constructor is only used for the initial master contract. Subsequent clones are initialised via `init`.
     constructor(IBentoBoxV1 bentoBox_, IERC20 magicInternetMoney_) public {
@@ -915,7 +918,7 @@ contract CauldronV2FTM is BoringOwnable, IMasterContract {
     /// @dev `data` is abi encoded in the format: (IERC20 collateral, IERC20 asset, IOracle oracle, bytes oracleData)
     function init(bytes calldata data) public payable override {
         require(address(collateral) == address(0), "Cauldron: already initialized");
-        (collateral, oracle, oracleData, accrueInfo.INTEREST_PER_SECOND, LIQUIDATION_MULTIPLIER, COLLATERIZATION_RATE) = abi.decode(data, (IERC20, IOracle, bytes, uint64, uint256, uint256));
+        (collateral, oracle, oracleData, accrueInfo.INTEREST_PER_SECOND, LIQUIDATION_MULTIPLIER, COLLATERIZATION_RATE, BORROW_OPENING_FEE) = abi.decode(data, (IERC20, IOracle, bytes, uint64, uint256, uint256, uint256));
         require(address(collateral) != address(0), "Cauldron: bad pair");
     }
 
@@ -1307,6 +1310,14 @@ contract CauldronV2FTM is BoringOwnable, IMasterContract {
         _totalBorrow.base = _totalBorrow.base.sub(allBorrowPart.to128());
         totalBorrow = _totalBorrow;
         totalCollateralShare = totalCollateralShare.sub(allCollateralShare);
+
+        // Apply a percentual fee share to sSpell holders
+        
+        {
+            uint256 distributionAmount = (allBorrowAmount.mul(LIQUIDATION_MULTIPLIER) / LIQUIDATION_MULTIPLIER_PRECISION).sub(allBorrowAmount).mul(DISTRIBUTION_PART) / DISTRIBUTION_PRECISION; // Distribution Amount
+            allBorrowAmount = allBorrowAmount.add(distributionAmount);
+            accrueInfo.feesEarned = accrueInfo.feesEarned.add(distributionAmount.to128());
+        }
 
         uint256 allBorrowShare = bentoBox.toShare(magicInternetMoney, allBorrowAmount, true);
 
