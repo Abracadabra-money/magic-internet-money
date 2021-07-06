@@ -44,9 +44,9 @@ contract YVUSDTSwapper is ISwapper {
         uint256 shareFrom
     ) public override returns (uint256 extraShare, uint256 shareReturned) {
 
-        (uint256 amountFrom, ) = bentoBox.withdraw(fromToken, address(this), address(this), 0, shareFrom);
+        bentoBox.withdraw(fromToken, address(this), address(this), 0, shareFrom);
 
-        TETHER_VAULT.withdraw();
+        uint256 amountFrom =TETHER_VAULT.withdraw();
 
         uint256 amountTo = MIM3POOL.exchange_underlying(3, 0, amountFrom, 0, address(bentoBox));
 
