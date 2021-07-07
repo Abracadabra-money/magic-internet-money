@@ -472,7 +472,7 @@ contract FTMSwapperV1 is ISwapper {
         uint256 shareFrom
     ) public override returns (uint256 extraShare, uint256 shareReturned) {
 
-        (uint256 amountFrom,) = bentoBox.withdraw(fromToken, address(this), address(this), 0, shareFrom);
+        (uint256 amountFrom,) = bentoBox.withdraw(fromToken, address(this), address(pair), 0, shareFrom);
 
         (uint256 reserve0, uint256 reserve1, ) = pair.getReserves();
         

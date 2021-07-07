@@ -452,7 +452,7 @@ contract YVWETHSwapperFlat is ISwapper {
 
     CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
     TetherToken public constant TETHER = TetherToken(0xdAC17F958D2ee523a2206206994597C13D831ec7); 
-    YearnVault public constant WETH_VAULT = YearnVault(0xa9fE4601811213c340e850ea305481afF02f5b28);
+    YearnVault public constant WETH_VAULT = YearnVault(0xa258C4606Ca8206D8aA700cE2143D7db854D168c);
     IUniswapV2Pair constant pair = IUniswapV2Pair(0x06da0fd433C1A5d7a4faa01111c044910A184553);
 
     constructor(
