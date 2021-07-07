@@ -836,7 +836,6 @@ interface ISwapper {
 // @burger_crypto - for the idea of trying to let the LPs benefit from liquidations
 
 pragma solidity 0.6.12;
-pragma experimental ABIEncoderV2;
 // solhint-disable avoid-low-level-calls
 // solhint-disable no-inline-assembly
 
@@ -860,7 +859,7 @@ contract CauldronV2Flat is BoringOwnable, IMasterContract {
 
     // Immutables (for MasterContract and all clones)
     IBentoBoxV1 public immutable bentoBox;
-    CauldronV2 public immutable masterContract;
+    CauldronV2Flat public immutable masterContract;
     IERC20 public immutable magicInternetMoney;
 
     // MasterContract variables
@@ -901,7 +900,7 @@ contract CauldronV2Flat is BoringOwnable, IMasterContract {
     uint256 public LIQUIDATION_MULTIPLIER; 
     uint256 private constant LIQUIDATION_MULTIPLIER_PRECISION = 1e5;
 
-    uint256 public constant BORROW_OPENING_FEE;
+    uint256 public BORROW_OPENING_FEE;
     uint256 private constant BORROW_OPENING_FEE_PRECISION = 1e5;
 
     uint256 private constant DISTRIBUTION_PART = 10;

@@ -94,7 +94,7 @@ contract CauldronV2 is BoringOwnable, IMasterContract {
     uint256 public LIQUIDATION_MULTIPLIER; 
     uint256 private constant LIQUIDATION_MULTIPLIER_PRECISION = 1e5;
 
-    uint256 public constant BORROW_OPENING_FEE;
+    uint256 public BORROW_OPENING_FEE;
     uint256 private constant BORROW_OPENING_FEE_PRECISION = 1e5;
 
     uint256 private constant DISTRIBUTION_PART = 10;
