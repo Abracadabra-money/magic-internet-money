@@ -26,6 +26,7 @@ contract YVIronBankOracle is IOracle {
     /**
      * @dev Returns the smallest of two numbers.
      */
+    // FROM: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/6d97f0919547df11be9443b54af2d90631eaa733/contracts/utils/math/Math.sol
     function min(uint256 a, uint256 b) internal pure returns (uint256) {
         return a < b ? a : b;
     }
@@ -34,7 +35,8 @@ contract YVIronBankOracle is IOracle {
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get() internal view returns (uint256) {
 
-        uint256 minStable = min(DAI.latestAnswer(), min(USDC.latestAnswer(), USDT.latestAnswer()));
+        // As the price should never be negative, the unchecked conversion is acceptable
+        uint256 minStable = min(uint256(DAI.latestAnswer()), min(uint256(USDC.latestAnswer()), uint256(USDT.latestAnswer())));
 
         uint256 yVCurvePrice = IronBank.get_virtual_price() * minStable * YVIB.pricePerShare();
 
@@ -43,29 +45,29 @@ contract YVIronBankOracle is IOracle {
 
     // Get the latest exchange rate
     /// @inheritdoc IOracle
-    function get(bytes) public override returns (bool, uint256) {
+    function get(bytes calldata) public view override returns (bool, uint256) {
         return (true, _get());
     }
 
     // Check the last exchange rate without any state changes
     /// @inheritdoc IOracle
-    function peek(bytes) public view override returns (bool, uint256) {
+    function peek(bytes calldata) public view override returns (bool, uint256) {
         return (true, _get());
     }
 
     // Check the current spot exchange rate without any state changes
     /// @inheritdoc IOracle
-    function peekSpot(bytes data) external view override returns (uint256 rate) {
+    function peekSpot(bytes calldata data) external view override returns (uint256 rate) {
         (, rate) = peek(data);
     }
 
     /// @inheritdoc IOracle
-    function name(bytes calldata) public view override returns (string memory) {
+    function name(bytes calldata) public pure override returns (string memory) {
         return "Yearn Chainlink Curve IronBank";
     }
 
     /// @inheritdoc IOracle
-    function symbol(bytes calldata) public view override returns (string memory) {
+    function symbol(bytes calldata) public pure override returns (string memory) {
         return "LINK/yvIB";
     }
 }
