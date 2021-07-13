@@ -36,7 +36,7 @@ import "./interfaces/ISwapper.sol";
 /// @title Cauldron
 /// @dev This contract allows contract calls to any contract (except BentoBox)
 /// from arbitrary callers thus, don't trust calls from this contract in any circumstances.
-contract Cauldron is BoringOwnable, IMasterContract {
+contract CauldronV2 is BoringOwnable, IMasterContract {
     using BoringMath for uint256;
     using BoringMath128 for uint128;
     using RebaseLibrary for Rebase;
@@ -53,7 +53,7 @@ contract Cauldron is BoringOwnable, IMasterContract {
 
     // Immutables (for MasterContract and all clones)
     IBentoBoxV1 public immutable bentoBox;
-    Cauldron public immutable masterContract;
+    CauldronV2 public immutable masterContract;
     IERC20 public immutable magicInternetMoney;
 
     // MasterContract variables
@@ -80,23 +80,25 @@ contract Cauldron is BoringOwnable, IMasterContract {
     struct AccrueInfo {
         uint64 lastAccrued;
         uint128 feesEarned;
+        uint64 INTEREST_PER_SECOND;
     }
 
     AccrueInfo public accrueInfo;
 
     // Settings
-    uint256 private constant INTEREST_PER_SECOND = 317097920;
-
-    uint256 private constant COLLATERIZATION_RATE = 75000; // 75%
+    uint256 public COLLATERIZATION_RATE;
     uint256 private constant COLLATERIZATION_RATE_PRECISION = 1e5; // Must be less than EXCHANGE_RATE_PRECISION (due to optimization in math)
 
     uint256 private constant EXCHANGE_RATE_PRECISION = 1e18;
 
-    uint256 private constant LIQUIDATION_MULTIPLIER = 112000; // add 12%
+    uint256 public LIQUIDATION_MULTIPLIER; 
     uint256 private constant LIQUIDATION_MULTIPLIER_PRECISION = 1e5;
 
-    uint256 private constant BORROW_OPENING_FEE = 50; // 0.05%
+    uint256 public BORROW_OPENING_FEE;
     uint256 private constant BORROW_OPENING_FEE_PRECISION = 1e5;
+
+    uint256 private constant DISTRIBUTION_PART = 10;
+    uint256 private constant DISTRIBUTION_PRECISION = 100;
 
     /// @notice The constructor is only used for the initial master contract. Subsequent clones are initialised via `init`.
     constructor(IBentoBoxV1 bentoBox_, IERC20 magicInternetMoney_) public {
@@ -109,7 +111,7 @@ contract Cauldron is BoringOwnable, IMasterContract {
     /// @dev `data` is abi encoded in the format: (IERC20 collateral, IERC20 asset, IOracle oracle, bytes oracleData)
     function init(bytes calldata data) public payable override {
         require(address(collateral) == address(0), "Cauldron: already initialized");
-        (collateral, oracle, oracleData) = abi.decode(data, (IERC20, IOracle, bytes));
+        (collateral, oracle, oracleData, accrueInfo.INTEREST_PER_SECOND, LIQUIDATION_MULTIPLIER, COLLATERIZATION_RATE, BORROW_OPENING_FEE) = abi.decode(data, (IERC20, IOracle, bytes, uint64, uint256, uint256, uint256));
         require(address(collateral) != address(0), "Cauldron: bad pair");
     }
 
@@ -130,7 +132,7 @@ contract Cauldron is BoringOwnable, IMasterContract {
         }
 
         // Accrue interest
-        uint128 extraAmount = (uint256(_totalBorrow.elastic).mul(INTEREST_PER_SECOND).mul(elapsedTime) / 1e18).to128();
+        uint128 extraAmount = (uint256(_totalBorrow.elastic).mul(_accrueInfo.INTEREST_PER_SECOND).mul(elapsedTime) / 1e18).to128();
         _totalBorrow.elastic = _totalBorrow.elastic.add(extraAmount);
 
         _accrueInfo.feesEarned = _accrueInfo.feesEarned.add(extraAmount);
@@ -501,6 +503,14 @@ contract Cauldron is BoringOwnable, IMasterContract {
         _totalBorrow.base = _totalBorrow.base.sub(allBorrowPart.to128());
         totalBorrow = _totalBorrow;
         totalCollateralShare = totalCollateralShare.sub(allCollateralShare);
+
+        // Apply a percentual fee share to sSpell holders
+        
+        {
+            uint256 distributionAmount = (allBorrowAmount.mul(LIQUIDATION_MULTIPLIER) / LIQUIDATION_MULTIPLIER_PRECISION).sub(allBorrowAmount).mul(DISTRIBUTION_PART) / DISTRIBUTION_PRECISION; // Distribution Amount
+            allBorrowAmount = allBorrowAmount.add(distributionAmount);
+            accrueInfo.feesEarned = accrueInfo.feesEarned.add(distributionAmount.to128());
+        }
 
         uint256 allBorrowShare = bentoBox.toShare(magicInternetMoney, allBorrowAmount, true);
 
