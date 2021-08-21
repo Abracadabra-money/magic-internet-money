@@ -23,7 +23,7 @@ contract wOHMOracle is IOracle {
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get() internal view returns (uint256) {
-        return 1e53 / WOHM.sOHMTowOHM(uint256(ohmOracle.latestAnswer()).mul(uint256(ethUSDOracle.latestAnswer())));
+        return 1e44 / (uint256(1e18).mul(uint256(ohmOracle.latestAnswer()).mul(uint256(ethUSDOracle.latestAnswer()))) / WOHM.sOHMTowOHM(1e9));
     }
 
     // Get the latest exchange rate
