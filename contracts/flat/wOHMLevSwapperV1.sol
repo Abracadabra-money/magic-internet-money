@@ -403,18 +403,20 @@ interface CurvePool {
 interface IWOHM is IERC20 {
     function wrap( uint _amount ) external returns ( uint );
     function unwrap( uint _amount ) external returns ( uint );
+    function transfer(address _to, uint256 _value) external returns (bool success);
 }
 
 interface IStakingManager {
     function unstake( uint _amount, bool _trigger ) external;
     function stake( uint _amount, address _recipient ) external returns ( bool );
+    function claim ( address _recipient ) external;
 }
 
 contract wOHMLevSwapperV1 {
     using BoringMath for uint256;
 
     // Local variables
-    IBentoBoxV1 public immutable bentoBox = IBentoBoxV1(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);
+    IBentoBoxV1 public constant bentoBox = IBentoBoxV1(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);
     CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
     IUniswapV2Pair constant OHM_DAI = IUniswapV2Pair(0x34d7d7Aaf50AD4944B70B320aCB24C95fa2def7c);
     IERC20 public constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);
@@ -470,14 +472,17 @@ contract wOHMLevSwapperV1 {
 
         (uint256 reserve0, uint256 reserve1, ) = OHM_DAI.getReserves();
         amountIntermediate = getAmountOut(amountFirst, reserve1, reserve0);
-
         }
         
         OHM_DAI.swap(amountIntermediate, 0, address(this), new bytes(0));
 
         STAKING_MANAGER.stake(amountIntermediate, address(this));
 
+        STAKING_MANAGER.claim(address(this));
+
         uint256 amountTo = WOHM.wrap(amountIntermediate);
+
+        WOHM.transfer(address(bentoBox), amountTo);
 
         (, shareReturned) = bentoBox.deposit(WOHM, address(bentoBox), recipient, amountTo, 0);
         extraShare = shareReturned.sub(shareToMin);

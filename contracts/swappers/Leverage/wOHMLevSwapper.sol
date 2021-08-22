@@ -12,11 +12,13 @@ interface CurvePool {
 interface IWOHM is IERC20 {
     function wrap( uint _amount ) external returns ( uint );
     function unwrap( uint _amount ) external returns ( uint );
+    function transfer(address _to, uint256 _value) external returns (bool success);
 }
 
 interface IStakingManager {
     function unstake( uint _amount, bool _trigger ) external;
     function stake( uint _amount, address _recipient ) external returns ( bool );
+    function claim ( address _recipient ) external;
 }
 
 contract wOHMLevSwapper {
@@ -79,14 +81,17 @@ contract wOHMLevSwapper {
 
         (uint256 reserve0, uint256 reserve1, ) = OHM_DAI.getReserves();
         amountIntermediate = getAmountOut(amountFirst, reserve1, reserve0);
-
         }
         
         OHM_DAI.swap(amountIntermediate, 0, address(this), new bytes(0));
 
         STAKING_MANAGER.stake(amountIntermediate, address(this));
 
+        STAKING_MANAGER.claim(address(this));
+
         uint256 amountTo = WOHM.wrap(amountIntermediate);
+
+        WOHM.transfer(address(bentoBox), amountTo);
 
         (, shareReturned) = bentoBox.deposit(WOHM, address(bentoBox), recipient, amountTo, 0);
         extraShare = shareReturned.sub(shareToMin);
