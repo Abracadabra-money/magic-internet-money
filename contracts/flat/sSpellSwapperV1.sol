@@ -441,6 +441,11 @@ interface IsSpell {
     function burn(address to, uint256 shares) external returns (bool);
 }
 
+interface ISpell is IERC20 {
+    function transfer(address _to, uint256 _value) external returns (bool success);
+}
+
+
 interface TetherToken {
     function approve(address _spender, uint256 _value) external;
 }
@@ -453,7 +458,7 @@ contract SSpellSwapperV1 is ISwapper {
     CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
     TetherToken public constant TETHER = TetherToken(0xdAC17F958D2ee523a2206206994597C13D831ec7);    
     IsSpell public constant sSpell = IsSpell(0x26FA3fFFB6EfE8c1E69103aCb4044C26B9A106a9);
-    IERC20 public constant SPELL = IERC20(0x090185f2135308BaD17527004364eBcC2D37e5F6);
+    ISpell public constant SPELL = ISpell(0x090185f2135308BaD17527004364eBcC2D37e5F6);
     IUniswapV2Pair constant SPELL_ETH = IUniswapV2Pair(0xb5De0C3753b6E1B4dBA616Db82767F17513E6d4E);
     IUniswapV2Pair constant pair = IUniswapV2Pair(0x06da0fd433C1A5d7a4faa01111c044910A184553);
 
@@ -499,14 +504,16 @@ contract SSpellSwapperV1 is ISwapper {
 
         (uint256 amountSSpellFrom, ) = bentoBox.withdraw(fromToken, address(this), address(this), 0, shareFrom);
 
-        sSpell.burn(address(SPELL_ETH), amountSSpellFrom);
+        sSpell.burn(address(this), amountSSpellFrom);
 
         }
         uint256 amountFirst;
 
         {
 
-        uint256 amountFrom = SPELL.balanceOf(address(SPELL_ETH));
+        uint256 amountFrom = SPELL.balanceOf(address(this));
+
+        SPELL.transfer(address(SPELL_ETH), amountFrom);
 
         (uint256 reserve0, uint256 reserve1, ) = SPELL_ETH.getReserves();
         
