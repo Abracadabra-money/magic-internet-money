@@ -841,7 +841,7 @@ pragma experimental ABIEncoderV2;
 /// @title Cauldron
 /// @dev This contract allows contract calls to any contract (except BentoBox)
 /// from arbitrary callers thus, don't trust calls from this contract in any circumstances.
-contract CauldronV2FTM is BoringOwnable, IMasterContract {
+contract CauldronV2Multichain is BoringOwnable, IMasterContract {
     using BoringMath for uint256;
     using BoringMath128 for uint128;
     using RebaseLibrary for Rebase;
@@ -858,7 +858,7 @@ contract CauldronV2FTM is BoringOwnable, IMasterContract {
 
     // Immutables (for MasterContract and all clones)
     IBentoBoxV1 public immutable bentoBox;
-    CauldronV2FTM public immutable masterContract;
+    CauldronV2Multichain public immutable masterContract;
     IERC20 public immutable magicInternetMoney;
 
     // MasterContract variables
