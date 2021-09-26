@@ -23,10 +23,11 @@ module.exports = async function (hre) {
     if (chainId == "31337" || hre.network.config.forking) {
         return
     }
+    /*
     if (!weth(chainId)) {
         console.log("No WETH address for chain", chainId)
         return
-    }
+    } */
     console.log("Chain:", chainId)
     console.log("Balance:", (await funder.getBalance()).div("1000000000000000000").toString())
     const deployerBalance = await deployer.getBalance()
@@ -38,12 +39,12 @@ module.exports = async function (hre) {
 
     let gasPrice = await funder.provider.getGasPrice()
     if (chainId == 1) {
-        gasPrice = gasPrice.add("20000000000")
+        gasPrice = gasPrice.add("40000000000")
     }
     let multiplier = hre.network.tags && hre.network.tags.staging ? 2 : 1
-    let finalGasPrice = gasPrice.mul(multiplier)
+    let finalGasPrice = gasPrice //.mul(multiplier)
 
-    const gasLimit = 5000000 + 5500000 + 5500000 + 1000000 + 300000 - 2500000
+    const gasLimit = 5000000
     //gasLimit = 5700000
     if (chainId == "88" || chainId == "89") {
         finalGasPrice = getBigNumber("10000", 9)
@@ -60,8 +61,25 @@ module.exports = async function (hre) {
     console.log("InitCodeHash is", initCodeHash)
     */
 
-    console.log("Deployer balance", deployerBalance.toString())
-    console.log("Needed", finalGasPrice.mul(gasLimit).toString(), finalGasPrice.toString(), gasLimit.toString())
+    console.log("Deployer balance", deployerBalance.toString(), deployer.address)
+    console.log("Needed", finalGasPrice.mul(gasLimit).toString(), finalGasPrice.toString(), gasLimit.toString(), deployerBalance.lt(finalGasPrice.mul(gasLimit)))
+    //console.log("Deploying Cauldron Medium Risk contract, using BentoBox and MIM", bentobox.address, mim.address)
+    tx = await hre.deployments.deploy("ThreeCryptoLevSwapper", {
+        from: deployer.address,
+        args: [],
+        log: true,
+        deterministicDeployment: false,
+        gasLimit: 1200000,
+        gasPrice: finalGasPrice,
+    })
+    tx = await hre.deployments.deploy("ThreeCryptoSwapper", {
+        from: deployer.address,
+        args: [],
+        log: true,
+        deterministicDeployment: false,
+        gasLimit: 1200000,
+        gasPrice: finalGasPrice,
+    })
     /*
     if (deployerBalance.lt(finalGasPrice.mul(gasLimit))) {
         console.log("Sending native token to fund deployment:", finalGasPrice.mul(gasLimit).sub(deployerBalance).toString())
@@ -85,12 +103,69 @@ module.exports = async function (hre) {
     })
     */
 
-    const mim = (await hre.ethers.getContractFactory("MagicInternetMoneyV1")).attach((await deployments.get("MagicInternetMoneyV1")).address)
+    //const mim = (await hre.ethers.getContractFactory("MagicInternetMoneyV1")).attach((await deployments.get("MagicInternetMoneyV1")).address)
 
-    const spell = (await hre.ethers.getContractFactory("SpellV1")).attach("0x090185f2135308BaD17527004364eBcC2D37e5F6")
+    //const spell = (await hre.ethers.getContractFactory("SpellV1")).attach("0x090185f2135308BaD17527004364eBcC2D37e5F6")
 
-    const bentobox = (await hre.ethers.getContractFactory("BentoBoxV1")).attach("0xF5BCE5077908a1b7370B9ae04AdC565EBd643966")
+    //const bentobox = (await hre.ethers.getContractFactory("BentoBoxV1")).attach("0xF5BCE5077908a1b7370B9ae04AdC565EBd643966")
 
+    //console.log("Deploying Cauldron Medium Risk contract, using BentoBox and MIM", bentobox.address, mim.address)
+    /*tx = await hre.deployments.deploy("KashiPairMediumRiskV2", {
+        from: deployer.address,
+        args: ["0x74A0BcA2eeEdf8883cb91E37e9ff49430f20a616"],
+        log: true,
+        deterministicDeployment: false,
+        gasLimit: 5500000,
+        gasPrice: finalGasPrice,
+    }) */
+    /*
+    tx = await hre.deployments.deploy("CauldronV2Multichain", {
+        from: deployer.address,
+        args: ["0x74c764D41B77DBbb4fe771daB1939B00b146894A", "0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a"],
+        log: true,
+        deterministicDeployment: false,
+        // gasLimit: 5000000,
+        // gasPrice: finalGasPrice,
+    })
+
+    /*
+    console.log("Deploying Cauldron Checkpoint contract, using BentoBox and MIM", bentobox.address, mim.address)
+    tx = await hre.deployments.deploy("CauldronV2CheckpointV1", {
+        from: deployer.address,
+        args: [bentobox.address, mim.address],
+        log: true,
+        deterministicDeployment: false,
+        gasLimit: 5500000,
+        gasPrice: finalGasPrice,
+    })
+    console.log("Deploying ThreeCrvOracleV1 contract")
+    tx = await hre.deployments.deploy("ThreeCrvOracleV1", {
+        from: deployer.address,
+        args: [],
+        log: true,
+        deterministicDeployment: false,
+        gasLimit: 1000000,
+        gasPrice: finalGasPrice,
+    })
+    console.log("Deploying ThreeCrvLevSwapperV1 contract")
+    tx = await hre.deployments.deploy("ThreeCrvLevSwapperV1", {
+        from: deployer.address,
+        args: [],
+        log: true,
+        deterministicDeployment: false,
+        gasLimit: 1000000,
+        gasPrice: finalGasPrice,
+    })
+    console.log("Deploying ThreeCrvSwapperV1 contract")
+    tx = await hre.deployments.deploy("ThreeCrvSwapperV1", {
+        from: deployer.address,
+        args: [],
+        log: true,
+        deterministicDeployment: false,
+        gasLimit: 1000000,
+        gasPrice: finalGasPrice,
+    })
+    */
     /*
     console.log("Deploying sSpell contract, using Spell", spell.address)
     tx = await hre.deployments.deploy("sSpellV1", {
@@ -101,16 +176,6 @@ module.exports = async function (hre) {
         gasLimit: 2500000,
         gasPrice: finalGasPrice,
     }) 
-
-    console.log("Deploying Cauldron Medium Risk contract, using BentoBox and MIM", bentobox.address, mim.address)
-    tx = await hre.deployments.deploy("CauldronMediumRiskV1", {
-        from: deployer.address,
-        args: [bentobox.address, mim.address],
-        log: true,
-        deterministicDeployment: false,
-        gasLimit: 5500000,
-        gasPrice: finalGasPrice,
-    })
     
 
     console.log("Deploying Cauldron Low Risk contract, using BentoBox and MIM", bentobox.address, mim.address)
@@ -143,17 +208,18 @@ module.exports = async function (hre) {
         gasPrice: finalGasPrice,
     }) */
     
-    const mediumRisk = (await hre.ethers.getContractFactory("CauldronMediumRiskV1")).attach(
-        (await deployments.get("CauldronMediumRiskV1")).address
+    /*
+    const mediumRisk = (await hre.ethers.getContractFactory("CauldronV2Multichain")).attach(
+        (await deployments.get("CauldronV2Multichain")).address
     )
 
-    console.log("Update mediumRisk Owner")
-    tx = await mediumRisk.connect(deployer).transferOwnership(mimOwner, true, false, {
-        gasLimit: 100000,
-        gasPrice: finalGasPrice,
+    console.log("Update multichain Owner")
+    tx = await mediumRisk.connect(deployer).transferOwnership("0xfddfE525054efaAD204600d00CA86ADb1Cc2ea8a", true, false, {
+        //gasLimit: 100000,
+        //gasPrice: finalGasPrice,
     })
-    await tx.wait()
-
+    await tx.wait() */
+    /*
     const lowRisk = (await hre.ethers.getContractFactory("CauldronLowRiskV1")).attach(
         (await deployments.get("CauldronLowRiskV1")).address
     )
@@ -164,6 +230,8 @@ module.exports = async function (hre) {
         gasPrice: finalGasPrice,
     })
     await tx.wait()
+
+    */
     
     /*
     console.log("Update mim Owner")
