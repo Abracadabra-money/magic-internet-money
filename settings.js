@@ -6,6 +6,15 @@ module.exports = {
             },
         },
         networks: {
+            arbitrum: {
+                chainId: 42161, 
+                url: "https://arb1.arbitrum.io/rpc",
+                nativeCurrency: {
+                    name: "Ether",
+                    symbol: "AETH",
+                    decimals: 18
+                  },
+            },
             hardhat: {
                 forking: {
                     blockNumber: 13067830,
@@ -13,9 +22,65 @@ module.exports = {
                 }
             }
         },
+        etherscan: { 
+            // Your API key for Etherscan
+            // Obtain one at https://etherscan.io/
+            apiKey: process.env.FANTOM
+            ? "NYV3ID81T6ACKPJKUZRZVRXUD34MJHPXGI" : "3SMTGB6TYXG2A5AD26CAP1TIDF238JZ98S"
+        },
         solidity: {
+            compilers: [
+                {
+                    version: "0.6.12",
+                },
+                {
+                    version: "0.8.4",
+                },
+                {
+                    version: "0.8.7",
+                },
+                {
+                    version: "0.7.6",
+                },
+            ],
             overrides: {
-                "contracts/flat/SpellPower.sol": {
+                "contracts/oracle/AGLDUniV3ChainlinkOracle.sol": {
+                    version: "0.7.6",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 9000,
+                        },
+                    },
+                },
+                "@uniswap/v3-core/contracts/libraries/FullMath.sol": {
+                    version: "0.7.6",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 9000,
+                        },
+                    },
+                },
+                "@uniswap/v3-core/contracts/libraries/TickMath.sol": {
+                    version: "0.7.6",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 9000,
+                        },
+                    },
+                },
+                "@uniswap/v3-periphery/contracts/libraries/PoolAddress.sol": {
+                    version: "0.7.6",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 9000,
+                        },
+                    },
+                },
+                "contracts/SpellPower.sol": {
                     version: "0.8.6",
                     settings: {
                         optimizer: {
@@ -39,6 +104,24 @@ module.exports = {
                         optimizer: {
                             enabled: true,
                             runs: 1,
+                        },
+                    },
+                },
+                "contracts/flat/KashiPairMediumRiskV2.sol": {
+                    version: "0.6.12",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 350,
+                        },
+                    },
+                },
+                "contracts/flat/CauldronV2Multichain.sol": {
+                    version: "0.6.12",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 350,
                         },
                     },
                 },
@@ -93,6 +176,15 @@ module.exports = {
                         optimizer: {
                             enabled: true,
                             runs: 999999,
+                        },
+                    },
+                },
+                "contracts/flat/CauldronV2CheckpointV1.sol": {
+                    version: "0.6.12",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 350,
                         },
                     },
                 },

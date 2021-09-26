@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/flat/3CrvOracleV1.sol": {
+      "content": "// SPDX-License-Identifier: MIXED\n\n// File contracts/interfaces/IOracle.sol\n// License-Identifier: MIT\npragma solidity >= 0.6.12;\n\ninterface IOracle {\n    /// @notice Get the latest exchange rate.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return success if no valid (recent) rate is available, return false else true.\n    /// @return rate The rate of the requested asset / pair / pool.\n    function get(bytes calldata data) external returns (bool success, uint256 rate);\n\n    /// @notice Check the last exchange rate without any state changes.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return success if no valid (recent) rate is available, return false else true.\n    /// @return rate The rate of the requested asset / pair / pool.\n    function peek(bytes calldata data) external view returns (bool success, uint256 rate);\n\n    /// @notice Check the current spot exchange rate without any state changes. For oracles like TWAP this will be different from peek().\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return rate The rate of the requested asset / pair / pool.\n    function peekSpot(bytes calldata data) external view returns (uint256 rate);\n\n    /// @notice Returns a human readable (short) name about this oracle.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return (string) A human readable symbol name about this oracle.\n    function symbol(bytes calldata data) external view returns (string memory);\n\n    /// @notice Returns a human readable name about this oracle.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return (string) A human readable name about this oracle.\n    function name(bytes calldata data) external view returns (string memory);\n}\n\n// File contracts/oracles/3CrvOracle.sol\n// License-Identifier: MIT\npragma solidity 0.8.4;\n\n// Chainlink Aggregator\n\ninterface IAggregator {\n    function latestAnswer() external view returns (int256 answer);\n}\n\ninterface IYearnVault {\n    function pricePerShare() external view returns (uint256 price);\n}\n\ninterface ICurvePool {\n    function get_virtual_price() external view returns (uint256 price);\n}\n\ncontract ThreeCrvOracleV1 is IOracle {\n    ICurvePool constant public threecrv = ICurvePool(0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7);\n    IAggregator constant public DAI = IAggregator(0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9);\n    IAggregator constant public USDC = IAggregator(0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6);\n    IAggregator constant public USDT = IAggregator(0x3E7d1eAB13ad0104d2750B8863b489D65364e32D);\n\n    /**\n     * @dev Returns the smallest of two numbers.\n     */\n    // FROM: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/6d97f0919547df11be9443b54af2d90631eaa733/contracts/utils/math/Math.sol\n    function min(uint256 a, uint256 b) internal pure returns (uint256) {\n        return a < b ? a : b;\n    }\n\n    // Calculates the lastest exchange rate\n    // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD\n    function _get() internal view returns (uint256) {\n\n        // As the price should never be negative, the unchecked conversion is acceptable\n        uint256 minStable = min(uint256(DAI.latestAnswer()), min(uint256(USDC.latestAnswer()), uint256(USDT.latestAnswer())));\n\n        uint256 yVCurvePrice = threecrv.get_virtual_price() * minStable;\n\n        return 1e44 / yVCurvePrice;\n    }\n\n    // Get the latest exchange rate\n    /// @inheritdoc IOracle\n    function get(bytes calldata) public view override returns (bool, uint256) {\n        return (true, _get());\n    }\n\n    // Check the last exchange rate without any state changes\n    /// @inheritdoc IOracle\n    function peek(bytes calldata) public view override returns (bool, uint256) {\n        return (true, _get());\n    }\n\n    // Check the current spot exchange rate without any state changes\n    /// @inheritdoc IOracle\n    function peekSpot(bytes calldata data) external view override returns (uint256 rate) {\n        (, rate) = peek(data);\n    }\n\n    /// @inheritdoc IOracle\n    function name(bytes calldata) public pure override returns (string memory) {\n        return \"Chainlink 3Crv\";\n    }\n\n    /// @inheritdoc IOracle\n    function symbol(bytes calldata) public pure override returns (string memory) {\n        return \"LINK/3crv\";\n    }\n}"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

@@ -6,7 +6,9 @@
         "coverage": "hardhat coverage"
     },
     "devDependencies": {
+        "@nomiclabs/hardhat-etherscan": "^2.1.6",
         "@sushiswap/hardhat-framework": "sushiswap/hardhat-framework#44c25f9f9d861e812399a2d5773449b368f31619",
+        "@uniswap/v3-periphery": "^1.2.0",
         "hardhat-contract-sizer": "^2.0.3"
     },
     "dependencies": {

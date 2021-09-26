@@ -425,65 +425,44 @@ interface IBentoBoxV1 {
     function withdraw(IERC20 token_, address from, address to, uint256 amount, uint256 share) external returns (uint256 amountOut, uint256 shareOut);
 }
 
-// File contracts/swappers/YVYFISwapper.sol
+// File contracts/swappers/Liquidations/YVIBSwapper.sol
 // License-Identifier: MIT
 pragma solidity 0.6.12;
 
-
-
-
-
 interface CurvePool {
     function exchange_underlying(int128 i, int128 j, uint256 dx, uint256 min_dy, address receiver) external returns (uint256);
+    function approve(address _spender, uint256 _value) external returns (bool);
+    function remove_liquidity_one_coin(uint256 tokenAmount, int128 i, uint256 min_amount) external;
 }
 
 interface YearnVault {
-    function withdraw(uint256 maxShares, address recipient) external returns (uint256);
+    function withdraw() external returns (uint256);
+    function deposit(uint256 amount, address recipient) external returns (uint256);
 }
-
 interface TetherToken {
     function approve(address _spender, uint256 _value) external;
+    function balanceOf(address user) external view returns (uint256);
 }
 
-contract YVYFISwapperFlat is ISwapper {
-    using BoringMath for uint256;
+interface IConvex is IERC20{
+    function withdrawAndUnwrap(uint256 _amount) external;
+}
+
+contract ThreeCrvSwapperV1 is ISwapper {
+using BoringMath for uint256;
 
     // Local variables
-    IBentoBoxV1 public immutable bentoBox;
+    IBentoBoxV1 public constant bentoBox = IBentoBoxV1(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);
+    
     CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
-    YearnVault public constant YFI_VAULT = YearnVault(0xE14d13d8B3b85aF791b2AADD661cDBd5E6097Db1);
-    TetherToken public constant TETHER = TetherToken(0xdAC17F958D2ee523a2206206994597C13D831ec7);
-    IUniswapV2Pair constant YFI_WETH = IUniswapV2Pair(0x088ee5007C98a9677165D78dD2109AE4a3D04d0C);
-    IUniswapV2Pair constant pair = IUniswapV2Pair(0x06da0fd433C1A5d7a4faa01111c044910A184553);
+    CurvePool constant public threecrv = CurvePool(0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7);
+    IConvex public constant cvx3CRV = IConvex(0xd92494CB921E5C0d3A39eA88d0147bbd82E51008);
+    TetherToken public constant TETHER = TetherToken(0xdAC17F958D2ee523a2206206994597C13D831ec7); 
+    IERC20 public constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);
 
-    constructor(
-        IBentoBoxV1 bentoBox_
-    ) public {
-        bentoBox = bentoBox_;
+    constructor() public {
+        MIM.approve(address(MIM3POOL), type(uint256).max);
         TETHER.approve(address(MIM3POOL), type(uint256).max);
-    }
-
-    // Given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
-    function getAmountOut(
-        uint256 amountIn,
-        uint256 reserveIn,
-        uint256 reserveOut
-    ) internal pure returns (uint256 amountOut) {
-        uint256 amountInWithFee = amountIn.mul(997);
-        uint256 numerator = amountInWithFee.mul(reserveOut);
-        uint256 denominator = reserveIn.mul(1000).add(amountInWithFee);
-        amountOut = numerator / denominator;
-    }
-
-    // Given an output amount of an asset and pair reserves, returns a required input amount of the other asset
-    function getAmountIn(
-        uint256 amountOut,
-        uint256 reserveIn,
-        uint256 reserveOut
-    ) internal pure returns (uint256 amountIn) {
-        uint256 numerator = reserveIn.mul(amountOut).mul(1000);
-        uint256 denominator = reserveOut.sub(amountOut).mul(997);
-        amountIn = (numerator / denominator).add(1);
     }
 
     // Swaps to a flexible amount, from an exact input amount
@@ -496,26 +475,13 @@ contract YVYFISwapperFlat is ISwapper {
         uint256 shareFrom
     ) public override returns (uint256 extraShare, uint256 shareReturned) {
 
-        uint256 amountFirst;
+        (uint256 amountFrom, ) = bentoBox.withdraw(fromToken, address(this), address(this), 0, shareFrom);
 
-        {
+        cvx3CRV.withdrawAndUnwrap(amountFrom);
 
-        bentoBox.withdraw(fromToken, address(this), address(this), 0, shareFrom);
+        threecrv.remove_liquidity_one_coin(amountFrom, 2, 0);
 
-        uint256 amountFrom = YFI_VAULT.withdraw(type(uint256).max, address(YFI_WETH));
-
-        (uint256 reserve0, uint256 reserve1, ) = YFI_WETH.getReserves();
-        
-        amountFirst = getAmountOut(amountFrom, reserve0, reserve1);
-
-        }
-        
-        YFI_WETH.swap(0, amountFirst, address(pair), new bytes(0));
-
-        (uint256 reserve0, uint256 reserve1, ) = pair.getReserves();
-        
-        uint256 amountIntermediate = getAmountOut(amountFirst, reserve0, reserve1);
-        pair.swap(0, amountIntermediate, address(this), new bytes(0));
+        uint256 amountIntermediate = TETHER.balanceOf(address(this));
 
         uint256 amountTo = MIM3POOL.exchange_underlying(3, 0, amountIntermediate, 0, address(bentoBox));
 

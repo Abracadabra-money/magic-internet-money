@@ -20,12 +20,17 @@ interface IBentoBoxV1BalanceAmount {
     function toAmount(IERC20 token, uint256 share, bool roundUp) external view returns (uint256 amount);
 }
 
+interface ICauldron {
+    function userCollateralShare(address user) external view returns(uint256);
+}
+
 contract SpellPower {
-    ISorbettiere sorbettiere = ISorbettiere(0xF43480afE9863da4AcBD4419A47D9Cc7d25A647F);
-    IERC20 pair = IERC20(0x795065dCc9f64b5614C407a6EFDC400DA6221FB0);
-    IERC20 spell = IERC20(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2);
-    IERC20 sspell = IERC20(0xF256CC7847E919FAc9B808cC216cAc87CCF2f47a);
-    IBentoBoxV1BalanceAmount bento = IBentoBoxV1BalanceAmount(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);
+    ISorbettiere public constant sorbettiere = ISorbettiere(0xF43480afE9863da4AcBD4419A47D9Cc7d25A647F);
+    IERC20 public constant pair = IERC20(0xb5De0C3753b6E1B4dBA616Db82767F17513E6d4E);
+    IERC20 public constant spell = IERC20(0x090185f2135308BaD17527004364eBcC2D37e5F6);
+    IERC20 public constant sspell = IERC20(0x26FA3fFFB6EfE8c1E69103aCb4044C26B9A106a9);
+    ICauldron public constant sspellCauldron = ICauldron(0xC319EEa1e792577C319723b5e60a15dA3857E7da);
+    IBentoBoxV1BalanceAmount public constant bento = IBentoBoxV1BalanceAmount(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);
 
     function name() external pure returns (string memory) { return "SPELLPOWER"; }
     function symbol() external pure returns (string memory) { return "SPELLPOWER"; }
@@ -37,7 +42,7 @@ contract SpellPower {
 
     /// @notice Returns SUSHI voting 'powah' for `account`.
     function balanceOf(address account) external view returns (uint256 powah) {
-        uint256 bento_balance = bento.toAmount(sspell, bento.balanceOf(sspell, account), false); // get BENTO sSpell balance 'amount' (not shares)
+        uint256 bento_balance = bento.toAmount(sspell, (bento.balanceOf(sspell, account) + sspellCauldron.userCollateralShare(account)), false); // get BENTO sSpell balance 'amount' (not shares)
         uint256 collective_sSpell_balance = bento_balance +  sspell.balanceOf(account); // get collective sSpell staking balances
         uint256 sSpell_powah = collective_sSpell_balance * spell.balanceOf(address(sspell)) / sspell.totalSupply(); // calculate sSpell weight
         uint256 lp_stakedBalance = sorbettiere.userInfo(0, account).amount; // get LP balance staked in Sorbettiere

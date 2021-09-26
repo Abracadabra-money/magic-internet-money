@@ -3,7 +3,7 @@
 // File @boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol@v1.2.2
 // License-Identifier: MIT
 pragma solidity 0.6.12;
-
+pragma experimental ABIEncoderV2;
 /// @notice A library for performing overflow-/underflow-safe math,
 /// updated with awesomeness from of DappHub (https://github.com/dapphub/ds-math).
 library BoringMath {
