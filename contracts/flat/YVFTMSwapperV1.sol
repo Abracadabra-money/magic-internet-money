@@ -425,43 +425,31 @@ interface IBentoBoxV1 {
     function withdraw(IERC20 token_, address from, address to, uint256 amount, uint256 share) external returns (uint256 amountOut, uint256 shareOut);
 }
 
-// File contracts/swappers/YVYFISwapper.sol
+// File contracts/swappers/Liquidations/FTMSwapper.sol
 // License-Identifier: MIT
 pragma solidity 0.6.12;
 
-
-
-
-
-interface CurvePool {
-    function exchange_underlying(int128 i, int128 j, uint256 dx, uint256 min_dy, address receiver) external returns (uint256);
-}
-
 interface YearnVault {
-    function withdraw(uint256 maxShares, address recipient) external returns (uint256);
+    function withdraw(uint256 amount, address recipient) external returns (uint256);
+    function deposit(uint256 amount, address recipient) external returns (uint256);
 }
 
-interface TetherToken {
-    function approve(address _spender, uint256 _value) external;
-}
-
-contract YVYFISwapperFlat is ISwapper {
+contract YVFTMSwapperV1 is ISwapper {
     using BoringMath for uint256;
 
     // Local variables
-    IBentoBoxV1 public immutable bentoBox;
-    CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
-    YearnVault public constant YFI_VAULT = YearnVault(0xE14d13d8B3b85aF791b2AADD661cDBd5E6097Db1);
-    TetherToken public constant TETHER = TetherToken(0xdAC17F958D2ee523a2206206994597C13D831ec7);
-    IUniswapV2Pair constant YFI_WETH = IUniswapV2Pair(0x088ee5007C98a9677165D78dD2109AE4a3D04d0C);
-    IUniswapV2Pair constant pair = IUniswapV2Pair(0x06da0fd433C1A5d7a4faa01111c044910A184553);
+    IBentoBoxV1 public constant bentoBox = IBentoBoxV1(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);
+    
+    IUniswapV2Pair constant pair = IUniswapV2Pair(0xB32b31DfAfbD53E310390F641C7119b5B9Ea0488);
+    IERC20 constant WFTM = IERC20(0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83);
+    IERC20 public constant MIM = IERC20(0x82f0B8B456c1A451378467398982d4834b6829c1);
+    YearnVault public constant WFTM_VAULT = YearnVault(0x0DEC85e74A92c52b7F708c4B10207D9560CEFaf0);
 
     constructor(
-        IBentoBoxV1 bentoBox_
     ) public {
-        bentoBox = bentoBox_;
-        TETHER.approve(address(MIM3POOL), type(uint256).max);
+        WFTM.approve(address(WFTM_VAULT), type(uint256).max);
     }
+
 
     // Given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
     function getAmountOut(
@@ -496,28 +484,14 @@ contract YVYFISwapperFlat is ISwapper {
         uint256 shareFrom
     ) public override returns (uint256 extraShare, uint256 shareReturned) {
 
-        uint256 amountFirst;
-
-        {
-
         bentoBox.withdraw(fromToken, address(this), address(this), 0, shareFrom);
 
-        uint256 amountFrom = YFI_VAULT.withdraw(type(uint256).max, address(YFI_WETH));
-
-        (uint256 reserve0, uint256 reserve1, ) = YFI_WETH.getReserves();
-        
-        amountFirst = getAmountOut(amountFrom, reserve0, reserve1);
-
-        }
-        
-        YFI_WETH.swap(0, amountFirst, address(pair), new bytes(0));
+        uint256 amountFrom = WFTM_VAULT.withdraw(type(uint256).max, address(pair));
 
         (uint256 reserve0, uint256 reserve1, ) = pair.getReserves();
         
-        uint256 amountIntermediate = getAmountOut(amountFirst, reserve0, reserve1);
-        pair.swap(0, amountIntermediate, address(this), new bytes(0));
-
-        uint256 amountTo = MIM3POOL.exchange_underlying(3, 0, amountIntermediate, 0, address(bentoBox));
+        uint256 amountTo = getAmountOut(amountFrom, reserve0, reserve1);
+        pair.swap(0, amountTo, address(bentoBox), new bytes(0));
 
         (, shareReturned) = bentoBox.deposit(toToken, address(bentoBox), recipient, amountTo, 0);
         extraShare = shareReturned.sub(shareToMin);

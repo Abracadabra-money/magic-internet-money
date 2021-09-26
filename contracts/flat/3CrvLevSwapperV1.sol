@@ -68,85 +68,6 @@ library BoringMath32 {
     }
 }
 
-// File @sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Factory.sol@v1.4.2
-// License-Identifier: GPL-3.0
-
-pragma solidity >=0.5.0;
-
-interface IUniswapV2Factory {
-    event PairCreated(address indexed token0, address indexed token1, address pair, uint);
-
-    function feeTo() external view returns (address);
-    function feeToSetter() external view returns (address);
-    function migrator() external view returns (address);
-
-    function getPair(address tokenA, address tokenB) external view returns (address pair);
-    function allPairs(uint) external view returns (address pair);
-    function allPairsLength() external view returns (uint);
-
-    function createPair(address tokenA, address tokenB) external returns (address pair);
-
-    function setFeeTo(address) external;
-    function setFeeToSetter(address) external;
-    function setMigrator(address) external;
-}
-
-// File @sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol@v1.4.2
-// License-Identifier: GPL-3.0
-
-pragma solidity >=0.5.0;
-
-interface IUniswapV2Pair {
-    event Approval(address indexed owner, address indexed spender, uint value);
-    event Transfer(address indexed from, address indexed to, uint value);
-
-    function name() external pure returns (string memory);
-    function symbol() external pure returns (string memory);
-    function decimals() external pure returns (uint8);
-    function totalSupply() external view returns (uint);
-    function balanceOf(address owner) external view returns (uint);
-    function allowance(address owner, address spender) external view returns (uint);
-
-    function approve(address spender, uint value) external returns (bool);
-    function transfer(address to, uint value) external returns (bool);
-    function transferFrom(address from, address to, uint value) external returns (bool);
-
-    function DOMAIN_SEPARATOR() external view returns (bytes32);
-    function PERMIT_TYPEHASH() external pure returns (bytes32);
-    function nonces(address owner) external view returns (uint);
-
-    function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;
-
-    event Mint(address indexed sender, uint amount0, uint amount1);
-    event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);
-    event Swap(
-        address indexed sender,
-        uint amount0In,
-        uint amount1In,
-        uint amount0Out,
-        uint amount1Out,
-        address indexed to
-    );
-    event Sync(uint112 reserve0, uint112 reserve1);
-
-    function MINIMUM_LIQUIDITY() external pure returns (uint);
-    function factory() external view returns (address);
-    function token0() external view returns (address);
-    function token1() external view returns (address);
-    function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
-    function price0CumulativeLast() external view returns (uint);
-    function price1CumulativeLast() external view returns (uint);
-    function kLast() external view returns (uint);
-
-    function mint(address to) external returns (uint liquidity);
-    function burn(address to) external returns (uint amount0, uint amount1);
-    function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external;
-    function skim(address to) external;
-    function sync() external;
-
-    function initialize(address, address) external;
-}
-
 // File @boringcrypto/boring-solidity/contracts/interfaces/IERC20.sol@v1.2.2
 // License-Identifier: MIT
 pragma solidity 0.6.12;
@@ -175,40 +96,90 @@ interface IERC20 {
     ) external;
 }
 
-// File contracts/interfaces/ISwapper.sol
+// File @boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol@v1.2.2
 // License-Identifier: MIT
 pragma solidity 0.6.12;
 
-interface ISwapper {
-    /// @notice Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper.
-    /// Swaps it for at least 'amountToMin' of token 'to'.
-    /// Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer.
-    /// Returns the amount of tokens 'to' transferred to BentoBox.
-    /// (The BentoBox skim function will be used by the caller to get the swapped funds).
-    function swap(
-        IERC20 fromToken,
-        IERC20 toToken,
-        address recipient,
-        uint256 shareToMin,
-        uint256 shareFrom
-    ) external returns (uint256 extraShare, uint256 shareReturned);
+// solhint-disable avoid-low-level-calls
 
-    /// @notice Calculates the amount of token 'from' needed to complete the swap (amountFrom),
-    /// this should be less than or equal to amountFromMax.
-    /// Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper.
-    /// Swaps it for exactly 'exactAmountTo' of token 'to'.
-    /// Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer.
-    /// Transfers allocated, but unused 'from' tokens within the BentoBox to 'refundTo' (amountFromMax - amountFrom).
-    /// Returns the amount of 'from' tokens withdrawn from BentoBox (amountFrom).
-    /// (The BentoBox skim function will be used by the caller to get the swapped funds).
-    function swapExact(
-        IERC20 fromToken,
-        IERC20 toToken,
-        address recipient,
-        address refundTo,
-        uint256 shareFromSupplied,
-        uint256 shareToExact
-    ) external returns (uint256 shareUsed, uint256 shareReturned);
+library BoringERC20 {
+    bytes4 private constant SIG_SYMBOL = 0x95d89b41; // symbol()
+    bytes4 private constant SIG_NAME = 0x06fdde03; // name()
+    bytes4 private constant SIG_DECIMALS = 0x313ce567; // decimals()
+    bytes4 private constant SIG_TRANSFER = 0xa9059cbb; // transfer(address,uint256)
+    bytes4 private constant SIG_TRANSFER_FROM = 0x23b872dd; // transferFrom(address,address,uint256)
+
+    function returnDataToString(bytes memory data) internal pure returns (string memory) {
+        if (data.length >= 64) {
+            return abi.decode(data, (string));
+        } else if (data.length == 32) {
+            uint8 i = 0;
+            while(i < 32 && data[i] != 0) {
+                i++;
+            }
+            bytes memory bytesArray = new bytes(i);
+            for (i = 0; i < 32 && data[i] != 0; i++) {
+                bytesArray[i] = data[i];
+            }
+            return string(bytesArray);
+        } else {
+            return "???";
+        }
+    }
+
+    /// @notice Provides a safe ERC20.symbol version which returns '???' as fallback string.
+    /// @param token The address of the ERC-20 token contract.
+    /// @return (string) Token symbol.
+    function safeSymbol(IERC20 token) internal view returns (string memory) {
+        (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(SIG_SYMBOL));
+        return success ? returnDataToString(data) : "???";
+    }
+
+    /// @notice Provides a safe ERC20.name version which returns '???' as fallback string.
+    /// @param token The address of the ERC-20 token contract.
+    /// @return (string) Token name.
+    function safeName(IERC20 token) internal view returns (string memory) {
+        (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(SIG_NAME));
+        return success ? returnDataToString(data) : "???";
+    }
+
+    /// @notice Provides a safe ERC20.decimals version which returns '18' as fallback value.
+    /// @param token The address of the ERC-20 token contract.
+    /// @return (uint8) Token decimals.
+    function safeDecimals(IERC20 token) internal view returns (uint8) {
+        (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(SIG_DECIMALS));
+        return success && data.length == 32 ? abi.decode(data, (uint8)) : 18;
+    }
+
+    /// @notice Provides a safe ERC20.transfer version for different ERC-20 implementations.
+    /// Reverts on a failed transfer.
+    /// @param token The address of the ERC-20 token.
+    /// @param to Transfer tokens to.
+    /// @param amount The token amount.
+    function safeTransfer(
+        IERC20 token,
+        address to,
+        uint256 amount
+    ) internal {
+        (bool success, bytes memory data) = address(token).call(abi.encodeWithSelector(SIG_TRANSFER, to, amount));
+        require(success && (data.length == 0 || abi.decode(data, (bool))), "BoringERC20: Transfer failed");
+    }
+
+    /// @notice Provides a safe ERC20.transferFrom version for different ERC-20 implementations.
+    /// Reverts on a failed transfer.
+    /// @param token The address of the ERC-20 token.
+    /// @param from Transfer tokens from.
+    /// @param to Transfer tokens to.
+    /// @param amount The token amount.
+    function safeTransferFrom(
+        IERC20 token,
+        address from,
+        address to,
+        uint256 amount
+    ) internal {
+        (bool success, bytes memory data) = address(token).call(abi.encodeWithSelector(SIG_TRANSFER_FROM, from, to, amount));
+        require(success && (data.length == 0 || abi.decode(data, (bool))), "BoringERC20: TransferFrom failed");
+    }
 }
 
 // File @boringcrypto/boring-solidity/contracts/libraries/BoringRebase.sol@v1.2.2
@@ -425,114 +396,72 @@ interface IBentoBoxV1 {
     function withdraw(IERC20 token_, address from, address to, uint256 amount, uint256 share) external returns (uint256 amountOut, uint256 shareOut);
 }
 
-// File contracts/swappers/YVYFISwapper.sol
+// File contracts/swappers/Leverage/YVIBLevSwapper.sol
 // License-Identifier: MIT
 pragma solidity 0.6.12;
 
 
 
-
-
 interface CurvePool {
     function exchange_underlying(int128 i, int128 j, uint256 dx, uint256 min_dy, address receiver) external returns (uint256);
+    function approve(address _spender, uint256 _value) external returns (bool);
+    function add_liquidity(uint256[3] memory amounts, uint256 _min_mint_amount) external;
 }
 
 interface YearnVault {
-    function withdraw(uint256 maxShares, address recipient) external returns (uint256);
+    function withdraw() external returns (uint256);
+    function deposit(uint256 amount, address recipient) external returns (uint256);
 }
-
 interface TetherToken {
     function approve(address _spender, uint256 _value) external;
 }
 
-contract YVYFISwapperFlat is ISwapper {
+interface IConvex is IERC20{
+    function withdrawAndUnwrap(uint256 _amount) external;
+    //deposit a curve token
+    function deposit(uint256 _amount, address _to) external;
+}
+
+contract ThreeCrvLevSwapperV1 {
     using BoringMath for uint256;
+    using BoringERC20 for IERC20;
 
-    // Local variables
-    IBentoBoxV1 public immutable bentoBox;
+     // Local variables
+    IBentoBoxV1 public constant bentoBox = IBentoBoxV1(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);
     CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
-    YearnVault public constant YFI_VAULT = YearnVault(0xE14d13d8B3b85aF791b2AADD661cDBd5E6097Db1);
-    TetherToken public constant TETHER = TetherToken(0xdAC17F958D2ee523a2206206994597C13D831ec7);
-    IUniswapV2Pair constant YFI_WETH = IUniswapV2Pair(0x088ee5007C98a9677165D78dD2109AE4a3D04d0C);
-    IUniswapV2Pair constant pair = IUniswapV2Pair(0x06da0fd433C1A5d7a4faa01111c044910A184553);
+    CurvePool constant public threecrv = CurvePool(0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7);
+    IConvex public constant cvx3CRV = IConvex(0xd92494CB921E5C0d3A39eA88d0147bbd82E51008);
+    TetherToken public constant TETHER = TetherToken(0xdAC17F958D2ee523a2206206994597C13D831ec7); 
+    IERC20 public constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);
+    IERC20 public constant CurveToken = IERC20(0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490);
 
-    constructor(
-        IBentoBoxV1 bentoBox_
-    ) public {
-        bentoBox = bentoBox_;
-        TETHER.approve(address(MIM3POOL), type(uint256).max);
+    constructor() public {
+        MIM.approve(address(MIM3POOL), type(uint256).max);
+        TETHER.approve(address(threecrv), type(uint256).max);
+        CurveToken.approve(address(cvx3CRV), type(uint256).max);
     }
 
-    // Given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
-    function getAmountOut(
-        uint256 amountIn,
-        uint256 reserveIn,
-        uint256 reserveOut
-    ) internal pure returns (uint256 amountOut) {
-        uint256 amountInWithFee = amountIn.mul(997);
-        uint256 numerator = amountInWithFee.mul(reserveOut);
-        uint256 denominator = reserveIn.mul(1000).add(amountInWithFee);
-        amountOut = numerator / denominator;
-    }
-
-    // Given an output amount of an asset and pair reserves, returns a required input amount of the other asset
-    function getAmountIn(
-        uint256 amountOut,
-        uint256 reserveIn,
-        uint256 reserveOut
-    ) internal pure returns (uint256 amountIn) {
-        uint256 numerator = reserveIn.mul(amountOut).mul(1000);
-        uint256 denominator = reserveOut.sub(amountOut).mul(997);
-        amountIn = (numerator / denominator).add(1);
-    }
 
     // Swaps to a flexible amount, from an exact input amount
-    /// @inheritdoc ISwapper
     function swap(
-        IERC20 fromToken,
-        IERC20 toToken,
         address recipient,
         uint256 shareToMin,
         uint256 shareFrom
-    ) public override returns (uint256 extraShare, uint256 shareReturned) {
+    ) public returns (uint256 extraShare, uint256 shareReturned) {
 
-        uint256 amountFirst;
+        (uint256 amountFrom, ) = bentoBox.withdraw(MIM, address(this), address(this), 0, shareFrom);
 
-        {
+        uint256 amountIntermediate = MIM3POOL.exchange_underlying(0, 3, amountFrom, 0, address(this));
 
-        bentoBox.withdraw(fromToken, address(this), address(this), 0, shareFrom);
+        uint256[3] memory amountsAdded = [0,0, amountIntermediate];
 
-        uint256 amountFrom = YFI_VAULT.withdraw(type(uint256).max, address(YFI_WETH));
+        threecrv.add_liquidity(amountsAdded, 0);
 
-        (uint256 reserve0, uint256 reserve1, ) = YFI_WETH.getReserves();
-        
-        amountFirst = getAmountOut(amountFrom, reserve0, reserve1);
+        uint256 amountTo = CurveToken.balanceOf(address(this));
 
-        }
-        
-        YFI_WETH.swap(0, amountFirst, address(pair), new bytes(0));
+        cvx3CRV.deposit(amountTo, address(bentoBox));
 
-        (uint256 reserve0, uint256 reserve1, ) = pair.getReserves();
-        
-        uint256 amountIntermediate = getAmountOut(amountFirst, reserve0, reserve1);
-        pair.swap(0, amountIntermediate, address(this), new bytes(0));
-
-        uint256 amountTo = MIM3POOL.exchange_underlying(3, 0, amountIntermediate, 0, address(bentoBox));
-
-        (, shareReturned) = bentoBox.deposit(toToken, address(bentoBox), recipient, amountTo, 0);
+        (, shareReturned) = bentoBox.deposit(cvx3CRV, address(bentoBox), recipient, amountTo, 0);
         extraShare = shareReturned.sub(shareToMin);
-    }
-
-    // Swaps to an exact amount, from a flexible input amount
-    /// @inheritdoc ISwapper
-    function swapExact(
-        IERC20 fromToken,
-        IERC20 toToken,
-        address recipient,
-        address refundTo,
-        uint256 shareFromSupplied,
-        uint256 shareToExact
-    ) public override returns (uint256 shareUsed, uint256 shareReturned) {
-        return (0,0);
     }
 }

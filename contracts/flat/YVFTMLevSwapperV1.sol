@@ -175,42 +175,6 @@ interface IERC20 {
     ) external;
 }
 
-// File contracts/interfaces/ISwapper.sol
-// License-Identifier: MIT
-pragma solidity 0.6.12;
-
-interface ISwapper {
-    /// @notice Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper.
-    /// Swaps it for at least 'amountToMin' of token 'to'.
-    /// Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer.
-    /// Returns the amount of tokens 'to' transferred to BentoBox.
-    /// (The BentoBox skim function will be used by the caller to get the swapped funds).
-    function swap(
-        IERC20 fromToken,
-        IERC20 toToken,
-        address recipient,
-        uint256 shareToMin,
-        uint256 shareFrom
-    ) external returns (uint256 extraShare, uint256 shareReturned);
-
-    /// @notice Calculates the amount of token 'from' needed to complete the swap (amountFrom),
-    /// this should be less than or equal to amountFromMax.
-    /// Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper.
-    /// Swaps it for exactly 'exactAmountTo' of token 'to'.
-    /// Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer.
-    /// Transfers allocated, but unused 'from' tokens within the BentoBox to 'refundTo' (amountFromMax - amountFrom).
-    /// Returns the amount of 'from' tokens withdrawn from BentoBox (amountFrom).
-    /// (The BentoBox skim function will be used by the caller to get the swapped funds).
-    function swapExact(
-        IERC20 fromToken,
-        IERC20 toToken,
-        address recipient,
-        address refundTo,
-        uint256 shareFromSupplied,
-        uint256 shareToExact
-    ) external returns (uint256 shareUsed, uint256 shareReturned);
-}
-
 // File @boringcrypto/boring-solidity/contracts/libraries/BoringRebase.sol@v1.2.2
 // License-Identifier: MIT
 pragma solidity 0.6.12;
@@ -425,42 +389,28 @@ interface IBentoBoxV1 {
     function withdraw(IERC20 token_, address from, address to, uint256 amount, uint256 share) external returns (uint256 amountOut, uint256 shareOut);
 }
 
-// File contracts/swappers/YVYFISwapper.sol
+// File contracts/swappers/Leverage/FTMLevSwapper.sol
 // License-Identifier: MIT
 pragma solidity 0.6.12;
 
-
-
-
-
-interface CurvePool {
-    function exchange_underlying(int128 i, int128 j, uint256 dx, uint256 min_dy, address receiver) external returns (uint256);
-}
-
 interface YearnVault {
-    function withdraw(uint256 maxShares, address recipient) external returns (uint256);
+    function withdraw() external returns (uint256);
+    function deposit(uint256 amount, address recipient) external returns (uint256);
 }
 
-interface TetherToken {
-    function approve(address _spender, uint256 _value) external;
-}
-
-contract YVYFISwapperFlat is ISwapper {
+contract YVFTMLevSwapperV1{
     using BoringMath for uint256;
 
     // Local variables
-    IBentoBoxV1 public immutable bentoBox;
-    CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
-    YearnVault public constant YFI_VAULT = YearnVault(0xE14d13d8B3b85aF791b2AADD661cDBd5E6097Db1);
-    TetherToken public constant TETHER = TetherToken(0xdAC17F958D2ee523a2206206994597C13D831ec7);
-    IUniswapV2Pair constant YFI_WETH = IUniswapV2Pair(0x088ee5007C98a9677165D78dD2109AE4a3D04d0C);
-    IUniswapV2Pair constant pair = IUniswapV2Pair(0x06da0fd433C1A5d7a4faa01111c044910A184553);
+    IBentoBoxV1 public constant bentoBox = IBentoBoxV1(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);
+    IUniswapV2Pair constant pair = IUniswapV2Pair(0xB32b31DfAfbD53E310390F641C7119b5B9Ea0488);
+    IERC20 constant WFTM = IERC20(0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83);
+    YearnVault public constant WFTM_VAULT = YearnVault(0x0DEC85e74A92c52b7F708c4B10207D9560CEFaf0);
+    IERC20 public constant MIM = IERC20(0x82f0B8B456c1A451378467398982d4834b6829c1);
 
     constructor(
-        IBentoBoxV1 bentoBox_
     ) public {
-        bentoBox = bentoBox_;
-        TETHER.approve(address(MIM3POOL), type(uint256).max);
+        WFTM.approve(address(WFTM_VAULT), type(uint256).max);
     }
 
     // Given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
@@ -487,52 +437,22 @@ contract YVYFISwapperFlat is ISwapper {
     }
 
     // Swaps to a flexible amount, from an exact input amount
-    /// @inheritdoc ISwapper
     function swap(
-        IERC20 fromToken,
-        IERC20 toToken,
         address recipient,
         uint256 shareToMin,
         uint256 shareFrom
-    ) public override returns (uint256 extraShare, uint256 shareReturned) {
+    ) public returns (uint256 extraShare, uint256 shareReturned) {
 
-        uint256 amountFirst;
-
-        {
-
-        bentoBox.withdraw(fromToken, address(this), address(this), 0, shareFrom);
-
-        uint256 amountFrom = YFI_VAULT.withdraw(type(uint256).max, address(YFI_WETH));
-
-        (uint256 reserve0, uint256 reserve1, ) = YFI_WETH.getReserves();
-        
-        amountFirst = getAmountOut(amountFrom, reserve0, reserve1);
-
-        }
-        
-        YFI_WETH.swap(0, amountFirst, address(pair), new bytes(0));
+        (uint256 amountFrom, ) = bentoBox.withdraw(MIM, address(this), address(pair), 0, shareFrom);
 
         (uint256 reserve0, uint256 reserve1, ) = pair.getReserves();
         
-        uint256 amountIntermediate = getAmountOut(amountFirst, reserve0, reserve1);
-        pair.swap(0, amountIntermediate, address(this), new bytes(0));
+        uint256  amountTo = getAmountOut(amountFrom, reserve1, reserve0);
+        pair.swap(amountTo, 0, address(this), new bytes(0));
 
-        uint256 amountTo = MIM3POOL.exchange_underlying(3, 0, amountIntermediate, 0, address(bentoBox));
+        uint256 amountFinal = WFTM_VAULT.deposit(type(uint256).max, address(bentoBox));
 
-        (, shareReturned) = bentoBox.deposit(toToken, address(bentoBox), recipient, amountTo, 0);
+        (, shareReturned) = bentoBox.deposit(IERC20(address(WFTM_VAULT)), address(bentoBox), recipient, amountFinal, 0);
         extraShare = shareReturned.sub(shareToMin);
-    }
-
-    // Swaps to an exact amount, from a flexible input amount
-    /// @inheritdoc ISwapper
-    function swapExact(
-        IERC20 fromToken,
-        IERC20 toToken,
-        address recipient,
-        address refundTo,
-        uint256 shareFromSupplied,
-        uint256 shareToExact
-    ) public override returns (uint256 shareUsed, uint256 shareReturned) {
-        return (0,0);
     }
 }
