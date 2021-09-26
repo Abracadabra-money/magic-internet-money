@@ -1,16 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
 import "../interfaces/IOracle.sol";
 import "@boringcrypto/boring-solidity/contracts/interfaces/IERC20.sol";
-import "@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol";
 import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
 
-/// @title xSUSHIOracle
-/// @author BoringCrypto
+/// @title ProxyOracle
+/// @author 0xMerlin
 /// @notice Oracle used for getting the price of xSUSHI based on Chainlink
-/// @dev
-contract xSUSHIOracle is IOracle, BoringOwnable {
-    using BoringMath for uint256; // Keep everything in uint256
+contract ProxyOracle is IOracle, BoringOwnable {
 
     IOracle public oracleImplementation;
 
