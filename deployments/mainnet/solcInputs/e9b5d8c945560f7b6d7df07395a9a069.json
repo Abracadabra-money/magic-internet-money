@@ -1,0 +1,38 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/oracles/3CryptoOracle.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity 0.8.7;\nimport \"../interfaces/IOracle.sol\";\n\n// Chainlink Aggregator\n\n\ninterface ILPOracle {\n    function lp_price() external view returns (uint256 price);\n}\n\ncontract ThreeCryptoOracle is IOracle {\n    ILPOracle constant public LP_ORACLE = ILPOracle(0xE8b2989276E2Ca8FDEA2268E3551b2b4B2418950);\n\n    // Calculates the lastest exchange rate\n    // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD\n    function _get() internal view returns (uint256) {\n        return 1e36 / LP_ORACLE.lp_price();\n    }\n\n    // Get the latest exchange rate\n    /// @inheritdoc IOracle\n    function get(bytes calldata) public view override returns (bool, uint256) {\n        return (true, _get());\n    }\n\n    // Check the last exchange rate without any state changes\n    /// @inheritdoc IOracle\n    function peek(bytes calldata) public view override returns (bool, uint256) {\n        return (true, _get());\n    }\n\n    // Check the current spot exchange rate without any state changes\n    /// @inheritdoc IOracle\n    function peekSpot(bytes calldata data) external view override returns (uint256 rate) {\n        (, rate) = peek(data);\n    }\n\n    /// @inheritdoc IOracle\n    function name(bytes calldata) public pure override returns (string memory) {\n        return \"3Crv\";\n    }\n\n    /// @inheritdoc IOracle\n    function symbol(bytes calldata) public pure override returns (string memory) {\n        return \"3crv\";\n    }\n}"
+    },
+    "contracts/interfaces/IOracle.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity >= 0.6.12;\n\ninterface IOracle {\n    /// @notice Get the latest exchange rate.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return success if no valid (recent) rate is available, return false else true.\n    /// @return rate The rate of the requested asset / pair / pool.\n    function get(bytes calldata data) external returns (bool success, uint256 rate);\n\n    /// @notice Check the last exchange rate without any state changes.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return success if no valid (recent) rate is available, return false else true.\n    /// @return rate The rate of the requested asset / pair / pool.\n    function peek(bytes calldata data) external view returns (bool success, uint256 rate);\n\n    /// @notice Check the current spot exchange rate without any state changes. For oracles like TWAP this will be different from peek().\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return rate The rate of the requested asset / pair / pool.\n    function peekSpot(bytes calldata data) external view returns (uint256 rate);\n\n    /// @notice Returns a human readable (short) name about this oracle.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return (string) A human readable symbol name about this oracle.\n    function symbol(bytes calldata data) external view returns (string memory);\n\n    /// @notice Returns a human readable name about this oracle.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return (string) A human readable name about this oracle.\n    function name(bytes calldata data) external view returns (string memory);\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
