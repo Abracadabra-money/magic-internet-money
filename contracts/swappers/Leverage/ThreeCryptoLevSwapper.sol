@@ -31,11 +31,11 @@ contract ThreeCryptoLevSwapper {
      // Local variables
     IBentoBoxV1 public constant bentoBox = IBentoBoxV1(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);
     CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
-    CurvePool constant public threecrypto = CurvePool(0x80466c64868E1ab14a1Ddf27A676C3fcBE638Fe5);
+    CurvePool constant public threecrypto = CurvePool(0xD51a44d3FaE010294C616388b506AcdA1bfAAE46);
     IConvex public constant cvx3Crypto = IConvex(0x5958A8DB7dfE0CC49382209069b00F54e17929C2);
     TetherToken public constant TETHER = TetherToken(0xdAC17F958D2ee523a2206206994597C13D831ec7); 
     IERC20 public constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);
-    IERC20 public constant CurveToken = IERC20(0xcA3d75aC011BF5aD07a98d02f18225F9bD9A6BDF);
+    IERC20 public constant CurveToken = IERC20(0xc4AD29ba4B3c580e6D59105FFf484999997675Ff);
 
     constructor() public {
         MIM.approve(address(MIM3POOL), type(uint256).max);
