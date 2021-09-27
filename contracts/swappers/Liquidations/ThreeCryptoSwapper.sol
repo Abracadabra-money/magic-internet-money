@@ -5,7 +5,7 @@ import "@sushiswap/bentobox-sdk/contracts/IBentoBoxV1.sol";
 interface CurvePool {
     function exchange_underlying(int128 i, int128 j, uint256 dx, uint256 min_dy, address receiver) external returns (uint256);
     function approve(address _spender, uint256 _value) external returns (bool);
-    function remove_liquidity_one_coin(uint256 tokenAmount, int128 i, uint256 min_amount) external;
+    function remove_liquidity_one_coin(uint256 tokenAmount, uint256 i, uint256 min_amount) external;
 }
 
 interface YearnVault {
@@ -28,7 +28,7 @@ contract ThreeCryptoSwapper is ISwapper {
     IBentoBoxV1 public constant bentoBox = IBentoBoxV1(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);
     
     CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
-    CurvePool constant public threecrypto = CurvePool(0x80466c64868E1ab14a1Ddf27A676C3fcBE638Fe5);
+    CurvePool constant public threecrypto = CurvePool(0xD51a44d3FaE010294C616388b506AcdA1bfAAE46);
     IConvex public constant cvx3Crypto = IConvex(0x5958A8DB7dfE0CC49382209069b00F54e17929C2);
     TetherToken public constant TETHER = TetherToken(0xdAC17F958D2ee523a2206206994597C13D831ec7); 
     IERC20 public constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);

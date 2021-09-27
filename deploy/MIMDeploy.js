@@ -64,14 +64,14 @@ module.exports = async function (hre) {
     console.log("Deployer balance", deployerBalance.toString(), deployer.address)
     console.log("Needed", finalGasPrice.mul(gasLimit).toString(), finalGasPrice.toString(), gasLimit.toString(), deployerBalance.lt(finalGasPrice.mul(gasLimit)))
     //console.log("Deploying Cauldron Medium Risk contract, using BentoBox and MIM", bentobox.address, mim.address)
-    tx = await hre.deployments.deploy("ThreeCryptoLevSwapper", {
+    /*tx = await hre.deployments.deploy("ThreeCryptoLevSwapper", {
         from: deployer.address,
         args: [],
         log: true,
         deterministicDeployment: false,
         gasLimit: 1200000,
         gasPrice: finalGasPrice,
-    })
+    }) */
     tx = await hre.deployments.deploy("ThreeCryptoSwapper", {
         from: deployer.address,
         args: [],
