@@ -15,11 +15,18 @@ module.exports = {
                     decimals: 18
                   },
             },
+            avalanche: {
+                url: "https://api.avax.network/ext/bc/C/rpc",
+                chainId: 43114,
+                live: true,
+                saveDeployments: true,
+                gasPrice: 470000000000,
+            },
             hardhat: {
-                forking: {
+                /*forking: {
                     blockNumber: 13067830,
                     blockGasLimit: 20000000,
-                }
+                }*/
             }
         },
         etherscan: { 
