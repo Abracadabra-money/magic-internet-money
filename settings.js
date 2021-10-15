@@ -16,15 +16,18 @@ module.exports = {
                   },
             },
             avalanche: {
-                url: "https://api.avax.network/ext/bc/C/rpc",
                 chainId: 43114,
-                live: true,
-                saveDeployments: true,
-                gasPrice: 470000000000,
+                networkId: 1,
+                url: "https://api.avax.network/ext/bc/C/rpc",
+                nativeCurrency: {
+                    name: "Avalanche",
+                    symbol: "AVAX",
+                    decimals: 18
+                  },
             },
             hardhat: {
                 /*forking: {
-                    blockNumber: 13067830,
+                    blockNumber: 13323148,
                     blockGasLimit: 20000000,
                 }*/
             }
@@ -111,6 +114,33 @@ module.exports = {
                         optimizer: {
                             enabled: true,
                             runs: 1,
+                        },
+                    },
+                },
+                "contracts/flat/DegenBox.sol": {
+                    version: "0.6.12",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 999999,
+                        },
+                    },
+                },
+                "contracts/swappers/Leverage/AGLDLevSwapper.sol": {
+                    version: "0.6.12",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 9000,
+                        },
+                    },
+                },
+                "contracts/swappers/Liquidations/AGLDSwapper.sol": {
+                    version: "0.6.12",
+                    settings: {
+                        optimizer: {
+                            enabled: true,
+                            runs: 9000,
                         },
                     },
                 },

@@ -1,0 +1,38 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/oracles/RenBTCCrvOracle.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity 0.8.4;\nimport \"../interfaces/IOracle.sol\";\n\n// Chainlink Aggregator\n\ninterface IAggregator {\n    function latestAnswer() external view returns (int256 answer);\n}\ninterface ICurvePool {\n    function get_virtual_price() external view returns (uint256 price);\n}\n\ncontract RenBTCCrvOracle is IOracle {\n    ICurvePool constant public renCrv = ICurvePool(0x93054188d876f558f4a66B2EF1d97d16eDf0895B);\n    IAggregator constant public BTC = IAggregator(0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c);\n\n    /**\n     * @dev Returns the smallest of two numbers.\n     */\n    // FROM: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/6d97f0919547df11be9443b54af2d90631eaa733/contracts/utils/math/Math.sol\n    function min(uint256 a, uint256 b) internal pure returns (uint256) {\n        return a < b ? a : b;\n    }\n\n    // Calculates the lastest exchange rate\n    // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD\n    function _get() internal view returns (uint256) {\n\n        // As the price should never be negative, the unchecked conversion is acceptable\n        uint256 renCrvPrice = renCrv.get_virtual_price() * uint256(BTC.latestAnswer());\n\n        return 1e44 / renCrvPrice;\n    }\n\n    // Get the latest exchange rate\n    /// @inheritdoc IOracle\n    function get(bytes calldata) public view override returns (bool, uint256) {\n        return (true, _get());\n    }\n\n    // Check the last exchange rate without any state changes\n    /// @inheritdoc IOracle\n    function peek(bytes calldata) public view override returns (bool, uint256) {\n        return (true, _get());\n    }\n\n    // Check the current spot exchange rate without any state changes\n    /// @inheritdoc IOracle\n    function peekSpot(bytes calldata data) external view override returns (uint256 rate) {\n        (, rate) = peek(data);\n    }\n\n    /// @inheritdoc IOracle\n    function name(bytes calldata) public pure override returns (string memory) {\n        return \"Chainlink Ren Swap\";\n    }\n\n    /// @inheritdoc IOracle\n    function symbol(bytes calldata) public pure override returns (string memory) {\n        return \"LINK/RenCrv\";\n    }\n}\n"
+    },
+    "contracts/interfaces/IOracle.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity >= 0.6.12;\n\ninterface IOracle {\n    /// @notice Get the latest exchange rate.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return success if no valid (recent) rate is available, return false else true.\n    /// @return rate The rate of the requested asset / pair / pool.\n    function get(bytes calldata data) external returns (bool success, uint256 rate);\n\n    /// @notice Check the last exchange rate without any state changes.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return success if no valid (recent) rate is available, return false else true.\n    /// @return rate The rate of the requested asset / pair / pool.\n    function peek(bytes calldata data) external view returns (bool success, uint256 rate);\n\n    /// @notice Check the current spot exchange rate without any state changes. For oracles like TWAP this will be different from peek().\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return rate The rate of the requested asset / pair / pool.\n    function peekSpot(bytes calldata data) external view returns (uint256 rate);\n\n    /// @notice Returns a human readable (short) name about this oracle.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return (string) A human readable symbol name about this oracle.\n    function symbol(bytes calldata data) external view returns (string memory);\n\n    /// @notice Returns a human readable name about this oracle.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return (string) A human readable name about this oracle.\n    function name(bytes calldata data) external view returns (string memory);\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
