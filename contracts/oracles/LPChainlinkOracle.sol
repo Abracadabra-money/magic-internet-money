@@ -75,8 +75,8 @@ interface IUniswapV2Pair {
 }
 
 /// @title LPChainlinkOracleV1
-/// @author BoringCrypto
-/// @notice Oracle used for getting the price of an LP token paired with ETH based on an token-ETH chainlink oracle with 18 decimals
+/// @author BoringCrypto, 0xCalibur
+/// @notice Oracle used for getting the price of an LP token
 /// @dev Optimized version based on https://blog.alphafinance.io/fair-lp-token-pricing/
 contract LPChainlinkOracleV1 is IAggregator {
     using BoringMath for uint256;
