@@ -1,4 +1,5 @@
 const { weth, getBigNumber } = require("@sushiswap/hardhat-framework")
+const { defaultAbiCoder } = require("ethers/lib/utils")
 
 module.exports = async function (hre) {
     /*
@@ -18,6 +19,18 @@ module.exports = async function (hre) {
     const funder = signers[1]
 
     console.log("START")
+
+    const bentoAddresses = {
+        1: "0xF5BCE5077908a1b7370B9ae04AdC565EBd643966",
+        43114: "0xf4F46382C2bE1603Dc817551Ff9A7b333Ed1D18f"
+    }
+
+    const cauldronV2 = {
+        1: "0x63905bb681b9e68682f392Df2B22B7170F78D300",
+        43114: "0xc568a699c5B43A0F1aE40D3254ee641CB86559F4"
+    }
+
+    const cauldronV2CheckpointV1 = "0x1DF188958A8674B5177f77667b8D173c3CdD9e51"
 
     const chainId = await hre.getChainId()
     if (chainId == "31337" || hre.network.config.forking) {
@@ -39,7 +52,7 @@ module.exports = async function (hre) {
 
     let gasPrice = await funder.provider.getGasPrice()
     if (chainId == 1) {
-        gasPrice = gasPrice.add("40000000000")
+        gasPrice = gasPrice.add("30000000000")
     }
     let multiplier = hre.network.tags && hre.network.tags.staging ? 2 : 1
     let finalGasPrice = gasPrice //.mul(multiplier)
@@ -72,14 +85,81 @@ module.exports = async function (hre) {
         gasLimit: 1200000,
         gasPrice: finalGasPrice,
     }) */
-    tx = await hre.deployments.deploy("ThreeCryptoSwapper", {
+    /*
+    tx = await hre.deployments.deploy("ArbEthSwapper", {
         from: deployer.address,
         args: [],
         log: true,
         deterministicDeployment: false,
-        gasLimit: 1200000,
-        gasPrice: finalGasPrice,
     })
+    tx = await hre.deployments.deploy("ArbEthLevSwapper", {
+        from: deployer.address,
+        args: [],
+        log: true,
+        deterministicDeployment: false,
+    }) */
+    /*
+    let tx = await hre.deployments.deploy("ProxyOracle", {
+        from: deployer.address,
+        args: [],
+        log: true,
+        deterministicDeployment: false,
+    }) */
+
+
+    
+    tx = await hre.deployments.deploy("USTSwapper", {
+        from: deployer.address,
+        args: [],
+        log: true,
+        deterministicDeployment: false,
+    }) 
+    tx = await hre.deployments.deploy("USTLevSwapper", {
+        from: deployer.address,
+        args: [],
+        log: true,
+        deterministicDeployment: false,
+    }) 
+    /*
+    tx = await hre.deployments.deploy("DegenBox", {
+        from: deployer.address,
+        args: ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"],
+        log: true,
+        deterministicDeployment: false,
+    }) */
+    /*
+    let tx = await hre.deployments.deploy("USTOracle", {
+        from: deployer.address,
+        args: [],
+        log: true,
+        deterministicDeployment: false,
+    })
+    // 0x890f4e345B1dAED0367A877a1612f86A1f86985f
+    const oracle = ((await hre.ethers.getContractFactory("USTOracle")).attach((await deployments.get("USTOracle")).address)).address
+
+    let collateral = "0xa47c8bf37f92aBed4A126BDA807A7b7498661acD"
+    //let oracle = "0x2Be431EE7E74b1CB7CfA16Fc90578EF42eF361B0"
+    let oracleData = "0x0000000000000000000000000000000000000000"
+    const INTEREST_CONVERSION = 1e18/(365.25*3600*24)/100
+    let interest = parseInt(2*INTEREST_CONVERSION)
+    const OPENING_CONVERSION = 1e5/100
+    let opening = 0.5 * OPENING_CONVERSION
+    let liquidation = 5*1e3+1e5
+    let collateralization = 90 * 1e3
+
+    console.log("Deploy CauldronV2")
+    const bentobox = (await hre.ethers.getContractFactory("BentoBoxV1")).attach(bentoAddresses[chainId])
+    
+
+    let initData = defaultAbiCoder.encode(["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"], [collateral, oracle, oracleData, interest, liquidation, collateralization, opening])
+    console.log(initData)
+    tx = await bentobox.deploy(cauldronV2[chainId], initData, true)
+    const res = await tx.wait()
+    const cloneAddress = res.events[0].args[2]
+    console.log("Deployed address: ", cloneAddress)
+
+
+
     /*
     if (deployerBalance.lt(finalGasPrice.mul(gasLimit))) {
         console.log("Sending native token to fund deployment:", finalGasPrice.mul(gasLimit).sub(deployerBalance).toString())
