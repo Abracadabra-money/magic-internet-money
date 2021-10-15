@@ -26,10 +26,10 @@ module.exports = {
                   },
             },
             hardhat: {
-                forking: {
+                /*forking: {
                     blockNumber: 13323148,
                     blockGasLimit: 20000000,
-                }
+                }*/
             }
         },
         etherscan: { 

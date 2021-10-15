@@ -1,5 +1,10 @@
 {
     "scripts": {
+        "clean": "hardhat clean",
+        "build": "hardhat compile",
+        "rebuild": "hardhat clean && hardhat compile",
+        "deploy": "hardhat deploy",
+        "avalanche:deploy": "hardhat --network avalanche deploy",
         "test": "hardhat test",
         "format": "prettier --write contracts/**/*.sol *.js *.json test/**/*.js",
         "pretty-quick": "pretty-quick",

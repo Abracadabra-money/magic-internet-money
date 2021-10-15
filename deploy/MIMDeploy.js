@@ -36,6 +36,32 @@ module.exports = async function (hre) {
     if (chainId == "31337" || hre.network.config.forking) {
         return
     }
+
+    
+    /*console.log("Deploying UsdcAvaxOracleV1...");
+    tx = await hre.deployments.deploy("UsdcAvaxOracleV1", {
+        from: deployer.address,
+        args: [],
+        log: true,
+        deterministicDeployment: false
+    })
+    const UsdcAvaxOracleV1Addresss = tx.address;
+    console.log(`UsdcAvaxOracleV1Addresss: ${UsdcAvaxOracleV1Addresss}`);
+
+    console.log("Deploying LPChainlinkOracleV1...");
+    tx = await hre.deployments.deploy("LPChainlinkOracleV1", {
+        from: deployer.address,
+        args: [
+            "0xa389f9430876455c36478deea9769b7ca4e3ddb1", // trader joe USDC.e-WAVAX pair
+            UsdcAvaxOracleV1Addresss
+        ],
+        log: true,
+        deterministicDeployment: false
+    })
+
+
+    return;*/
+
     /*
     if (!weth(chainId)) {
         console.log("No WETH address for chain", chainId)
