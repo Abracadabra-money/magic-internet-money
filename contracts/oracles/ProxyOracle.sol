@@ -30,7 +30,6 @@ contract ProxyOracle is IOracle, BoringOwnable {
     // Check the last exchange rate without any state changes
     /// @inheritdoc IOracle
     function peek(bytes calldata data) public view override returns (bool, uint256) {
-        (address divide, uint256 decimals) = abi.decode(data, (address, uint256));
         return oracleImplementation.peek(data);
     }
 
