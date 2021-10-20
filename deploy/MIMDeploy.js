@@ -25,9 +25,17 @@ module.exports = async function (hre) {
         43114: "0xf4F46382C2bE1603Dc817551Ff9A7b333Ed1D18f"
     }
 
+    const degenAddresses = {
+        43114: "0x1fC83f75499b7620d53757f0b01E2ae626aAE530"
+    }
+
     const cauldronV2 = {
         1: "0x63905bb681b9e68682f392Df2B22B7170F78D300",
         43114: "0xc568a699c5B43A0F1aE40D3254ee641CB86559F4"
+    }
+
+    const safe = {
+        1: "0x5f0DeE98360d8200b20812e174d139A1a633EDd2"
     }
 
     const cauldronV2CheckpointV1 = "0x1DF188958A8674B5177f77667b8D173c3CdD9e51"
@@ -124,23 +132,28 @@ module.exports = async function (hre) {
         log: true,
         deterministicDeployment: false,
     }) */
-    /*
     let tx = await hre.deployments.deploy("ProxyOracle", {
         from: deployer.address,
         args: [],
         log: true,
         deterministicDeployment: false,
-    }) */
-
-
+    })
     
-    tx = await hre.deployments.deploy("USTSwapper", {
+    tx = await hre.deployments.deploy("ShibUniV3ChainlinkOracle", {
         from: deployer.address,
         args: [],
         log: true,
         deterministicDeployment: false,
     }) 
-    tx = await hre.deployments.deploy("USTLevSwapper", {
+
+    tx = await hre.deployments.deploy("ShibLevSwapper", {
+        from: deployer.address,
+        args: [],
+        log: true,
+        deterministicDeployment: false,
+    }) 
+
+    tx = await hre.deployments.deploy("ShibSwapper", {
         from: deployer.address,
         args: [],
         log: true,
@@ -153,31 +166,26 @@ module.exports = async function (hre) {
         log: true,
         deterministicDeployment: false,
     }) */
-    /*
-    let tx = await hre.deployments.deploy("USTOracle", {
-        from: deployer.address,
-        args: [],
-        log: true,
-        deterministicDeployment: false,
-    })
+    
     // 0x890f4e345B1dAED0367A877a1612f86A1f86985f
-    const oracle = ((await hre.ethers.getContractFactory("USTOracle")).attach((await deployments.get("USTOracle")).address)).address
+    const oracle = ((await hre.ethers.getContractFactory("ProxyOracle")).attach((await deployments.get("ProxyOracle")).address))
+    //await oracle.changeOracleImplementation((await deployments.get("ShibUniV3ChainlinkOracle")).address)
+    //await oracle.transferOwnership(safe[chainId], true, false)
 
-    let collateral = "0xa47c8bf37f92aBed4A126BDA807A7b7498661acD"
+    let collateral = "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"
     //let oracle = "0x2Be431EE7E74b1CB7CfA16Fc90578EF42eF361B0"
     let oracleData = "0x0000000000000000000000000000000000000000"
     const INTEREST_CONVERSION = 1e18/(365.25*3600*24)/100
-    let interest = parseInt(2*INTEREST_CONVERSION)
+    let interest = parseInt(6*INTEREST_CONVERSION)
     const OPENING_CONVERSION = 1e5/100
     let opening = 0.5 * OPENING_CONVERSION
-    let liquidation = 5*1e3+1e5
-    let collateralization = 90 * 1e3
+    let liquidation = 12.5 *1e3+1e5
+    let collateralization = 70 * 1e3
 
     console.log("Deploy CauldronV2")
     const bentobox = (await hre.ethers.getContractFactory("BentoBoxV1")).attach(bentoAddresses[chainId])
-    
 
-    let initData = defaultAbiCoder.encode(["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"], [collateral, oracle, oracleData, interest, liquidation, collateralization, opening])
+    let initData = defaultAbiCoder.encode(["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"], [collateral, oracle.address, oracleData, interest, liquidation, collateralization, opening])
     console.log(initData)
     tx = await bentobox.deploy(cauldronV2[chainId], initData, true)
     const res = await tx.wait()
