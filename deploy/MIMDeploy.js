@@ -26,12 +26,17 @@ module.exports = async function (hre) {
     }
 
     const degenAddresses = {
+        1: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
         43114: "0x1fC83f75499b7620d53757f0b01E2ae626aAE530"
     }
 
     const cauldronV2 = {
         1: "0x63905bb681b9e68682f392Df2B22B7170F78D300",
         43114: "0xc568a699c5B43A0F1aE40D3254ee641CB86559F4"
+    }
+
+    const cauldronV2Degen = {
+        1: "0x476b1E35DDE474cB9Aa1f6B85c9Cc589BFa85c1F",
     }
 
     const safe = {
@@ -132,6 +137,7 @@ module.exports = async function (hre) {
         log: true,
         deterministicDeployment: false,
     }) */
+    /*
     let tx = await hre.deployments.deploy("ProxyOracle", {
         from: deployer.address,
         args: [],
@@ -159,35 +165,36 @@ module.exports = async function (hre) {
         log: true,
         deterministicDeployment: false,
     }) 
+    */
     /*
-    tx = await hre.deployments.deploy("DegenBox", {
+    tx = await hre.deployments.deploy("CauldronV2", {
         from: deployer.address,
-        args: ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"],
+        args: ["0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce", "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3"],
         log: true,
         deterministicDeployment: false,
-    }) */
-    
+    }) 
+    */
     // 0x890f4e345B1dAED0367A877a1612f86A1f86985f
-    const oracle = ((await hre.ethers.getContractFactory("ProxyOracle")).attach((await deployments.get("ProxyOracle")).address))
+    //const oracle = ((await hre.ethers.getContractFactory("ProxyOracle")).attach((await deployments.get("ProxyOracle")).address))
     //await oracle.changeOracleImplementation((await deployments.get("ShibUniV3ChainlinkOracle")).address)
     //await oracle.transferOwnership(safe[chainId], true, false)
-
-    let collateral = "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"
-    //let oracle = "0x2Be431EE7E74b1CB7CfA16Fc90578EF42eF361B0"
+    
+    let collateral = "0xa47c8bf37f92aBed4A126BDA807A7b7498661acD"
+    let oracle = {"address": "0x4f51264B07DB8b2910E892eEEF22460DE23268a7"}
     let oracleData = "0x0000000000000000000000000000000000000000"
     const INTEREST_CONVERSION = 1e18/(365.25*3600*24)/100
-    let interest = parseInt(6*INTEREST_CONVERSION)
+    let interest = parseInt(2*INTEREST_CONVERSION)
     const OPENING_CONVERSION = 1e5/100
     let opening = 0.5 * OPENING_CONVERSION
-    let liquidation = 12.5 *1e3+1e5
-    let collateralization = 70 * 1e3
+    let liquidation = 5 *1e3+1e5
+    let collateralization = 90 * 1e3
 
     console.log("Deploy CauldronV2")
-    const bentobox = (await hre.ethers.getContractFactory("BentoBoxV1")).attach(bentoAddresses[chainId])
+    const bentobox = (await hre.ethers.getContractFactory("BentoBoxV1")).attach(degenAddresses[chainId])
 
     let initData = defaultAbiCoder.encode(["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"], [collateral, oracle.address, oracleData, interest, liquidation, collateralization, opening])
     console.log(initData)
-    tx = await bentobox.deploy(cauldronV2[chainId], initData, true)
+    tx = await bentobox.deploy(cauldronV2Degen[chainId], initData, true)
     const res = await tx.wait()
     const cloneAddress = res.events[0].args[2]
     console.log("Deployed address: ", cloneAddress)
