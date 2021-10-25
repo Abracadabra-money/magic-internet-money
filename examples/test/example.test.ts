@@ -3,9 +3,8 @@ import { ethers, network, deployments, getNamedAccounts, artifacts } from "hardh
 import { expect } from "chai";
 import { BigNumberish } from "ethers";
 
-import { advanceTime, getBigNumber, impersonate } from "../utilities";
-import { Cauldron } from "../typechain";
-import { removeConsoleLog } from "hardhat-preprocessor";
+import { advanceTime, getBigNumber, impersonate } from "../../utilities";
+import { Cauldron } from "../../typechain";
 
 const maybe = (process.env.ETHEREUM_RPC_URL || process.env.INFURA_API_KEY) ? describe : describe.skip;
 

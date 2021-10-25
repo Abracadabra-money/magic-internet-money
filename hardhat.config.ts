@@ -7,14 +7,11 @@ import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-abi-exporter";
 import "hardhat-gas-reporter";
-import "hardhat-spdx-license-identifier";
-import "hardhat-watcher";
 import "solidity-coverage";
 import "hardhat-deploy";
 import "./tasks";
 
 import { HardhatUserConfig } from "hardhat/config";
-import { removeConsoleLog } from "hardhat-preprocessor";
 
 const accounts = {
   mnemonic: process.env.MNEMONIC || "test test test test test test test test test test test junk",
@@ -179,9 +176,6 @@ const config: HardhatUserConfig = {
       tags: ["staging"],
     },
   },
-  preprocess: {
-    eachLine: removeConsoleLog((bre) => bre.network.name !== "hardhat" && bre.network.name !== "localhost"),
-  },
   mocha: {
     timeout: 40000,
     bail: true,
@@ -190,13 +184,6 @@ const config: HardhatUserConfig = {
     project: process.env.TENDERLY_PROJECT,
     username: process.env.TENDERLY_USERNAME,
   }, */
-  watcher: {
-    compile: {
-      tasks: ["compile"],
-      files: ["./contracts"],
-      verbose: true,
-    },
-  },
   solidity: {
     compilers: [
       {
