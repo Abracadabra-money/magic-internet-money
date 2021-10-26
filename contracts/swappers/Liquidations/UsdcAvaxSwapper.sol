@@ -38,11 +38,10 @@ contract UsdcAvaxSwapper is ISwapperGeneric {
     IERC20 public constant MIM = IERC20(0x130966628846BFd36ff31a822705796e8cb8C18D);
     IERC20 public constant WAVAX = IERC20(0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7);
 
-    CurvePool public immutable mim3pool;
+    // TODO: Update addresses
+    CurvePool public immutable MIM3POOL = CurvePool(address(0));
 
-    constructor(CurvePool mim3pool_) {
-        mim3pool = mim3pool_;
-
+    constructor() {
         MIM.approve(address(DEGENBOX), type(uint256).max);
     }
 
@@ -73,13 +72,13 @@ contract UsdcAvaxSwapper is ISwapperGeneric {
         USDCAVAX.transfer(address(USDCAVAX), amountFrom);
         (uint256 usdcAmount, uint256 avaxAmount) = USDCAVAX.burn(address(this));
 
-        uint256 mimAmountFromUSDC = mim3pool.exchange_underlying(2, 0, usdcAmount, 0, address(this));
-        uint256 mimAmountFromAVAX = getAmountOut(avaxAmount, reserve1, reserve0);
+        uint256 mimFromUsdc = MIM3POOL.exchange_underlying(2, 0, usdcAmount, 0, address(this));
+        uint256 mimFromAvax = getAmountOut(avaxAmount, reserve1, reserve0);
 
         WAVAX.transfer(address(USDCAVAX), avaxAmount);
-        USDCAVAX.swap(mimAmountFromAVAX, 0, address(this), new bytes(0));
+        USDCAVAX.swap(mimFromAvax, 0, address(this), new bytes(0));
 
-        (, shareReturned) = DEGENBOX.deposit(MIM, address(this), recipient, mimAmountFromUSDC + mimAmountFromAVAX, 0);
+        (, shareReturned) = DEGENBOX.deposit(MIM, address(this), recipient, mimFromUsdc + mimFromAvax, 0);
         extraShare = shareReturned - shareToMin;
     }
 

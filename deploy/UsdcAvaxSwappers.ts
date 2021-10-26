@@ -8,21 +8,17 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   const { deployer } = await getNamedAccounts();
 
-
   if (network.name === "hardhat") {
-    // There's no curve finance pool as we speak, creating one
-    // for the sake of testing
-
   }
 
-  await deploy("UsdcAvaxSwapper", {
+  /*await deploy("UsdcAvaxSwapper", {
     from: deployer,
     args: [ethers.constants.AddressZero], // TODO: Replace with curve 3pool
     log: true,
     deterministicDeployment: false,
   });
 
-  /*await deploy("UsdcAvaxLevSwapper", {
+    await deploy("UsdcAvaxLevSwapper", {
     from: deployer,
     args: [],
     log: true,
