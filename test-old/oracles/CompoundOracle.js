@@ -4,7 +4,9 @@ const { getBigNumber, createFixture, ADDRESS_ZERO } = require("@sushiswap/hardha
 
 let cmd, fixture
 
-describe("Compound Oracle", function () {
+const maybe = network.config.forking ? describe : describe.skip;
+
+maybe("Compound Oracle", function () {
     before(async function () {
         fixture = await createFixture(deployments, this, async (cmd) => {
             await cmd.deploy("oracle", "CompoundOracle")
@@ -23,11 +25,6 @@ describe("Compound Oracle", function () {
     it("Assigns symbol to COMP", async function () {
         expect(await this.oracle.symbol(this.oracleData)).to.equal("COMP")
     })
-
-    if (!network.config.forking) {
-        console.trace("*** chain forking not available, skipping tests ***")
-        return
-    }
 
     it("should return ETH Price in USD on rate request", async function () {
         await this.oracle.get(this.oracleData)

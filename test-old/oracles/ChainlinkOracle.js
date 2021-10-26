@@ -4,7 +4,9 @@ const { getBigNumber, createFixture, ADDRESS_ZERO } = require("@sushiswap/hardha
 
 let cmd, fixture
 
-describe("ChainLink Oracle", function () {
+const maybe = network.config.forking ? describe : describe.skip;
+
+maybe("ChainLink Oracle", function () {
     before(async function () {
         fixture = await createFixture(deployments, this, async (cmd) => {
             await cmd.deploy("oracle", "ChainlinkOracle")
@@ -25,11 +27,6 @@ describe("ChainLink Oracle", function () {
     it("Assigns symbol to LINK", async function () {
         expect(await this.oracle.symbol(this.oracleData)).to.equal("LINK")
     })
-
-    if (!network.config.forking) {
-        console.trace("*** chain forking not available, skipping tests ***")
-        return
-    }
 
     it("should return SUSHI Price on rate request", async function () {
         await this.oracle.get(this.oracleData)
