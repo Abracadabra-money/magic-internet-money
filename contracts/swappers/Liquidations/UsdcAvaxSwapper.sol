@@ -35,18 +35,17 @@ interface IBentoBoxV1 {
 contract UsdcAvaxSwapper is ISwapperGeneric {
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0x1fC83f75499b7620d53757f0b01E2ae626aAE530);
     IUniswapV2Pair public constant USDCAVAX = IUniswapV2Pair(0xA389f9430876455C36478DeEa9769B7Ca4E3DDB1);
+    IUniswapV2Pair public constant MIMAVAX = IUniswapV2Pair(0x781655d802670bbA3c89aeBaaEa59D3182fD755D);
     IERC20 public constant MIM = IERC20(0x130966628846BFd36ff31a822705796e8cb8C18D);
     IERC20 public constant WAVAX = IERC20(0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7);
-
-    // TODO: Update addresses
-    CurvePool public immutable MIM3POOL = CurvePool(address(0));
+    IERC20 public constant USDC = IERC20(0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664);
 
     constructor() {
         MIM.approve(address(DEGENBOX), type(uint256).max);
     }
 
     // given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
-    function getAmountOut(
+    function _getAmountOut(
         uint256 amountIn,
         uint256 reserveIn,
         uint256 reserveOut
@@ -67,18 +66,24 @@ contract UsdcAvaxSwapper is ISwapperGeneric {
         uint256 shareFrom
     ) public override returns (uint256 extraShare, uint256 shareReturned) {
         (uint256 amountFrom, ) = DEGENBOX.withdraw(IERC20(address(USDCAVAX)), address(this), address(this), 0, shareFrom);
-        (uint256 reserve0, uint256 reserve1, ) = USDCAVAX.getReserves();
 
         USDCAVAX.transfer(address(USDCAVAX), amountFrom);
         (uint256 usdcAmount, uint256 avaxAmount) = USDCAVAX.burn(address(this));
 
-        uint256 mimFromUsdc = MIM3POOL.exchange_underlying(2, 0, usdcAmount, 0, address(this));
-        uint256 mimFromAvax = getAmountOut(avaxAmount, reserve1, reserve0);
+        // swap USDC to AVAX
+        (uint256 reserve0, uint256 reserve1, ) = USDCAVAX.getReserves();
+        uint256 avaxFromUsdc = _getAmountOut(usdcAmount, reserve0, reserve1);
+        USDC.transfer(address(USDCAVAX), avaxFromUsdc);
+        USDCAVAX.swap(0, avaxFromUsdc, address(this), new bytes(0));
+        avaxAmount += avaxFromUsdc;
 
-        WAVAX.transfer(address(USDCAVAX), avaxAmount);
-        USDCAVAX.swap(mimFromAvax, 0, address(this), new bytes(0));
+        // swap AVAX to MIM
+        (reserve0, reserve1, ) = MIMAVAX.getReserves();
+        uint256 mimFromAvax = _getAmountOut(avaxAmount, reserve1, reserve0);
+        WAVAX.transfer(address(MIMAVAX), avaxAmount);
+        MIMAVAX.swap(mimFromAvax, 0, address(this), new bytes(0));
 
-        (, shareReturned) = DEGENBOX.deposit(MIM, address(this), recipient, mimFromUsdc + mimFromAvax, 0);
+        (, shareReturned) = DEGENBOX.deposit(MIM, address(this), recipient, mimFromAvax, 0);
         extraShare = shareReturned - shareToMin;
     }
 
