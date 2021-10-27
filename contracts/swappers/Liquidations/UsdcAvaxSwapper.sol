@@ -4,16 +4,6 @@ pragma solidity 0.8.4;
 import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol";
 import "../../interfaces/ISwapperGeneric.sol";
 
-interface CurvePool {
-    function exchange_underlying(
-        int128 i,
-        int128 j,
-        uint256 dx,
-        uint256 min_dy,
-        address receiver
-    ) external returns (uint256);
-}
-
 interface IBentoBoxV1 {
     function withdraw(
         IERC20 token,
@@ -69,11 +59,11 @@ contract UsdcAvaxSwapper is ISwapperGeneric {
 
         USDCAVAX.transfer(address(USDCAVAX), amountFrom);
         (uint256 usdcAmount, uint256 avaxAmount) = USDCAVAX.burn(address(this));
-
+        
         // swap USDC to AVAX
         (uint256 reserve0, uint256 reserve1, ) = USDCAVAX.getReserves();
         uint256 avaxFromUsdc = _getAmountOut(usdcAmount, reserve0, reserve1);
-        USDC.transfer(address(USDCAVAX), avaxFromUsdc);
+        USDC.transfer(address(USDCAVAX), usdcAmount);
         USDCAVAX.swap(0, avaxFromUsdc, address(this), new bytes(0));
         avaxAmount += avaxFromUsdc;
 

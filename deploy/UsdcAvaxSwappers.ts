@@ -11,9 +11,9 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   if (network.name === "hardhat") {
   }
 
-  /*await deploy("UsdcAvaxSwapper", {
+  await deploy("UsdcAvaxSwapper", {
     from: deployer,
-    args: [ethers.constants.AddressZero], // TODO: Replace with curve 3pool
+    args: [],
     log: true,
     deterministicDeployment: false,
   });
@@ -23,7 +23,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     args: [],
     log: true,
     deterministicDeployment: false,
-  });*/
+  });
 };
 
 export default deployFunction;
