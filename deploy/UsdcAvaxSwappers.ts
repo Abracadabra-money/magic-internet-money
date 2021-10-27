@@ -18,7 +18,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     deterministicDeployment: false,
   });
 
-    await deploy("UsdcAvaxLevSwapper", {
+  await deploy("UsdcAvaxLevSwapper", {
     from: deployer,
     args: [],
     log: true,

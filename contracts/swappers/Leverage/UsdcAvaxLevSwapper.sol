@@ -39,12 +39,14 @@ contract UsdcAvaxLevSwapper {
 
     uint256 private constant DEADLINE = 0xf000000000000000000000000000000000000000000000000000000000000000; // ~ placeholder for swap deadline
 
-    IERC20 public constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);
+    IERC20 public constant MIM = IERC20(0x130966628846BFd36ff31a822705796e8cb8C18D);
     IERC20 public constant WAVAX = IERC20(0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7);
     IERC20 public constant USDC = IERC20(0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664);
 
     constructor() {
         USDCAVAX.approve(address(DEGENBOX), type(uint256).max);
+        WAVAX.approve(address(ROUTER), type(uint256).max);
+        USDC.approve(address(ROUTER), type(uint256).max);
     }
 
     function _calculateSwapInAmount(uint256 reserveIn, uint256 userIn) internal pure returns (uint256) {
@@ -73,7 +75,7 @@ contract UsdcAvaxLevSwapper {
         // Swap MIM to AVAX
         (uint256 reserve0, uint256 reserve1, ) = MIMAVAX.getReserves();
         uint256 avaxFromMim = _getAmountOut(amountFrom, reserve0, reserve1);
-        MIM.transfer(address(MIMAVAX), avaxFromMim);
+        MIM.transfer(address(MIMAVAX), amountFrom);
         MIMAVAX.swap(0, avaxFromMim, address(this), new bytes(0));
 
         // Determine optimal amount of AVAX to swap for liquidity providing

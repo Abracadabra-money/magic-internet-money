@@ -78,6 +78,8 @@ describe("Lev/Liquidation UsdcAvax Swappers", async () => {
     const amountUsdcAvaxAfter = (await DegenBox.totals(USDCAVAX.address)).elastic;
     const amountMimAfter = (await DegenBox.totals(MIM.address)).elastic;
 
+    //console.log(`Got ${(amountMimAfter.sub(amountMimBefore)).toString()} MIM from Liquidation Swapper`);
+
     expect(amountMimAfter).to.be.gt(amountMimBefore);
     expect(amountUsdcAvaxAfter).to.be.lt(amountUsdcAvaxBefore);
   });
@@ -92,6 +94,8 @@ describe("Lev/Liquidation UsdcAvax Swappers", async () => {
 
     const amountUsdcAvaxAfter = (await DegenBox.totals(USDCAVAX.address)).elastic;
     const amountMimAfter = (await DegenBox.totals(MIM.address)).elastic;
+
+    //console.log(`Got ${(amountUsdcAvaxAfter.sub(amountUsdcAvaxBefore)).toString()} USDC/AVAX from Leverage Swapper`);
 
     expect(amountMimAfter).to.be.lt(amountMimBefore);
     expect(amountUsdcAvaxAfter).to.be.gt(amountUsdcAvaxBefore);
