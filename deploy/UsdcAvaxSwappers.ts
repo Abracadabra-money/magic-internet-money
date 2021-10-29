@@ -8,9 +8,6 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   const { deployer } = await getNamedAccounts();
 
-  if (network.name === "hardhat") {
-  }
-
   await deploy("UsdcAvaxSwapper", {
     from: deployer,
     args: [],
