@@ -58,7 +58,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
 export default deployFunction;
 
-if (network.name !== "hardhat") {
+if (network.name !== "hardhat" || process.env.HARDHAT_LOCAL_NODE) {
   deployFunction.skip = ({ getChainId }) =>
     new Promise((resolve, reject) => {
       try {

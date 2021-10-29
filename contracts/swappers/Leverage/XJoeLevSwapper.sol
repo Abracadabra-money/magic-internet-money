@@ -81,10 +81,9 @@ contract XJoeLevSwapper {
 
         JOEBAR.enter(joeFromAvax);
         uint256 amountTo = JOEBAR.balanceOf(address(this));
-        
-        //JOEBAR.transfer(address(BENTOBOX), amountTo);
 
-        (, shareReturned) = BENTOBOX.deposit(IERC20(address(JOEBAR)), address(this), recipient, amountTo, 0);
+        JOEBAR.transfer(address(BENTOBOX), amountTo);
+        (, shareReturned) = BENTOBOX.deposit(JOEBAR, address(BENTOBOX), recipient, amountTo, 0);
         extraShare = shareReturned - shareToMin;
     }
 }
