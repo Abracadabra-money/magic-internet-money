@@ -40,6 +40,20 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     abi: [],
     address: deployEvent?.args?.cloneAddress,
   });
+
+  await deploy("XJoeSwapper", {
+    from: deployer,
+    args: [],
+    log: true,
+    deterministicDeployment: false,
+  });
+
+  /*await deploy("UsdcAvaxLevSwapper", {
+    from: deployer,
+    args: [],
+    log: true,
+    deterministicDeployment: false,
+  });*/
 };
 
 export default deployFunction;
