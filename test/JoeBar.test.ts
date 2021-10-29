@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { getBigNumber, impersonate } from "../utilities";
-import { BentoBoxV1, CauldronV2, IERC20, XJoeSwapper } from "../typechain";
+import { BentoBoxV1, CauldronV2, IERC20, XJoeLevSwapper, XJoeSwapper } from "../typechain";
 import { expect } from "chai";
 
 const MIM_WHALE = "0x27C215c8b6e39f54C42aC04EB651211E9a566090";
@@ -14,6 +14,7 @@ describe("xJoe Cauldron", async () => {
   let XJoe: IERC20;
   let MIM: IERC20;
   let XJoeSwapper: XJoeSwapper;
+  let XJoeLevSwapper: XJoeLevSwapper;
   let BentoBox: BentoBoxV1;
   let mimShare;
   let xJoeShare;
@@ -47,7 +48,7 @@ describe("xJoe Cauldron", async () => {
     BentoBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", "0xf4F46382C2bE1603Dc817551Ff9A7b333Ed1D18f");
     MIM = await ethers.getContractAt<IERC20>("ERC20", "0x130966628846BFd36ff31a822705796e8cb8C18D");
     XJoeSwapper = await ethers.getContract<XJoeSwapper>("XJoeSwapper");
-    //UsdcAvaxLevSwapper = await ethers.getContract<UsdcAvaxLevSwapper>("UsdcAvaxLevSwapper");
+    XJoeLevSwapper = await ethers.getContract<XJoeLevSwapper>("XJoeLevSwapper");
 
     await impersonate(XJOE_WHALE);
     await impersonate(MIM_WHALE);
@@ -61,9 +62,9 @@ describe("xJoe Cauldron", async () => {
     await BentoBox.connect(xJoeWhaleSigner).deposit(XJoe.address, XJOE_WHALE, XJoeSwapper.address, 0, xJoeShare);
 
     // Deposit MIM for Leverage Swapper
-    /* mimShare = await BentoBox.toShare(MIM.address, getBigNumber(500_000), true);
+    mimShare = await BentoBox.toShare(MIM.address, getBigNumber(500_000), true);
     await MIM.connect(mimWhaleSigner).approve(BentoBox.address, ethers.constants.MaxUint256);
-    await BentoBox.connect(mimWhaleSigner).deposit(MIM.address, MIM_WHALE, XJoeLevSwapper.address, 0, mimShare);*/
+    await BentoBox.connect(mimWhaleSigner).deposit(MIM.address, MIM_WHALE, XJoeLevSwapper.address, 0, mimShare);
 
     snapshotId = await ethers.provider.send("evm_snapshot", []);
   });
@@ -91,17 +92,34 @@ describe("xJoe Cauldron", async () => {
   it("should liquidate the xJOE collateral and deposit MIM back to bentobox", async () => {
     const { alice } = await getNamedAccounts();
 
-    const amountUsdcAvaxBefore = (await BentoBox.totals(XJoe.address)).elastic;
+    const amountXJoeBefore = (await BentoBox.totals(XJoe.address)).elastic;
     const amountMimBefore = (await BentoBox.totals(MIM.address)).elastic;
 
     await XJoeSwapper.swap(ethers.constants.AddressZero, ethers.constants.AddressZero, alice, 0, xJoeShare);
 
-    const amountUsdcAvaxAfter = (await BentoBox.totals(XJoe.address)).elastic;
+    const amountXJoeAfter = (await BentoBox.totals(XJoe.address)).elastic;
     const amountMimAfter = (await BentoBox.totals(MIM.address)).elastic;
 
     //console.log(`Got ${(amountMimAfter.sub(amountMimBefore)).toString()} MIM from Liquidation Swapper`);
 
     expect(amountMimAfter).to.be.gt(amountMimBefore);
-    expect(amountUsdcAvaxAfter).to.be.lt(amountUsdcAvaxBefore);
+    expect(amountXJoeAfter).to.be.lt(amountXJoeBefore);
+  });
+
+  it("should swap MIM for xJOE and deposit back to bentobox", async () => {
+    const { alice } = await getNamedAccounts();
+
+    const amountXJoeBefore = (await BentoBox.totals(XJoe.address)).elastic;
+    const amountMimBefore = (await BentoBox.totals(MIM.address)).elastic;
+
+    await XJoeLevSwapper.swap(alice, 0, mimShare);
+
+    const amountXJoeAfter = (await BentoBox.totals(XJoe.address)).elastic;
+    const amountMimAfter = (await BentoBox.totals(MIM.address)).elastic;
+
+    //console.log(`Got ${(amountXJoeAfter.sub(amountXJoeBefore)).toString()} USDC/AVAX from Leverage Swapper`);
+
+    expect(amountMimAfter).to.be.lt(amountMimBefore);
+    expect(amountXJoeAfter).to.be.gt(amountXJoeBefore);
   });
 });
