@@ -45,7 +45,6 @@ contract XJoeLevSwapper {
     IUniswapV2Pair public constant JOE_WAVAX = IUniswapV2Pair(0x454E67025631C065d3cFAD6d71E6892f74487a15);
 
     constructor() {
-        JOEBAR.approve(address(BENTOBOX), type(uint256).max);
         JOE.approve(address(JOEBAR), type(uint256).max);
     }
 
