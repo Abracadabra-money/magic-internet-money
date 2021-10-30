@@ -5,6 +5,7 @@ import "@nomiclabs/hardhat-solhint";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
+import "@tenderly/hardhat-tenderly"
 import "hardhat-abi-exporter";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
@@ -180,10 +181,10 @@ const config: HardhatUserConfig = {
     timeout: 40000,
     bail: true,
   },
-  /* tenderly: {
-    project: process.env.TENDERLY_PROJECT,
-    username: process.env.TENDERLY_USERNAME,
-  }, */
+  tenderly: {
+    project: process.env.TENDERLY_PROJECT || 'project',
+    username: process.env.TENDERLY_USERNAME || '',
+  },
   solidity: {
     compilers: [
       {
