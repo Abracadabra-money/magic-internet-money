@@ -1,4 +1,5 @@
 const { getBigNumber } = require("../utilities");
+const { defaultAbiCoder } = require("ethers/lib/utils")
 
 module.exports = async function (hre) {
     /*
@@ -110,6 +111,7 @@ module.exports = async function (hre) {
         gasLimit: 1200000,
         gasPrice: finalGasPrice,
     }) */
+    let tx;
     /*
     tx = await hre.deployments.deploy("ArbEthSwapper", {
         from: deployer.address,
@@ -123,28 +125,13 @@ module.exports = async function (hre) {
         log: true,
         deterministicDeployment: false,
     }) */
-    /*
-    let tx = await hre.deployments.deploy("ProxyOracle", {
-        from: deployer.address,
-        args: [],
-        log: true,
-        deterministicDeployment: false,
-    }) */
-
-
     
-    tx = await hre.deployments.deploy("USTSwapper", {
+    tx = await hre.deployments.deploy("ProxyOracle", {
         from: deployer.address,
         args: [],
         log: true,
         deterministicDeployment: false,
-    }) 
-    tx = await hre.deployments.deploy("USTLevSwapper", {
-        from: deployer.address,
-        args: [],
-        log: true,
-        deterministicDeployment: false,
-    }) 
+    })
     /*
     tx = await hre.deployments.deploy("DegenBox", {
         from: deployer.address,
@@ -153,37 +140,28 @@ module.exports = async function (hre) {
         deterministicDeployment: false,
     }) */
     /*
-    let tx = await hre.deployments.deploy("USTOracle", {
-        from: deployer.address,
-        args: [],
-        log: true,
-        deterministicDeployment: false,
-    })
     // 0x890f4e345B1dAED0367A877a1612f86A1f86985f
-    const oracle = ((await hre.ethers.getContractFactory("USTOracle")).attach((await deployments.get("USTOracle")).address)).address
+    const oracle = "0x13f193d5328d967076c5ED80Be9ed5a79224DdAb" //((await hre.ethers.getContractFactory("SpellOracle")).attach((await deployments.get("SpellOracle")).address)).address
 
-    let collateral = "0xa47c8bf37f92aBed4A126BDA807A7b7498661acD"
+    let collateral = "0x3Ba207c25A278524e1cC7FaAea950753049072A4"
     //let oracle = "0x2Be431EE7E74b1CB7CfA16Fc90578EF42eF361B0"
     let oracleData = "0x0000000000000000000000000000000000000000"
     const INTEREST_CONVERSION = 1e18/(365.25*3600*24)/100
-    let interest = parseInt(2*INTEREST_CONVERSION)
+    let interest = parseInt(1.5*INTEREST_CONVERSION)
     const OPENING_CONVERSION = 1e5/100
-    let opening = 0.5 * OPENING_CONVERSION
-    let liquidation = 5*1e3+1e5
-    let collateralization = 90 * 1e3
+    let opening = 1 * OPENING_CONVERSION
+    let liquidation = 4*1e3+1e5
+    let collateralization = 92 * 1e3
 
     console.log("Deploy CauldronV2")
     const bentobox = (await hre.ethers.getContractFactory("BentoBoxV1")).attach(bentoAddresses[chainId])
-    
 
     let initData = defaultAbiCoder.encode(["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"], [collateral, oracle, oracleData, interest, liquidation, collateralization, opening])
     console.log(initData)
-    tx = await bentobox.deploy(cauldronV2[chainId], initData, true)
+    tx = await bentobox.deploy(cauldronV2CheckpointV1, initData, true)
     const res = await tx.wait()
     const cloneAddress = res.events[0].args[2]
     console.log("Deployed address: ", cloneAddress)
-
-
 
     /*
     if (deployerBalance.lt(finalGasPrice.mul(gasLimit))) {

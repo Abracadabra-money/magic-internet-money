@@ -29,7 +29,7 @@ describe("xJoe Cauldron", async () => {
           forking: {
             enabled: true,
             jsonRpcUrl: `https://api.avax.network/ext/bc/C/rpc`,
-            blockNumber: 6264607,
+            blockNumber: 6414640,
           },
         },
       ],
@@ -45,7 +45,7 @@ describe("xJoe Cauldron", async () => {
     // just use the address to get CauldronV2 from it instead.
     Cauldron = await ethers.getContractAt<CauldronV2>("CauldronV2", (await ethers.getContract("JoeBarCauldron")).address);
     XJoe = await ethers.getContractAt<IERC20>("ERC20", XJOE);
-    BentoBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", "0xf4F46382C2bE1603Dc817551Ff9A7b333Ed1D18f");
+    BentoBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", "0x1fC83f75499b7620d53757f0b01E2ae626aAE530");
     MIM = await ethers.getContractAt<IERC20>("ERC20", "0x130966628846BFd36ff31a822705796e8cb8C18D");
     XJoeSwapper = await ethers.getContract<XJoeSwapper>("XJoeSwapper");
     XJoeLevSwapper = await ethers.getContract<XJoeLevSwapper>("XJoeLevSwapper");
@@ -76,7 +76,7 @@ describe("xJoe Cauldron", async () => {
 
   it("should have deployed the cauldron with the right parameters", async () => {
     expect(Cauldron.address).not.to.eq(ethers.constants.AddressZero);
-
+    console.log(Cauldron.address)
     expect(await Cauldron.collateral()).to.eq(XJOE);
     expect(await Cauldron.oracle()).to.eq("0xf33Eb640773827AFBbB886Fa2d60B071d51D2D85");
     expect(await Cauldron.oracleData()).to.eq("0x0000000000000000000000000000000000000000");
