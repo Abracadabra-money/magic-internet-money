@@ -78,7 +78,7 @@ describe("xJoe Cauldron", async () => {
     expect(Cauldron.address).not.to.eq(ethers.constants.AddressZero);
     console.log(Cauldron.address)
     expect(await Cauldron.collateral()).to.eq(XJOE);
-    expect(await Cauldron.oracle()).to.eq("0xf33Eb640773827AFBbB886Fa2d60B071d51D2D85");
+    expect(await Cauldron.oracle()).to.eq("0x59B3D5dDf93A3782F7B7A4bE1214722fc6Fecd45");
     expect(await Cauldron.oracleData()).to.eq("0x0000000000000000000000000000000000000000");
 
     const accrueInfo = await Cauldron.accrueInfo();
