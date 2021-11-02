@@ -27,8 +27,8 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const BentoBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", "0x1fC83f75499b7620d53757f0b01E2ae626aAE530");
   const CauldronV2MasterContract = "0x02E07B6F27E5eC37CA6E9f846b6D48704031625A"; // CauldronV2
 
-  const collateral = "0x57319d41F71E81F3c65F2a47CA4e001EbAFd4F33"; // xJoe
-  const oracle = "0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85"; // xJoeOracle proxy oracle 
+  const collateral = "0xa389f9430876455c36478deea9769b7ca4e3ddb1"; // USDC/AVAX
+  const oracle = "0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85"; // USDC/AVAX proxy oracle 
   const oracleData = "0x0000000000000000000000000000000000000000";
 
     //let oracle = "0x2Be431EE7E74b1CB7CfA16Fc90578EF42eF361B0"
