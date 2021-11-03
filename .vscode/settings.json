@@ -1,0 +1,27 @@
+{
+    "mochaExplorer.files": "test/**/*.{j,t}s",
+    "mochaExplorer.fullTrace": true,
+    "mochaExplorer.exit": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "solidity.enableLocalNodeCompiler": false,
+    "solidity.compilerOptimization": 200,
+    "solidity.linter": "solhint",
+    "solidity.packageDefaultDependenciesContractsDirectory": "",
+    "solidity.enabledAsYouTypeCompilationErrorCheck": true,
+    "solidity.validationDelay": 1500,
+    "solidity.packageDefaultDependenciesDirectory": "node_modules",
+    "solidity.defaultCompiler": "remote",
+    "eslint.validate": [
+      "javascript"
+    ],
+    "files.exclude": {
+      "**/.git": true,
+      "**/.svn": true,
+      "**/.hg": true,
+      "**/CVS": true,
+      "**/.DS_Store": true,
+      "**/Thumbs.db": true,
+      "**/node_modules": false
+    },
+  }
+  

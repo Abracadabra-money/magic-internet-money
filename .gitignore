@@ -1,10 +1,11 @@
 artifacts/
 cache/
 node_modules/
-.vscode/
 .env
 yarn-error.log
 coverage
 coverage.json
 gasReport.txt
 bin
+typechain/
+abi
