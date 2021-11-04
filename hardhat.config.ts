@@ -64,6 +64,7 @@ const config: HardhatUserConfig = {
     },
     hardhat: {
       chainId: 1,
+      allowUnlimitedContractSize: true,
       // Seems to be a bug with this, even when false it complains about being unauthenticated.
       // Reported to HardHat team and fix is incoming
       forking: {

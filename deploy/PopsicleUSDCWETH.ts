@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, network } from "hardhat";
 import { ChainId } from "../utilities";
-import { BentoBoxV1, PopsicleUSDCWETHOracle } from "../typechain";
+import { BentoBoxV1, PopsicleUSDCWETHOracle, PopsicleV3Optimizer } from "../typechain";
 import { expect } from "chai";
 
 // List of supported chains to deploy on
@@ -12,21 +12,21 @@ const ParametersPerChain = {
   [ChainId.Mainnet]: {
     degenBox: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
     cauldronV2MasterContract: "0x476b1E35DDE474cB9Aa1f6B85c9Cc589BFa85c1F",
-    usdcWethPlp: "0x51aEA310a8FFF21c09Eee4594F3dA396209Bd398",
-    oracleData: "0x0000000000000000000000000000000000000000"
+    usdcWethPlp: "",
+    oracleData: "0x0000000000000000000000000000000000000000",
   },
   [ChainId.Fantom]: {
     degenBox: "",
     cauldronV2MasterContract: "",
     usdcWethPlp: "",
-    oracleData: "0x0000000000000000000000000000000000000000"
+    oracleData: "0x0000000000000000000000000000000000000000",
   },
   [ChainId.BSC]: {
     degenBox: "",
     cauldronV2MasterContract: "",
     usdcWethPlp: "",
-    oracleData: "0x0000000000000000000000000000000000000000"
-  }
+    oracleData: "0x0000000000000000000000000000000000000000",
+  },
 };
 
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -37,10 +37,22 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const chainId = await hre.getChainId();
   const parameters = ParametersPerChain[parseInt(chainId)];
 
+  // TODO: Remove this deployment and use existing deployed PopsicleV3Optimizer prod version.
+  // Current PopsicleV3Optimizer deployed on mainnet is a buggy version.
+  // Deploy the latest code here. 
+  await deploy("PopsicleV3Optimizer", {
+    from: deployer,
+    args: ["0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8", "0x0982e03a4cd1c89b52afd91b50638213a2628864"],
+    log: true,
+    deterministicDeployment: false,
+  });
+  const PopsicleV3Optimizer = await ethers.getContract<PopsicleV3Optimizer>("PopsicleV3Optimizer");
+  await PopsicleV3Optimizer.init();
+  
   // Oracle
   await deploy("PopsicleUSDCWETHOracle", {
     from: deployer,
-    args: [],
+    args: [PopsicleV3Optimizer.address],
     log: true,
     deterministicDeployment: false,
   });
@@ -59,7 +71,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   let initData = ethers.utils.defaultAbiCoder.encode(
     ["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"],
-    [parameters.usdcWethPlp, Oracle.address, parameters.oracleData, interest, liquidation, collateralization, opening]
+    [PopsicleV3Optimizer.address, Oracle.address, parameters.oracleData, interest, liquidation, collateralization, opening]
   );
   const tx = await (await DegenBox.deploy(parameters.cauldronV2MasterContract, initData, true)).wait();
 
@@ -73,15 +85,17 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   });
 
   // Liquidation Swapper
-  /*await deploy("PopsicleUSDCWETHSwapper", {
+  await deploy("PopsicleUSDCWETHSwapper", {
     from: deployer,
-    args: [],
+
+    // TODO: Change to deployed PopsicleV3Optimizer address.
+    args: [PopsicleV3Optimizer.address],
     log: true,
     deterministicDeployment: false,
   });
 
   // Leverage Swapper
-  await deploy("PopsicleUSDCWETHLevSwapper", {
+  /*await deploy("PopsicleUSDCWETHLevSwapper", {
     from: deployer,
     args: [],
     log: true,

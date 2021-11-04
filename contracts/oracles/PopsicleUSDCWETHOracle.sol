@@ -1,23 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 import "../interfaces/IOracle.sol";
+import "../interfaces/IPopsicle.sol";
 
 // Chainlink Aggregator
-
 interface IAggregator {
     function latestAnswer() external view returns (int256 answer);
-}
-
-interface IPopsicle {
-    function usersAmounts() external view returns (uint256 amount0, uint256 amount1);
-
-    function totalSupply() external view returns (uint256 amount);
 }
 
 contract PopsicleUSDCWETHOracle is IOracle {
     IAggregator public constant USDC = IAggregator(0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6);
     IAggregator public constant ETH = IAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
-    IPopsicle public constant popsicle = IPopsicle(0x51aEA310a8FFF21c09Eee4594F3dA396209Bd398);
+    IPopsicle public immutable popsicle;
+
+    constructor(IPopsicle _popsicle) {
+        popsicle = _popsicle;
+    }
 
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
