@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { getBigNumber, impersonate } from "../utilities";
-import { BentoBoxV1, CauldronV2, IERC20, IOracle, IPopsicle, PopsicleUSDCWETHSwapper, UsdcAvaxLevSwapper, UsdcAvaxSwapper } from "../typechain";
+import { BentoBoxV1, CauldronV2, IERC20, IOracle, IPopsicle, PopsicleUSDCWETHLevSwapper, PopsicleUSDCWETHSwapper, UsdcAvaxLevSwapper, UsdcAvaxSwapper } from "../typechain";
 import { expect } from "chai";
 
 // Top holders at the given fork block
@@ -17,7 +17,7 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
   let Cauldron: CauldronV2;
   let Oracle: IOracle;
   let PLPSwapper: PopsicleUSDCWETHSwapper;
-  //let PLPLevSwapper: PopsicleUSDCWETHLevSwapper;
+  let PLPLevSwapper: PopsicleUSDCWETHLevSwapper;
   let DegenBox: BentoBoxV1;
   let mimShare;
   let plpShare;
@@ -30,7 +30,7 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
         {
           forking: {
             jsonRpcUrl: process.env.ETHEREUM_RPC_URL || `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-            blockNumber: 13545300,
+            blockNumber: 13557427,
           },
         },
       ],
@@ -44,13 +44,12 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
     Oracle = await ethers.getContract<IOracle>("PopsicleUSDCWETHOracle");
     DegenBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce");
     MIM = await ethers.getContractAt<IERC20>("ERC20", "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3");
-    //PLP = await ethers.getContractAt<IPopsicle>("IPopsicle", "");
-    PLP = await ethers.getContract<IPopsicle>("PopsicleV3Optimizer");
+    PLP = await ethers.getContractAt<IPopsicle>("IPopsicle", "0xaE7b92C8B14E7bdB523408aE0A6fFbf3f589adD9");
 
     USDC = await ethers.getContractAt<IERC20>("ERC20", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48");
     WETH = await ethers.getContractAt<IERC20>("ERC20", "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2");
     PLPSwapper = await ethers.getContract<PopsicleUSDCWETHSwapper>("PopsicleUSDCWETHSwapper");
-    //PLPLevSwapper = await ethers.getContract<PopsicleUSDCWETHLevSwapper>("PopsicleUSDCWETHLevSwapper");
+    PLPLevSwapper = await ethers.getContract<PopsicleUSDCWETHLevSwapper>("PopsicleUSDCWETHLevSwapper");
 
     await impersonate(MIM_WHALE);
     await impersonate(USDC_WETH_WHALE);
@@ -63,6 +62,7 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
     await PLP.connect(usdcWethWhaleSigner).deposit(getBigNumber(500_000, 6), getBigNumber(115), USDC_WETH_WHALE);
 
     const plpAmount = await PLP.balanceOf(USDC_WETH_WHALE);
+    console.log("plpAmount", plpAmount.toString());
 
     // Deposit plp in DegenBox for PopsicleUSDCWETHSwapper
     plpShare = await DegenBox.toShare(PLP.address, plpAmount, true);
@@ -70,9 +70,9 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
     await DegenBox.connect(usdcWethWhaleSigner).deposit(PLP.address, USDC_WETH_WHALE, PLPSwapper.address, 0, plpShare);
 
     // Deposit MIM in DegenBox for PLPLevSwapper
-    /*mimShare = await DegenBox.toShare(MIM.address, getBigNumber(500_000), true);
+    mimShare = await DegenBox.toShare(MIM.address, getBigNumber(500_000), true);
     await MIM.connect(mimWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
-    await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, MIM_WHALE, PLPLevSwapper.address, 0, mimShare);*/
+    await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, MIM_WHALE, PLPLevSwapper.address, 0, mimShare);
 
     snapshotId = await ethers.provider.send("evm_snapshot", []);
   });
@@ -99,7 +99,7 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
     expect(amountCollateralAfter).to.be.lt(amountCollateralBefore);
   });
 
-  /*it("should swap MIM for USDC/WETH PLP and deposit back to degenbox", async () => {
+  it("should swap MIM for USDC/WETH PLP and deposit back to degenbox", async () => {
     const { alice } = await getNamedAccounts();
 
     const amountCollateralBefore = (await DegenBox.totals(PLP.address)).elastic;
@@ -114,7 +114,7 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
 
     expect(amountMimAfter).to.be.lt(amountMimBefore);
     expect(amountCollateralAfter).to.be.gt(amountCollateralBefore);
-  });*/
+  });
 
   it("should have deployed the cauldron with the right parameters", async () => {
     expect(Cauldron.address).not.to.eq(ethers.constants.AddressZero);

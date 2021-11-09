@@ -12,7 +12,7 @@ const ParametersPerChain = {
   [ChainId.Mainnet]: {
     degenBox: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
     cauldronV2MasterContract: "0x476b1E35DDE474cB9Aa1f6B85c9Cc589BFa85c1F",
-    usdcWethPlp: "",
+    usdcWethPlp: "0xaE7b92C8B14E7bdB523408aE0A6fFbf3f589adD9",
     oracleData: "0x0000000000000000000000000000000000000000",
   },
   [ChainId.Fantom]: {
@@ -37,22 +37,10 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const chainId = await hre.getChainId();
   const parameters = ParametersPerChain[parseInt(chainId)];
 
-  // TODO: Remove this deployment and use existing deployed PopsicleV3Optimizer prod version.
-  // Current PopsicleV3Optimizer deployed on mainnet is a buggy version.
-  // Deploy the latest code here. 
-  await deploy("PopsicleV3Optimizer", {
-    from: deployer,
-    args: ["0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8", "0x0982e03a4cd1c89b52afd91b50638213a2628864"],
-    log: true,
-    deterministicDeployment: false,
-  });
-  const PopsicleV3Optimizer = await ethers.getContract<PopsicleV3Optimizer>("PopsicleV3Optimizer");
-  await PopsicleV3Optimizer.init();
-  
   // Oracle
   await deploy("PopsicleUSDCWETHOracle", {
     from: deployer,
-    args: [PopsicleV3Optimizer.address],
+    args: [parameters.usdcWethPlp],
     log: true,
     deterministicDeployment: false,
   });
@@ -71,7 +59,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   let initData = ethers.utils.defaultAbiCoder.encode(
     ["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"],
-    [PopsicleV3Optimizer.address, Oracle.address, parameters.oracleData, interest, liquidation, collateralization, opening]
+    [parameters.usdcWethPlp, Oracle.address, parameters.oracleData, interest, liquidation, collateralization, opening]
   );
   const tx = await (await DegenBox.deploy(parameters.cauldronV2MasterContract, initData, true)).wait();
 
@@ -87,20 +75,18 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   // Liquidation Swapper
   await deploy("PopsicleUSDCWETHSwapper", {
     from: deployer,
-
-    // TODO: Change to deployed PopsicleV3Optimizer address.
-    args: [PopsicleV3Optimizer.address],
+    args: [parameters.usdcWethPlp],
     log: true,
     deterministicDeployment: false,
   });
 
   // Leverage Swapper
-  /*await deploy("PopsicleUSDCWETHLevSwapper", {
+  await deploy("PopsicleUSDCWETHLevSwapper", {
     from: deployer,
-    args: [],
+    args: [parameters.usdcWethPlp],
     log: true,
     deterministicDeployment: false,
-  });*/
+  });
 };
 
 export default deployFunction;

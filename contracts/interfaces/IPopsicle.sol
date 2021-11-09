@@ -16,6 +16,9 @@ interface IPopsicle {
 
     function withdraw(uint256 shares, address to) external returns (uint256 amount0, uint256 amount1);
 
+    function tickLower() external view returns(int24);
+    function tickUpper() external view returns(int24);
+    
     function deposit(
         uint256 amount0Desired,
         uint256 amount1Desired,
