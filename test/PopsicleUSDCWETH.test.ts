@@ -1,8 +1,19 @@
 /* eslint-disable prefer-const */
 import { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { getBigNumber, impersonate } from "../utilities";
-import { BentoBoxV1, CauldronV2, IERC20, IOracle, IPopsicle, PopsicleUSDCWETHLevSwapper, PopsicleUSDCWETHSwapper, UsdcAvaxLevSwapper, UsdcAvaxSwapper } from "../typechain";
+import {
+  BentoBoxV1,
+  CauldronV2,
+  IERC20,
+  IOracle,
+  IPopsicle,
+  PopsicleUSDCWETHLevSwapper,
+  PopsicleUSDCWETHSwapper,
+  UsdcAvaxLevSwapper,
+  UsdcAvaxSwapper,
+} from "../typechain";
 import { expect } from "chai";
+import { BigNumber } from "@ethersproject/bignumber";
 
 // Top holders at the given fork block
 const MIM_WHALE = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e";
@@ -19,8 +30,8 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
   let PLPSwapper: PopsicleUSDCWETHSwapper;
   let PLPLevSwapper: PopsicleUSDCWETHLevSwapper;
   let DegenBox: BentoBoxV1;
-  let mimShare;
-  let plpShare;
+  let mimShare: BigNumber;
+  let plpShare: BigNumber;
   let deployerSigner;
 
   before(async () => {
@@ -59,7 +70,7 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
 
     await USDC.connect(usdcWethWhaleSigner).approve(PLP.address, ethers.constants.MaxUint256);
     await WETH.connect(usdcWethWhaleSigner).approve(PLP.address, ethers.constants.MaxUint256);
-    await PLP.connect(usdcWethWhaleSigner).deposit(getBigNumber(500_000, 6), getBigNumber(115), USDC_WETH_WHALE);
+    await PLP.connect(usdcWethWhaleSigner).deposit(getBigNumber(5_000_000, 6), getBigNumber(115), USDC_WETH_WHALE);
 
     const plpAmount = await PLP.balanceOf(USDC_WETH_WHALE);
     console.log("plpAmount", plpAmount.toString());
@@ -70,7 +81,7 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
     await DegenBox.connect(usdcWethWhaleSigner).deposit(PLP.address, USDC_WETH_WHALE, PLPSwapper.address, 0, plpShare);
 
     // Deposit MIM in DegenBox for PLPLevSwapper
-    mimShare = await DegenBox.toShare(MIM.address, getBigNumber(500_000), true);
+    mimShare = await DegenBox.toShare(MIM.address, getBigNumber(5_000_000), true);
     await MIM.connect(mimWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
     await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, MIM_WHALE, PLPLevSwapper.address, 0, mimShare);
 
@@ -93,27 +104,51 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
     const amountCollateralAfter = (await DegenBox.totals(PLP.address)).elastic;
     const amountMimAfter = (await DegenBox.totals(MIM.address)).elastic;
 
-    console.log(`Got ${(amountMimAfter.sub(amountMimBefore)).toString()} MIM from Liquidation Swapper`);
+    console.log(`Got ${amountMimAfter.sub(amountMimBefore).toString()} MIM from Liquidation Swapper`);
 
     expect(amountMimAfter).to.be.gt(amountMimBefore);
     expect(amountCollateralAfter).to.be.lt(amountCollateralBefore);
   });
 
   it("should swap MIM for USDC/WETH PLP and deposit back to degenbox", async () => {
+    const mimShares = [
+      mimShare,
+      mimShare.div(5),
+      mimShare.div(10),
+      mimShare.div(20),
+      mimShare.div(100),
+      mimShare.div(1000),
+      mimShare.div(10000),
+      mimShare.div(100000),
+    ];
     const { alice } = await getNamedAccounts();
 
-    const amountCollateralBefore = (await DegenBox.totals(PLP.address)).elastic;
-    const amountMimBefore = (await DegenBox.totals(MIM.address)).elastic;
+    for (let i = 0; i < mimShares.length; i++) {
+      const shareAmount = mimShares[i];
+      console.log(` > From ${ethers.utils.formatEther(shareAmount)} MIM shares`);
 
-    await PLPLevSwapper.swap(alice, 0, mimShare);
+      const amountCollateralBefore = (await DegenBox.totals(PLP.address)).elastic;
+      const amountMimBefore = (await DegenBox.totals(MIM.address)).elastic;
 
-    const amountCollateralAfter = (await DegenBox.totals(PLP.address)).elastic;
-    const amountMimAfter = (await DegenBox.totals(MIM.address)).elastic;
+      await PLPLevSwapper.swap(alice, 0, shareAmount);
 
-    console.log(`Got ${(amountCollateralAfter.sub(amountCollateralBefore)).toString()} PLP from Leverage Swapper`);
+      const amountCollateralAfter = (await DegenBox.totals(PLP.address)).elastic;
+      const amountMimAfter = (await DegenBox.totals(MIM.address)).elastic;
 
-    expect(amountMimAfter).to.be.lt(amountMimBefore);
-    expect(amountCollateralAfter).to.be.gt(amountCollateralBefore);
+      console.log(`Got ${ethers.utils.formatEther(amountCollateralAfter.sub(amountCollateralBefore))} PLP from Leverage Swapper`);
+
+      console.log(
+        "Remaining in the swapping contract:",
+        ethers.utils.formatUnits(await USDC.balanceOf(PLPLevSwapper.address), 6),
+        "USDC, ",
+        ethers.utils.formatEther(await USDC.balanceOf(PLPLevSwapper.address)),
+        "WETH"
+      );
+      expect(amountMimAfter).to.be.lt(amountMimBefore);
+      expect(amountCollateralAfter).to.be.gt(amountCollateralBefore);
+
+      await network.provider.send("evm_revert", [snapshotId]);
+    }
   });
 
   it("should have deployed the cauldron with the right parameters", async () => {
