@@ -130,6 +130,7 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
       const amountCollateralBefore = (await DegenBox.totals(PLP.address)).elastic;
       const amountMimBefore = (await DegenBox.totals(MIM.address)).elastic;
 
+      const estimateGas = await PLPLevSwapper.estimateGas.swap(alice, 0, shareAmount);
       await PLPLevSwapper.swap(alice, 0, shareAmount);
 
       const amountCollateralAfter = (await DegenBox.totals(PLP.address)).elastic;
@@ -144,6 +145,8 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
         ethers.utils.formatEther(await USDC.balanceOf(PLPLevSwapper.address)),
         "WETH"
       );
+
+      console.log("Gas Cost", estimateGas.toString());
       expect(amountMimAfter).to.be.lt(amountMimBefore);
       expect(amountCollateralAfter).to.be.gt(amountCollateralBefore);
 
