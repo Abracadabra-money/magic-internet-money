@@ -28,7 +28,7 @@ interface JoeBar {
 }
 
 contract XJoeSwapper is ISwapperGeneric {
-    IBentoBoxV1 public constant BENTOBOX = IBentoBoxV1(0xf4F46382C2bE1603Dc817551Ff9A7b333Ed1D18f);
+    IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0x1fC83f75499b7620d53757f0b01E2ae626aAE530);
 
     JoeBar public constant JOEBAR = JoeBar(0x57319d41F71E81F3c65F2a47CA4e001EbAFd4F33);
     IERC20 public constant JOE = IERC20(0x6e84a6216eA6dACC71eE8E6b0a5B7322EEbC0fDd);
@@ -39,7 +39,7 @@ contract XJoeSwapper is ISwapperGeneric {
     IUniswapV2Pair public constant MIM_WAVAX = IUniswapV2Pair(0x781655d802670bbA3c89aeBaaEa59D3182fD755D);
 
     constructor() {
-        MIM.approve(address(BENTOBOX), type(uint256).max);
+        MIM.approve(address(DEGENBOX), type(uint256).max);
     }
 
     function _getAmountOut(
@@ -61,7 +61,7 @@ contract XJoeSwapper is ISwapperGeneric {
         uint256 shareToMin,
         uint256 shareFrom
     ) public override returns (uint256 extraShare, uint256 shareReturned) {
-        (uint256 amountFrom, ) = BENTOBOX.withdraw(IERC20(address(JOEBAR)), address(this), address(this), 0, shareFrom);
+        (uint256 amountFrom, ) = DEGENBOX.withdraw(IERC20(address(JOEBAR)), address(this), address(this), 0, shareFrom);
         JOEBAR.leave(amountFrom);
 
         // swap JOE to AVAX
@@ -77,7 +77,7 @@ contract XJoeSwapper is ISwapperGeneric {
         WAVAX.transfer(address(MIM_WAVAX), avaxFromJoe);
         MIM_WAVAX.swap(mimFromAvax, 0, address(this), new bytes(0));
 
-        (, shareReturned) = BENTOBOX.deposit(MIM, address(this), recipient, mimFromAvax, 0);
+        (, shareReturned) = DEGENBOX.deposit(MIM, address(this), recipient, mimFromAvax, 0);
         extraShare = shareReturned - shareToMin;
     }
 
