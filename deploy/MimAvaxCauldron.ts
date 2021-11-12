@@ -25,7 +25,6 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   // be whitelisted
   const BentoBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", "0x1fC83f75499b7620d53757f0b01E2ae626aAE530");
   const CauldronV2MasterContract = "0x02E07B6F27E5eC37CA6E9f846b6D48704031625A"; // CauldronV2
-
   const collateral = "0xeD8CBD9F0cE3C6986b22002F03c6475CEb7a6256"; // AVAX/USDT
   const oracle = "0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85"; // USDC/AVAX proxy oracle
   const oracleData = "0x0000000000000000000000000000000000000000";
@@ -33,10 +32,10 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const INTEREST_CONVERSION = 1e18 / (365.25 * 3600 * 24) / 100;
   const OPENING_CONVERSION = 1e5 / 100;
 
-  // 85% LTV .5% initial 3% Interest
+  // 85% LTV .5% initial 1% Interest
   const collateralization = 85 * 1e3; // 85% LTV
   const opening = 0.5 * OPENING_CONVERSION; // .5% initial
-  const interest = parseInt(String(3 * INTEREST_CONVERSION)); // 3% Interest
+  const interest = parseInt(String(1 * INTEREST_CONVERSION)); // 1% Interest
   const liquidation = 8 * 1e3 + 1e5;
 
   let initData = ethers.utils.defaultAbiCoder.encode(
@@ -49,13 +48,15 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const deployEvent = tx?.events?.[0];
   expect(deployEvent?.eventSignature).to.be.eq("LogDeploy(address,bytes,address)");
 
-  deployments.save("AvaxUsdtCauldron", {
+  deployments.save("MimUsdtCauldron", {
     abi: [],
     address: deployEvent?.args?.cloneAddress,
   });
 
-  const AvaxUsdtCauldron = await ethers.getContract<CauldronV2>("AvaxUsdtCauldron");
-  await AvaxUsdtCauldron.transferOwnership(xMerlin, true, false);
+  if(network.name !== "hardhat") {
+    const MimUsdtCauldron = await ethers.getContract<CauldronV2>("MimUsdtCauldron");
+    await MimUsdtCauldron.transferOwnership(xMerlin, true, false);
+  }
 };
 
 export default deployFunction;
@@ -74,4 +75,4 @@ if (network.name !== "hardhat" || process.env.HARDHAT_LOCAL_NODE) {
 }
 
 deployFunction.tags = ["AvaxUsdtCauldron"];
-deployFunction.dependencies = ["AvaxUsdtOracle"];
+deployFunction.dependencies = [];

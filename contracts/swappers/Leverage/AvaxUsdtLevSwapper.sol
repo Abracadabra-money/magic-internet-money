@@ -33,7 +33,7 @@ interface IBentoBoxV1 {
 
 contract AvaxUsdtLevSwapper {
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0x1fC83f75499b7620d53757f0b01E2ae626aAE530);
-    IUniswapV2Pair public constant AVAXUSDT = IUniswapV2Pair(0xA389f9430876455C36478DeEa9769B7Ca4E3DDB1);
+    IUniswapV2Pair public constant AVAXUSDT = IUniswapV2Pair(0xeD8CBD9F0cE3C6986b22002F03c6475CEb7a6256);
     IUniswapV2Pair public constant MIMAVAX = IUniswapV2Pair(0x781655d802670bbA3c89aeBaaEa59D3182fD755D);
     IUniswapV2Router01 public constant ROUTER = IUniswapV2Router01(0x60aE616a2155Ee3d9A68541Ba4544862310933d4);
 
@@ -86,10 +86,10 @@ contract AvaxUsdtLevSwapper {
         AVAXUSDT.swap(0, usdtAmount, address(this), "");
 
         ROUTER.addLiquidity(
-            address(USDT),
             address(WAVAX),
-            USDT.balanceOf(address(this)),
+            address(USDT),
             WAVAX.balanceOf(address(this)),
+            USDT.balanceOf(address(this)),
             1,
             1,
             address(this),
