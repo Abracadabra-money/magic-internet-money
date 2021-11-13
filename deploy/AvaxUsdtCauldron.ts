@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, network } from "hardhat";
-import { BentoBoxV1, CauldronV2 } from "../typechain";
+import { BentoBoxV1, CauldronV2, ProxyOracle } from "../typechain";
 import { DeploymentSubmission } from "hardhat-deploy/dist/types";
 import { expect } from "chai";
 import { xMerlin } from "../test/constants";
@@ -9,25 +9,12 @@ import { xMerlin } from "../test/constants";
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
-
   const { deployer } = await getNamedAccounts();
 
-  const getDeployment = async (name: string) => {
-    try {
-      return (await deployments.get(name)).address;
-    } catch {
-      return undefined;
-    }
-  };
-
-  // Deploy xJoe Cauldron using BentoBox
-  // if we need to use DegenBox instead the CauldronV2 mastercontract needs to
-  // be whitelisted
   const BentoBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", "0x1fC83f75499b7620d53757f0b01E2ae626aAE530");
   const CauldronV2MasterContract = "0x02E07B6F27E5eC37CA6E9f846b6D48704031625A"; // CauldronV2
-
   const collateral = "0xeD8CBD9F0cE3C6986b22002F03c6475CEb7a6256"; // AVAX/USDT
-  const oracle = "0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85"; // USDC/AVAX proxy oracle
+  const oracleProxy = await ethers.getContract<ProxyOracle>("AvaxUsdtProxyOracle");
   const oracleData = "0x0000000000000000000000000000000000000000";
 
   const INTEREST_CONVERSION = 1e18 / (365.25 * 3600 * 24) / 100;
@@ -41,7 +28,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   let initData = ethers.utils.defaultAbiCoder.encode(
     ["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"],
-    [collateral, oracle, oracleData, interest, liquidation, collateralization, opening]
+    [collateral, oracleProxy.address, oracleData, interest, liquidation, collateralization, opening]
   );
 
   const tx = await (await BentoBox.deploy(CauldronV2MasterContract, initData, true)).wait();
@@ -53,9 +40,6 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     abi: [],
     address: deployEvent?.args?.cloneAddress,
   });
-
-  const AvaxUsdtCauldron = await ethers.getContract<CauldronV2>("AvaxUsdtCauldron");
-  await AvaxUsdtCauldron.transferOwnership(xMerlin, true, false);
 };
 
 export default deployFunction;
@@ -74,4 +58,4 @@ if (network.name !== "hardhat" || process.env.HARDHAT_LOCAL_NODE) {
 }
 
 deployFunction.tags = ["AvaxUsdtCauldron"];
-deployFunction.dependencies = ["AvaxUsdtOracle"];
+deployFunction.dependencies = ["AvaxUsdtOracles"];

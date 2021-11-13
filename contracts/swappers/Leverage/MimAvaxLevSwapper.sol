@@ -43,6 +43,7 @@ contract MimAvaxLevSwapper {
 
     constructor() {
         MIMAVAX.approve(address(DEGENBOX), type(uint256).max);
+        MIM.approve(address(ROUTER), type(uint256).max);
         WAVAX.approve(address(ROUTER), type(uint256).max);
     }
 

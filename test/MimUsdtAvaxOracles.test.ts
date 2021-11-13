@@ -5,7 +5,7 @@ import { AvaxLPOracle, AvaxUsdtOracleV1, BentoBoxV1, CauldronV2, IAggregator, IE
 import { expect } from "chai";
 import { xMerlin } from "./constants";
 
-describe("Avax/USDT and MIM/Avax Oracle Deployments", async () => {
+describe("Avax/USDT and MIM/Avax Oracle Deployments and Cauldron", async () => {
   let snapshotId;
 
   before(async () => {

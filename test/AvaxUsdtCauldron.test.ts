@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { getBigNumber, impersonate } from "../utilities";
-import { BentoBoxV1, IERC20, AvaxUsdtLevSwapper, AvaxUsdtSwapper } from "../typechain";
+import { BentoBoxV1, IERC20, AvaxUsdtLevSwapper, AvaxUsdtSwapper, CauldronV2 } from "../typechain";
 import { expect } from "chai";
 
 // Top holders at the given fork block
@@ -10,6 +10,7 @@ const AVAXUSDT_LP_WHALE = "0x7Fe69733f5A2B632527Eae2D6818548875eB140f";
 
 describe("Lev/Liquidation AvaxUsdt Swappers", async () => {
   let snapshotId;
+  let Cauldron: CauldronV2;
   let MIM: IERC20;
   let AVAXUSDT: IERC20;
   let WAVAX: IERC20;
@@ -35,9 +36,11 @@ describe("Lev/Liquidation AvaxUsdt Swappers", async () => {
       ],
     });
 
-    await deployments.fixture(["AvaxUsdtSwappers"]);
+    await deployments.fixture(["AvaxUsdtSwappers", "AvaxUsdtCauldron"]);
     const { deployer } = await getNamedAccounts();
     deployerSigner = await ethers.getSigner(deployer);
+
+    Cauldron = await ethers.getContractAt<CauldronV2>("CauldronV2", (await ethers.getContract("AvaxUsdtCauldron")).address);
 
     AvaxUsdtSwapper = await ethers.getContract<AvaxUsdtSwapper>("AvaxUsdtSwapper");
     AvaxUsdtLevSwapper = await ethers.getContract<AvaxUsdtLevSwapper>("AvaxUsdtLevSwapper");
@@ -70,6 +73,14 @@ describe("Lev/Liquidation AvaxUsdt Swappers", async () => {
   afterEach(async () => {
     await network.provider.send("evm_revert", [snapshotId]);
     snapshotId = await ethers.provider.send("evm_snapshot", []);
+  });
+
+  it("should have deployed the cauldron with the right parameters", async () => {
+    expect(Cauldron.address).not.to.eq(ethers.constants.AddressZero);
+    console.log(Cauldron.address)
+    expect(await Cauldron.collateral()).to.eq("0xeD8CBD9F0cE3C6986b22002F03c6475CEb7a6256");
+    expect(await Cauldron.oracle()).to.not.eq(ethers.constants.AddressZero);
+    expect(await Cauldron.oracleData()).to.eq("0x0000000000000000000000000000000000000000");
   });
 
   it("should liquidate the AVAX/USDT collateral and deposit MIM back to degenbox", async () => {

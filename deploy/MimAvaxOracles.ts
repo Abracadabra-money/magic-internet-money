@@ -42,7 +42,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   await deploy("MimAvaxLPOracle", {
     from: deployer,
-    args: [LPChainlinkOracleV1.address, "LP AVAX/USDT"],
+    args: [LPChainlinkOracleV1.address, "LP MIM/AVAX"],
     log: true,
     contract: "AvaxLPOracle",
     deterministicDeployment: false,
