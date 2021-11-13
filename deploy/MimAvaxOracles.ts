@@ -50,8 +50,12 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   const MimAvaxLPOracle = await ethers.getContract<AvaxLPOracle>("MimAvaxLPOracle");
   const ProxyOracle = await ethers.getContract<ProxyOracle>("MimAvaxProxyOracle");
-  await ProxyOracle.changeOracleImplementation(MimAvaxLPOracle.address);
-  await ProxyOracle.transferOwnership(xMerlin, true, false);
+  if ((await ProxyOracle.oracleImplementation()) !== MimAvaxLPOracle.address) {
+    await ProxyOracle.changeOracleImplementation(MimAvaxLPOracle.address);
+  }
+  if ((await ProxyOracle.owner()) !== xMerlin) {
+    await ProxyOracle.transferOwnership(xMerlin, true, false);
+  }
 };
 
 export default deployFunction;
