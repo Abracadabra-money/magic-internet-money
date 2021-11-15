@@ -230,6 +230,15 @@ const config: HardhatUserConfig = {
           },
         },
       },
+      "@uniswap/v3-periphery/contracts/libraries/LiquidityAmounts.sol": {
+        version: "0.7.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 9000,
+          },
+        },
+      },
       "@uniswap/v3-core/contracts/libraries/TickMath.sol": {
         version: "0.7.6",
         settings: {

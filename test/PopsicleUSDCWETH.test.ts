@@ -142,7 +142,7 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
         "Remaining in the swapping contract:",
         ethers.utils.formatUnits(await USDC.balanceOf(PLPLevSwapper.address), 6),
         "USDC, ",
-        ethers.utils.formatEther(await USDC.balanceOf(PLPLevSwapper.address)),
+        ethers.utils.formatEther(await WETH.balanceOf(PLPLevSwapper.address)),
         "WETH"
       );
 
