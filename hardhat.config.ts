@@ -75,7 +75,7 @@ const config: HardhatUserConfig = {
       gasPrice: 0,
       initialBaseFeePerGas: 0,
       live: false,
-      saveDeployments: true,
+      saveDeployments: false,
       tags: ["test", "local"],
     },
     mainnet: {
