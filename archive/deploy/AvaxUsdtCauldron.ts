@@ -1,10 +1,10 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, network } from "hardhat";
-import { BentoBoxV1, CauldronV2, ProxyOracle } from "../typechain";
+import { BentoBoxV1, CauldronV2, ProxyOracle } from "../../typechain";
 import { DeploymentSubmission } from "hardhat-deploy/dist/types";
 import { expect } from "chai";
-import { xMerlin } from "../test/constants";
+import { xMerlin } from "../../test/constants";
 
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;

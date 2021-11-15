@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import { ethers, network, deployments, getNamedAccounts } from "hardhat";
-import { getBigNumber, impersonate } from "../utilities";
-import { BentoBoxV1, IERC20, AvaxUsdtLevSwapper, AvaxUsdtSwapper, CauldronV2 } from "../typechain";
+import { getBigNumber, impersonate } from "../../utilities";
+import { BentoBoxV1, IERC20, AvaxUsdtLevSwapper, AvaxUsdtSwapper, CauldronV2 } from "../../typechain";
 import { expect } from "chai";
 
 // Top holders at the given fork block
