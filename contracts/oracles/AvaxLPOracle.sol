@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.10;
 import "../interfaces/IOracle.sol";
 
 // Chainlink Aggregator
@@ -8,15 +8,26 @@ interface IAggregator {
     function latestAnswer() external view returns (int256 answer);
 }
 
-contract UsdcAvaxLPOracle is IOracle {
-    IAggregator constant public AVAX = IAggregator(0x0A77230d17318075983913bC2145DB16C7366156);
-    IAggregator constant public LPAVAX = IAggregator(0xD5d0f5d872ed4eB74AA3E8fa6D833d6f7603D2EC);
+contract AvaxLPOracle is IOracle {
+    IAggregator public constant AVAX = IAggregator(0x0A77230d17318075983913bC2145DB16C7366156);
 
-    // Calculates the lastest exchange rate
-    // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
+    /// @dev should be using an implementation of LPChainlinkOracle
+    IAggregator public immutable lpOracle;
+    string private desc;
+
+    constructor(
+        IAggregator _lpOracle,
+        string memory _desc
+    ) {
+        lpOracle = _lpOracle;
+        desc = _desc;
+    }
+    
+    /// @notice Returns 1 USD price in LP denominated in USD
+    /// @dev lpOracle.latestAnswer() returns the price of 1 LP in AVAX multipled by Avax Price.
+    /// It's then inverted so it gives how many LP can 1 USD buy.
     function _get() internal view returns (uint256) {
-
-        uint256 lpPrice = uint256(LPAVAX.latestAnswer()) * uint256(AVAX.latestAnswer());
+        uint256 lpPrice = uint256(lpOracle.latestAnswer()) * uint256(AVAX.latestAnswer());
 
         return 1e44 / lpPrice;
     }
@@ -40,12 +51,12 @@ contract UsdcAvaxLPOracle is IOracle {
     }
 
     /// @inheritdoc IOracle
-    function name(bytes calldata) public pure override returns (string memory) {
-        return "LP AVAX/USDC";
+    function name(bytes calldata) public view override returns (string memory) {
+        return desc;
     }
 
     /// @inheritdoc IOracle
-    function symbol(bytes calldata) public pure override returns (string memory) {
-        return "LP AVAX/USDC";
+    function symbol(bytes calldata) public view override returns (string memory) {
+        return desc;
     }
 }
