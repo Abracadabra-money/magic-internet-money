@@ -123,12 +123,10 @@ contract PopsicleUSDCWETHLevSwapper {
 
         // MIM -> USDC on Curve MIM3POOL
         MIM3POOL.exchange_underlying(0, 2, mimAmount, 0, address(this));
-        uint256 usdcAmount = USDC.balanceOf(address(this)); // cuz we have some amounts left from previous leverages // u can remove that and add some functions to withdraw res balance
+        uint256 usdcAmount = USDC.balanceOf(address(this)); // account for some amounts left from previous leverages
 
-        // Swap 50% USDC -> WETH can forbid deposit!!!!
         // Swap Amount USDC -> WETH to provide optimal 50/50 liquidity
         // Use UniswapV2 pair to avoid changing V3 liquidity balance
-
         {
             (uint256 reserve0, uint256 reserve1, ) = USDCWETH.getReserves();
             (uint256 balance0, uint256 balance1) = _getAmountsToDeposit(usdcAmount, reserve0, reserve1);
@@ -155,7 +153,8 @@ contract PopsicleUSDCWETHLevSwapper {
         uint256 share0 = FullMath.mulDiv(cache.sqrtRatioBX - cache.sqrtRatioX, MULTIPLIER, distance);
         uint256 share1 = FullMath.mulDiv(cache.sqrtRatioX - cache.sqrtRatioAX, MULTIPLIER, distance);
 
-        cache.usdIntermediate = FullMath.mulDiv(usdcAmountTotal, share1, MULTIPLIER); // to swap. cuz token0 == USDC. change to share0 if token0 == weth
+        // to swap, since token0 == USDC. change to share0 if token0 == weth
+        cache.usdIntermediate = FullMath.mulDiv(usdcAmountTotal, share1, MULTIPLIER);
         balance0 = usdcAmountTotal.sub(cache.usdIntermediate);
         balance1 = getAmountOut(cache.usdIntermediate, reserve0, reserve1);
 
