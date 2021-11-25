@@ -8,17 +8,19 @@ interface IAggregator {
     function latestAnswer() external view returns (int256 answer);
 }
 
-contract UsdcAvaxLPOracle is IOracle {
-    IAggregator constant public AVAX = IAggregator(0x0A77230d17318075983913bC2145DB16C7366156);
-    IAggregator constant public LPAVAX = IAggregator(0xD5d0f5d872ed4eB74AA3E8fa6D833d6f7603D2EC);
+interface IERC20 {
+    function totalSupply() external view returns (uint256);
+    function balanceOf(address account) external view returns (uint256);
+}
+
+contract CakeOracle is IOracle {
+    IAggregator constant public BNBUSD = IAggregator(0xB6064eD41d4f67e353768aA239cA86f4F73665a1);
 
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get() internal view returns (uint256) {
 
-        uint256 lpPrice = uint256(LPAVAX.latestAnswer()) * uint256(AVAX.latestAnswer());
-
-        return 1e44 / lpPrice;
+        return 1e26 / uint256(BNBUSD.latestAnswer());
     }
 
     // Get the latest exchange rate
@@ -41,11 +43,11 @@ contract UsdcAvaxLPOracle is IOracle {
 
     /// @inheritdoc IOracle
     function name(bytes calldata) public pure override returns (string memory) {
-        return "LP AVAX/USDC";
+        return "Chainlink CAKE";
     }
 
     /// @inheritdoc IOracle
     function symbol(bytes calldata) public pure override returns (string memory) {
-        return "LP AVAX/USDC";
+        return "LINK/CAKE";
     }
 }

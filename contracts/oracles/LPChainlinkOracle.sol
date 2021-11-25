@@ -1,25 +1,5 @@
-/**
- *Submitted for verification at Etherscan.io on 2021-04-14
- */
-
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
-
-/// @notice A library for performing overflow-/underflow-safe math,
-/// updated with awesomeness from of DappHub (https://github.com/dapphub/ds-math).
-library BoringMath {
-    function add(uint256 a, uint256 b) internal pure returns (uint256 c) {
-        require((c = a + b) >= b, "BoringMath: Add Overflow");
-    }
-
-    function sub(uint256 a, uint256 b) internal pure returns (uint256 c) {
-        require((c = a - b) <= a, "BoringMath: Underflow");
-    }
-
-    function mul(uint256 a, uint256 b) internal pure returns (uint256 c) {
-        require(b == 0 || (c = a * b) / b == a, "BoringMath: Mul Overflow");
-    }
-}
+pragma solidity 0.8.10;
 
 interface IAggregator {
     function latestAnswer() external view returns (int256 answer);
@@ -37,23 +17,6 @@ interface AggregatorV3Interface {
       uint256 updatedAt,
       uint80 answeredInRound
     );
-}
-
-// File @boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol@v1.2.2
-// License-Identifier: MIT
-
-// solhint-disable avoid-low-level-calls
-
-library BoringERC20 {
-    bytes4 private constant SIG_DECIMALS = 0x313ce567; // decimals()
-
-    /// @notice Provides a safe ERC20.decimals version which returns '18' as fallback value.
-    /// @param token The address of the ERC-20 token contract.
-    /// @return (uint8) Token decimals.
-    function safeDecimals(IERC20 token) internal view returns (uint8) {
-        (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(SIG_DECIMALS));
-        return success && data.length == 32 ? abi.decode(data, (uint8)) : 18;
-    }
 }
 
 interface IERC20 {
@@ -79,9 +42,6 @@ interface IUniswapV2Pair {
 /// @notice Oracle used for getting the price of an LP token
 /// @dev Optimized version based on https://blog.alphafinance.io/fair-lp-token-pricing/
 contract LPChainlinkOracleV1 is IAggregator {
-    using BoringMath for uint256;
-    using BoringERC20 for IERC20;
-
     IUniswapV2Pair public immutable pair;
     AggregatorV3Interface public immutable tokenOracle;
     uint8 public immutable token0Decimals;
@@ -90,12 +50,14 @@ contract LPChainlinkOracleV1 is IAggregator {
 
     uint256 public constant WAD = 18;
 
-    constructor(IUniswapV2Pair pair_, AggregatorV3Interface tokenOracle_) public {
+    /// @param pair_ The UniswapV2 compatible pair address
+    /// @param tokenOracle_ The token price 1 lp should be denominated with.
+    constructor(IUniswapV2Pair pair_, AggregatorV3Interface tokenOracle_) {
         pair = pair_;
         tokenOracle = tokenOracle_;
 
-        token0Decimals = IERC20(pair_.token0()).safeDecimals();
-        token1Decimals = IERC20(pair_.token1()).safeDecimals();
+        token0Decimals = IERC20(pair_.token0()).decimals();
+        token1Decimals = IERC20(pair_.token1()).decimals();
 
         oracleDecimals = tokenOracle_.decimals();
     }
@@ -144,20 +106,27 @@ contract LPChainlinkOracleV1 is IAggregator {
         return uint128(r < r1 ? r : r1);
     }
 
-    // Calculates the lastest exchange rate
+    /// Calculates the lastest exchange rate
+    /// @return the price of 1 lp in token price
+    /// Exemple:
+    /// - For 1 AVAX = $82
+    /// - Total LP Value is: $160,000,000
+    /// - LP supply is 8.25
+    /// - latestAnswer() returns 234420638348190662349201 / 1e18 = 234420.63 AVAX
+    /// - 1 LP = 234420.63 AVAX => 234420.63 * 8.25 * 82 = ≈$160,000,000
     function latestAnswer() external view override returns (int256) {
         (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(pair).getReserves();
         uint256 totalSupply = pair.totalSupply();
 
         uint256 normalizedReserve0 = reserve0 * (10**(WAD - token0Decimals));
         uint256 normalizedReserve1 = reserve1 * (10**(WAD - token1Decimals));
-
-        uint256 k = normalizedReserve0.mul(normalizedReserve1);
+    
+        uint256 k = normalizedReserve0 * normalizedReserve1;
         (,int256 priceFeed,,,) = tokenOracle.latestRoundData();
         
         uint256 normalizedPriceFeed = uint256(priceFeed) * (10**(WAD - oracleDecimals));
 
-        uint256 totalValue = uint256(sqrt((k / 1e18).mul(normalizedPriceFeed))).mul(2);
-        return int256(totalValue.mul(1e18) / totalSupply);
+        uint256 totalValue = uint256(sqrt((k / 1e18) * normalizedPriceFeed)) * 2;
+        return int256((totalValue * 1e18) / totalSupply);
     }
 }
