@@ -26,7 +26,7 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
   let WETH: IERC20;
   let USDC: IERC20;
   let Cauldron: CauldronV2;
-  let Oracle: IOracle;
+  let ProxyOracle: IOracle;
   let PLPSwapper: PopsicleUSDCWETHSwapper;
   let PLPLevSwapper: PopsicleUSDCWETHLevSwapper;
   let DegenBox: BentoBoxV1;
@@ -40,7 +40,7 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
       params: [
         {
           forking: {
-            jsonRpcUrl: process.env.ETHEREUM_RPC_URL || `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+            jsonRpcUrl: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
             blockNumber: 13557427,
           },
         },
@@ -52,7 +52,7 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
     deployerSigner = await ethers.getSigner(deployer);
 
     Cauldron = await ethers.getContractAt<CauldronV2>("CauldronV2", (await ethers.getContract("PopsicleUSDCWETHCauldron")).address);
-    Oracle = await ethers.getContract<IOracle>("PopsicleUSDCWETHOracle");
+    ProxyOracle = await ethers.getContract<IOracle>("PopsicleUSDCWETHProxyOracle");
     DegenBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce");
     MIM = await ethers.getContractAt<IERC20>("ERC20", "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3");
     PLP = await ethers.getContractAt<IPopsicle>("IPopsicle", "0xaE7b92C8B14E7bdB523408aE0A6fFbf3f589adD9");
@@ -158,7 +158,7 @@ describe("Popsicle USDC/WETH Cauldron", async () => {
     expect(Cauldron.address).not.to.eq(ethers.constants.AddressZero);
 
     expect(await Cauldron.collateral()).to.eq(PLP.address);
-    expect(await Cauldron.oracle()).to.eq(Oracle.address);
+    expect(await Cauldron.oracle()).to.eq(ProxyOracle.address);
     expect(await Cauldron.oracleData()).to.eq("0x0000000000000000000000000000000000000000");
   });
 });

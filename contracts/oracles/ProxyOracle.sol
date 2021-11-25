@@ -5,7 +5,7 @@ import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
 
 /// @title ProxyOracle
 /// @author 0xMerlin
-/// @notice Oracle used for getting the price of xSUSHI based on Chainlink
+/// @notice Oracle used for getting the price of an oracle implementation
 contract ProxyOracle is IOracle, BoringOwnable {
 
     IOracle public oracleImplementation;

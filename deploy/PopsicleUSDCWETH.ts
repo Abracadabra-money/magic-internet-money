@@ -2,8 +2,9 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, network } from "hardhat";
 import { ChainId } from "../utilities";
-import { BentoBoxV1, PopsicleUSDCWETHOracle, PopsicleV3Optimizer } from "../typechain";
+import { BentoBoxV1, PopsicleUSDCWETHOracle, ProxyOracle } from "../typechain";
 import { expect } from "chai";
+import { xMerlin } from "../test/constants";
 
 // List of supported chains to deploy on
 const supportedChains = [ChainId.Mainnet, ChainId.Fantom, ChainId.BSC];
@@ -37,7 +38,16 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const chainId = await hre.getChainId();
   const parameters = ParametersPerChain[parseInt(chainId)];
 
-  // Oracle
+  // Proxy Oracle
+  await deploy("PopsicleUSDCWETHProxyOracle", {
+    from: deployer,
+    args: [],
+    log: true,
+    contract: "ProxyOracle",
+    deterministicDeployment: false,
+  });
+
+  // Oracle Implementation
   await deploy("PopsicleUSDCWETHOracle", {
     from: deployer,
     args: [parameters.usdcWethPlp],
@@ -47,19 +57,20 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   // Cauldron
   const DegenBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", parameters.degenBox);
-  const Oracle = await ethers.getContract<PopsicleUSDCWETHOracle>("PopsicleUSDCWETHOracle");
+  const PopsicleUSDCWETHProxyOracle = await ethers.getContract<ProxyOracle>("PopsicleUSDCWETHProxyOracle");
 
-  // TODO: Change before deployment
   const INTEREST_CONVERSION = 1e18 / (365.25 * 3600 * 24) / 100;
   const OPENING_CONVERSION = 1e5 / 100;
-  const interest = parseInt(String(3 * INTEREST_CONVERSION));
-  const liquidation = 5 * 1e3 + 1e5;
-  const collateralization = 75 * 1e3;
-  const opening = 0.5 * OPENING_CONVERSION;
+
+  // 85% LTV .5% initial 3% Interest
+  const collateralization = 85 * 1e3; // 85% LTV
+  const opening = 0.5 * OPENING_CONVERSION; // .5% initial
+  const interest = parseInt(String(3 * INTEREST_CONVERSION)); // 3% Interest
+  const liquidation = 8 * 1e3 + 1e5;
 
   let initData = ethers.utils.defaultAbiCoder.encode(
     ["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"],
-    [parameters.usdcWethPlp, Oracle.address, parameters.oracleData, interest, liquidation, collateralization, opening]
+    [parameters.usdcWethPlp, PopsicleUSDCWETHProxyOracle.address, parameters.oracleData, interest, liquidation, collateralization, opening]
   );
   const tx = await (await DegenBox.deploy(parameters.cauldronV2MasterContract, initData, true)).wait();
 
@@ -87,6 +98,15 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     log: true,
     deterministicDeployment: false,
   });
+
+
+  const PopsicleUSDCWETHOracle = await ethers.getContract<PopsicleUSDCWETHOracle>("PopsicleUSDCWETHOracle");
+  if ((await PopsicleUSDCWETHProxyOracle.oracleImplementation()) !== PopsicleUSDCWETHOracle.address) {
+    await PopsicleUSDCWETHProxyOracle.changeOracleImplementation(PopsicleUSDCWETHOracle.address);
+  }
+  if ((await PopsicleUSDCWETHProxyOracle.owner()) !== xMerlin) {
+    await PopsicleUSDCWETHProxyOracle.transferOwnership(xMerlin, true, false);
+  }
 };
 
 export default deployFunction;
