@@ -37,3 +37,9 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 | MimAvaxOracleV1             | 0x4437DB9538eb74C7418a1668766536b279C52709 | Using Chainlink AVAX/USD and MIM/USD  |
 | MimAvaxSwapper              | 0xBc00ca0d71231c5E23Ba90A90D8C5D9039C39614 | Liquidation Swapper                   |
 | MimAvaxLevSwapper           | 0xBA7fd957ad9b7C0238E6E4413dbA69E83224a582 | Leverage Swapper                      |
+| **Popsicle USDC/WETH**      |                                            |                                       |
+| PopsicleUSDCWETHCauldron    | 0xfD5165bD318AB6e18bD0439a736e662986F6C5b2 | 85% LTV .5% initial 1% Interest       |
+| PopsicleUSDCWETHProxyOracle | 0x52B2773FB2f69d565C651d364f0AA95eBED097E4 | Using PopsicleUSDCWETHOracle          |
+| PopsicleUSDCWETHOracle      | 0x0D52048451207106184f0423cAF055aE24a5A38A |                                       |
+| PopsicleUSDCWETHSwapper     | 0xc97C7F6e60Fdd610A0fCA4792BbBD1dbD028d474 | Liquidation Swapper                   |
+| PopsicleUSDCWETHLevSwapper  | 0x04146736FEF83A25e39834a972cf6A5C011ACEad | Leverage Swapper                      |
