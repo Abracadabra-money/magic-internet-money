@@ -164,76 +164,58 @@ interface AnyswapRouter {
     ) external;
 }
 
-interface CurvePool {
-    function exchange_underlying(
-        int128 i,
-        int128 j,
-        uint256 dx,
-        uint256 min_dy,
-        address receiver
-    ) external returns (uint256);
-}
-
-contract EthereumWithdrawer is BoringOwnable {
-    event SwappedMimToSpell(uint256 amountSushiswap, uint256 amountUniswap, uint256 total);
-
+contract MultiChainWithdrawer is BoringOwnable {
     bytes4 private constant SIG_TRANSFER = 0xa9059cbb; // transfer(address,uint256)
 
-    CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
-    IBentoBoxV1 public constant BENTOBOX = IBentoBoxV1(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);
-    IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce);
+    IBentoBoxV1 public immutable bentoBox;
+    IBentoBoxV1 public immutable degenBox;
+    IERC20 public immutable MIM;
+    IERC20 public immutable SPELL;
 
-    IERC20 public constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);
-    address public constant SPELL = 0x090185f2135308BaD17527004364eBcC2D37e5F6;
-    address public constant sSPELL = 0x26FA3fFFB6EfE8c1E69103aCb4044C26B9A106a9;
-    address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    address public constant USDT = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
-
-    address public constant MIM_PROVIDER = 0x5f0DeE98360d8200b20812e174d139A1a633EDd2;
-    address public constant TREASURY = 0x5A7C5505f3CFB9a0D9A8493EC41bf27EE48c406D;
-
-    // Sushiswap
-    IUniswapV2Pair private constant SUSHI_ETH_USDT = IUniswapV2Pair(0x06da0fd433C1A5d7a4faa01111c044910A184553);
-    IUniswapV2Pair private constant SUSHI_SPELL_WETH = IUniswapV2Pair(0xb5De0C3753b6E1B4dBA616Db82767F17513E6d4E);
-
-    // Uniswap V3
-    uint24 private constant POOLFEE = 3000;
-    ISwapRouter private constant SWAPROUTER = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+    AnyswapRouter public immutable anyswapRouter;
+    
+    address public immutable mimProvider;
+    address public immutable ethereumRecipient;
 
     CauldronV1[] public bentoBoxCauldronsV1;
     Cauldron[] public bentoBoxCauldronsV2;
     Cauldron[] public degenBoxCauldrons;
 
-    mapping(address => bool) public verified;
-
     constructor(
+        IBentoBoxV1 bentoBox_,
+        IBentoBoxV1 degenBox_,
+        IERC20 mim,
+        IERC20 spell,
+        AnyswapRouter anyswapRouter_,
+        address mimProvider_,
+        address ethereumRecipient_,
         Cauldron[] memory bentoBoxCauldronsV2_,
         CauldronV1[] memory bentoBoxCauldronsV1_,
         Cauldron[] memory degenBoxCauldrons_
     ) {
+        bentoBox = bentoBox_;
+        degenBox = degenBox_;
+        MIM = mim;
+        SPELL = spell;
+        anyswapRouter = anyswapRouter_;
+        mimProvider = mimProvider_;
+        ethereumRecipient = ethereumRecipient_;
+
         bentoBoxCauldronsV2 = bentoBoxCauldronsV2_;
         bentoBoxCauldronsV1 = bentoBoxCauldronsV1_;
         degenBoxCauldrons = degenBoxCauldrons_;
-
-        MIM.approve(address(MIM3POOL), type(uint256).max);
-        verified[msg.sender] = true;
     }
 
-    modifier onlyVerified() {
-        require(verified[msg.sender], "Only verified operators");
-        _;
-    }
-
-    function withdraw() public {
+    function withdrawToEthereum() public {
         uint256 length = bentoBoxCauldronsV2.length;
         for (uint256 i = 0; i < length; i++) {
             require(bentoBoxCauldronsV2[i].feeTo() == address(this), "wrong feeTo");
 
             bentoBoxCauldronsV2[i].accrue();
             (, uint256 feesEarned, ) = bentoBoxCauldronsV2[i].accrueInfo();
-            if (feesEarned > (BENTOBOX.toAmount(MIM, BENTOBOX.balanceOf(MIM, address(bentoBoxCauldronsV2[i])), false))) {
-                MIM.transferFrom(MIM_PROVIDER, address(BENTOBOX), feesEarned);
-                BENTOBOX.deposit(MIM, address(BENTOBOX), address(bentoBoxCauldronsV2[i]), feesEarned, 0);
+            if (feesEarned > (bentoBox.toAmount(MIM, bentoBox.balanceOf(MIM, address(bentoBoxCauldronsV2[i])), false))) {
+                MIM.transferFrom(mimProvider, address(bentoBox), feesEarned);
+                bentoBox.deposit(MIM, address(bentoBox), address(bentoBoxCauldronsV2[i]), feesEarned, 0);
             }
 
             bentoBoxCauldronsV2[i].withdrawFees();
@@ -245,9 +227,9 @@ contract EthereumWithdrawer is BoringOwnable {
 
             bentoBoxCauldronsV1[i].accrue();
             (, uint256 feesEarned) = bentoBoxCauldronsV1[i].accrueInfo();
-            if (feesEarned > (BENTOBOX.toAmount(MIM, BENTOBOX.balanceOf(MIM, address(bentoBoxCauldronsV1[i])), false))) {
-                MIM.transferFrom(MIM_PROVIDER, address(BENTOBOX), feesEarned);
-                BENTOBOX.deposit(MIM, address(BENTOBOX), address(bentoBoxCauldronsV1[i]), feesEarned, 0);
+            if (feesEarned > (bentoBox.toAmount(MIM, bentoBox.balanceOf(MIM, address(bentoBoxCauldronsV1[i])), false))) {
+                MIM.transferFrom(mimProvider, address(bentoBox), feesEarned);
+                bentoBox.deposit(MIM, address(bentoBox), address(bentoBoxCauldronsV1[i]), feesEarned, 0);
             }
             bentoBoxCauldronsV1[i].withdrawFees();
         }
@@ -258,15 +240,17 @@ contract EthereumWithdrawer is BoringOwnable {
 
             degenBoxCauldrons[i].accrue();
             (, uint256 feesEarned, ) = degenBoxCauldrons[i].accrueInfo();
-            if (feesEarned > (DEGENBOX.toAmount(MIM, DEGENBOX.balanceOf(MIM, address(degenBoxCauldrons[i])), false))) {
-                MIM.transferFrom(MIM_PROVIDER, address(DEGENBOX), feesEarned);
-                DEGENBOX.deposit(MIM, address(DEGENBOX), address(degenBoxCauldrons[i]), feesEarned, 0);
+            if (feesEarned > (degenBox.toAmount(MIM, degenBox.balanceOf(MIM, address(degenBoxCauldrons[i])), false))) {
+                MIM.transferFrom(mimProvider, address(degenBox), feesEarned);
+                degenBox.deposit(MIM, address(degenBox), address(degenBoxCauldrons[i]), feesEarned, 0);
             }
             degenBoxCauldrons[i].withdrawFees();
         }
 
-        BENTOBOX.withdraw(MIM, address(this), address(this), 0, BENTOBOX.balanceOf(MIM, address(this)));
-        DEGENBOX.withdraw(MIM, address(this), address(this), 0, DEGENBOX.balanceOf(MIM, address(this)));
+        bentoBox.withdraw(MIM, address(this), address(this), 0, bentoBox.balanceOf(MIM, address(this)));
+        degenBox.withdraw(MIM, address(this), address(this), 0, degenBox.balanceOf(MIM, address(this)));
+
+        anyswapRouter.anySwapOutUnderlying(address(SPELL), ethereumRecipient, SPELL.balanceOf(address(this)), 1);
     }
 
     function rescueTokens(
@@ -275,31 +259,6 @@ contract EthereumWithdrawer is BoringOwnable {
         uint256 amount
     ) external onlyOwner {
         _safeTransfer(token, to, amount);
-    }
-
-    function swapMimForSpell(
-        uint256 amountSwapOnSushi,
-        uint256 amountSwapOnUniswap,
-        uint256 minAmountOutOnSushi,
-        uint256 minAmountOutOnUniswap,
-        bool autoDepositToSSpell
-    ) external onlyVerified {
-        address recipient = autoDepositToSSpell ? sSPELL : address(this);
-        uint256 minAmountToSwap = _getAmountToSwap(amountSwapOnSushi + amountSwapOnUniswap);
-        uint256 amountUSDT = MIM3POOL.exchange_underlying(0, 3, minAmountToSwap, 0, address(this));
-
-        uint256 percentSushi = (amountSwapOnSushi * 100) / (amountSwapOnSushi + amountSwapOnUniswap);
-        uint256 amountToSwapOnSushi = (amountUSDT * percentSushi) / 100;
-        uint256 amountToSwapOnUniswap = amountUSDT - amountToSwapOnSushi;
-
-        uint256 amountOnSushi = _swapOnSushiswap(amountToSwapOnSushi, minAmountOutOnSushi, recipient);
-        uint256 amountOnUniswap = _swapOnUniswap(amountToSwapOnUniswap, minAmountOutOnUniswap, recipient);
-
-        emit SwappedMimToSpell(amountOnSushi, amountOnUniswap, amountOnSushi + amountOnUniswap);
-    }
-
-    function setVerified(address operator, bool status) external onlyOwner {
-        verified[operator] = status;
     }
 
     function addPool(Cauldron pool) external onlyOwner {
@@ -319,70 +278,18 @@ contract EthereumWithdrawer is BoringOwnable {
     function _addPool(Cauldron pool) internal onlyOwner {
         require(address(pool) != address(0), "invalid cauldron");
 
-        if (pool.bentoBox() == address(BENTOBOX)) {
+        if (pool.bentoBox() == address(bentoBox)) {
+            //do not allow doubles
             for (uint256 i = 0; i < bentoBoxCauldronsV2.length; i++) {
                 require(bentoBoxCauldronsV2[i] != pool, "already added");
             }
             bentoBoxCauldronsV2.push(pool);
-        } else if (pool.bentoBox() == address(DEGENBOX)) {
+        } else if (pool.bentoBox() == address(degenBox)) {
             for (uint256 i = 0; i < degenBoxCauldrons.length; i++) {
                 require(degenBoxCauldrons[i] != pool, "already added");
             }
             degenBoxCauldrons.push(pool);
         }
-    }
-
-    function _getAmountOut(
-        uint256 amountIn,
-        uint256 reserveIn,
-        uint256 reserveOut
-    ) private pure returns (uint256 amountOut) {
-        uint256 amountInWithFee = amountIn * 997;
-        uint256 numerator = amountInWithFee * reserveOut;
-        uint256 denominator = (reserveIn * 1000) + amountInWithFee;
-        amountOut = numerator / denominator;
-    }
-
-    function _swapOnSushiswap(
-        uint256 amountUSDT,
-        uint256 minAmountSpellOut,
-        address recipient
-    ) private returns (uint256) {
-        (uint256 reserve0, uint256 reserve1, ) = SUSHI_ETH_USDT.getReserves();
-        uint256 amountOut = _getAmountOut(amountUSDT, reserve1, reserve0);
-        SUSHI_ETH_USDT.swap(amountOut, 0, address(SUSHI_SPELL_WETH), new bytes(0));
-
-        (reserve0, reserve1, ) = SUSHI_SPELL_WETH.getReserves();
-        amountOut = _getAmountOut(amountOut, reserve1, reserve0);
-
-        require(amountOut >= minAmountSpellOut, "insufficient amount");
-
-        SUSHI_SPELL_WETH.swap(amountOut, 0, recipient, "");
-        return amountOut;
-    }
-
-    function _swapOnUniswap(
-        uint256 amountUSDT,
-        uint256 minAmountSpellOut,
-        address recipient
-    ) private returns (uint256) {
-        ISwapRouter.ExactInputParams memory params = ISwapRouter.ExactInputParams({
-            path: abi.encodePacked(USDT, POOLFEE, WETH, POOLFEE, SPELL),
-            recipient: recipient,
-            deadline: block.timestamp,
-            amountIn: amountUSDT,
-            amountOutMinimum: minAmountSpellOut
-        });
-
-        uint256 amountOut = SWAPROUTER.exactInput(params);
-        require(amountOut >= minAmountSpellOut, "insufficient amount");
-        return amountOut;
-    }
-
-    function _getAmountToSwap(uint256 amount) private returns (uint256) {
-        uint256 treasuryShare = amount / 4;
-        MIM.transfer(TREASURY, treasuryShare);
-        return amount - treasuryShare;
     }
 
     function _safeTransfer(
