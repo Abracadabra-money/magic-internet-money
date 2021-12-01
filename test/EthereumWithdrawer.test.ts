@@ -110,7 +110,7 @@ describe("Ethereum Cauldron Fee Withdrawer", async () => {
       expect(mimBefore.sub(mimAfter)).to.eq(totalSwapped);
     };
 
-    const spellAmountinSSpellBefore = await SPELL.balanceOf(sSPELL.address); 
+    const spellAmountinSSpellBefore = await SPELL.balanceOf(sSPELL.address);
     let mimAmount = await MIM.balanceOf(Withdrawer.address);
     await swap(mimAmount.mul(10).div(100), mimAmount.mul(20).div(100));
 
@@ -119,11 +119,38 @@ describe("Ethereum Cauldron Fee Withdrawer", async () => {
 
     mimAmount = await MIM.balanceOf(Withdrawer.address);
     await swap(getBigNumber(0), mimAmount);
-    const spellAmountinSSpellAfter = await SPELL.balanceOf(sSPELL.address); 
+    const spellAmountinSSpellAfter = await SPELL.balanceOf(sSPELL.address);
 
     const spellBought = spellAmountinSSpellAfter.sub(spellAmountinSSpellBefore);
-    console.log(`Swapped ${ethers.utils.formatUnits(withdrawnMimAmount)} MIM to ${ethers.utils.formatUnits(spellBought)} SPELL into sSPELL for an avg price of ${(parseInt(withdrawnMimAmount.toString()) / parseInt(spellBought.toString())).toFixed(4)} MIM`);
+    console.log(
+      `Swapped ${ethers.utils.formatUnits(withdrawnMimAmount)} MIM to ${ethers.utils.formatUnits(
+        spellBought
+      )} SPELL into sSPELL for an avg price of ${(parseInt(withdrawnMimAmount.toString()) / parseInt(spellBought.toString())).toFixed(4)} MIM`
+    );
     const mimBalance = await MIM.balanceOf(Withdrawer.address);
     expect(mimBalance).eq(0);
+  });
+
+  it("should prevent frontrunning when swapping", async () => {
+    await Withdrawer.withdraw();
+    const withdrawnMimAmount = await MIM.balanceOf(Withdrawer.address);
+
+    await expect(Withdrawer.swapMimForSpell(0, withdrawnMimAmount, 0, ethers.constants.MaxUint256, true)).to.be.revertedWith(
+      "Too little received"
+    );
+    await expect(Withdrawer.swapMimForSpell(withdrawnMimAmount, 0, ethers.constants.MaxUint256, 0, true)).to.be.revertedWith(
+      "Too little received"
+    );
+
+    await expect(
+      Withdrawer.swapMimForSpell(withdrawnMimAmount.div(2), withdrawnMimAmount.div(2), getBigNumber(100), ethers.constants.MaxUint256, true)
+    ).to.be.revertedWith("Too little received");
+    await expect(
+      Withdrawer.swapMimForSpell(withdrawnMimAmount.div(2), withdrawnMimAmount.div(2), ethers.constants.MaxUint256, getBigNumber(100), true)
+    ).to.be.revertedWith("Too little received");
+
+    await expect(Withdrawer.swapMimForSpell(withdrawnMimAmount.div(2), withdrawnMimAmount.div(2), 0, 0, true)).to.not.be.revertedWith(
+      "Too little received"
+    );
   });
 });

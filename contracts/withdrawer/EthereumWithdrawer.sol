@@ -279,6 +279,8 @@ contract EthereumWithdrawer is BoringOwnable {
         uint256 minAmountOutOnUniswap,
         bool autoDepositToSSpell
     ) external onlyVerified {
+        require(amountSwapOnSushi > 0 || amountSwapOnUniswap > 0, "nothing to swap");
+        
         address recipient = autoDepositToSSpell ? sSPELL : address(this);
         uint256 minAmountToSwap = _getAmountToSwap(amountSwapOnSushi + amountSwapOnUniswap);
         uint256 amountUSDT = MIM3POOL.exchange_underlying(0, 3, minAmountToSwap, 0, address(this));
@@ -359,7 +361,7 @@ contract EthereumWithdrawer is BoringOwnable {
         (reserve0, reserve1, ) = SUSHI_SPELL_WETH.getReserves();
         amountOut = _getAmountOut(amountOut, reserve1, reserve0);
 
-        require(amountOut >= minAmountSpellOut, "insufficient amount");
+        require(amountOut >= minAmountSpellOut, "Too little received");
         SUSHI_SPELL_WETH.swap(amountOut, 0, recipient, "");
         return amountOut;
     }
@@ -378,7 +380,6 @@ contract EthereumWithdrawer is BoringOwnable {
         });
 
         uint256 amountOut = SWAPROUTER.exactInput(params);
-        require(amountOut >= minAmountSpellOut, "insufficient amount");
         return amountOut;
     }
 
