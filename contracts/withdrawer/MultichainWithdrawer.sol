@@ -170,10 +170,9 @@ contract MultiChainWithdrawer is BoringOwnable {
     IBentoBoxV1 public immutable bentoBox;
     IBentoBoxV1 public immutable degenBox;
     IERC20 public immutable MIM;
-    IERC20 public immutable SPELL;
 
     AnyswapRouter public immutable anyswapRouter;
-    
+
     address public immutable mimProvider;
     address public immutable ethereumRecipient;
 
@@ -185,7 +184,6 @@ contract MultiChainWithdrawer is BoringOwnable {
         IBentoBoxV1 bentoBox_,
         IBentoBoxV1 degenBox_,
         IERC20 mim,
-        IERC20 spell,
         AnyswapRouter anyswapRouter_,
         address mimProvider_,
         address ethereumRecipient_,
@@ -196,7 +194,6 @@ contract MultiChainWithdrawer is BoringOwnable {
         bentoBox = bentoBox_;
         degenBox = degenBox_;
         MIM = mim;
-        SPELL = spell;
         anyswapRouter = anyswapRouter_;
         mimProvider = mimProvider_;
         ethereumRecipient = ethereumRecipient_;
@@ -207,31 +204,37 @@ contract MultiChainWithdrawer is BoringOwnable {
     }
 
     function withdrawToEthereum() public {
-        uint256 length = bentoBoxCauldronsV2.length;
-        for (uint256 i = 0; i < length; i++) {
-            require(bentoBoxCauldronsV2[i].feeTo() == address(this), "wrong feeTo");
+        uint256 length;
 
-            bentoBoxCauldronsV2[i].accrue();
-            (, uint256 feesEarned, ) = bentoBoxCauldronsV2[i].accrueInfo();
-            if (feesEarned > (bentoBox.toAmount(MIM, bentoBox.balanceOf(MIM, address(bentoBoxCauldronsV2[i])), false))) {
-                MIM.transferFrom(mimProvider, address(bentoBox), feesEarned);
-                bentoBox.deposit(MIM, address(bentoBox), address(bentoBoxCauldronsV2[i]), feesEarned, 0);
+        if (address(bentoBox) != address(0)) {
+            length = bentoBoxCauldronsV2.length;
+            for (uint256 i = 0; i < length; i++) {
+                require(bentoBoxCauldronsV2[i].feeTo() == address(this), "wrong feeTo");
+
+                bentoBoxCauldronsV2[i].accrue();
+                (, uint256 feesEarned, ) = bentoBoxCauldronsV2[i].accrueInfo();
+                if (feesEarned > (bentoBox.toAmount(MIM, bentoBox.balanceOf(MIM, address(bentoBoxCauldronsV2[i])), false))) {
+                    MIM.transferFrom(mimProvider, address(bentoBox), feesEarned);
+                    bentoBox.deposit(MIM, address(bentoBox), address(bentoBoxCauldronsV2[i]), feesEarned, 0);
+                }
+
+                bentoBoxCauldronsV2[i].withdrawFees();
             }
 
-            bentoBoxCauldronsV2[i].withdrawFees();
-        }
+            length = bentoBoxCauldronsV1.length;
+            for (uint256 i = 0; i < length; i++) {
+                require(bentoBoxCauldronsV1[i].feeTo() == address(this), "wrong feeTo");
 
-        length = bentoBoxCauldronsV1.length;
-        for (uint256 i = 0; i < length; i++) {
-            require(bentoBoxCauldronsV1[i].feeTo() == address(this), "wrong feeTo");
-
-            bentoBoxCauldronsV1[i].accrue();
-            (, uint256 feesEarned) = bentoBoxCauldronsV1[i].accrueInfo();
-            if (feesEarned > (bentoBox.toAmount(MIM, bentoBox.balanceOf(MIM, address(bentoBoxCauldronsV1[i])), false))) {
-                MIM.transferFrom(mimProvider, address(bentoBox), feesEarned);
-                bentoBox.deposit(MIM, address(bentoBox), address(bentoBoxCauldronsV1[i]), feesEarned, 0);
+                bentoBoxCauldronsV1[i].accrue();
+                (, uint256 feesEarned) = bentoBoxCauldronsV1[i].accrueInfo();
+                if (feesEarned > (bentoBox.toAmount(MIM, bentoBox.balanceOf(MIM, address(bentoBoxCauldronsV1[i])), false))) {
+                    MIM.transferFrom(mimProvider, address(bentoBox), feesEarned);
+                    bentoBox.deposit(MIM, address(bentoBox), address(bentoBoxCauldronsV1[i]), feesEarned, 0);
+                }
+                bentoBoxCauldronsV1[i].withdrawFees();
             }
-            bentoBoxCauldronsV1[i].withdrawFees();
+
+            bentoBox.withdraw(MIM, address(this), address(this), 0, bentoBox.balanceOf(MIM, address(this)));
         }
 
         length = degenBoxCauldrons.length;
@@ -247,10 +250,9 @@ contract MultiChainWithdrawer is BoringOwnable {
             degenBoxCauldrons[i].withdrawFees();
         }
 
-        bentoBox.withdraw(MIM, address(this), address(this), 0, bentoBox.balanceOf(MIM, address(this)));
         degenBox.withdraw(MIM, address(this), address(this), 0, degenBox.balanceOf(MIM, address(this)));
 
-        anyswapRouter.anySwapOutUnderlying(address(SPELL), ethereumRecipient, SPELL.balanceOf(address(this)), 1);
+        anyswapRouter.anySwapOutUnderlying(address(MIM), ethereumRecipient, MIM.balanceOf(address(this)), 1);
     }
 
     function rescueTokens(

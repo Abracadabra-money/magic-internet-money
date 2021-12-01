@@ -41,6 +41,7 @@ export enum ChainId {
   Localhost = 1337,
   Hardhat = 31337,
   Fantom = 250,
+  Arbitrum = 42161,
   Avalanche = 43114,
 }
 
