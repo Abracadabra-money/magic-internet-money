@@ -92,7 +92,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   const MultichainWithdrawer = await ethers.getContract<MultiChainWithdrawer>("MultichainWithdrawer");
 
-  if ((await MultichainWithdrawer.owner()) != parameters.owner) {
+  if ((await MultichainWithdrawer.owner()) != parameters.owner && network.name !== "hardhat") {
     await MultichainWithdrawer.transferOwnership(parameters.owner, true, false);
   }
 };

@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import { EthereumWithdrawer } from "../typechain";
 import { ChainId, setDeploymentSupportedChains } from "../utilities";
 import { xMerlin } from "../test/constants";
@@ -62,7 +62,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   const EthereumWithdrawer = await ethers.getContract<EthereumWithdrawer>("EthereumWithdrawer");
 
-  if ((await EthereumWithdrawer.owner()) != xMerlin) {
+  if ((await EthereumWithdrawer.owner()) != xMerlin && network.name !== "hardhat") {
     await EthereumWithdrawer.transferOwnership(xMerlin, true, false);
   }
 };

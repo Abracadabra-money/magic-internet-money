@@ -4,6 +4,7 @@ pragma solidity 0.8.10;
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 // Audit on 5-Jan-2021 by Keno and BoringCrypto
 // Source: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol + Claimable.sol
@@ -67,20 +68,6 @@ contract BoringOwnable is BoringOwnableData {
     }
 }
 
-interface IERC20 {
-    function transferFrom(
-        address from,
-        address to,
-        uint256 amount
-    ) external returns (bool);
-
-    function transfer(address recipient, uint256 amount) external returns (bool);
-
-    function balanceOf(address account) external view returns (uint256);
-
-    function approve(address spender, uint256 amount) external returns (bool);
-}
-
 interface IBentoBoxV1 {
     function balanceOf(IERC20 token, address user) external view returns (uint256 share);
 
@@ -141,6 +128,8 @@ interface Cauldron {
     function setFeeTo(address newFeeTo) external;
 
     function feeTo() external returns (address);
+
+    function masterContract() external returns (Cauldron);
 }
 
 interface CauldronV1 {
@@ -153,6 +142,8 @@ interface CauldronV1 {
     function setFeeTo(address newFeeTo) external;
 
     function feeTo() external returns (address);
+
+    function masterContract() external returns (CauldronV1);
 }
 
 interface AnyswapRouter {
@@ -175,6 +166,8 @@ interface CurvePool {
 }
 
 contract EthereumWithdrawer is BoringOwnable {
+    using SafeERC20 for IERC20;
+
     event SwappedMimToSpell(uint256 amountSushiswap, uint256 amountUniswap, uint256 total);
 
     bytes4 private constant SIG_TRANSFER = 0xa9059cbb; // transfer(address,uint256)
@@ -184,10 +177,10 @@ contract EthereumWithdrawer is BoringOwnable {
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce);
 
     IERC20 public constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);
+    IERC20 public constant USDT = IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7);
     address public constant SPELL = 0x090185f2135308BaD17527004364eBcC2D37e5F6;
     address public constant sSPELL = 0x26FA3fFFB6EfE8c1E69103aCb4044C26B9A106a9;
     address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    address public constant USDT = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
 
     address public constant MIM_PROVIDER = 0x5f0DeE98360d8200b20812e174d139A1a633EDd2;
     address public constant TREASURY = 0x5A7C5505f3CFB9a0D9A8493EC41bf27EE48c406D;
@@ -216,6 +209,8 @@ contract EthereumWithdrawer is BoringOwnable {
         degenBoxCauldrons = degenBoxCauldrons_;
 
         MIM.approve(address(MIM3POOL), type(uint256).max);
+
+        USDT.safeApprove(address(SWAPROUTER), type(uint256).max);
         verified[msg.sender] = true;
     }
 
@@ -227,7 +222,7 @@ contract EthereumWithdrawer is BoringOwnable {
     function withdraw() public {
         uint256 length = bentoBoxCauldronsV2.length;
         for (uint256 i = 0; i < length; i++) {
-            require(bentoBoxCauldronsV2[i].feeTo() == address(this), "wrong feeTo");
+            require(bentoBoxCauldronsV2[i].masterContract().feeTo() == address(this), "wrong feeTo");
 
             bentoBoxCauldronsV2[i].accrue();
             (, uint256 feesEarned, ) = bentoBoxCauldronsV2[i].accrueInfo();
@@ -241,7 +236,7 @@ contract EthereumWithdrawer is BoringOwnable {
 
         length = bentoBoxCauldronsV1.length;
         for (uint256 i = 0; i < length; i++) {
-            require(bentoBoxCauldronsV1[i].feeTo() == address(this), "wrong feeTo");
+            require(bentoBoxCauldronsV1[i].masterContract().feeTo() == address(this), "wrong feeTo");
 
             bentoBoxCauldronsV1[i].accrue();
             (, uint256 feesEarned) = bentoBoxCauldronsV1[i].accrueInfo();
@@ -254,7 +249,7 @@ contract EthereumWithdrawer is BoringOwnable {
 
         length = degenBoxCauldrons.length;
         for (uint256 i = 0; i < length; i++) {
-            require(degenBoxCauldrons[i].feeTo() == address(this), "wrong feeTo");
+            require(degenBoxCauldrons[i].masterContract().feeTo() == address(this), "wrong feeTo");
 
             degenBoxCauldrons[i].accrue();
             (, uint256 feesEarned, ) = degenBoxCauldrons[i].accrueInfo();
@@ -274,7 +269,7 @@ contract EthereumWithdrawer is BoringOwnable {
         address to,
         uint256 amount
     ) external onlyOwner {
-        _safeTransfer(token, to, amount);
+        token.safeTransfer(to, amount);
     }
 
     function swapMimForSpell(
@@ -289,13 +284,13 @@ contract EthereumWithdrawer is BoringOwnable {
         uint256 amountUSDT = MIM3POOL.exchange_underlying(0, 3, minAmountToSwap, 0, address(this));
 
         uint256 percentSushi = (amountSwapOnSushi * 100) / (amountSwapOnSushi + amountSwapOnUniswap);
-        uint256 amountToSwapOnSushi = (amountUSDT * percentSushi) / 100;
-        uint256 amountToSwapOnUniswap = amountUSDT - amountToSwapOnSushi;
+        uint256 amountUSDTSwapOnSushi = (amountUSDT * percentSushi) / 100;
+        uint256 amountUSDTSwapOnUniswap = amountUSDT - amountUSDTSwapOnSushi;
 
-        uint256 amountOnSushi = _swapOnSushiswap(amountToSwapOnSushi, minAmountOutOnSushi, recipient);
-        uint256 amountOnUniswap = _swapOnUniswap(amountToSwapOnUniswap, minAmountOutOnUniswap, recipient);
+        uint256 amountSpellOnSushi = _swapOnSushiswap(amountUSDTSwapOnSushi, minAmountOutOnSushi, recipient);
+        uint256 amountSpellOnUniswap = _swapOnUniswap(amountUSDTSwapOnUniswap, minAmountOutOnUniswap, recipient);
 
-        emit SwappedMimToSpell(amountOnSushi, amountOnUniswap, amountOnSushi + amountOnUniswap);
+        emit SwappedMimToSpell(amountSpellOnSushi, amountSpellOnUniswap, amountSpellOnSushi + amountSpellOnUniswap);
     }
 
     function setVerified(address operator, bool status) external onlyOwner {
@@ -350,13 +345,14 @@ contract EthereumWithdrawer is BoringOwnable {
     ) private returns (uint256) {
         (uint256 reserve0, uint256 reserve1, ) = SUSHI_ETH_USDT.getReserves();
         uint256 amountOut = _getAmountOut(amountUSDT, reserve1, reserve0);
+
+        USDT.safeTransfer(address(SUSHI_ETH_USDT), amountUSDT);
         SUSHI_ETH_USDT.swap(amountOut, 0, address(SUSHI_SPELL_WETH), new bytes(0));
 
         (reserve0, reserve1, ) = SUSHI_SPELL_WETH.getReserves();
         amountOut = _getAmountOut(amountOut, reserve1, reserve0);
 
         require(amountOut >= minAmountSpellOut, "insufficient amount");
-
         SUSHI_SPELL_WETH.swap(amountOut, 0, recipient, "");
         return amountOut;
     }
@@ -383,14 +379,5 @@ contract EthereumWithdrawer is BoringOwnable {
         uint256 treasuryShare = amount / 4;
         MIM.transfer(TREASURY, treasuryShare);
         return amount - treasuryShare;
-    }
-
-    function _safeTransfer(
-        IERC20 token,
-        address to,
-        uint256 amount
-    ) internal {
-        (bool success, bytes memory data) = address(token).call(abi.encodeWithSelector(SIG_TRANSFER, to, amount));
-        require(success && (data.length == 0 || abi.decode(data, (bool))), "transfer failed");
     }
 }
