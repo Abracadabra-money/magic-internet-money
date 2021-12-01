@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { BigNumberish } from "ethers";
 
 import { advanceTime, getBigNumber, impersonate } from "../utilities";
-import { Cauldron, CauldronV2, EthereumWithdrawer, IERC20 } from "../typechain";
+import { Cauldron, CauldronV2, EthereumWithdrawer, IERC20, SSpell } from "../typechain";
 import { EthereumMIMDeployer } from "./constants";
 
 const MimProvider = "0x5f0DeE98360d8200b20812e174d139A1a633EDd2";
@@ -96,26 +96,34 @@ describe("Ethereum Cauldron Fee Withdrawer", async () => {
     await expect(tx).to.be.revertedWith("Only verified operators");
   });
 
-  it("should swap the mim to spell using sushiswap and uniswap", async () => {
+  it("should swap the whole mim balance in multiple steps", async () => {
     await Withdrawer.withdraw();
-    const mimBefore = await MIM.balanceOf(Withdrawer.address);
-    const spellBefore = await SPELL.balanceOf(Withdrawer.address);
+    const withdrawnMimAmount = await MIM.balanceOf(Withdrawer.address);
 
-    const mimToSwapOnSushi = mimBefore.mul(10).div(100);
-    const mimToSwapOnUniswap = mimBefore.mul(20).div(100);
-    const totalSwapped = mimToSwapOnSushi.add(mimToSwapOnUniswap);
+    const swap = async (mimToSwapOnSushi, mimToSwapOnUniswap) => {
+      console.log(`Swapping ${mimToSwapOnSushi.toString()} MIM on sushiswap and ${mimToSwapOnUniswap.toString()} MIM on uniswap...`);
+      const mimBefore = await MIM.balanceOf(Withdrawer.address);
+      const totalSwapped = mimToSwapOnSushi.add(mimToSwapOnUniswap);
 
-    const tx = await Withdrawer.swapMimForSpell(mimToSwapOnSushi, mimToSwapOnUniswap, 0, 0, false);
-    const spellAfter = await SPELL.balanceOf(Withdrawer.address);
+      await Withdrawer.swapMimForSpell(mimToSwapOnSushi, mimToSwapOnUniswap, 0, 0, true);
+      const mimAfter = await MIM.balanceOf(Withdrawer.address);
+      expect(mimBefore.sub(mimAfter)).to.eq(totalSwapped);
+    };
 
-    // only swapped a portion of it, mim should remains in the contract after
-    const mimAfter = await MIM.balanceOf(Withdrawer.address);
-    const amountSpellSwapped = spellAfter.sub(spellBefore);
-    expect(mimBefore.sub(mimAfter)).to.eq(totalSwapped);
-    expect(amountSpellSwapped).to.be.gt(0);
+    const spellAmountinSSpellBefore = await SPELL.balanceOf(sSPELL.address); 
+    let mimAmount = await MIM.balanceOf(Withdrawer.address);
+    await swap(mimAmount.mul(10).div(100), mimAmount.mul(20).div(100));
 
-    const receipt = await tx.wait();
-    console.log(receipt);
-    console.log(`Swapped ${totalSwapped.toString()} MIM to ${amountSpellSwapped.toString()} SPELL`);
+    mimAmount = await MIM.balanceOf(Withdrawer.address);
+    await swap(mimAmount.div(2), getBigNumber(0));
+
+    mimAmount = await MIM.balanceOf(Withdrawer.address);
+    await swap(getBigNumber(0), mimAmount);
+    const spellAmountinSSpellAfter = await SPELL.balanceOf(sSPELL.address); 
+
+    const spellBought = spellAmountinSSpellAfter.sub(spellAmountinSSpellBefore);
+    console.log(`Swapped ${ethers.utils.formatUnits(withdrawnMimAmount)} MIM to ${ethers.utils.formatUnits(spellBought)} SPELL into sSPELL for an avg price of ${(parseInt(withdrawnMimAmount.toString()) / parseInt(spellBought.toString())).toFixed(4)} MIM`);
+    const mimBalance = await MIM.balanceOf(Withdrawer.address);
+    expect(mimBalance).eq(0);
   });
 });

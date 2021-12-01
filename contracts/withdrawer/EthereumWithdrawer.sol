@@ -286,9 +286,16 @@ contract EthereumWithdrawer is BoringOwnable {
         uint256 percentSushi = (amountSwapOnSushi * 100) / (amountSwapOnSushi + amountSwapOnUniswap);
         uint256 amountUSDTSwapOnSushi = (amountUSDT * percentSushi) / 100;
         uint256 amountUSDTSwapOnUniswap = amountUSDT - amountUSDTSwapOnSushi;
+        uint256 amountSpellOnSushi;
+        uint256 amountSpellOnUniswap;
+        
+        if (amountSwapOnSushi > 0) {
+            amountSpellOnSushi = _swapOnSushiswap(amountUSDTSwapOnSushi, minAmountOutOnSushi, recipient);
+        }
 
-        uint256 amountSpellOnSushi = _swapOnSushiswap(amountUSDTSwapOnSushi, minAmountOutOnSushi, recipient);
-        uint256 amountSpellOnUniswap = _swapOnUniswap(amountUSDTSwapOnUniswap, minAmountOutOnUniswap, recipient);
+        if (amountSwapOnUniswap > 0) {
+            amountSpellOnUniswap = _swapOnUniswap(amountUSDTSwapOnUniswap, minAmountOutOnUniswap, recipient);
+        }
 
         emit SwappedMimToSpell(amountSpellOnSushi, amountSpellOnUniswap, amountSpellOnSushi + amountSpellOnUniswap);
     }
