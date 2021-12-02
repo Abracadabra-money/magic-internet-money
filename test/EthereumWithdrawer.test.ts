@@ -1,10 +1,7 @@
-import { ethers, network, deployments, getNamedAccounts, artifacts } from "hardhat";
+import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { expect } from "chai";
-import { BigNumberish } from "ethers";
-
-import { advanceTime, getBigNumber, impersonate } from "../utilities";
-import { Cauldron, CauldronV2, EthereumWithdrawer, IERC20, SSpell } from "../typechain";
-import { EthereumMIMDeployer } from "./constants";
+import { ChainId, getBigNumber, impersonate } from "../utilities";
+import { CauldronV2, EthereumWithdrawer, IERC20 } from "../typechain";
 
 const MimProvider = "0x5f0DeE98360d8200b20812e174d139A1a633EDd2";
 
@@ -37,6 +34,7 @@ describe("Ethereum Cauldron Fee Withdrawer", async () => {
       ],
     });
 
+    hre.getChainId = () => Promise.resolve(ChainId.Mainnet.toString());
     await deployments.fixture(["EthereumWithdrawer"]);
     const { deployer } = await getNamedAccounts();
     deployerSigner = await ethers.getSigner(deployer);

@@ -221,8 +221,8 @@ contract EthereumWithdrawer is BoringOwnable {
     }
 
     function withdraw(bool autoWithdrawFromBentoBoxes) public {
-        uint256 bentoBoxMimAmount = BENTOBOX.balanceOf(MIM, address(this));
-        uint256 degenBoxMimAmount = DEGENBOX.balanceOf(MIM, address(this));
+        uint256 mimFromBentoBox;
+        uint256 mimFromDegenBox;
 
         uint256 length = bentoBoxCauldronsV2.length;
         for (uint256 i = 0; i < length; i++) {
@@ -233,6 +233,7 @@ contract EthereumWithdrawer is BoringOwnable {
             if (feesEarned > (BENTOBOX.toAmount(MIM, BENTOBOX.balanceOf(MIM, address(bentoBoxCauldronsV2[i])), false))) {
                 MIM.transferFrom(MIM_PROVIDER, address(BENTOBOX), feesEarned);
                 BENTOBOX.deposit(MIM, address(BENTOBOX), address(bentoBoxCauldronsV2[i]), feesEarned, 0);
+                mimFromBentoBox += feesEarned;
             }
 
             bentoBoxCauldronsV2[i].withdrawFees();
@@ -247,6 +248,7 @@ contract EthereumWithdrawer is BoringOwnable {
             if (feesEarned > (BENTOBOX.toAmount(MIM, BENTOBOX.balanceOf(MIM, address(bentoBoxCauldronsV1[i])), false))) {
                 MIM.transferFrom(MIM_PROVIDER, address(BENTOBOX), feesEarned);
                 BENTOBOX.deposit(MIM, address(BENTOBOX), address(bentoBoxCauldronsV1[i]), feesEarned, 0);
+                mimFromBentoBox += feesEarned;
             }
             bentoBoxCauldronsV1[i].withdrawFees();
         }
@@ -260,12 +262,10 @@ contract EthereumWithdrawer is BoringOwnable {
             if (feesEarned > (DEGENBOX.toAmount(MIM, DEGENBOX.balanceOf(MIM, address(degenBoxCauldrons[i])), false))) {
                 MIM.transferFrom(MIM_PROVIDER, address(DEGENBOX), feesEarned);
                 DEGENBOX.deposit(MIM, address(DEGENBOX), address(degenBoxCauldrons[i]), feesEarned, 0);
+                mimFromDegenBox += feesEarned;
             }
             degenBoxCauldrons[i].withdrawFees();
         }
-
-        uint256 mimFromBentoBox = BENTOBOX.balanceOf(MIM, address(this)) - bentoBoxMimAmount;
-        uint256 mimFromDegenBox = DEGENBOX.balanceOf(MIM, address(this)) - degenBoxMimAmount;
 
         if (autoWithdrawFromBentoBoxes) {
             withdrawFromBentoBoxes(mimFromBentoBox, mimFromDegenBox);

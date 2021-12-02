@@ -12,11 +12,10 @@ const ParametersPerChain = {
     mim: "0x130966628846BFd36ff31a822705796e8cb8C18D",
     anyswapRouter: "0xB0731d50C681C45856BFc3f7539D5f61d4bE81D8",
     mimProvider: "0x27C215c8b6e39f54C42aC04EB651211E9a566090",
-    ethereumRecipient: "",
     bentoBoxCauldronsV2: [
       "0x3CFEd0439aB822530b1fFBd19536d897EF30D2a2", // AVAX
-      "0x56984F04d2d04B2F63403f0EbeDD3487716bA49d", // wMEMO
-
+      "0x56984F04d2d04B2F63403f0EbeDD3487716bA49d", // wMEMO v1
+      "0x35fA7A723B3B39f15623Ff1Eb26D8701E7D6bB21", // wMEMO v2
     ],
     bentoBoxCauldronsV1: [],
     degenBoxCauldrons: [
@@ -25,7 +24,7 @@ const ParametersPerChain = {
       "0xd2F54B443C50F4b61F3be99Ab96e5C25EfE396d9", // USDC/AVAX
       "0x2450Bf8e625e98e14884355205af6F97E3E68d07", // MIM/AVAX
     ],
-    owner: xMerlin
+    owner: xMerlin,
   },
   [ChainId.BSC]: {
     bentoBox: "",
@@ -33,11 +32,10 @@ const ParametersPerChain = {
     mim: "",
     anyswapRouter: "",
     mimProvider: "",
-    ethereumRecipient: "",
     bentoBoxCauldronsV2: [],
     bentoBoxCauldronsV1: [],
     degenBoxCauldrons: [],
-    owner: xMerlin
+    owner: xMerlin,
   },
   [ChainId.Fantom]: {
     bentoBox: "",
@@ -45,11 +43,10 @@ const ParametersPerChain = {
     mim: "",
     anyswapRouter: "",
     mimProvider: "",
-    ethereumRecipient: "",
     bentoBoxCauldronsV2: [],
     bentoBoxCauldronsV1: [],
     degenBoxCauldrons: [],
-    owner: xMerlin
+    owner: xMerlin,
   },
   [ChainId.Arbitrum]: {
     bentoBox: "0x74c764D41B77DBbb4fe771daB1939B00b146894A",
@@ -57,11 +54,10 @@ const ParametersPerChain = {
     mim: "",
     anyswapRouter: "",
     mimProvider: "",
-    ethereumRecipient: "",
     bentoBoxCauldronsV2: [],
     bentoBoxCauldronsV1: [],
     degenBoxCauldrons: [],
-    owner: xMerlin
+    owner: xMerlin,
   },
 };
 
@@ -73,18 +69,20 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const chainId = await hre.getChainId();
   const parameters = ParametersPerChain[parseInt(chainId)];
 
+  console.log("WARNING: Change to receipient to EthereumWithdrawer address")
+
   await deploy("MultichainWithdrawer", {
     from: deployer,
     args: [
       parameters.bentoBox,
       parameters.degenBox,
-      parameters.min,
+      parameters.mim,
       parameters.anyswapRouter,
       parameters.mimProvider,
-      parameters.ethereumRecipient,
+      parameters.mimProvider, // Change to EthereumWithdrawer address
       parameters.bentoBoxCauldronsV2,
       parameters.bentoBoxCauldronsV1,
-      parameters.degenBoxCauldrons
+      parameters.degenBoxCauldrons,
     ],
     log: true,
     deterministicDeployment: false,
