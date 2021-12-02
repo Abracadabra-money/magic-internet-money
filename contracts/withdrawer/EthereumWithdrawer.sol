@@ -169,6 +169,7 @@ contract EthereumWithdrawer is BoringOwnable {
     using SafeERC20 for IERC20;
 
     event SwappedMimToSpell(uint256 amountSushiswap, uint256 amountUniswap, uint256 total);
+    event MimWithdrawn(uint256 bentoxBoxAmount, uint256 degenBoxAmount, uint256 total);
 
     bytes4 private constant SIG_TRANSFER = 0xa9059cbb; // transfer(address,uint256)
 
@@ -219,7 +220,10 @@ contract EthereumWithdrawer is BoringOwnable {
         _;
     }
 
-    function withdraw() public {
+    function withdraw(bool autoWithdrawFromBentoBoxes) public {
+        uint256 bentoBoxMimAmount = BENTOBOX.balanceOf(MIM, address(this));
+        uint256 degenBoxMimAmount = DEGENBOX.balanceOf(MIM, address(this));
+
         uint256 length = bentoBoxCauldronsV2.length;
         for (uint256 i = 0; i < length; i++) {
             require(bentoBoxCauldronsV2[i].masterContract().feeTo() == address(this), "wrong feeTo");
@@ -260,8 +264,19 @@ contract EthereumWithdrawer is BoringOwnable {
             degenBoxCauldrons[i].withdrawFees();
         }
 
-        BENTOBOX.withdraw(MIM, address(this), address(this), 0, BENTOBOX.balanceOf(MIM, address(this)));
-        DEGENBOX.withdraw(MIM, address(this), address(this), 0, DEGENBOX.balanceOf(MIM, address(this)));
+        uint256 mimFromBentoBox = BENTOBOX.balanceOf(MIM, address(this)) - bentoBoxMimAmount;
+        uint256 mimFromDegenBox = DEGENBOX.balanceOf(MIM, address(this)) - degenBoxMimAmount;
+
+        if (autoWithdrawFromBentoBoxes) {
+            withdrawFromBentoBoxes(mimFromBentoBox, mimFromDegenBox);
+        }
+
+        emit MimWithdrawn(mimFromBentoBox, mimFromDegenBox, mimFromBentoBox + mimFromDegenBox);
+    }
+
+    function withdrawFromBentoBoxes(uint256 amountBentobox, uint256 amountDegenBox) public {
+        BENTOBOX.withdraw(MIM, address(this), address(this), 0, amountBentobox);
+        DEGENBOX.withdraw(MIM, address(this), address(this), 0, amountDegenBox);
     }
 
     function rescueTokens(
@@ -280,7 +295,7 @@ contract EthereumWithdrawer is BoringOwnable {
         bool autoDepositToSSpell
     ) external onlyVerified {
         require(amountSwapOnSushi > 0 || amountSwapOnUniswap > 0, "nothing to swap");
-        
+
         address recipient = autoDepositToSSpell ? sSPELL : address(this);
         uint256 minAmountToSwap = _getAmountToSwap(amountSwapOnSushi + amountSwapOnUniswap);
         uint256 amountUSDT = MIM3POOL.exchange_underlying(0, 3, minAmountToSwap, 0, address(this));
@@ -290,7 +305,7 @@ contract EthereumWithdrawer is BoringOwnable {
         uint256 amountUSDTSwapOnUniswap = amountUSDT - amountUSDTSwapOnSushi;
         uint256 amountSpellOnSushi;
         uint256 amountSpellOnUniswap;
-        
+
         if (amountSwapOnSushi > 0) {
             amountSpellOnSushi = _swapOnSushiswap(amountUSDTSwapOnSushi, minAmountOutOnSushi, recipient);
         }

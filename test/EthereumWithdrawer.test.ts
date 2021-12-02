@@ -70,7 +70,7 @@ describe("Ethereum Cauldron Fee Withdrawer", async () => {
 
   it("should withdraw mim from all cauldrons", async () => {
     const mimBefore = await MIM.balanceOf(Withdrawer.address);
-    await Withdrawer.withdraw();
+    await Withdrawer.withdraw(true);
     const mimAfter = await MIM.balanceOf(Withdrawer.address);
 
     expect(mimAfter).to.be.gt(mimBefore);
@@ -81,7 +81,7 @@ describe("Ethereum Cauldron Fee Withdrawer", async () => {
   it("should be able to rescue token", async () => {
     const { deployer } = await getNamedAccounts();
     const mimBefore = await MIM.balanceOf(deployer);
-    await Withdrawer.withdraw();
+    await Withdrawer.withdraw(true);
 
     const amountToRescue = await MIM.balanceOf(Withdrawer.address);
     await Withdrawer.connect(deployerSigner).rescueTokens(MIM.address, deployer, amountToRescue);
@@ -97,7 +97,7 @@ describe("Ethereum Cauldron Fee Withdrawer", async () => {
   });
 
   it("should swap the whole mim balance in multiple steps", async () => {
-    await Withdrawer.withdraw();
+    await Withdrawer.withdraw(true);
     const withdrawnMimAmount = await MIM.balanceOf(Withdrawer.address);
 
     const swap = async (mimToSwapOnSushi, mimToSwapOnUniswap) => {
@@ -132,7 +132,7 @@ describe("Ethereum Cauldron Fee Withdrawer", async () => {
   });
 
   it("should prevent frontrunning when swapping", async () => {
-    await Withdrawer.withdraw();
+    await Withdrawer.withdraw(true);
     const withdrawnMimAmount = await MIM.balanceOf(Withdrawer.address);
 
     await expect(Withdrawer.swapMimForSpell(0, withdrawnMimAmount, 0, ethers.constants.MaxUint256, true)).to.be.revertedWith(
