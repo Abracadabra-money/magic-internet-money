@@ -63,7 +63,7 @@ describe("Avalanche Cauldron Fee Withdrawer", async () => {
 
   it("should withdraw mim from all cauldrons", async () => {
     const mimBefore = await MIM.balanceOf(Withdrawer.address);
-    await Withdrawer.withdraw(true, false);
+    await Withdrawer.withdraw();
     const mimAfter = await MIM.balanceOf(Withdrawer.address);
 
     expect(mimAfter).to.be.gt(mimBefore);
@@ -74,7 +74,7 @@ describe("Avalanche Cauldron Fee Withdrawer", async () => {
   it("should be able to rescue token", async () => {
     const { deployer } = await getNamedAccounts();
     const mimBefore = await MIM.balanceOf(deployer);
-    await Withdrawer.withdraw(true, false);
+    await Withdrawer.withdraw();
 
     const amountToRescue = await MIM.balanceOf(Withdrawer.address);
     await Withdrawer.connect(deployerSigner).rescueTokens(MIM.address, deployer, amountToRescue);
@@ -83,7 +83,7 @@ describe("Avalanche Cauldron Fee Withdrawer", async () => {
   });
 
   xit("should withdraw mim from all cauldrons and bridge to mainnnet", async () => {
-    await Withdrawer.withdraw(true, false);
+    await Withdrawer.withdraw();
     let mimAfter = await MIM.balanceOf(Withdrawer.address);
     expect(mimAfter).to.be.gt(0);
 

@@ -220,10 +220,7 @@ contract EthereumWithdrawer is BoringOwnable {
         _;
     }
 
-    function withdraw(bool autoWithdrawFromBentoBoxes) public {
-        uint256 mimFromBentoBox;
-        uint256 mimFromDegenBox;
-
+    function withdraw() public {
         uint256 length = bentoBoxCauldronsV2.length;
         for (uint256 i = 0; i < length; i++) {
             require(bentoBoxCauldronsV2[i].masterContract().feeTo() == address(this), "wrong feeTo");
@@ -233,7 +230,6 @@ contract EthereumWithdrawer is BoringOwnable {
             if (feesEarned > (BENTOBOX.toAmount(MIM, BENTOBOX.balanceOf(MIM, address(bentoBoxCauldronsV2[i])), false))) {
                 MIM.transferFrom(MIM_PROVIDER, address(BENTOBOX), feesEarned);
                 BENTOBOX.deposit(MIM, address(BENTOBOX), address(bentoBoxCauldronsV2[i]), feesEarned, 0);
-                mimFromBentoBox += feesEarned;
             }
 
             bentoBoxCauldronsV2[i].withdrawFees();
@@ -248,7 +244,6 @@ contract EthereumWithdrawer is BoringOwnable {
             if (feesEarned > (BENTOBOX.toAmount(MIM, BENTOBOX.balanceOf(MIM, address(bentoBoxCauldronsV1[i])), false))) {
                 MIM.transferFrom(MIM_PROVIDER, address(BENTOBOX), feesEarned);
                 BENTOBOX.deposit(MIM, address(BENTOBOX), address(bentoBoxCauldronsV1[i]), feesEarned, 0);
-                mimFromBentoBox += feesEarned;
             }
             bentoBoxCauldronsV1[i].withdrawFees();
         }
@@ -262,14 +257,13 @@ contract EthereumWithdrawer is BoringOwnable {
             if (feesEarned > (DEGENBOX.toAmount(MIM, DEGENBOX.balanceOf(MIM, address(degenBoxCauldrons[i])), false))) {
                 MIM.transferFrom(MIM_PROVIDER, address(DEGENBOX), feesEarned);
                 DEGENBOX.deposit(MIM, address(DEGENBOX), address(degenBoxCauldrons[i]), feesEarned, 0);
-                mimFromDegenBox += feesEarned;
             }
             degenBoxCauldrons[i].withdrawFees();
         }
 
-        if (autoWithdrawFromBentoBoxes) {
-            withdrawFromBentoBoxes(mimFromBentoBox, mimFromDegenBox);
-        }
+        uint256 mimFromBentoBox = BENTOBOX.balanceOf(MIM, address(this));
+        uint256 mimFromDegenBox = DEGENBOX.balanceOf(MIM, address(this));
+        withdrawFromBentoBoxes(mimFromBentoBox, mimFromDegenBox);
 
         emit MimWithdrawn(mimFromBentoBox, mimFromDegenBox, mimFromBentoBox + mimFromDegenBox);
     }

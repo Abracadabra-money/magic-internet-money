@@ -169,7 +169,7 @@ interface AnyswapRouter {
 }
 
 contract MultichainWithdrawer is BoringOwnable {
-    event MimWithdrawn(uint256 amount, bool bridgedToEthereum);
+    event MimWithdrawn(uint256 amount);
 
     bytes4 private constant SIG_TRANSFER = 0xa9059cbb; // transfer(address,uint256)
 
@@ -211,10 +211,7 @@ contract MultichainWithdrawer is BoringOwnable {
         MIM.approve(address(anyswapRouter), type(uint256).max);
     }
 
-    function withdraw(bool autoWithdrawFromBentoBoxes, bool autoBridgeToEthereum) public {
-        uint256 mimFromBentoBox;
-        uint256 mimFromDegenBox;
-
+    function withdraw() public {
         uint256 length = bentoBoxCauldronsV2.length;
         for (uint256 i = 0; i < length; i++) {
             require(bentoBoxCauldronsV2[i].masterContract().feeTo() == address(this), "wrong feeTo");
@@ -224,7 +221,6 @@ contract MultichainWithdrawer is BoringOwnable {
             if (feesEarned > (bentoBox.toAmount(MIM, bentoBox.balanceOf(MIM, address(bentoBoxCauldronsV2[i])), false))) {
                 MIM.transferFrom(mimProvider, address(bentoBox), feesEarned);
                 bentoBox.deposit(MIM, address(bentoBox), address(bentoBoxCauldronsV2[i]), feesEarned, 0);
-                mimFromBentoBox += feesEarned;
             }
 
             bentoBoxCauldronsV2[i].withdrawFees();
@@ -239,7 +235,6 @@ contract MultichainWithdrawer is BoringOwnable {
             if (feesEarned > (bentoBox.toAmount(MIM, bentoBox.balanceOf(MIM, address(bentoBoxCauldronsV1[i])), false))) {
                 MIM.transferFrom(mimProvider, address(bentoBox), feesEarned);
                 bentoBox.deposit(MIM, address(bentoBox), address(bentoBoxCauldronsV1[i]), feesEarned, 0);
-                mimFromBentoBox += feesEarned;
             }
             bentoBoxCauldronsV1[i].withdrawFees();
         }
@@ -253,22 +248,18 @@ contract MultichainWithdrawer is BoringOwnable {
             if (feesEarned > (degenBox.toAmount(MIM, degenBox.balanceOf(MIM, address(degenBoxCauldrons[i])), false))) {
                 MIM.transferFrom(mimProvider, address(degenBox), feesEarned);
                 degenBox.deposit(MIM, address(degenBox), address(degenBoxCauldrons[i]), feesEarned, 0);
-                mimFromDegenBox += feesEarned;
             }
             degenBoxCauldrons[i].withdrawFees();
         }
 
+        uint256 mimFromBentoBox = bentoBox.balanceOf(MIM, address(this));
+        uint256 mimFromDegenBox = degenBox.balanceOf(MIM, address(this));
         uint256 amountWithdrawn = mimFromBentoBox + mimFromDegenBox;
 
-        if (autoWithdrawFromBentoBoxes) {
-            withdrawFromBentoBoxes(mimFromBentoBox, mimFromDegenBox);
+        withdrawFromBentoBoxes(mimFromBentoBox, mimFromDegenBox);
+        bridgeMimToEthereum(amountWithdrawn);
 
-            if (autoBridgeToEthereum) {
-                bridgeMimToEthereum(amountWithdrawn);
-            }
-        }
-
-        emit MimWithdrawn(amountWithdrawn, autoBridgeToEthereum);
+        emit MimWithdrawn(amountWithdrawn);
     }
 
     function withdrawFromBentoBoxes(uint256 amountBentobox, uint256 amountDegenBox) public {
