@@ -160,7 +160,7 @@ interface CauldronV1 {
 }
 
 interface AnyswapRouter {
-    function anySwapOutUnderlying(
+    function anySwapOut(
         address token,
         address to,
         uint256 amount,
@@ -252,28 +252,29 @@ contract MultichainWithdrawer is BoringOwnable {
             degenBoxCauldrons[i].withdrawFees();
         }
 
-        uint256 mimFromBentoBox = bentoBox.balanceOf(MIM, address(this));
-        uint256 mimFromDegenBox = degenBox.balanceOf(MIM, address(this));
-        uint256 amountWithdrawn = mimFromBentoBox + mimFromDegenBox;
+        uint256 mimFromBentoBoxShare = bentoBox.balanceOf(MIM, address(this));
+        uint256 mimFromDegenBoxShare = degenBox.balanceOf(MIM, address(this));
+        
+        withdrawFromBentoBoxes(mimFromBentoBoxShare, mimFromDegenBoxShare);
 
-        withdrawFromBentoBoxes(mimFromBentoBox, mimFromDegenBox);
+        uint256 amountWithdrawn = MIM.balanceOf(address(this));
         bridgeMimToEthereum(amountWithdrawn);
 
         emit MimWithdrawn(amountWithdrawn);
     }
 
-    function withdrawFromBentoBoxes(uint256 amountBentobox, uint256 amountDegenBox) public {
+    function withdrawFromBentoBoxes(uint256 amountBentoboxShare, uint256 amountDegenBoxShare) public {
         if (address(bentoBox) != address(0)) {
-            bentoBox.withdraw(MIM, address(this), address(this), 0, amountBentobox);
+            bentoBox.withdraw(MIM, address(this), address(this), 0, amountBentoboxShare);
         }
         if (address(degenBox) != address(0)) {
-            degenBox.withdraw(MIM, address(this), address(this), 0, amountDegenBox);
+            degenBox.withdraw(MIM, address(this), address(this), 0, amountDegenBoxShare);
         }
     }
 
     function bridgeMimToEthereum(uint256 amount) public {
         // bridge all MIM to Ethereum, chainId 1
-        anyswapRouter.anySwapOutUnderlying(address(MIM), ethereumRecipient, amount, 1);
+        anyswapRouter.anySwapOut(address(MIM), ethereumRecipient, amount, 1);
     }
 
     function rescueTokens(

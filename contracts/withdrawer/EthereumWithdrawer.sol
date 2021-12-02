@@ -261,16 +261,18 @@ contract EthereumWithdrawer is BoringOwnable {
             degenBoxCauldrons[i].withdrawFees();
         }
 
-        uint256 mimFromBentoBox = BENTOBOX.balanceOf(MIM, address(this));
-        uint256 mimFromDegenBox = DEGENBOX.balanceOf(MIM, address(this));
-        withdrawFromBentoBoxes(mimFromBentoBox, mimFromDegenBox);
+        uint256 mimFromBentoBoxShare = BENTOBOX.balanceOf(MIM, address(this));
+        uint256 mimFromDegenBoxShare = DEGENBOX.balanceOf(MIM, address(this));
+        withdrawFromBentoBoxes(mimFromBentoBoxShare, mimFromDegenBoxShare);
 
+        uint256 mimFromBentoBox = BENTOBOX.toAmount(MIM, mimFromBentoBoxShare, false);
+        uint256 mimFromDegenBox = DEGENBOX.toAmount(MIM, mimFromDegenBoxShare, false);
         emit MimWithdrawn(mimFromBentoBox, mimFromDegenBox, mimFromBentoBox + mimFromDegenBox);
     }
 
-    function withdrawFromBentoBoxes(uint256 amountBentobox, uint256 amountDegenBox) public {
-        BENTOBOX.withdraw(MIM, address(this), address(this), 0, amountBentobox);
-        DEGENBOX.withdraw(MIM, address(this), address(this), 0, amountDegenBox);
+    function withdrawFromBentoBoxes(uint256 amountBentoboxShare, uint256 amountDegenBoxShare) public {
+        BENTOBOX.withdraw(MIM, address(this), address(this), 0, amountBentoboxShare);
+        DEGENBOX.withdraw(MIM, address(this), address(this), 0, amountDegenBoxShare);
     }
 
     function rescueTokens(

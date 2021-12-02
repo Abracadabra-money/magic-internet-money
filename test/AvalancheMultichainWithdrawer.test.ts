@@ -1,9 +1,10 @@
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { expect } from "chai";
 import { ChainId, impersonate } from "../utilities";
-import { CauldronV2, MultichainWithdrawer, IERC20 } from "../typechain";
+import { CauldronV2, MultichainWithdrawer, IERC20, ERC20 } from "../typechain";
 
 const MimProvider = "0x27C215c8b6e39f54C42aC04EB651211E9a566090";
+const AnySwapV4 = "0xB0731d50C681C45856BFc3f7539D5f61d4bE81D8";
 
 const CauldronMasterContracts = [
   "0xc568a699c5B43A0F1aE40D3254ee641CB86559F4", // CauldronV2Multichain BentoBox
@@ -13,7 +14,7 @@ const CauldronMasterContracts = [
 describe("Avalanche Cauldron Fee Withdrawer", async () => {
   let snapshotId;
   let Withdrawer: MultichainWithdrawer;
-  let MIM: IERC20;
+  let MIM: ERC20;
   let SPELL: IERC20;
   let sSPELL: IERC20;
   let deployerSigner;
@@ -36,7 +37,7 @@ describe("Avalanche Cauldron Fee Withdrawer", async () => {
     const { deployer } = await getNamedAccounts();
     deployerSigner = await ethers.getSigner(deployer);
 
-    MIM = await ethers.getContractAt<IERC20>("ERC20", "0x130966628846bfd36ff31a822705796e8cb8c18d");
+    MIM = await ethers.getContractAt<ERC20>("ERC20", "0x130966628846bfd36ff31a822705796e8cb8c18d");
 
     Withdrawer = await ethers.getContract<MultichainWithdrawer>("MultichainWithdrawer");
 
@@ -62,19 +63,22 @@ describe("Avalanche Cauldron Fee Withdrawer", async () => {
   });
 
   it("should withdraw mim from all cauldrons", async () => {
-    const mimBefore = await MIM.balanceOf(Withdrawer.address);
-    await Withdrawer.withdraw();
-    const mimAfter = await MIM.balanceOf(Withdrawer.address);
+    const tx = await Withdrawer.withdraw();
+    const events = (await tx.wait()).events || [];
+    const mimWithdrawnEvent = events[events.length - 1];
 
-    expect(mimAfter).to.be.gt(mimBefore);
-
-    console.log("MIM Withdrawn:", mimAfter.sub(mimBefore).toString());
+    expect(mimWithdrawnEvent.args).not.to.be.undefined;
+    expect(mimWithdrawnEvent.args && mimWithdrawnEvent.args[0]).to.be.gt(0);
   });
 
   it("should be able to rescue token", async () => {
     const { deployer } = await getNamedAccounts();
+
     const mimBefore = await MIM.balanceOf(deployer);
-    await Withdrawer.withdraw();
+
+    await impersonate(MimProvider);
+    const mimProviderSigner = await ethers.getSigner(MimProvider);
+    await MIM.connect(mimProviderSigner).transfer(Withdrawer.address, await MIM.balanceOf(MimProvider));
 
     const amountToRescue = await MIM.balanceOf(Withdrawer.address);
     await Withdrawer.connect(deployerSigner).rescueTokens(MIM.address, deployer, amountToRescue);
@@ -82,13 +86,14 @@ describe("Avalanche Cauldron Fee Withdrawer", async () => {
     expect(mimAfter.sub(mimBefore)).to.eq(amountToRescue);
   });
 
-  xit("should withdraw mim from all cauldrons and bridge to mainnnet", async () => {
-    await Withdrawer.withdraw();
-    let mimAfter = await MIM.balanceOf(Withdrawer.address);
-    expect(mimAfter).to.be.gt(0);
+  it("should withdraw mim from all cauldrons and bridge to mainnnet", async () => {
+    // bridging burns the token, so the supply should lower
+    const mimSupplyBefore = await MIM.totalSupply();
 
-    await Withdrawer.bridgeMimToEthereum(await MIM.balanceOf(Withdrawer.address));
-    expect(mimAfter).to.eq(0);
+    await Withdrawer.withdraw();
+    expect(await MIM.balanceOf(Withdrawer.address)).to.eq(0);
+
+    const mimSupplyAfter = await MIM.totalSupply();
+    expect(mimSupplyAfter).to.be.lt(mimSupplyBefore);
   });
-  
 });
