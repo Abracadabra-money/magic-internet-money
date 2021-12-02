@@ -1,4 +1,5 @@
 const { task } = require("hardhat/config");
+const fs = require('fs')
 
 task("accounts", "Prints the list of accounts", require("./accounts"))
 

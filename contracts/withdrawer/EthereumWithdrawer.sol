@@ -313,6 +313,14 @@ contract EthereumWithdrawer is BoringOwnable {
         emit SwappedMimToSpell(amountSpellOnSushi, amountSpellOnUniswap, amountSpellOnSushi + amountSpellOnUniswap);
     }
 
+    function swapMimForSpell1Inch(address inchrouter, bytes calldata data) external onlyOwner{
+        MIM.approve(inchrouter, type(uint256).max);
+        (bool success, ) = inchrouter.call(data);
+        require(success, "1inch swap unsucessful");
+        IERC20(SPELL).safeTransfer(address(sSPELL), IERC20(SPELL).balanceOf(address(this)));
+        MIM.approve(inchrouter, 0);
+    }
+
     function setVerified(address operator, bool status) external onlyOwner {
         verified[operator] = status;
     }
