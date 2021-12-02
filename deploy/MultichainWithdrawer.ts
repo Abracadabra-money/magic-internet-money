@@ -69,8 +69,6 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const chainId = await hre.getChainId();
   const parameters = ParametersPerChain[parseInt(chainId)];
 
-  console.log("WARNING: Change to receipient to EthereumWithdrawer address")
-
   await deploy("MultichainWithdrawer", {
     from: deployer,
     args: [
@@ -79,7 +77,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       parameters.mim,
       parameters.anyswapRouter,
       parameters.mimProvider,
-      parameters.mimProvider, // Change to EthereumWithdrawer address
+      "0x2612c7a5fDAF8Dea4f4D6C7A9da8e32A003706F6", // EthereumWithdrawer as recipient
       parameters.bentoBoxCauldronsV2,
       parameters.bentoBoxCauldronsV1,
       parameters.degenBoxCauldrons,

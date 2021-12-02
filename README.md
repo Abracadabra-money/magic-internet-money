@@ -15,9 +15,19 @@ When that's the case, run `yarn rebuild` and `yarn test` again.
 
 The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra.
 
-## Deployments
+# Deployments
 
-### Avalanche
+## Ethereum
+
+### Utilities
+
+| Contract           | Address                                    | Note                                                                                                                         |
+| ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| EthereumWithdrawer | 0x2612c7a5fDAF8Dea4f4D6C7A9da8e32A003706F6 | Withdraw MIM fees from cauldron and swap for SPELL. Also used as recipient for swapping MIM fees received from other chains. |
+
+## Avalanche
+
+### Cauldrons
 
 | Contract                    | Address                                    | Note                                  |
 | --------------------------- | ------------------------------------------ | ------------------------------------- |
@@ -38,8 +48,8 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 | MimAvaxSwapper              | 0xBc00ca0d71231c5E23Ba90A90D8C5D9039C39614 | Liquidation Swapper                   |
 | MimAvaxLevSwapper           | 0xBA7fd957ad9b7C0238E6E4413dbA69E83224a582 | Leverage Swapper                      |
 
-## Utilities
+### Utilities
 
-| Contract           | Address                                    | Chain    | Note                                                                                                                         |
-| ------------------ | ------------------------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| EthereumWithdrawer | 0x2612c7a5fDAF8Dea4f4D6C7A9da8e32A003706F6 | Ethereum | Withdraw MIM fees from cauldron and swap for SPELL. Also used as recipient for swapping MIM fees received from other chains. |
+| Contract             | Address                                    | Note                                                             |
+| -------------------- | ------------------------------------------ | ---------------------------------------------------------------- |
+| MultichainWithdrawer | 0x02d4c5c47C6E779F44709F35f0131C1CdB407fbf | Withdraw MIM fees from cauldron and bridge to EthereumWithdrawer |
