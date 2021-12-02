@@ -156,6 +156,13 @@ interface AnyswapRouter {
 }
 
 interface CurvePool {
+    function exchange(
+        uint256 i,
+        uint256 j,
+        uint256 dx,
+        uint256 min_dy
+    ) external;
+
     function exchange_underlying(
         int128 i,
         int128 j,
@@ -172,26 +179,25 @@ contract EthereumWithdrawer is BoringOwnable {
     event MimWithdrawn(uint256 bentoxBoxAmount, uint256 degenBoxAmount, uint256 total);
 
     bytes4 private constant SIG_TRANSFER = 0xa9059cbb; // transfer(address,uint256)
-
     CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
+    CurvePool public constant THREECRYPTO = CurvePool(0xD51a44d3FaE010294C616388b506AcdA1bfAAE46);
     IBentoBoxV1 public constant BENTOBOX = IBentoBoxV1(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce);
 
     IERC20 public constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);
     IERC20 public constant USDT = IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7);
+    IERC20 public constant WETH = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+
     address public constant SPELL = 0x090185f2135308BaD17527004364eBcC2D37e5F6;
     address public constant sSPELL = 0x26FA3fFFB6EfE8c1E69103aCb4044C26B9A106a9;
-    address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
     address public constant MIM_PROVIDER = 0x5f0DeE98360d8200b20812e174d139A1a633EDd2;
     address public constant TREASURY = 0x5A7C5505f3CFB9a0D9A8493EC41bf27EE48c406D;
 
     // Sushiswap
-    IUniswapV2Pair private constant SUSHI_ETH_USDT = IUniswapV2Pair(0x06da0fd433C1A5d7a4faa01111c044910A184553);
     IUniswapV2Pair private constant SUSHI_SPELL_WETH = IUniswapV2Pair(0xb5De0C3753b6E1B4dBA616Db82767F17513E6d4E);
 
     // Uniswap V3
-    uint24 private constant POOLFEE = 3000;
     ISwapRouter private constant SWAPROUTER = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
     CauldronV1[] public bentoBoxCauldronsV1;
@@ -210,8 +216,8 @@ contract EthereumWithdrawer is BoringOwnable {
         degenBoxCauldrons = degenBoxCauldrons_;
 
         MIM.approve(address(MIM3POOL), type(uint256).max);
-
-        USDT.safeApprove(address(SWAPROUTER), type(uint256).max);
+        WETH.approve(address(SWAPROUTER), type(uint256).max);
+        USDT.safeApprove(address(THREECRYPTO), type(uint256).max);
         verified[msg.sender] = true;
     }
 
@@ -295,19 +301,21 @@ contract EthereumWithdrawer is BoringOwnable {
         address recipient = autoDepositToSSpell ? sSPELL : address(this);
         uint256 minAmountToSwap = _getAmountToSwap(amountSwapOnSushi + amountSwapOnUniswap);
         uint256 amountUSDT = MIM3POOL.exchange_underlying(0, 3, minAmountToSwap, 0, address(this));
+        THREECRYPTO.exchange(0, 2, amountUSDT, 0);
 
+        uint256 amountWETH = WETH.balanceOf(address(this));
         uint256 percentSushi = (amountSwapOnSushi * 100) / (amountSwapOnSushi + amountSwapOnUniswap);
-        uint256 amountUSDTSwapOnSushi = (amountUSDT * percentSushi) / 100;
-        uint256 amountUSDTSwapOnUniswap = amountUSDT - amountUSDTSwapOnSushi;
+        uint256 amountWETHSwapOnSushi = (amountWETH * percentSushi) / 100;
+        uint256 amountWETHSwapOnUniswap = amountWETH - amountWETHSwapOnSushi;
         uint256 amountSpellOnSushi;
         uint256 amountSpellOnUniswap;
 
         if (amountSwapOnSushi > 0) {
-            amountSpellOnSushi = _swapOnSushiswap(amountUSDTSwapOnSushi, minAmountOutOnSushi, recipient);
+            amountSpellOnSushi = _swapOnSushiswap(amountWETHSwapOnSushi, minAmountOutOnSushi, recipient);
         }
 
         if (amountSwapOnUniswap > 0) {
-            amountSpellOnUniswap = _swapOnUniswap(amountUSDTSwapOnUniswap, minAmountOutOnUniswap, recipient);
+            amountSpellOnUniswap = _swapOnUniswap(amountWETHSwapOnUniswap, minAmountOutOnUniswap, recipient);
         }
 
         emit SwappedMimToSpell(amountSpellOnSushi, amountSpellOnUniswap, amountSpellOnSushi + amountSpellOnUniswap);
@@ -367,38 +375,38 @@ contract EthereumWithdrawer is BoringOwnable {
     }
 
     function _swapOnSushiswap(
-        uint256 amountUSDT,
+        uint256 amountWETH,
         uint256 minAmountSpellOut,
         address recipient
     ) private returns (uint256) {
-        (uint256 reserve0, uint256 reserve1, ) = SUSHI_ETH_USDT.getReserves();
-        uint256 amountOut = _getAmountOut(amountUSDT, reserve1, reserve0);
+        (uint256 reserve0, uint256 reserve1, ) = SUSHI_SPELL_WETH.getReserves();
+        uint256 amountSpellOut = _getAmountOut(amountWETH, reserve1, reserve0);
 
-        USDT.safeTransfer(address(SUSHI_ETH_USDT), amountUSDT);
-        SUSHI_ETH_USDT.swap(amountOut, 0, address(SUSHI_SPELL_WETH), new bytes(0));
+        require(amountSpellOut >= minAmountSpellOut, "Too little received");
 
-        (reserve0, reserve1, ) = SUSHI_SPELL_WETH.getReserves();
-        amountOut = _getAmountOut(amountOut, reserve1, reserve0);
+        WETH.transfer(address(SUSHI_SPELL_WETH), amountWETH);
+        SUSHI_SPELL_WETH.swap(amountSpellOut, 0, recipient, "");
 
-        require(amountOut >= minAmountSpellOut, "Too little received");
-        SUSHI_SPELL_WETH.swap(amountOut, 0, recipient, "");
-        return amountOut;
+        return amountSpellOut;
     }
 
     function _swapOnUniswap(
-        uint256 amountUSDT,
+        uint256 amountWETH,
         uint256 minAmountSpellOut,
         address recipient
     ) private returns (uint256) {
-        ISwapRouter.ExactInputParams memory params = ISwapRouter.ExactInputParams({
-            path: abi.encodePacked(USDT, POOLFEE, WETH, POOLFEE, SPELL),
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
+            tokenIn: address(WETH),
+            tokenOut: SPELL,
+            fee: 3000,
             recipient: recipient,
             deadline: block.timestamp,
-            amountIn: amountUSDT,
-            amountOutMinimum: minAmountSpellOut
+            amountIn: amountWETH,
+            amountOutMinimum: minAmountSpellOut,
+            sqrtPriceLimitX96: 0
         });
 
-        uint256 amountOut = SWAPROUTER.exactInput(params);
+        uint256 amountOut = SWAPROUTER.exactInputSingle(params);
         return amountOut;
     }
 
