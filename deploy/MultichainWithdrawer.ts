@@ -1,9 +1,9 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, network } from "hardhat";
-import { MultiChainWithdrawer } from "../typechain";
 import { ChainId, setDeploymentSupportedChains } from "../utilities";
 import { xMerlin } from "../test/constants";
+import { MultichainWithdrawer } from "../typechain";
 
 const ParametersPerChain = {
   [ChainId.Avalanche]: {
@@ -88,7 +88,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     deterministicDeployment: false,
   });
 
-  const MultichainWithdrawer = await ethers.getContract<MultiChainWithdrawer>("MultichainWithdrawer");
+  const MultichainWithdrawer = await ethers.getContract<MultichainWithdrawer>("MultichainWithdrawer");
 
   if ((await MultichainWithdrawer.owner()) != parameters.owner && network.name !== "hardhat") {
     await MultichainWithdrawer.transferOwnership(parameters.owner, true, false);
