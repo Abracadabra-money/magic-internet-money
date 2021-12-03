@@ -204,6 +204,8 @@ contract EthereumWithdrawer is BoringOwnable {
     Cauldron[] public bentoBoxCauldronsV2;
     Cauldron[] public degenBoxCauldrons;
 
+    uint256 public treasuryShare;
+
     mapping(address => bool) public verified;
 
     constructor(
@@ -219,6 +221,7 @@ contract EthereumWithdrawer is BoringOwnable {
         WETH.approve(address(SWAPROUTER), type(uint256).max);
         USDT.safeApprove(address(THREECRYPTO), type(uint256).max);
         verified[msg.sender] = true;
+        treasuryShare = 25;
     }
 
     modifier onlyVerified() {
@@ -289,6 +292,10 @@ contract EthereumWithdrawer is BoringOwnable {
         token.safeTransfer(to, amount);
     }
 
+    function setTreasuryShare(uint256 share) external onlyOwner {
+        treasuryShare = share;
+    }
+
     function swapMimForSpell(
         uint256 amountSwapOnSushi,
         uint256 amountSwapOnUniswap,
@@ -321,7 +328,7 @@ contract EthereumWithdrawer is BoringOwnable {
         emit SwappedMimToSpell(amountSpellOnSushi, amountSpellOnUniswap, amountSpellOnSushi + amountSpellOnUniswap);
     }
 
-    function swapMimForSpell1Inch(address inchrouter, bytes calldata data) external onlyOwner{
+    function swapMimForSpell1Inch(address inchrouter, bytes calldata data) external onlyOwner {
         MIM.approve(inchrouter, type(uint256).max);
         (bool success, ) = inchrouter.call(data);
         require(success, "1inch swap unsucessful");
@@ -411,8 +418,8 @@ contract EthereumWithdrawer is BoringOwnable {
     }
 
     function _getAmountToSwap(uint256 amount) private returns (uint256) {
-        uint256 treasuryShare = amount / 4;
-        MIM.transfer(TREASURY, treasuryShare);
-        return amount - treasuryShare;
+        uint256 treasuryShareAmount = (amount * treasuryShare) / 100;
+        MIM.transfer(TREASURY, treasuryShareAmount);
+        return amount - treasuryShareAmount;
     }
 }
