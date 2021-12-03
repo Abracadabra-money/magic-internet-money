@@ -77,7 +77,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       parameters.mim,
       parameters.anyswapRouter,
       parameters.mimProvider,
-      "0x2612c7a5fDAF8Dea4f4D6C7A9da8e32A003706F6", // EthereumWithdrawer as recipient
+      "0xB2c3A9c577068479B1E5119f6B7da98d25Ba48f4", // EthereumWithdrawer as recipient
       parameters.bentoBoxCauldronsV2,
       parameters.bentoBoxCauldronsV1,
       parameters.degenBoxCauldrons,
