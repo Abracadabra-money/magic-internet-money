@@ -176,6 +176,14 @@ contract PrivatePool is BoringOwnable, IMasterContract {
             address(settings.collateral) != address(0),
             "PrivatePool: bad pair"
         );
+        require(
+            settings.LIQUIDATION_MULTIPLIER_BPS >= BASIS_POINTS,
+            "PrivatePool: negative liquidation bonus"
+        );
+        require(
+            settings.COLLATERALIZATION_RATE_BPS <= BASIS_POINTS,
+            "PrivatePool: bad collateralization rate"
+        );
 
         collateral = settings.collateral;
         asset = settings.asset;
