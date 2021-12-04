@@ -36,7 +36,7 @@ const ParametersPerChain = {
     bentoBoxCauldronsV1: [],
     degenBoxCauldrons: [
       "0x692CF15F80415D83E8c0e139cAbcDA67fcc12C90", // CAKE
-      "0xF8049467F3A9D50176f4816b20cDdd9bB8a93319" // wBNB
+      "0xF8049467F3A9D50176f4816b20cDdd9bB8a93319", // wBNB
     ],
     owner: xMerlin,
   },
@@ -62,8 +62,30 @@ const ParametersPerChain = {
     anyswapRouter: "0xC931f61B1534EB21D8c11B24f3f5Ab2471d4aB50",
     mimProvider: "0xf46BB6dDA9709C49EfB918201D97F6474EAc5Aea",
     bentoBoxCauldronsV2: [
-      "0xC89958B03A55B5de2221aCB25B58B89A000215E6" // wETH
+      "0xC89958B03A55B5de2221aCB25B58B89A000215E6", // wETH
     ],
+    bentoBoxCauldronsV1: [],
+    degenBoxCauldrons: [],
+    owner: xMerlin,
+  },
+  [ChainId.Boba]: {
+    bentoBox: ethers.constants.AddressZero,
+    degenBox: ethers.constants.AddressZero,
+    mim: ethers.constants.AddressZero,
+    anyswapRouter: ethers.constants.AddressZero,
+    mimProvider: ethers.constants.AddressZero,
+    bentoBoxCauldronsV2: [],
+    bentoBoxCauldronsV1: [],
+    degenBoxCauldrons: [],
+    owner: xMerlin,
+  },
+  [ChainId.Moonriver]: {
+    bentoBox: ethers.constants.AddressZero,
+    degenBox: ethers.constants.AddressZero,
+    mim: ethers.constants.AddressZero,
+    anyswapRouter: ethers.constants.AddressZero,
+    mimProvider: ethers.constants.AddressZero,
+    bentoBoxCauldronsV2: [],
     bentoBoxCauldronsV1: [],
     degenBoxCauldrons: [],
     owner: xMerlin,
