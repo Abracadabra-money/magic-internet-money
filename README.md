@@ -23,7 +23,7 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 
 | Contract           | Address                                    | Note                                                                                                                         |
 | ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| EthereumWithdrawer | 0x2b95bf93B5873c8cB9aE3374e3054736A5b79676 | Withdraw MIM fees from cauldron and swap for SPELL. Also used as recipient for swapping MIM fees received from other chains. |
+| EthereumWithdrawer | 0xB2c3A9c577068479B1E5119f6B7da98d25Ba48f4 | Withdraw MIM fees from cauldron and swap for SPELL. Also used as recipient for swapping MIM fees received from other chains. |
 
 ## Avalanche
 
@@ -52,4 +52,4 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 
 | Contract             | Address                                    | Note                                                             |
 | -------------------- | ------------------------------------------ | ---------------------------------------------------------------- |
-| MultichainWithdrawer | 0x02d4c5c47C6E779F44709F35f0131C1CdB407fbf | Withdraw MIM fees from cauldron and bridge to EthereumWithdrawer |
+| MultichainWithdrawer | 0x2b95bf93B5873c8cB9aE3374e3054736A5b79676 | Withdraw MIM fees from cauldron and bridge to EthereumWithdrawer |
