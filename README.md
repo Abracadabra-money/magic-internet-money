@@ -15,9 +15,44 @@ When that's the case, run `yarn rebuild` and `yarn test` again.
 
 The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra.
 
-## Deployments
+# Deployments
+
+## Ethereum
+
+### Utilities
+
+| Contract           | Address                                    | Note                                                                                                                         |
+| ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| EthereumWithdrawer | 0xB2c3A9c577068479B1E5119f6B7da98d25Ba48f4 | Withdraw MIM fees from cauldron and swap for SPELL. Also used as recipient for swapping MIM fees received from other chains. |
+
+## BSC
+
+### Utilities
+
+| Contract             | Address                                    | Note |
+| -------------------- | ------------------------------------------ | ---- |
+| MultichainWithdrawer | 0xB3f5c7D0Ac3944a9d9A9623D6B50bCeA85A26753 |      |
+
+## Fantom
+
+### Utilities
+
+| Contract             | Address                                    | Note |
+| -------------------- | ------------------------------------------ | ---- |
+| MultichainWithdrawer | 0x7a3b799E929C9bef403976405D8908fa92080449 |      |
+
+
+## Arbitrum
+
+### Utilities
+
+| Contract             | Address                                    | Note |
+| -------------------- | ------------------------------------------ | ---- |
+| MultichainWithdrawer | 0x7a3b799E929C9bef403976405D8908fa92080449 |      |
 
 ## Avalanche
+
+### Cauldrons
 
 | Contract                    | Address                                    | Note                                  |
 | --------------------------- | ------------------------------------------ | ------------------------------------- |
@@ -37,3 +72,9 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 | MimAvaxOracleV1             | 0x4437DB9538eb74C7418a1668766536b279C52709 | Using Chainlink AVAX/USD and MIM/USD  |
 | MimAvaxSwapper              | 0xBc00ca0d71231c5E23Ba90A90D8C5D9039C39614 | Liquidation Swapper                   |
 | MimAvaxLevSwapper           | 0xBA7fd957ad9b7C0238E6E4413dbA69E83224a582 | Leverage Swapper                      |
+
+### Utilities
+
+| Contract             | Address                                    | Note                                                             |
+| -------------------- | ------------------------------------------ | ---------------------------------------------------------------- |
+| MultichainWithdrawer | 0x2b95bf93B5873c8cB9aE3374e3054736A5b79676 | Withdraw MIM fees from cauldron and bridge to EthereumWithdrawer |
