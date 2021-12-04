@@ -125,13 +125,29 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ["staging"],
     },
+    boba: {
+      url: "https://mainnet.boba.network/",
+      accounts,
+      chainId: 288,
+      live: true,
+      saveDeployments: true,
+      tags: ["prod"],
+    },
+    moonriver: {
+      url: "https://rpc.moonriver.moonbeam.network",
+      accounts,
+      chainId: 1285,
+      live: true,
+      saveDeployments: true,
+      tags: ["prod"],
+    },
     arbitrum: {
       url: "https://kovan3.arbitrum.io/rpc",
       accounts,
       chainId: 79377087078960,
       live: true,
       saveDeployments: true,
-      tags: ["staging"],
+      tags: ["prod"],
     },
     fantom: {
       url: "https://rpcapi.fantom.network",
@@ -139,6 +155,7 @@ const config: HardhatUserConfig = {
       chainId: 250,
       live: true,
       saveDeployments: true,
+      tags: ["prod"],
     },
     fantom_testnet: {
       url: "https://rpc.testnet.fantom.network",
