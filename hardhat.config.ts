@@ -126,12 +126,12 @@ const config: HardhatUserConfig = {
       tags: ["staging"],
     },
     arbitrum: {
-      url: "https://kovan3.arbitrum.io/rpc",
+      url: "https://arb1.arbitrum.io/rpc",
       accounts,
-      chainId: 79377087078960,
+      chainId: 42161,
       live: true,
       saveDeployments: true,
-      tags: ["staging"],
+      blockGasLimit: 700000,
     },
     fantom: {
       url: "https://rpcapi.fantom.network",

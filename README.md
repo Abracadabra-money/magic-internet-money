@@ -41,6 +41,15 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 | -------------------- | ------------------------------------------ | ---- |
 | MultichainWithdrawer | 0x7a3b799E929C9bef403976405D8908fa92080449 |      |
 
+
+## Arbitrum
+
+### Utilities
+
+| Contract             | Address                                    | Note |
+| -------------------- | ------------------------------------------ | ---- |
+| MultichainWithdrawer | 0x7a3b799E929C9bef403976405D8908fa92080449 |      |
+
 ## Avalanche
 
 ### Cauldrons

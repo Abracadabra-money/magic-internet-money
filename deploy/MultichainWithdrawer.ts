@@ -57,7 +57,7 @@ const ParametersPerChain = {
   },
   [ChainId.Arbitrum]: {
     bentoBox: "0x74c764D41B77DBbb4fe771daB1939B00b146894A",
-    degenBox: "",
+    degenBox: ethers.constants.AddressZero,
     mim: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
     anyswapRouter: "0xC931f61B1534EB21D8c11B24f3f5Ab2471d4aB50",
     mimProvider: "0xf46BB6dDA9709C49EfB918201D97F6474EAc5Aea",
