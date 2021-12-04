@@ -9,16 +9,15 @@ interface IAggregator {
 }
 
 contract USTOracle is IOracle {
-    IAggregator constant public USTETH = IAggregator(0xa20623070413d42a5C01Db2c8111640DD7A5A03a);
-    IAggregator constant public ETH = IAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
+    IAggregator constant public UST = IAggregator(0x8b6d9085f310396C6E4f0012783E9f850eaa8a82);
 
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get() internal view returns (uint256) {
 
-        uint256 ustPrice = uint256(USTETH.latestAnswer()) * uint256(ETH.latestAnswer());
+        uint256 ustPrice = uint256(UST.latestAnswer());
 
-        return 1e44 / ustPrice;
+        return 1e26 / ustPrice;
     }
 
     // Get the latest exchange rate
