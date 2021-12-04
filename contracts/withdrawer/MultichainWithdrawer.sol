@@ -252,9 +252,9 @@ contract MultichainWithdrawer is BoringOwnable {
             degenBoxCauldrons[i].withdrawFees();
         }
 
-        uint256 mimFromBentoBoxShare = bentoBox.balanceOf(MIM, address(this));
-        uint256 mimFromDegenBoxShare = degenBox.balanceOf(MIM, address(this));
-        
+        uint256 mimFromBentoBoxShare = address(bentoBox) != address(0) ? bentoBox.balanceOf(MIM, address(this)) : 0;
+        uint256 mimFromDegenBoxShare = address(degenBox) != address(0) ? degenBox.balanceOf(MIM, address(this)) : 0;
+
         withdrawFromBentoBoxes(mimFromBentoBoxShare, mimFromDegenBoxShare);
 
         uint256 amountWithdrawn = MIM.balanceOf(address(this));
@@ -264,10 +264,10 @@ contract MultichainWithdrawer is BoringOwnable {
     }
 
     function withdrawFromBentoBoxes(uint256 amountBentoboxShare, uint256 amountDegenBoxShare) public {
-        if (address(bentoBox) != address(0)) {
+        if (amountBentoboxShare > 0) {
             bentoBox.withdraw(MIM, address(this), address(this), 0, amountBentoboxShare);
         }
-        if (address(degenBox) != address(0)) {
+        if (amountDegenBoxShare > 0) {
             degenBox.withdraw(MIM, address(this), address(this), 0, amountDegenBoxShare);
         }
     }

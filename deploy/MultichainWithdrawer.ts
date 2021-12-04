@@ -27,7 +27,7 @@ const ParametersPerChain = {
     owner: xMerlin,
   },
   [ChainId.BSC]: {
-    bentoBox: "",
+    bentoBox: ethers.constants.AddressZero,
     degenBox: "0x090185f2135308BaD17527004364eBcC2D37e5F6",
     mim: "0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba",
     anyswapRouter: "0xd1C5966f9F5Ee6881Ff6b261BBeDa45972B1B5f3",

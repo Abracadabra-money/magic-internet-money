@@ -25,6 +25,14 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 | ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | EthereumWithdrawer | 0xB2c3A9c577068479B1E5119f6B7da98d25Ba48f4 | Withdraw MIM fees from cauldron and swap for SPELL. Also used as recipient for swapping MIM fees received from other chains. |
 
+## BSC
+
+### Utilities
+
+| Contract             | Address                                    | Note |
+| -------------------- | ------------------------------------------ | ---- |
+| MultichainWithdrawer | 0xB3f5c7D0Ac3944a9d9A9623D6B50bCeA85A26753 |      |
+
 ## Avalanche
 
 ### Cauldrons
