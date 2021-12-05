@@ -71,8 +71,8 @@ const ParametersPerChain = {
   [ChainId.Boba]: {
     bentoBox: ethers.constants.AddressZero,
     degenBox: ethers.constants.AddressZero,
-    mim: ethers.constants.AddressZero,
-    anyswapRouter: ethers.constants.AddressZero,
+    mim: "0x66a2A913e447d6b4BF33EFbec43aAeF87890FBbc", // TODO: Change to MIM address
+    anyswapRouter: "0x66a2A913e447d6b4BF33EFbec43aAeF87890FBbc", // TODO: Change to AnySwap address
     mimProvider: ethers.constants.AddressZero,
     bentoBoxCauldronsV2: [],
     bentoBoxCauldronsV1: [],
@@ -82,8 +82,8 @@ const ParametersPerChain = {
   [ChainId.Moonriver]: {
     bentoBox: ethers.constants.AddressZero,
     degenBox: ethers.constants.AddressZero,
-    mim: ethers.constants.AddressZero,
-    anyswapRouter: ethers.constants.AddressZero,
+    mim: "0xE3F5a90F9cb311505cd691a46596599aA1A0AD7D", // TODO: Change to MIM address
+    anyswapRouter: "0xE3F5a90F9cb311505cd691a46596599aA1A0AD7D", // TODO: Change to AnySwap address
     mimProvider: ethers.constants.AddressZero,
     bentoBoxCauldronsV2: [],
     bentoBoxCauldronsV1: [],
