@@ -22,7 +22,7 @@ describe("FTM Cauldron Fee Withdrawer", async () => {
         {
           forking: {
             jsonRpcUrl: "https://rpc.ankr.com/fantom",
-            blockNumber: 23877544,
+            blockNumber: 24104047,
           },
         },
       ],
