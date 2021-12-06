@@ -41,7 +41,6 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 | -------------------- | ------------------------------------------ | ---- |
 | MultichainWithdrawer | 0x7a3b799E929C9bef403976405D8908fa92080449 |      |
 
-
 ## Arbitrum
 
 ### Utilities
@@ -78,3 +77,15 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 | Contract             | Address                                    | Note                                                             |
 | -------------------- | ------------------------------------------ | ---------------------------------------------------------------- |
 | MultichainWithdrawer | 0x2b95bf93B5873c8cB9aE3374e3054736A5b79676 | Withdraw MIM fees from cauldron and bridge to EthereumWithdrawer |
+
+## Boba Network
+
+| Contract | Address                                    | Note |
+| -------- | ------------------------------------------ | ---- |
+| DegenBox | 0x279D54aDD72935d845074675De0dbcfdc66800a3 |      |
+
+## Moonriver
+
+| Contract | Address                                    | Note |
+| -------- | ------------------------------------------ | ---- |
+| DegenBox | 0xB734c264F83E39Ef6EC200F99550779998cC812d |      |
