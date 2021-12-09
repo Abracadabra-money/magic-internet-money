@@ -220,13 +220,22 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         if (_totalDebt.base == 0) {
             return;
         }
-        uint256 extraAmount = uint256(_totalDebt.elastic)
-            .mul(_accrueInfo.INTEREST_PER_SECOND)
-            .mul(elapsedTime) / 1e18;
+        // No overflow:
+        // - _totalDebt.elastic is 128 bits
+        // - INTEREST_PER_SECOND is 64 bits
+        // - elapsedTime fits in 64 bits for the next 580 billion (10^9) years
+        uint256 extraAmount = (uint256(_totalDebt.elastic) *
+            _accrueInfo.INTEREST_PER_SECOND *
+            elapsedTime) / 1e18;
+
+        // If the interest rate is too high, then this will overflow and
+        // effectively lock up all funds. Do not set the interest rate too
+        // high.
         _totalDebt.elastic = _totalDebt.elastic.add(extraAmount.to128());
         totalDebt = _totalDebt;
 
-        uint256 feeAmount = extraAmount.mul(PROTOCOL_FEE_BPS) / BPS;
+        // No overflow: extraAmount is divided by 1e18 > 2^59; we need 16 bits
+        uint256 feeAmount = (extraAmount * PROTOCOL_FEE_BPS) / BPS;
 
         AssetBalance memory _assetBalance = assetBalance;
         if (_assetBalance.reservesShare == 0) {
@@ -267,14 +276,44 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         uint256 collateralShare = userCollateralShare[borrower];
         if (collateralShare == 0) return false;
 
+        // Math overflow/edge case analysis
+        //
+        // LHS:
+        //
+        // collateralShare: 128 bits (at most the total Bento SHARE balance)
+        // EXCHANGE_RATE_PRECISION / BPS: lg(1e14) < 47 bits
+        // COLLATERALIZATION_RATE_BPS: lg(1e4) < 14 bits (max 100% = 10k BPS)
+        //
+        // Actually, the product of the latter two fits in 60 bits.
+        // So what we pass to `toAmount` is safe. In there it gets multiplied
+        // by the 128-bit total collateral balance. So we need
+        //
+        //      collateralShare * (total Bento TOKEN balance)
+        //
+        // to fit in 196 bits. (See BentoBox contract). This actually has a
+        // chance of overflowing; if someone were to use the entire supply of
+        // SPELL as collateral, then 255 bits are used in `toAmount`.j
+        //
+        // Be careful of tokens with ridiculously high balances as collateral.
+        // SPELL is still OK, but even then the BentoBox can't lose too much in
+        // a strategy: we multiply SHARES by TOKENS at some point, and in
+        // theory the share/token ratio can swing arbitrarily high toward
+        // shares.
+        //
+        // This happens if the BentoBox loses tokens in a strategy, and then
+        // receives new tokens in a deposit. Those would then represent a
+        // large multiple of the current reserves, and thus be alotted a large
+        // share balance.
+        //
+
         Rebase memory _totalDebt = totalDebt;
 
         return
             bentoBox.toAmount(
                 collateral,
-                collateralShare.mul(EXCHANGE_RATE_PRECISION / BPS).mul(
-                    accrueInfo.COLLATERALIZATION_RATE_BPS
-                ),
+                collateralShare *
+                    (EXCHANGE_RATE_PRECISION / BPS) *
+                    accrueInfo.COLLATERALIZATION_RATE_BPS,
                 false
             ) >=
             // Moved exchangeRate here instead of dividing the other side to
@@ -347,11 +386,15 @@ contract PrivatePool is BoringOwnable, IMasterContract {
             "PrivatePool: unapproved borrower"
         );
 
+        // No overflow: the total for ALL users fits in 128 bits, or the
+        // BentoBox transfer (_addTokens) fails.
         userCollateralShare[to] = supplied + share;
         CollateralBalance memory _collateralBalance = collateralBalance;
-        // No over/underflow: it fits in the BentoBox total
+        // No overflow: the sum fits in the BentoBox total
         uint256 prevTotal = _collateralBalance.userTotalShare +
             _collateralBalance.feesEarnedShare;
+        // No overflow if cast safe: fits in the BentoBox or _addTokens reverts
+        // Cast safe: _addTokens does not truncate the value
         collateralBalance.userTotalShare =
             _collateralBalance.userTotalShare +
             uint128(share);
@@ -364,6 +407,8 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         userCollateralShare[msg.sender] = userCollateralShare[msg.sender].sub(
             share
         );
+        // No underflow: userTotalShare > userCollateralShare[msg.sender]
+        // Cast safe: Bento transfer reverts if it is not.
         collateralBalance.userTotalShare -= uint128(share);
         emit LogRemoveCollateral(msg.sender, to, share);
         bentoBox.transfer(collateral, address(this), to, share);
@@ -460,7 +505,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
     /// @dev Concrete implementation of `removeAsset`.
     function _removeAsset(address to, uint256 share) internal {
         require(msg.sender == lender, "PrivatePool: not the lender");
-        // Fits in a uint128 if the transfer goes through:
+        // Cast safe: Bento transfer reverts unless stronger condition holds
         assetBalance.reservesShare = assetBalance.reservesShare.sub(
             uint128(share)
         );
@@ -491,9 +536,14 @@ contract PrivatePool is BoringOwnable, IMasterContract {
 
         share = bentoBoxTotals.toBase(amount, false);
 
-        uint256 openFeeAmount = amount.mul(_accrueInfo.BORROW_OPENING_FEE_BPS) /
+        // No overflow: `share` is not modified any more, and fits in the
+        // BentoBox shares total if the transfer succeeds. But then "amount"
+        // must fit in the token total; at least up to some rounding error,
+        // which cannot be more than 128 bits either.
+        uint256 openFeeAmount = amount * _accrueInfo.BORROW_OPENING_FEE_BPS /
             BPS;
-        uint256 protocolFeeAmount = openFeeAmount.mul(PROTOCOL_FEE_BPS) / BPS;
+        // No overflow: Same reason. Also, we just divided by BPS..
+        uint256 protocolFeeAmount = openFeeAmount * PROTOCOL_FEE_BPS / BPS;
         uint256 protocolFeeShare = bentoBoxTotals.toBase(
             protocolFeeAmount,
             false
@@ -501,16 +551,26 @@ contract PrivatePool is BoringOwnable, IMasterContract {
 
         // The protocol component of the opening fee cannot be owed:
         AssetBalance memory _assetBalance = assetBalance;
+        // No overflow on the add: protocolFeeShare < share < Bento total, or
+        // the transfer reverts. The transfer is independent of the results of
+        // these calculations: `share` is not modified.
+        // Theoretically the fee could just make it overflow 128 bits.
+        // Underflow check is core business logic:
         _assetBalance.reservesShare = _assetBalance.reservesShare.sub(
-            (share.add(protocolFeeShare)).to128()
+            (share + protocolFeeShare).to128()
         );
-        // No overflow if the above succeeded:
-        // feesEarned + protocolFee <= feesEarned + reserves <= Bento balance
+        // Cast is safe: `share` fits. Also, the checked cast above succeeded.
+        // No overflow: protocolFeeShare < reservesShare, and both balances
+        // together fit in the Bento share balance,
         _assetBalance.feesEarnedShare += uint128(protocolFeeShare);
         assetBalance = _assetBalance;
 
-        (totalDebt, part) = totalDebt.add(amount.add(openFeeAmount), true);
-        borrowerDebtPart[msg.sender] = borrowerDebtPart[msg.sender].add(part);
+        // No overflow (inner add): amount fits in 128 bits, as shown before,
+        // and openFeeAmount is less.
+        (totalDebt, part) = totalDebt.add(amount + openFeeAmount, true);
+        // No overflow: totalDebt.base is the sum of all borrowerDebtParts,
+        //              fits in 128 bits and just had "part" added to it.
+        borrowerDebtPart[msg.sender] += part;
         emit LogBorrow(msg.sender, to, amount, openFeeAmount, part);
 
         bentoBox.transfer(_asset, address(this), to, share);
