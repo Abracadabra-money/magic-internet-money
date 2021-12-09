@@ -89,3 +89,9 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 | Contract | Address                                    | Note |
 | -------- | ------------------------------------------ | ---- |
 | DegenBox | 0xB734c264F83E39Ef6EC200F99550779998cC812d |      |
+
+## Harmony One Shard 0
+
+| Contract | Address                                    | Note |
+| -------- | ------------------------------------------ | ---- |
+| DegenBox | 0x7a3b799E929C9bef403976405D8908fa92080449 |      |

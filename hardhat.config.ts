@@ -180,6 +180,13 @@ const config: HardhatUserConfig = {
       live: true,
       saveDeployments: true,
     },
+    harmony: {
+      url: "https://api.harmony.one",
+      accounts,
+      chainId: 1666600000,
+      live: true,
+      saveDeployments: true,
+    },
     bsc: {
       url: "https://bsc-dataseed.binance.org",
       accounts,
