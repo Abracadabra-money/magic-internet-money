@@ -138,9 +138,9 @@ contract PrivatePool is BoringOwnable, IMasterContract {
     AccrueInfo public accrueInfo;
 
     uint256 private constant PROTOCOL_FEE_BPS = 1000; // 10%
-    uint256 private constant BASIS_POINTS = 10_000;
+    uint256 private constant BPS = 10_000;
 
-    // Must be well over BASIS_POINTS due to optimization in math:
+    // Must be well over BPS due to optimization in math:
     uint256 private constant EXCHANGE_RATE_PRECISION = 1e18;
 
     /// @notice The constructor is only used for the initial master contract. Subsequent clones are initialised via `init`.
@@ -177,11 +177,11 @@ contract PrivatePool is BoringOwnable, IMasterContract {
             "PrivatePool: bad pair"
         );
         require(
-            settings.LIQUIDATION_MULTIPLIER_BPS >= BASIS_POINTS,
+            settings.LIQUIDATION_MULTIPLIER_BPS >= BPS,
             "PrivatePool: negative liquidation bonus"
         );
         require(
-            settings.COLLATERALIZATION_RATE_BPS <= BASIS_POINTS,
+            settings.COLLATERALIZATION_RATE_BPS <= BPS,
             "PrivatePool: bad collateralization rate"
         );
 
@@ -226,7 +226,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         _totalDebt.elastic = _totalDebt.elastic.add(extraAmount.to128());
         totalDebt = _totalDebt;
 
-        uint256 feeAmount = extraAmount.mul(PROTOCOL_FEE_BPS) / BASIS_POINTS;
+        uint256 feeAmount = extraAmount.mul(PROTOCOL_FEE_BPS) / BPS;
 
         AssetBalance memory _assetBalance = assetBalance;
         if (_assetBalance.reservesShare == 0) {
@@ -272,7 +272,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         return
             bentoBox.toAmount(
                 collateral,
-                collateralShare.mul(EXCHANGE_RATE_PRECISION / BASIS_POINTS).mul(
+                collateralShare.mul(EXCHANGE_RATE_PRECISION / BPS).mul(
                     accrueInfo.COLLATERALIZATION_RATE_BPS
                 ),
                 false
@@ -324,7 +324,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         if (skim) {
             require(
                 share <= bentoBox.balanceOf(token, address(this)).sub(total),
-                "PrivatePool: Skim too much"
+                "PrivatePool: skim too much"
             );
         } else {
             bentoBox.transfer(token, msg.sender, address(this), share);
@@ -342,7 +342,10 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         uint256 share
     ) public {
         uint256 supplied = userCollateralShare[to];
-        require(supplied > 0 || approvedBorrowers[to], "Unapproved borrower");
+        require(
+            supplied > 0 || approvedBorrowers[to],
+            "PrivatePool: unapproved borrower"
+        );
 
         userCollateralShare[to] = supplied + share;
         CollateralBalance memory _collateralBalance = collateralBalance;
@@ -456,7 +459,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
 
     /// @dev Concrete implementation of `removeAsset`.
     function _removeAsset(address to, uint256 share) internal {
-        require(msg.sender == lender, "Not the lender");
+        require(msg.sender == lender, "PrivatePool: not the lender");
         // Fits in a uint128 if the transfer goes through:
         assetBalance.reservesShare = assetBalance.reservesShare.sub(
             uint128(share)
@@ -478,7 +481,10 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         internal
         returns (uint256 part, uint256 share)
     {
-        require(approvedBorrowers[msg.sender], "Unapproved borrower");
+        require(
+            approvedBorrowers[msg.sender],
+            "PrivatePool: unapproved borrower"
+        );
         IERC20 _asset = asset;
         Rebase memory bentoBoxTotals = bentoBox.totals(_asset);
         AccrueInfo memory _accrueInfo = accrueInfo;
@@ -486,9 +492,8 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         share = bentoBoxTotals.toBase(amount, false);
 
         uint256 openFeeAmount = amount.mul(_accrueInfo.BORROW_OPENING_FEE_BPS) /
-            BASIS_POINTS;
-        uint256 protocolFeeAmount = openFeeAmount.mul(PROTOCOL_FEE_BPS) /
-            BASIS_POINTS;
+            BPS;
+        uint256 protocolFeeAmount = openFeeAmount.mul(PROTOCOL_FEE_BPS) / BPS;
         uint256 protocolFeeShare = bentoBoxTotals.toBase(
             protocolFeeAmount,
             false
@@ -867,7 +872,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
                 uint256 collateralShare = bentoBoxTotals.toBase(
                     debtAmount.mul(_accrueInfo.LIQUIDATION_MULTIPLIER_BPS).mul(
                         _exchangeRate
-                    ) / (BASIS_POINTS * EXCHANGE_RATE_PRECISION),
+                    ) / (BPS * EXCHANGE_RATE_PRECISION),
                     false
                 );
 
@@ -915,9 +920,8 @@ contract PrivatePool is BoringOwnable, IMasterContract {
             // Math: All collateral fits in 128 bits (BentoBox), so the
             // multiplications are safe:
             uint256 excessShare = (allCollateralShare *
-                (_accrueInfo.LIQUIDATION_MULTIPLIER_BPS - BASIS_POINTS)) /
-                BASIS_POINTS;
-            uint256 feeShare = (excessShare * PROTOCOL_FEE_BPS) / BASIS_POINTS;
+                (_accrueInfo.LIQUIDATION_MULTIPLIER_BPS - BPS)) / BPS;
+            uint256 feeShare = (excessShare * PROTOCOL_FEE_BPS) / BPS;
             uint256 lenderShare = allCollateralShare - excessShare;
             // (Stack depth): liquidatorShare = excessShare - feeShare;
 
@@ -942,8 +946,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
             // Charge the protocol fee over the excess.
             uint256 feeAmount = (allDebtAmount.mul(
                 _accrueInfo.LIQUIDATION_MULTIPLIER_BPS
-            ) / BASIS_POINTS).sub(allDebtAmount).mul(PROTOCOL_FEE_BPS) /
-                BASIS_POINTS; // Distribution Amount
+            ) / BPS).sub(allDebtAmount).mul(PROTOCOL_FEE_BPS) / BPS;
 
             // Swap using a swapper freely chosen by the caller
             // Open (flash) liquidation: get proceeds first and provide the
