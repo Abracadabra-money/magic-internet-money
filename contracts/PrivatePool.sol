@@ -27,6 +27,7 @@ import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
 import "@sushiswap/bentobox-sdk/contracts/IBentoBoxV1.sol";
 import "./interfaces/IOracle.sol";
 import "./interfaces/ISimpleSwapper.sol";
+import "./libraries/FullMath.sol";
 
 /// @title PrivatePool
 /// @dev This contract allows contract calls to any contract (except BentoBox)
@@ -276,50 +277,120 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         uint256 collateralShare = userCollateralShare[borrower];
         if (collateralShare == 0) return false;
 
-        // Math overflow/edge case analysis
+        // The inequality that needs to hold for a user to be solvent is:
         //
-        // LHS:
+        //    (value of user collateral) * (max LTV) >= (value of user debt)
         //
-        // collateralShare: 128 bits (at most the total Bento SHARE balance)
-        // EXCHANGE_RATE_PRECISION / BPS: lg(1e14) < 47 bits
-        // COLLATERALIZATION_RATE_BPS: lg(1e4) < 14 bits (max 100% = 10k BPS)
+        // Our exchange rates give "collateral per ether of asset", so it makes
+        // sense to express the value in the collateral token. The calculation
+        // for the collateral value is:
         //
-        // Actually, the product of the latter two fits in 60 bits.
-        // So what we pass to `toAmount` is safe. In there it gets multiplied
-        // by the 128-bit total collateral balance. So we need
+        //                                BentoBox tokens
+        //               value = shares * ---------------
+        //                                BentoBox shares
         //
-        //      collateralShare * (total Bento TOKEN balance)
+        // where BentoBox tokens resp. shares refer to the balances for the
+        // collateral (ERC20) contract. For the debt we get:
         //
-        // to fit in 196 bits. (See BentoBox contract). This actually has a
-        // chance of overflowing; if someone were to use the entire supply of
-        // SPELL as collateral, then 255 bits are used in `toAmount`.j
+        //                  Total debt tokens   Collateral wei per asset ether
+        //  value = parts * ----------------- * ------------------------------
+        //                   Total debt parts               1e18
         //
-        // Be careful of tokens with ridiculously high balances as collateral.
-        // SPELL is still OK, but even then the BentoBox can't lose too much in
-        // a strategy: we multiply SHARES by TOKENS at some point, and in
-        // theory the share/token ratio can swing arbitrarily high toward
-        // shares.
+        // ..since "tokens" is in wei. We call this EXCHANGE_RATE_PRECISION.
+        // Finally, max LTV is
         //
-        // This happens if the BentoBox loses tokens in a strategy, and then
-        // receives new tokens in a deposit. Those would then represent a
-        // large multiple of the current reserves, and thus be alotted a large
-        // share balance.
+        //          COLLATERALIZATION_RATE_BPS
+        //  ratio = --------------------------.
+        //                     1e4
         //
+        // We use the below table to (fit the inequality in 80 characters and)
+        // move some things around and justify our calculations.
+        //
+        //      Description                 Variable in contract        Bits
+        // -----------------------------------------------------------------
+        // cs   shares                      collateralShare             128*
+        // Be   BentoBox tokens             bentoBoxTotals.elastic      128
+        // Bb   BentoBox shares             bentoBoxTotals.base         128
+        // -----------------------------------------------------------------
+        // dp   parts                       debtPart                    128*
+        // De   Total debt tokens           totalDebt.elastic           128
+        // Db   Total debt parts            totalDebt.base              128
+        // xr   Coll. wei per asset ether   exchangeRate                256
+        //      1e18                        EXCHANGE_RATE_PRECISION      60
+        // ----------------------------------------------------------------
+        // ltv                              COLLATERALIZATION_RATE_BPS   14
+        //      1e4                         BPS                          14
+        //      1e14                                                     47
+        //
+        // (* as in other proofs, these values fit in some 128-bit total).
+        // The inequality, without regard for integer division:
+        //
+        //                       Be   ltv         De    xr
+        //                  cs * -- * --- >= dp * -- * ----
+        //                       Bb   1e4         Db   1e18
+        //
+        // This is equivalent to:
+        //
+        //    cs *  Be * ltv *  Db * 1e14 >=  dp *  De *  xr *  Bb
+        //
+        // Corresponding bit counts:
+        //
+        //   128 + 128 +  14 + 128 + 47;     128 + 128 + 256 + 128
+        //
+        // So, the LHS definitely fits in 512 bits, and as long as one token is
+        // not 2^68 times as valuable as another. Of course the other terms
+        // leave some leeway, too; if the exchange rate is this high, then the
+        // Bento share count is very unlikely to take up the full 128 bits.
+        //
+        // "Full" multiplication is not very expensive or cumbersome; the case
+        // where `exchangeRate` is too big is a little more involved, but
+        // manageable.
 
         Rebase memory _totalDebt = totalDebt;
+        Rebase memory bentoBoxTotals = bentoBox.totals(collateral);
 
-        return
-            bentoBox.toAmount(
-                collateral,
-                collateralShare *
-                    (EXCHANGE_RATE_PRECISION / BPS) *
-                    accrueInfo.COLLATERALIZATION_RATE_BPS,
-                false
-            ) >=
-            // Moved exchangeRate here instead of dividing the other side to
-            // preserve more precision
-            debtPart.mul(_totalDebt.elastic).mul(_exchangeRate) /
-                _totalDebt.base;
+        (uint256 leftLo, uint256 leftHi) = FullMath.fullMul(
+            collateralShare * bentoBoxTotals.elastic,
+            // Cast needed to avoid uint128 overflow
+            uint256(accrueInfo.COLLATERALIZATION_RATE_BPS) *
+                _totalDebt.base *
+                1e14
+        );
+        uint256 rightLo;
+        uint256 rightHi;
+        if (_exchangeRate <= type(uint128).max) {
+            (rightLo, rightHi) = FullMath.fullMul(
+                debtPart * _totalDebt.elastic,
+                _exchangeRate * bentoBoxTotals.base
+            );
+        } else {
+            // We multiply it out in stages to be safe. If the total overflows
+            // 512 bits then we are done, as the LHS is guaranteed to be less.
+            //
+            //               aHi * 2^256 + aLo =                    dp * De * Bb
+            // -----------------------------------------------------------------
+            // The total is then the sum of:
+            //
+            // bHi * 2^512 + bLo * 2^256       = xr * aHi * 2^256
+            //               cHi * 2^256 + cLo = xr *               aLo
+            //
+            (uint256 aLo, uint256 aHi) = FullMath.fullMul(
+                debtPart * _totalDebt.elastic,
+                bentoBoxTotals.base
+            );
+            (uint256 bLo, uint256 bHi) = FullMath.fullMul(_exchangeRate, aHi);
+            if (bHi > 0) {
+                return false;
+            }
+
+            uint256 cHi; // (cLo is rightLo)
+            (rightLo, cHi) = FullMath.fullMul(_exchangeRate, aLo);
+            rightHi = cHi + bLo;
+            if (rightHi < cHi) {
+                return false;
+            }
+        }
+        return leftHi > rightHi || (leftHi == rightHi && leftLo >= rightLo);
     }
 
     /// @dev Checks if the borrower is solvent in the closed liquidation case at the end of the function body.
@@ -540,10 +611,10 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         // BentoBox shares total if the transfer succeeds. But then "amount"
         // must fit in the token total; at least up to some rounding error,
         // which cannot be more than 128 bits either.
-        uint256 openFeeAmount = amount * _accrueInfo.BORROW_OPENING_FEE_BPS /
+        uint256 openFeeAmount = (amount * _accrueInfo.BORROW_OPENING_FEE_BPS) /
             BPS;
         // No overflow: Same reason. Also, we just divided by BPS..
-        uint256 protocolFeeAmount = openFeeAmount * PROTOCOL_FEE_BPS / BPS;
+        uint256 protocolFeeAmount = (openFeeAmount * PROTOCOL_FEE_BPS) / BPS;
         uint256 protocolFeeShare = bentoBoxTotals.toBase(
             protocolFeeAmount,
             false

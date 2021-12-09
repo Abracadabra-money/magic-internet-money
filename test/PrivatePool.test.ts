@@ -812,9 +812,10 @@ describe("Private Lending Pool", async () => {
       makeIsSolventTest(getBigNumber(210_000_000_000n, 18), true)
     );
 
+    // This fails with the old Kashi-style `isSolvent`:
     it(
-      "Breaks at 393 billion (18-decimal) tokens",
-      makeIsSolventTest(getBigNumber(393_000_000_000n, 18), false)
+      "No longer breaks at 393 billion (18-decimal) tokens",
+      makeIsSolventTest(getBigNumber(393_000_000_000n, 18), true)
     );
   });
 });
