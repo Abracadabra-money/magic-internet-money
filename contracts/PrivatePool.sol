@@ -102,7 +102,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         uint128 feesEarnedShare;
     }
     AssetBalance public assetBalance;
-    uint256 feesOwedAmount; // Positive only if reservesShare = 0
+    uint256 public feesOwedAmount; // Positive only if reservesShare = 0
 
     // The BentoBox balance is the sum of the below two.
     // Seized collateral goes to the "userCollateralShare" account of the
