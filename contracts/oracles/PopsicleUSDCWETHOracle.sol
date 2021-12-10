@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity 0.8.10;
 import "../interfaces/IOracle.sol";
 import "../interfaces/IPopsicle.sol";
 
@@ -21,9 +21,11 @@ contract PopsicleUSDCWETHOracle is IOracle {
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get() internal view returns (uint256) {
         (uint256 amount0, uint256 amount1) = popsicle.usersAmounts();
-        uint256 popsiclePrice = (amount0 * 1e12 * uint256(USDC.latestAnswer()) + amount1 * uint256(ETH.latestAnswer())) /
-            popsicle.totalSupply() /
-            1e8;
+
+        uint256 usdcPrice = (amount0 * uint256(USDC.latestAnswer())) * 1e12;
+        uint256 wethPrice = amount1 * uint256(ETH.latestAnswer());
+        uint256 popsiclePrice = ((usdcPrice + wethPrice) * 1e10) / popsicle.totalSupply();
+
         return 1e36 / popsiclePrice;
     }
 
