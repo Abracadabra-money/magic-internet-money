@@ -27,6 +27,8 @@ import { encodeInitData } from "./PrivatePool";
 const { formatUnits } = ethers.utils;
 const { MaxUint256, AddressZero, HashZero } = ethers.constants;
 
+const one = getBigNumber(1);
+
 // Cook actions
 const Cook = {
   ACTION_ADD_ASSET: 1,
@@ -709,8 +711,6 @@ describe("Private Lending Pool", async () => {
 
       await oracle.set(rate);
       await pairContract.updateExchangeRate();
-
-      // await pairContract.connect(carol).borrow(carol.address, getBigNumber(100))
     });
 
     it("Should let anyone with collateral remove it", async () => {
@@ -738,6 +738,238 @@ describe("Private Lending Pool", async () => {
 
     // (All this is pretty much untouched since Kashi.. OK if accrue() and
     // isSolvent are OK).
+  });
+
+  describeSnapshot("Repay", () => {
+    const collatAmount1 = getBigNumber(31_415926535_897932384n, 0);
+    const collatShare1 = collatAmount1.mul(700).div(531);
+
+    const collatAmount2 = getBigNumber(27_182818284_590452353n, 0);
+    const collatShare2 = collatAmount2.mul(700).div(531);
+
+    const rate = getBigNumber(1, 18).div(12); // one WETH is 12 guineas
+
+    const assetAmount = getBigNumber(400);
+    const assetShare = assetAmount.mul(9).div(20);
+
+    const timeStep = 12345;
+
+    const bobLoanAmount = assetAmount.mul(6).div(13);
+
+    before(async () => {
+      await pairContract.connect(alice).addAsset(false, assetShare);
+
+      const to1 = bob.address;
+      await pairContract.connect(bob).addCollateral(to1, false, collatShare1);
+
+      const to2 = carol.address;
+      await pairContract.connect(carol).addCollateral(to2, false, collatShare2);
+
+      await oracle.set(rate);
+      await pairContract.updateExchangeRate();
+
+      await pairContract.connect(bob).borrow(bob.address, bobLoanAmount);
+    });
+
+    it("Should let borrowers repay debt", async () => {
+      // const debt = assetAmount.div(2).mul(
+      //   getBigNumber(1).add(MainTestSettings.INTEREST_PER_SECOND)
+      // ).div(getBigNumber(1));
+      const timeStep = 12345;
+
+      // As the first debtor, parts will be in 1-1 correspondence to amounts:
+      let debtPart = bobLoanAmount.add(bobLoanAmount.div(1000));
+      let debtAmount = debtPart;
+
+      let totalDebt = await pairContract.totalDebt();
+      expect(totalDebt.elastic).to.equal(debtAmount);
+      expect(totalDebt.base).to.equal(debtPart);
+
+      expect(await pairContract.borrowerDebtPart(bob.address)).to.equal(
+        debtPart
+      );
+
+      await advanceNextTime(timeStep);
+      const extraAmount = debtAmount
+        .mul(MainTestSettings.INTEREST_PER_SECOND)
+        .mul(timeStep)
+        .div(one);
+      debtAmount = debtAmount.add(extraAmount);
+
+      // "parts" are in units of the initial debt. These should cover it:
+      const repayPart = debtPart.div(4);
+
+      // Bob owns all the debt, so this is the conversion. Rounding is up, in
+      // favour of the contract, so that the amount definitely covers the
+      // part intended to be paid back:
+      const repayAmount = repayPart
+        .mul(debtAmount)
+        .add(debtPart.sub(1))
+        .div(debtPart);
+
+      // "Smallest number of shares covering this" -- so rounded up again:
+      // Note that -- as in the UniV2 AMMs, for instance -- this number of
+      // shares could theoretically be used to cover a larger debt.
+      const repayShare = repayAmount.mul(9).add(19).div(20);
+
+      const [g, b, p] = [guineas, bob, pairContract].map((x) => x.address);
+      expect(
+        await pairContract.connect(bob).repay(bob.address, false, repayPart)
+      )
+        .to.emit(pairContract, "LogAccrue")
+        .withArgs(extraAmount, extraAmount.div(10))
+        .to.emit(pairContract, "LogRepay")
+        .withArgs(bob.address, bob.address, repayAmount, repayPart)
+        .to.emit(bentoBox, "LogTransfer")
+        .withArgs(g, b, p, repayShare);
+
+      debtPart = debtPart.sub(repayPart);
+      debtAmount = debtAmount.sub(repayAmount);
+
+      totalDebt = await pairContract.totalDebt();
+
+      expect(totalDebt.elastic).to.equal(debtAmount);
+      expect(totalDebt.base).to.equal(debtPart);
+    });
+
+    it("Should use repayment towards fees owed, if any", async () => {
+      // In other words, the protocol gets first dibs on the fees. Fees are
+      // really owed by the lender, so from the borrower's POV nothing should
+      // change.
+
+      // SETUP (and extra test for other calculations):
+      const timeStep = 234567;
+
+      const bobLoanShare = bobLoanAmount.mul(9).div(20);
+
+      const t0 = {
+        bobDebtAmount: bobLoanAmount.mul(1001).div(1000),
+        assetBalance: await pairContract.assetBalance(),
+        totalDebt: await pairContract.totalDebt(),
+      };
+      t0.bobDebtPart = t0.bobDebtAmount;
+
+      expect(t0.assetBalance.reservesShare).to.equal(
+        assetShare
+          .sub(bobLoanAmount.mul(9).div(20))
+          .sub(bobLoanAmount.div(10_000).mul(9).div(20))
+      );
+      expect(t0.totalDebt.elastic).to.equal(t0.bobDebtAmount);
+
+      const t1 = {
+        accruedInterest: t0.bobDebtAmount
+          .mul(MainTestSettings.INTEREST_PER_SECOND.mul(timeStep))
+          .div(one),
+      };
+      // We find the number of shares Carol should borrow to drain reserves. We
+      // account for the protocol cut of Bob's accrued interest, and Carol's
+      // upcoming opening fee. Rounding up, because the calculation for the fee
+      // rounds down. This is not exact, because the contract starts with the
+      // amount, not the total. We deal with this by simply leaving a few wei
+      // of wiggle room (here and elsewhere); "multiplication and then division
+      // with rounding" is not an invertible operation, and not every target
+      // can be reached no matter how you round. (Try (M * 2) / 1 == 3).
+      const carolLoanShare = t0.assetBalance.reservesShare
+        .sub(t1.accruedInterest.div(10).mul(9).div(20))
+        .add(1)
+        .mul(10_000)
+        .div(10_001);
+      const carolLoanAmount = carolLoanShare.mul(20).div(9).add(2);
+
+      await advanceNextTime(timeStep);
+      await pairContract.connect(carol).borrow(carol.address, carolLoanAmount);
+
+      t1.assetBalance = await pairContract.assetBalance();
+      t1.feesOwedAmount = await pairContract.feesOwedAmount();
+      expect(t1.assetBalance.reservesShare).to.be.lte(1);
+      expect(t1.feesOwedAmount).to.equal(0);
+
+      // One accrual (after some time) should now be enough to cause fees to
+      // be owed.
+
+      t1.totalDebt = await pairContract.totalDebt();
+
+      await advanceNextTime(timeStep);
+      await pairContract.accrue();
+
+      const t2 = {
+        accruedInterest: t1.totalDebt.elastic
+          .mul(MainTestSettings.INTEREST_PER_SECOND.mul(timeStep))
+          .div(one),
+        assetBalance: await pairContract.assetBalance(),
+        totalDebt: await pairContract.totalDebt(),
+        feesOwedAmount: await pairContract.feesOwedAmount(),
+      };
+      // Since we have at most 1 wei in reserve, almost all of the protocol fee
+      // over the accrued interest will be "fees owed".
+      // The calculation involves two separate roundings and an addition, so
+      // the error is more than 1 or even `toAmount(1)`:
+      expect(t2.assetBalance.reservesShare).to.equal(0);
+      expect(t2.feesOwedAmount).to.be.gt(0);
+      expect(t2.feesOwedAmount.sub(t2.accruedInterest.div(10)).abs()).to.be.lte(
+        5
+      );
+
+      // Repaying triggers another accrual, so we (advance a fixed time and)
+      // determine how much will be owed after that:
+      const t3 = {
+        accruedInterest: t2.totalDebt.elastic
+          .mul(MainTestSettings.INTEREST_PER_SECOND.mul(timeStep))
+          .div(one),
+      };
+      // Intermediate value; we would see it if we did something that accrues
+      // but not deposits any assets:
+      t3.feesOwedBeforeRepay = t2.feesOwedAmount.add(
+        t3.accruedInterest.div(10)
+      );
+
+      // A debt "part" corresponds to 1 token when the first loan is taken out.
+      // When interest accrues this amount grows correspondingly; it never
+      // shrinks.
+      // Repaying N "parts", then, definitely covers N tokens. Not by a lot;
+      // we've seen a bit over 1 week of 7%-a-year interest at this point.
+      // The amount we want to repay is the intermediate value of fees owed;
+      // after the accrual that gets triggered
+      const repayPart = t3.feesOwedBeforeRepay;
+
+      await advanceNextTime(timeStep);
+      await pairContract.connect(bob).repay(bob.address, false, repayPart);
+
+      t3.assetBalance = await pairContract.assetBalance();
+      t3.totalDebt = await pairContract.totalDebt();
+      t3.bobDebtPart = await pairContract.borrowerDebtPart(bob.address);
+      t3.feesOwedAmount = await pairContract.feesOwedAmount();
+
+      // Before the accrual, there were already fees owed, and therefore no
+      // asset reserves. More fees were then incurred. Since they could not be
+      // taken out of reserves, they were not "earned" until we made the
+      // repayment. At which point we expect "fees earned" to have increased
+      // by exactly that amount (in shares):
+      expect(t3.assetBalance.feesEarnedShare).to.equal(
+        t2.assetBalance.feesEarnedShare.add(
+          t3.feesOwedBeforeRepay.mul(9).div(20)
+        )
+      );
+      expect(t3.feesOwedAmount).to.equal(0);
+
+      // Debt gets paid off as normal; in particular the fees are not added to
+      // it or anything:
+      expect(t3.bobDebtPart).to.equal(t0.bobDebtPart.sub(repayPart));
+      expect(t3.totalDebt.base).to.equal(t2.totalDebt.base.sub(repayPart));
+
+      // The small amount we repaid in excess of the fees owed should have gone
+      // to asset reserves.
+      const excessRepayAmount = repayPart
+        .mul(t3.totalDebt.elastic)
+        .div(t3.totalDebt.base)
+        .sub(t3.feesOwedBeforeRepay);
+      const excessRepayShare = excessRepayAmount.mul(9).div(20);
+
+      // Again, giving it a few wei of leeway due to rounding in _receiveAsset:
+      expect(
+        t3.assetBalance.reservesShare.sub(excessRepayShare).abs()
+      ).to.be.lte(5);
+    });
   });
 
   describeSnapshot("Edge Cases", () => {
