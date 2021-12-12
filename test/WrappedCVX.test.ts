@@ -3,14 +3,14 @@ import { ethers, network, deployments, getNamedAccounts, artifacts } from "hardh
 import { expect } from "chai";
 import { BigNumberish } from "ethers";
 
-import { advanceTime, getBigNumber, impersonate } from "../../utilities";
-import { Cauldron } from "../../typechain";
+import { advanceTime, getBigNumber, impersonate } from "../utilities";
+import { Cauldron, WrappedCVX } from "../typechain";
 
 const maybe = (process.env.ETHEREUM_RPC_URL || process.env.INFURA_API_KEY) ? describe : describe.skip;
 
-maybe("Test Example", async () => {
+maybe("WrappedCVX", async () => {
   let snapshotId;
-  let Cauldron: Cauldron;
+  let WrappedCVX: WrappedCVX;
   let deployerSigner;
 
   before(async () => {
@@ -26,11 +26,11 @@ maybe("Test Example", async () => {
       ],
     })
 
-    await deployments.fixture(['Cauldron']);
+    await deployments.fixture(['WrappedCVX']);
     const {deployer} = await getNamedAccounts();
     deployerSigner = await ethers.getSigner(deployer);
     
-    Cauldron = await ethers.getContract<Cauldron>("Cauldron");
+    WrappedCVX = await ethers.getContract<WrappedCVX>("WrappedCVX");
 
     // More operations here...
 
@@ -43,6 +43,6 @@ maybe("Test Example", async () => {
   })
 
   it("should ...", async() => {
-    console.log(Cauldron.address);
+    console.log(WrappedCVX.address);
   });
 });

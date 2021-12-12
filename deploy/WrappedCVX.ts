@@ -3,15 +3,11 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, network } from "hardhat";
 import { ChainId, setDeploymentSupportedChains } from "../utilities";
 import { xMerlin } from "../test/constants";
-import { BentoBoxV1 } from "../typechain";
+import { WrappedCVX } from "../typechain/WrappedCVX";
 
 const ParametersPerChain = {
-  [ChainId.Boba]: {
-    weth: "0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000",
-    owner: xMerlin,
-  },
-  [ChainId.Moonriver]: {
-    weth: "0x639a647fbe20b6c8ac19e48e2de44ea792c62c5c",
+  [ChainId.Mainnet]: {
+    cvxlocker: "0xD18140b4B819b895A3dba5442F959fA44994AF50",
     owner: xMerlin,
   },
 };
@@ -24,17 +20,21 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const chainId = await hre.getChainId();
   const parameters = ParametersPerChain[parseInt(chainId)];
 
-  await deploy("BentoBoxV1", {
+  await deploy("WrappedCVX", {
     from: deployer,
-    args: [parameters.weth],
+    args: [parameters.cvxlocker],
     log: true,
     deterministicDeployment: false,
   });
 
-  const BentoBoxV1 = await ethers.getContract<BentoBoxV1>("BentoBoxV1");
+  const WrappedCVX = await ethers.getContract<WrappedCVX>("WrappedCVX");
 
-  if ((await BentoBoxV1.owner()) != parameters.owner && network.name !== "hardhat") {
-    await BentoBoxV1.transferOwnership(parameters.owner, true, false);
+  if (!(await WrappedCVX.operators(parameters.owner))) {
+    await WrappedCVX.setOperator(parameters.owner, true);
+  }
+
+  if ((await WrappedCVX.owner()) != parameters.owner) {
+    await WrappedCVX.transferOwnership(parameters.owner);
   }
 };
 
@@ -42,5 +42,5 @@ export default deployFunction;
 
 setDeploymentSupportedChains(Object.keys(ParametersPerChain), deployFunction);
 
-deployFunction.tags = ["BobaMoonriverDegenBox"];
+deployFunction.tags = ["WrappedCVX"];
 deployFunction.dependencies = [];
