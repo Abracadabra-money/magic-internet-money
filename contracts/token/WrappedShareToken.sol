@@ -178,16 +178,20 @@ abstract contract WrappedShareToken is IERC20 {
         return true;
     }
 
+    function _burnOnly(address from, uint256 shares) internal returns (uint256 amount) {
+        User memory user = users[from];
+        amount = (shares * token.balanceOf(address(this))) / totalSupply;
+        users[from].balance = user.balance - to128(shares);
+        totalSupply -= shares;
+    }
+
     function _burn(
         address from,
         address to,
         uint256 shares
     ) internal {
         require(to != address(0), "Zero address");
-        User memory user = users[from];
-        uint256 amount = (shares * token.balanceOf(address(this))) / totalSupply;
-        users[from].balance = user.balance - to128(shares);
-        totalSupply -= shares;
+        uint256 amount = _burnOnly(from, shares);
 
         token.safeTransfer(to, amount);
 

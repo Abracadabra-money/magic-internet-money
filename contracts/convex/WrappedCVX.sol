@@ -16,8 +16,8 @@ contract WrappedCVX is WrappedShareToken, Ownable {
     IERC20 public constant cvxCrv = IERC20(0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7);
     IERC20 public constant cvx = IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B);
     IERC20 public constant crv = IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52);
-    address public constant cvxcrvStaking = address(0x3Fe65692bfCD0e6CF84cB1E7d24108E434A7587e);
-    address public constant crvDeposit = address(0x8014595F2AB54cD7c604B00E9fb932176fDc86Ae);
+    IRewardStaking public constant cvxcrvStaking = IRewardStaking(0x3Fe65692bfCD0e6CF84cB1E7d24108E434A7587e);
+    ICrvDepositor public constant crvDeposit = ICrvDepositor(0x8014595F2AB54cD7c604B00E9fb932176fDc86Ae);
 
     ILockedCvx public cvxlocker;
     bool public migrating;
@@ -38,30 +38,27 @@ contract WrappedCVX is WrappedShareToken, Ownable {
     }
 
     function setApprovals() external {
-        cvxCrv.safeApprove(cvxcrvStaking, type(uint256).max);
+        cvxCrv.safeApprove(address(cvxcrvStaking), type(uint256).max);
         cvx.safeApprove(address(cvxlocker), type(uint256).max);
-        crv.safeApprove(crvDeposit, type(uint256).max);
+        crv.safeApprove(address(crvDeposit), type(uint256).max);
     }
 
     function wrap(uint256 amount) external whenNotMigrating {
         mint(amount);
-
         cvxlocker.lock(address(this), cvx.balanceOf(address(this)), 0);
     }
 
-    /// TODO: Should we keep track of each user's unlocked deposit or also return CVX from wrappedCVX/CVX pair.
-    /// Being able to withdraw at anytime using the pair, even if the underlying is theorically locked
-    /// would allow liquidation to work at anytime as well,
     function unwrap(uint256 amount) external whenNotMigrating {
-        burn(address(0), amount);
+        // burn wrappedCVX without returning all CVX since they might be partially locked.
+        _burnOnly(address(0), amount);
     }
 
     /// @notice Delegate all voting right from this contract locked CVX using the given
     /// delegate contract to the given delegatee for the "cvx.eth" delegating space.
     /// The delegateContract must be an implementation of Gnosis Delegate Registry used
     /// for snapshot voting. https://docs.snapshot.org/guides/delegation
-    function setDelegate(address _delegateContract, address _delegate) external onlyOperators {
-        IDelegation(_delegateContract).setDelegate("cvx.eth", _delegate);
+    function setDelegate(IDelegation _delegateContract, address _delegate) external onlyOperators {
+        _delegateContract.setDelegate("cvx.eth", _delegate);
     }
 
     /// @dev can be used to swap rewards
@@ -69,10 +66,11 @@ contract WrappedCVX is WrappedShareToken, Ownable {
     function swapRewards1Inch(
         address inchrouter,
         IERC20 token,
-        uint256 percent,
+        uint256 amount,
         bytes calldata data
     ) external onlyOperators {
-        uint256 amount = (token.balanceOf(address(this)) * percent) / 100;
+        require(token != cvx, "denied");
+
         token.safeApprove(inchrouter, amount);
         (bool success, ) = inchrouter.call(data);
 
@@ -92,33 +90,36 @@ contract WrappedCVX is WrappedShareToken, Ownable {
 
         // Receives rewards like CRV, 3Crv and CVX
         // The CVX should stay in the contract to accrue the wrappedCVX value
-        IRewardStaking(cvxcrvStaking).getReward(address(this), true);
+        cvxcrvStaking.getReward(address(this), true);
 
         // Deposit CRV to receive cvxCRV
         uint256 crvBal = crv.balanceOf(address(this));
         if (crvBal > 0) {
-            ICrvDepositor(crvDeposit).deposit(crvBal, true);
+            crvDeposit.deposit(crvBal, true);
         }
 
         // cvxCRV from IRewardStaking reward and ICrvDepositor deposit
         uint256 cvxcrvBal = cvxCrv.balanceOf(address(this));
         if (cvxcrvBal > 0) {
-            IRewardStaking(cvxcrvStaking).stake(cvxcrvBal);
+            cvxcrvStaking.stake(cvxcrvBal);
         }
     }
 
-    function rescueTokens(
-        IERC20 token,
-        address to,
-        uint256 amount
-    ) external onlyOwner {
-        token.safeTransfer(to, amount);
+    function migrateStakedCvxCrv(address destination) external onlyOwner {
+        require(migrating, "!migrating");
+        require(destination != address(0), "bad address");
+
+        cvxcrvStaking.withdraw(cvxcrvStaking.balanceOf(address(this)), true);
+        uint256 cvxcrvBal = cvxCrv.balanceOf(address(this));
+
+        if (cvxcrvBal > 0) {
+            cvxCrv.safeTransfer(destination, cvxcrvBal);
+        }
     }
 
-    function emergencyWithdrawUnlockedCVX() external onlyOwner {}
-
-    function migrate(IERC20 token, address destination) external onlyOwner {
+    function migrateTo(IERC20 token, address destination) external onlyOwner {
         require(migrating, "!migrating");
+        require(destination != address(0), "bad address");
 
         token.safeTransfer(destination, token.balanceOf(address(this)));
     }
