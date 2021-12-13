@@ -21,9 +21,7 @@ contract WrappedCVX is WrappedShareToken, Ownable, ReentrancyGuard {
     address public constant crvDeposit = address(0x8014595F2AB54cD7c604B00E9fb932176fDc86Ae);
 
     ILockedCvx public cvxlocker;
-
-    uint256 public treasuryShare;
-
+    bool public migrating;
     mapping(address => bool) public operators;
 
     modifier onlyOperators() {
@@ -31,24 +29,44 @@ contract WrappedCVX is WrappedShareToken, Ownable, ReentrancyGuard {
         _;
     }
 
+    modifier whenNotMigrating() {
+        require(!migrating, "migrating");
+        _;
+    }
+
     constructor(ILockedCvx _cvxlocker) WrappedShareToken(cvx) {
         cvxlocker = _cvxlocker;
+    }
 
+    function setApprovals() external {
         cvxCrv.safeApprove(cvxcrvStaking, type(uint256).max);
         cvx.safeApprove(address(cvxlocker), type(uint256).max);
         crv.safeApprove(crvDeposit, type(uint256).max);
     }
 
-    function wrap(uint256 amount) external nonReentrant {
+    function wrap(uint256 amount) external nonReentrant whenNotMigrating {
         mint(amount);
+
+        cvxlocker.lock(address(this), cvx.balanceOf(address(this)), 0);
     }
 
-    // check unlock amount
-    // if not enough then use market to swap out the remaining amount
-    function unwrap(uint256 amount) external nonReentrant {
+    /// TODO: Should we keep track of each user's unlocked deposit or also return CVX from wrappedCVX/CVX pair.
+    /// Being able to withdraw at anytime using the pair, even if the underlying is theorically locked
+    /// would allow liquidation to work at anytime as well,
+    function unwrap(uint256 amount) external nonReentrant whenNotMigrating {
         burn(address(0), amount);
     }
 
+    /// @notice Delegate all voting right from this contract locked CVX using the given
+    /// delegate contract to the given delegatee for the "cvx.eth" delegating space.
+    /// The delegateContract must be an implementation of Gnosis Delegate Registry used
+    /// for snapshot voting. https://docs.snapshot.org/guides/delegation
+    function setDelegate(address _delegateContract, address _delegate) external onlyOperators {
+        IDelegation(_delegateContract).setDelegate("cvx.eth", _delegate);
+    }
+
+    /// @dev can be used to swap rewards
+    /// Swap to CVX to accrue the wrappedCVX value
     function swapRewards1Inch(
         address inchrouter,
         IERC20 token,
@@ -62,28 +80,47 @@ contract WrappedCVX is WrappedShareToken, Ownable, ReentrancyGuard {
         require(success, "swap failed");
     }
 
-    function processRewards() external onlyOperators {
+    /// @notice Withdraw/relock all currently locked tokens where the unlock time has passed.
+    /// Also receive rewards from cvxCRV and locked CVX
+    /// Could also receive more reward tokens than the one specified
+    function processRewards(bool _relock) external onlyOperators {
+        // TODO: is it safe to always look for unlocked CVX and relock it? This would
+        // harvest rewards at the same time, and ensure maximum voting weight for all CVX in the contract.
+        cvxlocker.processExpiredLocks(_relock, 0, address(this));
+
+        // Receives cvxCRV
         cvxlocker.getReward(address(this), true);
+
+        // Receives rewards like CRV, 3Crv and CVX
+        // The CVX should stay in the contract to accrue the wrappedCVX value
         IRewardStaking(cvxcrvStaking).getReward(address(this), true);
 
+        // Deposit CRV to receive cvxCRV
         uint256 crvBal = crv.balanceOf(address(this));
         if (crvBal > 0) {
             ICrvDepositor(crvDeposit).deposit(crvBal, true);
         }
 
+        // cvxCRV from IRewardStaking reward and ICrvDepositor deposit
         uint256 cvxcrvBal = cvxCrv.balanceOf(address(this));
         if (cvxcrvBal > 0) {
             IRewardStaking(cvxcrvStaking).stake(cvxcrvBal);
         }
     }
 
-    function setTreasuryShare(uint256 share) external onlyOwner {
-        treasuryShare = share;
+    function rescueTokens(
+        IERC20 token,
+        address to,
+        uint256 amount
+    ) external onlyOwner {
+        token.safeTransfer(to, amount);
     }
 
     function emergencyWithdrawUnlockedCVX() external onlyOwner {}
 
     function migrate(IERC20 token, address destination) external onlyOwner {
+        require(migrating, "!migrating");
+
         token.safeTransfer(destination, token.balanceOf(address(this)));
     }
 

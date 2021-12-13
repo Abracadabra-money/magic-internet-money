@@ -29,6 +29,8 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   const WrappedCVX = await ethers.getContract<WrappedCVX>("WrappedCVX");
 
+  await WrappedCVX.setApprovals();
+
   if (!(await WrappedCVX.operators(parameters.owner))) {
     await WrappedCVX.setOperator(parameters.owner, true);
   }
