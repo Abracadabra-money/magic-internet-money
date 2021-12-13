@@ -3,7 +3,6 @@ pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "../token/WrappedShareToken.sol";
 import "../interfaces/convex/IRewardStaking.sol";
@@ -11,7 +10,7 @@ import "../interfaces/convex/ILockedCvx.sol";
 import "../interfaces/convex/IDelegation.sol";
 import "../interfaces/curve/ICrvDepositor.sol";
 
-contract WrappedCVX is WrappedShareToken, Ownable, ReentrancyGuard {
+contract WrappedCVX is WrappedShareToken, Ownable {
     using SafeERC20 for IERC20;
 
     IERC20 public constant cvxCrv = IERC20(0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7);
@@ -44,7 +43,7 @@ contract WrappedCVX is WrappedShareToken, Ownable, ReentrancyGuard {
         crv.safeApprove(crvDeposit, type(uint256).max);
     }
 
-    function wrap(uint256 amount) external nonReentrant whenNotMigrating {
+    function wrap(uint256 amount) external whenNotMigrating {
         mint(amount);
 
         cvxlocker.lock(address(this), cvx.balanceOf(address(this)), 0);
@@ -53,7 +52,7 @@ contract WrappedCVX is WrappedShareToken, Ownable, ReentrancyGuard {
     /// TODO: Should we keep track of each user's unlocked deposit or also return CVX from wrappedCVX/CVX pair.
     /// Being able to withdraw at anytime using the pair, even if the underlying is theorically locked
     /// would allow liquidation to work at anytime as well,
-    function unwrap(uint256 amount) external nonReentrant whenNotMigrating {
+    function unwrap(uint256 amount) external whenNotMigrating {
         burn(address(0), amount);
     }
 
@@ -72,7 +71,7 @@ contract WrappedCVX is WrappedShareToken, Ownable, ReentrancyGuard {
         IERC20 token,
         uint256 percent,
         bytes calldata data
-    ) external onlyOperators nonReentrant {
+    ) external onlyOperators {
         uint256 amount = (token.balanceOf(address(this)) * percent) / 100;
         token.safeApprove(inchrouter, amount);
         (bool success, ) = inchrouter.call(data);
