@@ -22,9 +22,13 @@ interface ILockedCvx {
 
     function epochCount() external view returns (uint256);
 
+    function isShutdown() external view returns (bool);
+
     function checkpointEpoch() external;
 
     function balanceOf(address _account) external view returns (uint256);
+
+    function lockedBalanceOf(address _user) external view returns (uint256);
 
     function totalSupply() external view returns (uint256 supply);
 
