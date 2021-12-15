@@ -130,7 +130,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
     struct AccrueInfo {
         uint64 lastAccrued;
         uint64 INTEREST_PER_SECOND; // (in units of 1/10^18)
-        uint64 NO_LIQUIDATIONS_BEFORE;
+        uint64 EXPIRATION;
         uint16 COLLATERALIZATION_RATE_BPS;
         uint16 LIQUIDATION_MULTIPLIER_BPS;
         uint16 BORROW_OPENING_FEE_BPS;
@@ -140,8 +140,6 @@ contract PrivatePool is BoringOwnable, IMasterContract {
 
     uint256 private constant PROTOCOL_FEE_BPS = 1000; // 10%
     uint256 private constant BPS = 10_000;
-
-    // Must be well over BPS due to optimization in math:
     uint256 private constant EXCHANGE_RATE_PRECISION = 1e18;
 
     /// @notice The constructor is only used for the initial master contract. Subsequent clones are initialised via `init`.
@@ -158,7 +156,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         address lender;
         address[] borrowers;
         uint64 INTEREST_PER_SECOND;
-        uint64 NO_LIQUIDATIONS_BEFORE;
+        uint64 EXPIRATION;
         uint16 COLLATERALIZATION_RATE_BPS;
         uint16 LIQUIDATION_MULTIPLIER_BPS;
         uint16 BORROW_OPENING_FEE_BPS;
@@ -194,7 +192,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
 
         AccrueInfo memory _aI;
         _aI.INTEREST_PER_SECOND = settings.INTEREST_PER_SECOND;
-        _aI.NO_LIQUIDATIONS_BEFORE = settings.NO_LIQUIDATIONS_BEFORE;
+        _aI.EXPIRATION = settings.EXPIRATION;
         _aI.COLLATERALIZATION_RATE_BPS = settings.COLLATERALIZATION_RATE_BPS;
         _aI.LIQUIDATION_MULTIPLIER_BPS = settings.LIQUIDATION_MULTIPLIER_BPS;
         _aI.BORROW_OPENING_FEE_BPS = settings.BORROW_OPENING_FEE_BPS;
@@ -977,8 +975,8 @@ contract PrivatePool is BoringOwnable, IMasterContract {
 
         AccrueInfo memory _accrueInfo = accrueInfo;
         require(
-            block.timestamp >= _accrueInfo.NO_LIQUIDATIONS_BEFORE,
-            "Non-liquidation period"
+            block.timestamp >= _accrueInfo.EXPIRATION,
+            "PrivatePool: no liquidation yet"
         );
 
         uint256 allCollateralShare;
@@ -988,7 +986,13 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         Rebase memory bentoBoxTotals = bentoBox.totals(collateral);
         for (uint256 i = 0; i < borrowers.length; i++) {
             address borrower = borrowers[i];
-            if (!_isSolvent(borrower, _exchangeRate)) {
+            // If we set an expiration at all, then by the above check it is
+            // now past and every borrower can be liquidated at the current
+            // price:
+            if (
+                (_accrueInfo.EXPIRATION > 0) ||
+                !_isSolvent(borrower, _exchangeRate)
+            ) {
                 uint256 debtPart;
                 {
                     uint256 availableDebtPart = borrowerDebtPart[borrower];
