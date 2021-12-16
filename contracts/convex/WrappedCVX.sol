@@ -111,13 +111,13 @@ contract WrappedCVX is ERC20, BoringOwnable {
         cvxlocker.processExpiredLocks(true);
     }
 
-    function withdrawCvxCrv(uint256 _amount, address _withdrawTo) external onlyOperators {
-        require(_withdrawTo != address(0), "bad address");
+    function withdrawCvxCrv(uint256 amount, address withdrawTo) external onlyOperators {
+        require(withdrawTo != address(0), "bad address");
 
-        IRewardStaking(cvxcrvStaking).withdraw(_amount, true);
+        IRewardStaking(cvxcrvStaking).withdraw(amount, true);
         uint256 cvxcrvBal = cvxCrv.balanceOf(address(this));
         if (cvxcrvBal > 0) {
-            cvxCrv.safeTransfer(_withdrawTo, cvxcrvBal);
+            cvxCrv.safeTransfer(withdrawTo, cvxcrvBal);
         }
     }
 
@@ -140,8 +140,8 @@ contract WrappedCVX is ERC20, BoringOwnable {
         token.safeTransfer(destination, token.balanceOf(address(this)));
     }
 
-    function setMigrating(bool migrating_) external onlyOwner {
-        migrating = migrating_;
+    function setMigrating(bool _migrating) external onlyOwner {
+        migrating = _migrating;
     }
 
     function setOperator(address operator, bool active) external onlyOwner {
