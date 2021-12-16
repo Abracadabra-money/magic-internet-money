@@ -14,6 +14,8 @@ interface ILockedCvx {
         address _withdrawTo
     ) external;
 
+    function processExpiredLocks(bool _relock) external;
+
     function getReward(address _account, bool _stake) external;
 
     function balanceAtEpochOf(uint256 _epoch, address _user) external view returns (uint256 amount);
