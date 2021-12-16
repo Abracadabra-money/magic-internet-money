@@ -999,18 +999,25 @@ contract PrivatePool is BoringOwnable, IMasterContract {
                     debtPart = maxDebtParts[i] > availableDebtPart
                         ? availableDebtPart
                         : maxDebtParts[i];
-                    borrowerDebtPart[borrower] = availableDebtPart.sub(
-                        debtPart
-                    );
+                    // No underflow: ensured by definition of debtPart
+                    borrowerDebtPart[borrower] = availableDebtPart - debtPart;
                 }
                 uint256 debtAmount = _totalDebt.toElastic(debtPart, false);
+                // No overflow (inner): debtAmount <= totalDebt.elastic < 2^128.
+                // The exchange rate need not be reasonable: with an expiration
+                // time set there is no _isSolvent() call.
                 uint256 collateralShare = bentoBoxTotals.toBase(
-                    debtAmount.mul(_accrueInfo.LIQUIDATION_MULTIPLIER_BPS).mul(
+                    (debtAmount * _accrueInfo.LIQUIDATION_MULTIPLIER_BPS).mul(
                         _exchangeRate
                     ) / (BPS * EXCHANGE_RATE_PRECISION),
                     false
                 );
 
+                // This needs to be updated here so that the same user cannot
+                // be liquidated more than once. (Unless it adds up to one
+                // "full" liquidation or less).
+                // Underflow check is business logic: the liquidator can only
+                // take enough to cover the loan (and bonus).
                 userCollateralShare[borrower] = userCollateralShare[borrower]
                     .sub(collateralShare);
 
@@ -1037,15 +1044,28 @@ contract PrivatePool is BoringOwnable, IMasterContract {
                     );
                 }
 
-                // No overflow: subtracting from user balances succeeded
-                allCollateralShare = allCollateralShare.add(collateralShare);
-                allDebtAmount = allDebtAmount.add(debtAmount);
-                allDebtPart = allDebtPart.add(debtPart);
+                // No overflow in the below three:
+                //
+                // share(s) / amount(s) / part(s) involved in liquidation
+                //      <= total share / amount / part
+                //      <= (Bento).base / totalDebt.elastic / totalDebt.base
+                //      <  2^128
+                //
+                // Collateral share and debt part have already been
+                // successfully subtracted from some user's balance (and this
+                // persists across loop runs); the calculation for debt amount
+                // rounds down, so it fits if debtPart fits. It follows that
+                // the condition holds for the accumulated sums.
+                allCollateralShare += collateralShare;
+                allDebtAmount += debtAmount;
+                allDebtPart += debtPart;
             }
         }
         require(allDebtAmount != 0, "PrivatePool: all are solvent");
-        _totalDebt.elastic = _totalDebt.elastic.sub(allDebtAmount.to128());
-        _totalDebt.base = _totalDebt.base.sub(allDebtPart.to128());
+        // No overflow (both): (liquidated debt) <= (total debt).
+        // Cast is safe (both): (liquidated debt) <= (total debt) < 2^128
+        _totalDebt.elastic -= uint128(allDebtAmount);
+        _totalDebt.base -= uint128(allDebtPart);
         totalDebt = _totalDebt;
 
         if (_accrueInfo.LIQUIDATION_SEIZE_COLLATERAL) {
@@ -1062,7 +1082,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
 
             {
                 CollateralBalance memory _collateralBalance = collateralBalance;
-                // No underflow: All amounts fit in the collateral BentoBox total
+                // No underflow: All amounts fit in the collateral Bento total
                 _collateralBalance.userTotalShare -= uint128(excessShare);
                 _collateralBalance.feesEarnedShare += uint128(feeShare);
                 collateralBalance = _collateralBalance;
@@ -1075,13 +1095,19 @@ contract PrivatePool is BoringOwnable, IMasterContract {
                 excessShare - feeShare
             );
         } else {
-            // No underflow: summands fit in user balances
+            // No underflow: allCollateralShare is the sum of quantities that
+            //               have successfully been taken out of user balances.
+            // Cast is safe: Above reason, and userTotalShare < 2^128
             collateralBalance.userTotalShare -= uint128(allCollateralShare);
 
             // Charge the protocol fee over the excess.
-            uint256 feeAmount = (allDebtAmount.mul(
-                _accrueInfo.LIQUIDATION_MULTIPLIER_BPS
-            ) / BPS).sub(allDebtAmount).mul(PROTOCOL_FEE_BPS) / BPS;
+            // No overflow:
+            //  allDebtAmount <= totalDebt.elastic < 2^128 (proof in loop)
+            //  LIQUIDATION_MULTIPLIER_BPS < 2^16
+            //  PROTOCOL_FEE_BPS <= 10k < 2^14 (or we have bigger problems)
+            uint256 feeAmount = (allDebtAmount *
+                (_accrueInfo.LIQUIDATION_MULTIPLIER_BPS - BPS) *
+                PROTOCOL_FEE_BPS) / (BPS * BPS);
 
             // Swap using a swapper freely chosen by the caller
             // Open (flash) liquidation: get proceeds first and provide the
