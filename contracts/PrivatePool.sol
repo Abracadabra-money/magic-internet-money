@@ -1072,10 +1072,14 @@ contract PrivatePool is BoringOwnable, IMasterContract {
             // As with normal liquidations, the liquidator gets the excess, the
             // protocol gets a cut of the excess, and the lender gets 100% of
             // the value of the loan.
+            // allCollateralShare already includes the bonus, which in turn
+            // includes the protocol fee. We round the bonus down to favor the
+            // lender, and the fee to favor the liquidator:
             // Math: All collateral fits in 128 bits (BentoBox), so the
             // multiplications are safe:
             uint256 excessShare = (allCollateralShare *
-                (_accrueInfo.LIQUIDATION_MULTIPLIER_BPS - BPS)) / BPS;
+                (_accrueInfo.LIQUIDATION_MULTIPLIER_BPS - BPS)) /
+                _accrueInfo.LIQUIDATION_MULTIPLIER_BPS;
             uint256 feeShare = (excessShare * PROTOCOL_FEE_BPS) / BPS;
             uint256 lenderShare = allCollateralShare - excessShare;
             // (Stack depth): liquidatorShare = excessShare - feeShare;
