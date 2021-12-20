@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity 0.8.10;
 
 import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol";
-import "../../interfaces/ISwapperGeneric.sol";
-import "../../interfaces/IPopsicle.sol";
+import "../../../interfaces/ISwapperGeneric.sol";
+import "../../../interfaces/IPopsicle.sol";
 
 interface IBentoBoxV1 {
     function withdraw(
@@ -96,7 +96,7 @@ contract PopsicleUSDCWETHSwapper is ISwapperGeneric {
         address,
         uint256,
         uint256
-    ) public override returns (uint256 shareUsed, uint256 shareReturned) {
+    ) public virtual pure returns (uint256 shareUsed, uint256 shareReturned) {
         return (0, 0);
     }
 }
