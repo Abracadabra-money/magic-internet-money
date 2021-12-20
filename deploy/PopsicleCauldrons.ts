@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, network } from "hardhat";
 import { ChainId } from "../utilities";
-import { BentoBoxV1, PopsiclePLPOracle, ProxyOracle } from "../typechain";
+import { BentoBoxV1, ProxyOracle, PLPOracle } from "../typechain";
 import { expect } from "chai";
 import { xMerlin } from "../test/constants";
 
@@ -119,7 +119,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       deterministicDeployment: false,
     });
 
-    const PopsiclePLPOracle = await ethers.getContract<PopsiclePLPOracle>(parameter.oracleDeploymentName);
+    const PopsiclePLPOracle = await ethers.getContract<PLPOracle>(parameter.oracleDeploymentName);
     if ((await ProxyOracle.oracleImplementation()) !== PopsiclePLPOracle.address) {
       await ProxyOracle.changeOracleImplementation(PopsiclePLPOracle.address);
     }

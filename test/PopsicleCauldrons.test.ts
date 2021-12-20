@@ -100,7 +100,7 @@ forEach(cases).describe(
       snapshotId = await ethers.provider.send("evm_snapshot", []);
     });
 
-    xit("should liquidate the PLP collateral and deposit MIM back to degenbox", async () => {
+    it("should liquidate the PLP collateral and deposit MIM back to degenbox", async () => {
       const { alice } = await getNamedAccounts();
 
       const amountCollateralBefore = (await DegenBox.totals(PLP.address)).elastic;
