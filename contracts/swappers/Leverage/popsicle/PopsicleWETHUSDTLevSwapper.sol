@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
-pragma abicoder v2;
+pragma solidity ^0.8.10;
 
 import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol";
 import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Router01.sol";
@@ -14,8 +13,6 @@ import "../../../interfaces/IPopsicle.sol";
 import "../../../libraries/UniswapV3OneSided.sol";
 import "../../../interfaces/IBentoBoxV1.sol";
 import "../../../interfaces/curve/ICurvePool.sol";
-
-import "hardhat/console.sol";
 
 /// @notice WETH/USDT Popsicle Leverage Swapper for Ethereum
 contract PopsicleWETHUSDTLevSwapper {

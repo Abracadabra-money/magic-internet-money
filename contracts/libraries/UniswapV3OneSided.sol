@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
-pragma abicoder v2;
+pragma solidity ^0.8.10;
 
 import "@uniswap/v3-core/contracts/libraries/LowGasSafeMath.sol";
 

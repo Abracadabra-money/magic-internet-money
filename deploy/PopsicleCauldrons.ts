@@ -25,10 +25,12 @@ export const ParametersPerChain = {
         oracleDeploymentName: "PopsicleUSDCWETHOracle",
 
         swapperName: "PopsicleUSDCWETHSwapper",
+        swapperDeploymentName: "PopsicleUSDCWETHSwapper03Fee",
         levSwapperName: "PopsicleUSDCWETHLevSwapper",
+        levSwapperDeploymentName: "PopsicleUSDCWETHLevSwapper03Fee",
         token0Aggregator: "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6", // USDC
         token1Aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
-      },*/
+      },
 
       // WETH/USDT 0.3%
       {
@@ -38,7 +40,39 @@ export const ParametersPerChain = {
         oracleDeploymentName: "PopsicleWETHUSDTOracle",
 
         swapperName: "PopsicleWETHUSDTSwapper",
+        swapperDeploymentName: "PopsicleWETHUSDTSwapper03Fee",
         levSwapperName: "PopsicleWETHUSDTLevSwapper",
+        levSwapperDeploymentName: "PopsicleWETHUSDTLevSwapper03Fee",
+        token0Aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
+        token1Aggregator: "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D", // USDT
+      },
+      */
+      // USDC/WETH 0.05%
+      {
+        plpAddress: "0x9683D433621A83aA7dd290106e1da85251317F55",
+        cauldronDeploymentName: "PopsicleUSDCWETHCauldron005Fee",
+        proxyOracleDeploymentName: "PopsicleUSDCWETHProxyOracle005Fee",
+        oracleDeploymentName: "PopsicleUSDCWETHOracle005Fee",
+
+        swapperName: "PopsicleUSDCWETHSwapper",
+        swapperDeploymentName: "PopsicleUSDCWETHSwapper005Fee",
+        levSwapperName: "PopsicleUSDCWETHLevSwapper",
+        levSwapperDeploymentName: "PopsicleUSDCWETHLevSwapper005Fee",
+        token0Aggregator: "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6", // USDC
+        token1Aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
+      },
+
+      // WETH/USDT 0.05%
+      {
+        plpAddress: "0x8d8B490fCe6Ca1A31752E7cFAFa954Bf30eB7EE2",
+        cauldronDeploymentName: "PopsicleWETHUSDTCauldron005Fee",
+        proxyOracleDeploymentName: "PopsicleWETHUSDTProxyOracle005Fee",
+        oracleDeploymentName: "PopsicleWETHUSDTOracle005Fee",
+
+        swapperName: "PopsicleWETHUSDTSwapper",
+        swapperDeploymentName: "PopsicleWETHUSDTSwapper005Fee",
+        levSwapperName: "PopsicleWETHUSDTLevSwapper",
+        levSwapperDeploymentName: "PopsicleWETHUSDTLevSwapper005Fee",
         token0Aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
         token1Aggregator: "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D", // USDT
       },
@@ -104,18 +138,20 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     });
 
     // Liquidation Swapper
-    await deploy(parameter.swapperName, {
+    await deploy(parameter.swapperDeploymentName, {
       from: deployer,
       args: [parameter.plpAddress],
       log: true,
+      contract: parameter.swapperName,
       deterministicDeployment: false,
     });
 
     // Leverage Swapper
-    await deploy(parameter.levSwapperName, {
+    await deploy(parameter.levSwapperDeploymentName, {
       from: deployer,
       args: [parameter.plpAddress],
       log: true,
+      contract: parameter.levSwapperName,
       deterministicDeployment: false,
     });
 

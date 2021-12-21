@@ -18,21 +18,33 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 
 ### Utilities
 
-| Contract                    | Address                                    | Note                                                                                         |
-| --------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| EthereumWithdrawer          | 0xB2c3A9c577068479B1E5119f6B7da98d25Ba48f4 | Withdraw MIM fees from cauldron and swap for SPELL. Also used as recipient for other chains. |
-| **Popsicle USDC/WETH**      |                                            |                                                                                              |
-| PopsicleUSDCWETHCauldron    | 0xfD5165bD318AB6e18bD0439a736e662986F6C5b2 | 85% LTV .5% initial 3% Interest 8% Fee                                                       |
-| PopsicleUSDCWETHProxyOracle | 0x52B2773FB2f69d565C651d364f0AA95eBED097E4 | Using PopsicleUSDCWETHOracle                                                                 |
-| PopsicleUSDCWETHOracle      | 0x0D52048451207106184f0423cAF055aE24a5A38A |                                                                                              |
-| PopsicleUSDCWETHSwapper     | 0xc97C7F6e60Fdd610A0fCA4792BbBD1dbD028d474 | Liquidation Swapper                                                                          |
-| PopsicleUSDCWETHLevSwapper  | 0x04146736FEF83A25e39834a972cf6A5C011ACEad | Leverage Swapper                                                                             |
-| **Popsicle WETH/USDT**      |                                            |                                                                                              |
-| PopsicleWETHUSDTCauldron    | 0x08371AAcA536370ffba76e1502E8a476AC3D9691 | 85% LTV .5% initial 3% Interest 8% Fee                                                       |
-| PopsicleWETHUSDTProxyOracle | 0x76c936A0db6EeEb54e615B93a6fAAA9930C02C19 | Using PopsicleWETHUSDTOracle                                                                 |
-| PopsicleWETHUSDTOracle      | 0x85E8A3087C90992BAdD74BE44F18626b2359F490 |                                                                                              |
-| PopsicleWETHUSDTSwapper     | 0xad2f284Db532A57d6940F3A46D875549DCEB030d | Liquidation Swapper                                                                          |
-| PopsicleWETHUSDTLevSwapper  | 0x2906ae98fdAf225a697a09158D10843A89CF0FC5 | Leverage Swapper                                                                             |
+| Contract                     | Address                                    | Note                                                                                         |
+| ---------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| EthereumWithdrawer           | 0xB2c3A9c577068479B1E5119f6B7da98d25Ba48f4 | Withdraw MIM fees from cauldron and swap for SPELL. Also used as recipient for other chains. |
+| **Popsicle USDC/WETH 0.3%**  |                                            |                                                                                              |
+| PopsicleUSDCWETHCauldron     | 0xfD5165bD318AB6e18bD0439a736e662986F6C5b2 | 85% LTV .5% initial 3% Interest 8% Fee                                                       |
+| PopsicleUSDCWETHProxyOracle  | 0x52B2773FB2f69d565C651d364f0AA95eBED097E4 |                                                                                              |
+| PopsicleUSDCWETHOracle       | 0x0D52048451207106184f0423cAF055aE24a5A38A |                                                                                              |
+| PopsicleUSDCWETHSwapper      | 0xc97C7F6e60Fdd610A0fCA4792BbBD1dbD028d474 |                                                                                              |
+| PopsicleUSDCWETHLevSwapper   | 0x04146736FEF83A25e39834a972cf6A5C011ACEad |                                                                                              |
+| **Popsicle USDC/WETH 0.05%** |                                            |                                                                                              |
+| PopsicleUSDCWETHCauldron     | 0xab8F52D568ba9B58c296522232240621Cf3f9dDa | 85% LTV .5% initial 3% Interest 8% Fee                                                       |
+| PopsicleUSDCWETHProxyOracle  | 0x87A5bF86D6C96775d926F43700c0fD99EE0c2E82 |                                                                                              |
+| PopsicleUSDCWETHOracle       | 0x9D72680409b906bf964dBFC89C7c270a88fe4DE6 |                                                                                              |
+| PopsicleUSDCWETHSwapper      | 0x0E0E2c6204976bA791fBA95eFbb54f9f76556a57 |                                                                                              |
+| PopsicleUSDCWETHLevSwapper   | 0x2cA12e0Ca5c2E1EE8DC18eAA0D24EEd647aE7531 |                                                                                              |
+| **Popsicle WETH/USDT 0.3%**  |                                            |                                                                                              |
+| PopsicleWETHUSDTCauldron     | 0x08371AAcA536370ffba76e1502E8a476AC3D9691 | 85% LTV .5% initial 3% Interest 8% Fee                                                       |
+| PopsicleWETHUSDTProxyOracle  | 0x76c936A0db6EeEb54e615B93a6fAAA9930C02C19 |                                                                                              |
+| PopsicleWETHUSDTOracle       | 0x85E8A3087C90992BAdD74BE44F18626b2359F490 |                                                                                              |
+| PopsicleWETHUSDTSwapper      | 0xad2f284Db532A57d6940F3A46D875549DCEB030d |                                                                                              |
+| PopsicleWETHUSDTLevSwapper   | 0x2906ae98fdAf225a697a09158D10843A89CF0FC5 |                                                                                              |
+| **Popsicle WETH/USDT 0.05%** |                                            |                                                                                              |
+| PopsicleWETHUSDTCauldron     | 0x5aC11966ca33128c516116b5a597554e9f25ab6f | 85% LTV .5% initial 3% Interest 8% Fee                                                       |
+| PopsicleWETHUSDTProxyOracle  | 0xEd5D79F369D878C9038ac156D7D71b6364756f8e |                                                                                              |
+| PopsicleWETHUSDTOracle       | 0xE5683f4bD410ea185692b5e6c9513Be6bf1017ec |                                                                                              |
+| PopsicleWETHUSDTSwapper      | 0xBd73aA17Ce60B0e83d972aB1Fb32f7cE138Ca32A |                                                                                              |
+| PopsicleWETHUSDTLevSwapper   | 0x9Ca03FeBDE38c2C8A2E8F3d74E23a58192Ca921d |                                                                                              |
 
 ## BSC
 

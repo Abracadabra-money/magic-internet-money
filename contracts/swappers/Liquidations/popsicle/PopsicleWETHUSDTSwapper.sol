@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
+pragma solidity ^0.8.10;
 
 import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol";
 import "@rari-capital/solmate/src/tokens/ERC20.sol";
@@ -8,8 +8,6 @@ import "../../../interfaces/ISwapperGeneric.sol";
 import "../../../interfaces/IPopsicle.sol";
 import "../../../interfaces/IBentoBoxV1.sol";
 import "../../../interfaces/curve/ICurvePool.sol";
-
-import "hardhat/console.sol";
 
 /// @notice WETH/USDT Popsicle Swapper for Ethereum
 contract PopsicleWETHUSDTSwapper is ISwapperGeneric {
@@ -53,7 +51,7 @@ contract PopsicleWETHUSDTSwapper is ISwapperGeneric {
     ) public override returns (uint256 extraShare, uint256 shareReturned) {
         (uint256 amountFrom, ) = DEGENBOX.withdraw(IERC20(address(popsicle)), address(this), address(this), 0, shareFrom);
         (uint256 wethAmount, uint256 usdtAmount) = popsicle.withdraw(amountFrom, address(this));
-        
+
         // WETH -> USDT
         (uint256 reserve0, uint256 reserve1, ) = WETHUSDT.getReserves();
         uint256 usdtFromWeth = _getAmountOut(wethAmount, reserve0, reserve1);
