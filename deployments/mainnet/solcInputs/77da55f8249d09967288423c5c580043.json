@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/oracles/aUSTOracle.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity 0.8.10;\n\n// Chainlink Aggregator\ninterface IAggregator {\n    function latestAnswer() external view returns (int256 answer);\n}\n\n\ninterface IExchangeRateFeeder {\n    function exchangeRateOf(\n        address _token,\n        bool _simulate\n    ) external view returns (uint256);\n}\n\ncontract aUSTOracle is IExchangeRateFeeder {\n    IAggregator public constant aUST = IAggregator(0x73bB8A4220E5C7Db3E73e4Fcb8d7DCf2efe04805);\n    function exchangeRateOf(address, bool) external view returns (uint256) {\n        return uint256(aUST.latestAnswer());\n    }\n}"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
