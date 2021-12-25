@@ -25,8 +25,8 @@ import "@boringcrypto/boring-solidity/contracts/interfaces/IMasterContract.sol";
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringRebase.sol";
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
 import "@sushiswap/bentobox-sdk/contracts/IBentoBoxV1.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import "./interfaces/IERC721.sol";
+import "./interfaces/IERC721Receiver.sol";
 
 /// @title PrivatePoolNFT
 /// @dev This contract allows contract calls to any contract (except BentoBox)
