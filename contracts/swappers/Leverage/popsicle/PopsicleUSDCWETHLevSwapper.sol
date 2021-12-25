@@ -8,7 +8,7 @@ import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 import "@uniswap/v3-core/contracts/libraries/LowGasSafeMath.sol";
 
 import "../../../interfaces/IPopsicle.sol";
-import "../../../libraries/UniswapV3OneSided.sol";
+import "../../../libraries/UniswapV3OneSidedUsingUniV2.sol";
 
 interface IERC20 {
     function balanceOf(address account) external view returns (uint256);
@@ -90,8 +90,8 @@ contract PopsicleUSDCWETHLevSwapper {
             (uint256 reserve0, uint256 reserve1, ) = USDCWETH.getReserves();
             (uint160 sqrtRatioX, , , , , , ) = pool.slot0();
 
-            (uint256 balance0, uint256 balance1) = UniswapV3OneSided.getAmountsToDeposit(
-                UniswapV3OneSided.GetAmountsToDepositParams({
+            (uint256 balance0, uint256 balance1) = UniswapV3OneSidedUsingUniV2.getAmountsToDeposit(
+                UniswapV3OneSidedUsingUniV2.GetAmountsToDepositParams({
                     sqrtRatioX: sqrtRatioX,
                     tickLower: popsicle.tickLower(),
                     tickUpper: popsicle.tickUpper(),

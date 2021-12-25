@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
+pragma solidity ^0.8.10;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -39,8 +39,8 @@ contract PLPOracle is IOracle {
         (uint256 amount0, uint256 amount1) = plp.usersAmounts();
 
         uint256 token0Price = amount0 * uint256(token0Aggregator.latestAnswer()) * token0NormalizeScale;
-        uint256 token1Price = amount1 * uint256(token1Aggregator.latestAnswer()) * token1NormalizeScale;
-
+        uint256 token1Price = amount1 * uint256(token1Aggregator.latestAnswer()) * token1NormalizeScale;       
+        
         uint256 plpPrice = (token0Price + token1Price) / plp.totalSupply();
 
         return 1e36 / plpPrice;

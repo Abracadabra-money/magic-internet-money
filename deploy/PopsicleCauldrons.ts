@@ -46,7 +46,7 @@ export const ParametersPerChain = {
         token0Aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
         token1Aggregator: "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D", // USDT
       },
-      */
+      
       // USDC/WETH 0.05%
       {
         plpAddress: "0x9683D433621A83aA7dd290106e1da85251317F55",
@@ -74,6 +74,21 @@ export const ParametersPerChain = {
         levSwapperName: "PopsicleWETHUSDTLevSwapper",
         levSwapperDeploymentName: "PopsicleWETHUSDTLevSwapper005Fee",
         token0Aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
+        token1Aggregator: "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D", // USDT
+      },*/
+
+       // UST/USDT
+       {
+        plpAddress: "0xbA38029806AbE4B45D5273098137DDb52dA8e62F",
+        cauldronDeploymentName: "PopsicleUSTUSDTCauldron",
+        proxyOracleDeploymentName: "PopsicleUSTUSDTProxyOracle",
+        oracleDeploymentName: "PopsicleUSTUSDTOracle",
+
+        swapperName: "PopsicleUSTUSDTSwapper",
+        swapperDeploymentName: "PopsicleUSTUSDTSwapper",
+        levSwapperName: "PopsicleUSTUSDTLevSwapper",
+        levSwapperDeploymentName: "PopsicleUSTUSDTLevSwapper",
+        token0Aggregator: "0x8b6d9085f310396C6E4f0012783E9f850eaa8a82", // UST
         token1Aggregator: "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D", // USDT
       },
     ],

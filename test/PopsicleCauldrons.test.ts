@@ -14,8 +14,9 @@ const MIM_WHALE = "0xbbc4A8d076F4B1888fec42581B6fc58d242CF2D5";
 const parameters = [
   //["USDC/WETH 0.3%", "0xc1c3d73e3f7be5549198cb275c7ba45f637a299a", 5_000_000],
   //["WETH/USDT 0.3%", "0xd09729321471210e4c75b902f36c89f71c934a9c", 2_000_000],
-  ["USDC/WETH 0.05%", "0x66339a4C857997b2cb3A1139CC37f68fbdf9A795", 8_000_000],
-  ["WETH/USDT 0.05%", "0x400700aeBE5c2A2c45A42664298a541E77a99cBc", 8_000_000],
+  //["USDC/WETH 0.05%", "0x66339a4C857997b2cb3A1139CC37f68fbdf9A795", 8_000_000],
+  //["WETH/USDT 0.05%", "0x400700aeBE5c2A2c45A42664298a541E77a99cBc", 8_000_000],
+  ["UST/USDT 0.05%", "0x7a601F344F1c7353eBE5cc0F6F8bcC3E7aAE143a", 8_000_000],
 ];
 
 const cases = ParametersPerChain[ChainId.Mainnet].cauldrons.map((c, index) => [...parameters[index], ...Object.values(c)]);
@@ -49,7 +50,7 @@ forEach(cases).describe(
           {
             forking: {
               jsonRpcUrl: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-              blockNumber: 13839145,
+              blockNumber: 13875098,
             },
           },
         ],
@@ -116,7 +117,7 @@ forEach(cases).describe(
       const amountCollateralAfter = (await DegenBox.totals(PLP.address)).elastic;
       const amountMimAfter = (await DegenBox.totals(MIM.address)).elastic;
 
-      console.log(`Got ${amountMimAfter.sub(amountMimBefore).toString()} MIM from Liquidation Swapper`);
+      console.log(`Got ${ethers.utils.formatEther(amountMimAfter.sub(amountMimBefore))} MIM from Liquidation Swapper`);
 
       expect(amountMimAfter).to.be.gt(amountMimBefore);
       expect(amountCollateralAfter).to.be.lt(amountCollateralBefore);

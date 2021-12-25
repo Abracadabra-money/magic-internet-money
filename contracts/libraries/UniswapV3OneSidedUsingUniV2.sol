@@ -7,7 +7,7 @@ import "./FullMath.sol";
 import "./TickMath.sol";
 import "./LiquidityAmounts.sol";
 
-library UniswapV3OneSided {
+library UniswapV3OneSidedUsingUniV2 {
     using LowGasSafeMath for uint256;
 
     uint256 private constant SWAP_IMBALANCE_MAX_PASS = 10;

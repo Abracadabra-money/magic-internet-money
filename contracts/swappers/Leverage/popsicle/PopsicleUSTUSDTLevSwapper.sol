@@ -7,37 +7,37 @@ import "@rari-capital/solmate/src/tokens/ERC20.sol";
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
-import "@uniswap/v3-core/contracts/libraries/LowGasSafeMath.sol";
 
 import "../../../interfaces/IPopsicle.sol";
-import "../../../libraries/UniswapV3OneSidedUsingUniV2.sol";
+import "../../../libraries/UniswapV3OneSidedUsingCurve.sol";
 import "../../../interfaces/IBentoBoxV1.sol";
 import "../../../interfaces/curve/ICurvePool.sol";
+import "../../../interfaces/curve/ICurveUSTPool.sol";
 
-/// @notice WETH/USDT Popsicle Leverage Swapper for Ethereum
-contract PopsicleWETHUSDTLevSwapper {
-    using LowGasSafeMath for uint256;
+/// @notice UST/USDT Popsicle Leverage Swapper for Ethereum
+contract PopsicleUSTUSDTLevSwapper {
     using SafeTransferLib for ERC20;
 
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce);
     IPopsicle public immutable popsicle;
 
     CurvePool private constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
+    CurveUSTPool private constant UST3POOL = CurveUSTPool(0x890f4e345B1dAED0367A877a1612f86A1f86985f);
     IERC20 private constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);
 
-    IERC20 private constant WETH = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+    IERC20 private constant UST = IERC20(0xa47c8bf37f92aBed4A126BDA807A7b7498661acD);
     ERC20 private constant USDT = ERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7);
-    IUniswapV2Pair private constant WETHUSDT = IUniswapV2Pair(0x06da0fd433C1A5d7a4faa01111c044910A184553);
 
+    uint256 private constant MIN_UST_IMBALANCE = 1 ether;
     uint256 private constant MIN_USDT_IMBALANCE = 1e6;
-    uint256 private constant MIN_WETH_IMBALANCE = 0.0002 ether;
 
     IUniswapV3Pool private immutable pool;
 
     constructor(IPopsicle _popsicle) {
         MIM.approve(address(MIM3POOL), type(uint256).max);
         USDT.safeApprove(address(_popsicle), type(uint256).max);
-        WETH.approve(address(_popsicle), type(uint256).max);
+        USDT.safeApprove(address(UST3POOL), type(uint256).max);
+        UST.approve(address(_popsicle), type(uint256).max);
         pool = IUniswapV3Pool(_popsicle.pool());
         popsicle = _popsicle;
     }
@@ -56,27 +56,27 @@ contract PopsicleWETHUSDTLevSwapper {
         // Swap Amount USDT -> WETH to provide optimal 50/50 liquidity
         // Use UniswapV2 pair to avoid changing V3 liquidity balance
         {
-            (uint256 reserve0, uint256 reserve1, ) = WETHUSDT.getReserves();
             (uint160 sqrtRatioX, , , , , , ) = pool.slot0();
 
-            (uint256 balance0, uint256 balance1) = UniswapV3OneSidedUsingUniV2.getAmountsToDeposit(
-                UniswapV3OneSidedUsingUniV2.GetAmountsToDepositParams({
+            (, uint256 balance1) = UniswapV3OneSidedUsingCurve.getAmountsToDeposit(
+                UniswapV3OneSidedUsingCurve.GetAmountsToDepositParams({
                     sqrtRatioX: sqrtRatioX,
                     tickLower: popsicle.tickLower(),
                     tickUpper: popsicle.tickUpper(),
                     totalAmountIn: usdtAmount,
-                    reserve0: reserve0,
-                    reserve1: reserve1,
-                    minToken0Imbalance: MIN_WETH_IMBALANCE,
+                    i: 3,
+                    j: 0,
+                    curvePool: CurvePool(address(UST3POOL)),
+                    minToken0Imbalance: MIN_UST_IMBALANCE,
                     minToken1Imbalance: MIN_USDT_IMBALANCE,
                     amountInIsToken0: false
                 })
             );
 
-            USDT.safeTransfer(address(WETHUSDT), usdtAmount.sub(balance1));
-            WETHUSDT.swap(balance0, 0, address(this), new bytes(0));
+            UST3POOL.exchange_underlying(3, 0, usdtAmount - balance1, 0);
         }
-        (uint256 shares, , ) = popsicle.deposit(WETH.balanceOf(address(this)), USDT.balanceOf(address(this)), address(DEGENBOX));
+
+        (uint256 shares, , ) = popsicle.deposit(UST.balanceOf(address(this)), USDT.balanceOf(address(this)), address(DEGENBOX));
         (, shareReturned) = DEGENBOX.deposit(IERC20(address(popsicle)), address(DEGENBOX), recipient, shares, 0);
         extraShare = shareReturned - shareToMin;
     }
