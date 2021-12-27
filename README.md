@@ -52,11 +52,11 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 | PopsicleUSTUSDTSwapper       | 0xc2141D069c75C76EFf779fc3Ca187233dAfC1e7c |                                                                                              |
 | PopsicleUSTUSDTLevSwapper    | 0x6E93686D34a9EBf7c589998a576AB603719500ef |                                                                                              |
 | **Popsicle USDC/UST 0.05%**  |                                            |                                                                                              |
-| PopsicleUSDCUSTCauldron      |                                            | 85% LTV .5% initial 3% Interest 8% Fee                                                       |
-| PopsicleUSDCUSTProxyOracle   |                                            |                                                                                              |
-| PopsicleUSDCUSTOracle        |                                            |                                                                                              |
-| PopsicleUSDCUSTSwapper       |                                            |                                                                                              |
-| PopsicleUSDCUSTLevSwapper    |                                            |                                                                                              |
+| PopsicleUSDCUSTCauldron      | 0x293C100ce61B82B5Efc04F756E32a548158360d4 | 85% LTV .5% initial 3% Interest 8% Fee                                                       |
+| PopsicleUSDCUSTProxyOracle   | 0x0DF56A0CF3E6Da667c9532203Fca4c8Ef138A181 |                                                                                              |
+| PopsicleUSDCUSTOracle        | 0x02d4c5c47C6E779F44709F35f0131C1CdB407fbf |                                                                                              |
+| PopsicleUSDCUSTSwapper       | 0x2b95bf93B5873c8cB9aE3374e3054736A5b79676 |                                                                                              |
+| PopsicleUSDCUSTLevSwapper    | 0x8176C5408c5DeC30149232A74Ef8873379b59982 |                                                                                              |
 | **Popsicle USDC/USDT 0.01%** |                                            |                                                                                              |
 | PopsicleUSDCUSDTCauldron     |                                            | 85% LTV .5% initial 3% Interest 8% Fee                                                       |
 | PopsicleUSDCUSDTProxyOracle  |                                            |                                                                                              |
