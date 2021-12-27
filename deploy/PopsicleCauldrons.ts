@@ -75,7 +75,7 @@ export const ParametersPerChain = {
         levSwapperDeploymentName: "PopsicleWETHUSDTLevSwapper005Fee",
         token0Aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
         token1Aggregator: "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D", // USDT
-      },*/
+      },
 
        // UST/USDT
        {
@@ -91,8 +91,8 @@ export const ParametersPerChain = {
         token0Aggregator: "0x8b6d9085f310396C6E4f0012783E9f850eaa8a82", // UST
         token1Aggregator: "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D", // USDT
       },
-
-      // UST/USDT
+*/
+      // USDC/UST
       {
         plpAddress: "0x71fd405e9C2f55522A73911b4A2F39CD80E06051",
         cauldronDeploymentName: "PopsicleUSDCUSTCauldron",
@@ -106,7 +106,7 @@ export const ParametersPerChain = {
         token0Aggregator: "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6", // USDC
         token1Aggregator: "0x8b6d9085f310396C6E4f0012783E9f850eaa8a82", // UST
       },
-
+/*
       // USDC/USDT
       {
         plpAddress: "0x989442D5cCB27E7931095B0f3165c75a6def9bc3",
@@ -150,7 +150,7 @@ export const ParametersPerChain = {
         levSwapperDeploymentName: "PopsicleWBTCWETHLevSwapper005Fee",
         token0Aggregator: "0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c", // BTC
         token1Aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
-      },
+      },*/
     ],
   },
 };

@@ -45,6 +45,36 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 | PopsicleWETHUSDTOracle       | 0xE5683f4bD410ea185692b5e6c9513Be6bf1017ec |                                                                                              |
 | PopsicleWETHUSDTSwapper      | 0xBd73aA17Ce60B0e83d972aB1Fb32f7cE138Ca32A |                                                                                              |
 | PopsicleWETHUSDTLevSwapper   | 0x9Ca03FeBDE38c2C8A2E8F3d74E23a58192Ca921d |                                                                                              |
+| **Popsicle UST/USDT 0.05%**  |                                            |                                                                                              |
+| PopsicleUSTUSDTCauldron      | 0x9ac502D3aD1FfB79F75D486Ae7D01Dd696B7F4B3 | 85% LTV .5% initial 3% Interest 8% Fee                                                       |
+| PopsicleUSTUSDTProxyOracle   | 0x40CC67dB2713F34daCA67d93aCdeF59D3b8279a9 |                                                                                              |
+| PopsicleUSTUSDTOracle        | 0xBc00ca0d71231c5E23Ba90A90D8C5D9039C39614 |                                                                                              |
+| PopsicleUSTUSDTSwapper       | 0xc2141D069c75C76EFf779fc3Ca187233dAfC1e7c |                                                                                              |
+| PopsicleUSTUSDTLevSwapper    | 0x6E93686D34a9EBf7c589998a576AB603719500ef |                                                                                              |
+| **Popsicle USDC/UST 0.05%**  |                                            |                                                                                              |
+| PopsicleUSDCUSTCauldron      |                                            | 85% LTV .5% initial 3% Interest 8% Fee                                                       |
+| PopsicleUSDCUSTProxyOracle   |                                            |                                                                                              |
+| PopsicleUSDCUSTOracle        |                                            |                                                                                              |
+| PopsicleUSDCUSTSwapper       |                                            |                                                                                              |
+| PopsicleUSDCUSTLevSwapper    |                                            |                                                                                              |
+| **Popsicle USDC/USDT 0.01%** |                                            |                                                                                              |
+| PopsicleUSDCUSDTCauldron     |                                            | 85% LTV .5% initial 3% Interest 8% Fee                                                       |
+| PopsicleUSDCUSDTProxyOracle  |                                            |                                                                                              |
+| PopsicleUSDCUSDTOracle       |                                            |                                                                                              |
+| PopsicleUSDCUSDTSwapper      |                                            |                                                                                              |
+| PopsicleUSDCUSDTLevSwapper   |                                            |                                                                                              |
+| **Popsicle WBTC/WETH 0.3%**  |                                            |                                                                                              |
+| PopsicleWBTCWETHCauldron     |                                            | 85% LTV .5% initial 3% Interest 8% Fee                                                       |
+| PopsicleWBTCWETHProxyOracle  |                                            |                                                                                              |
+| PopsicleWBTCWETHOracle       |                                            |                                                                                              |
+| PopsicleWBTCWETHSwapper      |                                            |                                                                                              |
+| PopsicleWBTCWETHLevSwapper   |                                            |                                                                                              |
+| **Popsicle WBTC/WETH 0.05%** |                                            |                                                                                              |
+| PopsicleWBTCWETHCauldron     |                                            | 85% LTV .5% initial 3% Interest 8% Fee                                                       |
+| PopsicleWBTCWETHProxyOracle  |                                            |                                                                                              |
+| PopsicleWBTCWETHOracle       |                                            |                                                                                              |
+| PopsicleWBTCWETHSwapper      |                                            |                                                                                              |
+| PopsicleWBTCWETHLevSwapper   |                                            |                                                                                              |
 
 ## BSC
 
