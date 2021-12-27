@@ -90,7 +90,7 @@ export const ParametersPerChain = {
         levSwapperDeploymentName: "PopsicleUSTUSDTLevSwapper",
         token0Aggregator: "0x8b6d9085f310396C6E4f0012783E9f850eaa8a82", // UST
         token1Aggregator: "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D", // USDT
-      },*/
+      },
 
       // UST/USDT
       {
@@ -105,7 +105,22 @@ export const ParametersPerChain = {
         levSwapperDeploymentName: "PopsicleUSDCUSTLevSwapper",
         token0Aggregator: "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6", // USDC
         token1Aggregator: "0x8b6d9085f310396C6E4f0012783E9f850eaa8a82", // UST
-      }
+      },*/
+
+      // USDC/USDT
+      {
+        plpAddress: "0x989442D5cCB27E7931095B0f3165c75a6def9bc3",
+        cauldronDeploymentName: "PopsicleUSDCUSDTCauldron",
+        proxyOracleDeploymentName: "PopsicleUSDCUSDTProxyOracle",
+        oracleDeploymentName: "PopsicleUSDCUSDTOracle",
+
+        swapperName: "PopsicleUSDCUSDTSwapper",
+        swapperDeploymentName: "PopsicleUSDCUSDTSwapper",
+        levSwapperName: "PopsicleUSDCUSDTLevSwapper",
+        levSwapperDeploymentName: "PopsicleUSDCUSDTLevSwapper",
+        token0Aggregator: "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6", // USDC
+        token1Aggregator: "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D", // USDT
+      },
     ],
   },
 };

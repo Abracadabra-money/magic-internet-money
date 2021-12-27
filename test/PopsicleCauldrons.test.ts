@@ -17,7 +17,8 @@ const parameters = [
   //["USDC/WETH 0.05%", "0x66339a4C857997b2cb3A1139CC37f68fbdf9A795", 8_000_000],
   //["WETH/USDT 0.05%", "0x400700aeBE5c2A2c45A42664298a541E77a99cBc", 8_000_000],
   //["UST/USDT 0.05%", "0x7a601F344F1c7353eBE5cc0F6F8bcC3E7aAE143a", 8_000_000],
-  ["USDC/UST 0.05%", "0x8F40dCD6BA523561A8a497001896330965520fa4", 10_000_000]
+  //["USDC/UST 0.05%", "0x8F40dCD6BA523561A8a497001896330965520fa4", 10_000_000]
+  ["USDC/USDT 0.01%", "0xC805F55C18c62e278382cC16f51Ea5C4Becfc74D", 10_000_000]
 ];
 
 const cases = ParametersPerChain[ChainId.Mainnet].cauldrons.map((c, index) => [...parameters[index], ...Object.values(c)]);
