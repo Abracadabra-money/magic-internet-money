@@ -74,11 +74,17 @@ library UniswapV3OneSidedUsingCurve {
                     _updateBalanceLeft(cache, balance0, balance1);
                 }
 
-                 if (cache.balance1Left * cache.amountIn0 > cache.balance0Left * cache.amountIn1) {
-                      console.log(i, "B");
+                if (cache.balance1Left * cache.amountIn0 > cache.balance0Left * cache.amountIn1) {
+                    console.log(i, "B");
 
-                      // TODO
-                 }
+                    cache.tokenIntermediate = FullMath.mulDiv(cache.balance1Left, share0, MULTIPLIER);
+                    balance1 = balance1 - cache.tokenIntermediate;
+
+                    uint256 amount = parameters.curvePool.get_dy_underlying(parameters.j, parameters.i, cache.tokenIntermediate);
+                    balance0 += amount;
+
+                    _updateBalanceLeft(cache, balance0, balance1);
+                }
 
                 console.log("iter", i);
             }
@@ -106,7 +112,6 @@ library UniswapV3OneSidedUsingCurve {
 
                     _updateBalanceLeft(cache, balance0, balance1);
                 }
-
 
                 if (cache.balance1Left * cache.amountIn0 > cache.balance0Left * cache.amountIn1) {
                     console.log(i, "B");

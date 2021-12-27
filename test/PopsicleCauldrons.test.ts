@@ -16,7 +16,8 @@ const parameters = [
   //["WETH/USDT 0.3%", "0xd09729321471210e4c75b902f36c89f71c934a9c", 2_000_000],
   //["USDC/WETH 0.05%", "0x66339a4C857997b2cb3A1139CC37f68fbdf9A795", 8_000_000],
   //["WETH/USDT 0.05%", "0x400700aeBE5c2A2c45A42664298a541E77a99cBc", 8_000_000],
-  ["UST/USDT 0.05%", "0x7a601F344F1c7353eBE5cc0F6F8bcC3E7aAE143a", 8_000_000],
+  //["UST/USDT 0.05%", "0x7a601F344F1c7353eBE5cc0F6F8bcC3E7aAE143a", 8_000_000],
+  ["USDC/UST 0.05%", "0x8F40dCD6BA523561A8a497001896330965520fa4", 10_000_000]
 ];
 
 const cases = ParametersPerChain[ChainId.Mainnet].cauldrons.map((c, index) => [...parameters[index], ...Object.values(c)]);
@@ -42,6 +43,7 @@ forEach(cases).describe(
     let mimShare: BigNumber;
     let plpShare: BigNumber;
     let deployerSigner;
+    let plpPrice;
 
     before(async () => {
       await network.provider.request({
@@ -50,7 +52,7 @@ forEach(cases).describe(
           {
             forking: {
               jsonRpcUrl: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-              blockNumber: 13875098,
+              blockNumber: 13880131,
             },
           },
         ],
@@ -96,7 +98,7 @@ forEach(cases).describe(
       await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, MIM_WHALE, PLPLevSwapper.address, 0, mimShare);
 
 
-      const plpPrice = 1 /  parseFloat(ethers.utils.formatEther(await ProxyOracle.peekSpot("0x")));
+      plpPrice = 1 /  parseFloat(ethers.utils.formatEther(await ProxyOracle.peekSpot("0x")));
       console.log(`1 PLP = $${plpPrice} usd`)
       snapshotId = await ethers.provider.send("evm_snapshot", []);
     });
@@ -148,7 +150,8 @@ forEach(cases).describe(
         const amountCollateralAfter = (await DegenBox.totals(PLP.address)).elastic;
         const amountMimAfter = (await DegenBox.totals(MIM.address)).elastic;
 
-        console.log(`Got ${ethers.utils.formatEther(amountCollateralAfter.sub(amountCollateralBefore))} PLP from Leverage Swapper`);
+        const amountPlp = parseFloat(ethers.utils.formatEther(amountCollateralAfter.sub(amountCollateralBefore)));
+        console.log(`Got ${amountPlp} PLP from Leverage Swapper ($${(plpPrice * amountPlp).toLocaleString()})`);
 
         console.log(
           "Remaining in the swapping contract:",
