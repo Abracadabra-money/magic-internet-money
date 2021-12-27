@@ -18,7 +18,7 @@ export const ParametersPerChain = {
     // Parameter orders is important since this is used by the test suite as well
     cauldrons: [
       // USDC/WETH 0.3%
-      {
+      /*{
         plpAddress: "0xaE7b92C8B14E7bdB523408aE0A6fFbf3f589adD9",
         cauldronDeploymentName: "PopsicleUSDCWETHCauldron",
         proxyOracleDeploymentName: "PopsicleUSDCWETHProxyOracle",
@@ -75,7 +75,7 @@ export const ParametersPerChain = {
         levSwapperDeploymentName: "PopsicleWETHUSDTLevSwapper005Fee",
         token0Aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
         token1Aggregator: "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D", // USDT
-      },
+      },*/
 
        // UST/USDT
        {
