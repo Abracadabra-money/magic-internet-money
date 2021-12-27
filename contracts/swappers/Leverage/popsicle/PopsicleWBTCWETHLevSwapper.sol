@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol";
-import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Router01.sol";
 import "@rari-capital/solmate/src/tokens/ERC20.sol";
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
@@ -12,32 +10,33 @@ import "../../../interfaces/IPopsicle.sol";
 import "../../../libraries/UniswapV3OneSidedUsingCurve.sol";
 import "../../../interfaces/IBentoBoxV1.sol";
 import "../../../interfaces/curve/ICurvePool.sol";
-import "../../../interfaces/curve/ICurveThreePool.sol";
+import "../../../interfaces/curve/ICurveThreeCryptoPool.sol";
 
-/// @notice USDC/USDT Popsicle Leverage Swapper for Ethereum
-contract PopsicleUSDCUSDTLevSwapper {
+/// @notice WBTC/WETH Popsicle Leverage Swapper for Ethereum
+contract PopsicleWBTCWETHLevSwapper {
     using SafeTransferLib for ERC20;
 
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce);
     IPopsicle public immutable popsicle;
 
     CurvePool private constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
-    CurveThreePool private constant THREEPOOL = CurveThreePool(0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7);
+    CurveThreeCryptoPool public constant THREECRYPTO = CurveThreeCryptoPool(0xD51a44d3FaE010294C616388b506AcdA1bfAAE46);
     IERC20 private constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);
-
-    IERC20 private constant USDC = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+    IERC20 private constant WBTC = IERC20(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599);
+    IERC20 public constant WETH = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
     ERC20 private constant USDT = ERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7);
 
-    uint256 private constant MIN_USDC_IMBALANCE = 1e6;
-    uint256 private constant MIN_USDT_IMBALANCE = 1e6;
+    uint256 private constant MIN_WBTC_IMBALANCE = 1e3; // 0.00001 wBTC
+    uint256 private constant MIN_WETH_IMBALANCE = 0.0002 ether;
 
     IUniswapV3Pool private immutable pool;
 
     constructor(IPopsicle _popsicle) {
         MIM.approve(address(MIM3POOL), type(uint256).max);
-        USDT.safeApprove(address(_popsicle), type(uint256).max);
-        USDT.safeApprove(address(THREEPOOL), type(uint256).max);
-        USDC.approve(address(_popsicle), type(uint256).max);
+        WBTC.approve(address(_popsicle), type(uint256).max);
+        WETH.approve(address(_popsicle), type(uint256).max);
+        WBTC.approve(address(THREECRYPTO), type(uint256).max);
+        USDT.safeApprove(address(THREECRYPTO), type(uint256).max);
         pool = IUniswapV3Pool(_popsicle.pool());
         popsicle = _popsicle;
     }
@@ -49,33 +48,36 @@ contract PopsicleUSDCUSDTLevSwapper {
     ) public returns (uint256 extraShare, uint256 shareReturned) {
         (uint256 mimAmount, ) = DEGENBOX.withdraw(MIM, address(this), address(this), 0, shareFrom);
 
-        // MIM -> USDT on Curve MIM3POOL
+        // MIM -> USDT
         MIM3POOL.exchange_underlying(0, 3, mimAmount, 0, address(this));
-        uint256 usdtAmount = USDT.balanceOf(address(this));
+
+        // USDT -> WBTC
+        THREECRYPTO.exchange(0, 1, USDT.balanceOf(address(this)), 0);
+        uint256 wbtcAmount = WBTC.balanceOf(address(this));
 
         {
             (uint160 sqrtRatioX, , , , , , ) = pool.slot0();
 
-            (, uint256 balance1) = UniswapV3OneSidedUsingCurve.getAmountsToDeposit(
+            (uint256 balance0, ) = UniswapV3OneSidedUsingCurve.getAmountsToDeposit(
                 UniswapV3OneSidedUsingCurve.GetAmountsToDepositParams({
                     sqrtRatioX: sqrtRatioX,
                     tickLower: popsicle.tickLower(),
                     tickUpper: popsicle.tickUpper(),
-                    totalAmountIn: usdtAmount,
-                    i: 2,
-                    j: 1,
-                    pool: address(THREEPOOL),
-                    selector: CurvePool.get_dy_underlying.selector,
-                    minToken0Imbalance: MIN_USDC_IMBALANCE,
-                    minToken1Imbalance: MIN_USDT_IMBALANCE,
-                    amountInIsToken0: false
+                    totalAmountIn: wbtcAmount,
+                    i: 1,
+                    j: 2,
+                    pool: address(THREECRYPTO),
+                    selector: CurveThreeCryptoPool.get_dy.selector,
+                    minToken0Imbalance: MIN_WBTC_IMBALANCE,
+                    minToken1Imbalance: MIN_WETH_IMBALANCE,
+                    amountInIsToken0: true
                 })
             );
 
-            THREEPOOL.exchange(2, 1, usdtAmount - balance1, 0);
+            THREECRYPTO.exchange(1, 2, wbtcAmount - balance0, 0);
         }
 
-        (uint256 shares, , ) = popsicle.deposit(USDC.balanceOf(address(this)), USDT.balanceOf(address(this)), address(DEGENBOX));
+        (uint256 shares, , ) = popsicle.deposit(WBTC.balanceOf(address(this)), WETH.balanceOf(address(this)), address(DEGENBOX));
         (, shareReturned) = DEGENBOX.deposit(IERC20(address(popsicle)), address(DEGENBOX), recipient, shares, 0);
         extraShare = shareReturned - shareToMin;
     }

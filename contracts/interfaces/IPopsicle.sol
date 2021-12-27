@@ -8,6 +8,8 @@ interface IPopsicle {
 
     function token1() external view returns (address);
 
+    function strategy() external view returns (address);
+
     function usersAmounts() external view returns (uint256 amount0, uint256 amount1);
 
     function totalSupply() external view returns (uint256 amount);

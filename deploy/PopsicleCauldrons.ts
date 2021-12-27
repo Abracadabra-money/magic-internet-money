@@ -18,7 +18,7 @@ export const ParametersPerChain = {
     // Parameter orders is important since this is used by the test suite as well
     cauldrons: [
       // USDC/WETH 0.3%
-      /*{
+      {
         plpAddress: "0xaE7b92C8B14E7bdB523408aE0A6fFbf3f589adD9",
         cauldronDeploymentName: "PopsicleUSDCWETHCauldron",
         proxyOracleDeploymentName: "PopsicleUSDCWETHProxyOracle",
@@ -105,7 +105,7 @@ export const ParametersPerChain = {
         levSwapperDeploymentName: "PopsicleUSDCUSTLevSwapper",
         token0Aggregator: "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6", // USDC
         token1Aggregator: "0x8b6d9085f310396C6E4f0012783E9f850eaa8a82", // UST
-      },*/
+      },
 
       // USDC/USDT
       {
@@ -120,6 +120,36 @@ export const ParametersPerChain = {
         levSwapperDeploymentName: "PopsicleUSDCUSDTLevSwapper",
         token0Aggregator: "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6", // USDC
         token1Aggregator: "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D", // USDT
+      },
+
+      // WBTC/WETH 0.3%
+      {
+        plpAddress: "0x212Aa024E25A9C9bAF5b5397B558B7ccea81740B",
+        cauldronDeploymentName: "PopsiclWBTCWETHCauldron",
+        proxyOracleDeploymentName: "PopsicleWBTCWETHProxyOracle",
+        oracleDeploymentName: "PopsicleWBTCWETHOracle",
+
+        swapperName: "PopsicleWBTCWETHSwapper",
+        swapperDeploymentName: "PopsicleWBTCWETHSwapper",
+        levSwapperName: "PopsicleWBTCWETHLevSwapper",
+        levSwapperDeploymentName: "PopsicleWBTCWETHLevSwapper",
+        token0Aggregator: "0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c", // BTC
+        token1Aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
+      },
+
+      // WBTC/WETH 0.05%
+      {
+        plpAddress: "0xBE5d1d15617879B22C7b6a8e1e16aDD6d0bE3c61",
+        cauldronDeploymentName: "PopsiclWBTCWETHCauldron005Fee",
+        proxyOracleDeploymentName: "PopsicleWBTCWETHProxyOracle005Fee",
+        oracleDeploymentName: "PopsicleWBTCWETHOracle005Fee",
+
+        swapperName: "PopsicleWBTCWETHSwapper",
+        swapperDeploymentName: "PopsicleWBTCWETHSwapper005Fee",
+        levSwapperName: "PopsicleWBTCWETHLevSwapper",
+        levSwapperDeploymentName: "PopsicleWBTCWETHLevSwapper005Fee",
+        token0Aggregator: "0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c", // BTC
+        token1Aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
       },
     ],
   },

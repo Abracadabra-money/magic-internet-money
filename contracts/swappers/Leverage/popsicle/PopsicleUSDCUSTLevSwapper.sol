@@ -51,7 +51,7 @@ contract PopsicleUSDCUSTLevSwapper {
         {
             (uint160 sqrtRatioX, , , , , , ) = pool.slot0();
 
-            (uint256 balance0,) = UniswapV3OneSidedUsingCurve.getAmountsToDeposit(
+            (uint256 balance0, ) = UniswapV3OneSidedUsingCurve.getAmountsToDeposit(
                 UniswapV3OneSidedUsingCurve.GetAmountsToDepositParams({
                     sqrtRatioX: sqrtRatioX,
                     tickLower: popsicle.tickLower(),
@@ -59,7 +59,8 @@ contract PopsicleUSDCUSTLevSwapper {
                     totalAmountIn: usdcAmount,
                     i: 2,
                     j: 0,
-                    curvePool: CurvePool(address(UST3POOL)),
+                    pool: address(UST3POOL),
+                    selector: CurvePool.get_dy_underlying.selector,
                     minToken0Imbalance: MIN_USDC_IMBALANCE,
                     minToken1Imbalance: MIN_UST_IMBALANCE,
                     amountInIsToken0: true

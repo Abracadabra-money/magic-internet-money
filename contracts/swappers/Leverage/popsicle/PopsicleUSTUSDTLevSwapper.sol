@@ -64,7 +64,8 @@ contract PopsicleUSTUSDTLevSwapper {
                     totalAmountIn: usdtAmount,
                     i: 3,
                     j: 0,
-                    curvePool: CurvePool(address(UST3POOL)),
+                    pool: address(UST3POOL),
+                    selector: CurvePool.get_dy_underlying.selector,
                     minToken0Imbalance: MIN_UST_IMBALANCE,
                     minToken1Imbalance: MIN_USDT_IMBALANCE,
                     amountInIsToken0: false

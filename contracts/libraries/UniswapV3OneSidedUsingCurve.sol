@@ -6,8 +6,6 @@ import "./TickMath.sol";
 import "./LiquidityAmounts.sol";
 import "../interfaces/curve/ICurvePool.sol";
 
-import "hardhat/console.sol";
-
 library UniswapV3OneSidedUsingCurve {
     uint256 private constant SWAP_IMBALANCE_MAX_PASS = 10;
     uint256 constant MULTIPLIER = 1e18;
@@ -31,10 +29,23 @@ library UniswapV3OneSidedUsingCurve {
         bool amountInIsToken0;
         int8 i;
         int8 j;
-        CurvePool curvePool;
+        address pool;
+        bytes4 selector; // curve pool function selector for get_dy/get_dy_underlying.
         uint256 totalAmountIn;
         uint256 minToken0Imbalance;
         uint256 minToken1Imbalance;
+    }
+
+    function get_dy(
+        address pool,
+        bytes4 selector,
+        int8 i,
+        int8 j,
+        uint256 dx
+    ) internal view returns (uint256) {
+        (bool success, bytes memory data) = pool.staticcall(abi.encodeWithSelector(selector, i, j, dx));
+        require(success, "call failed");
+        return (abi.decode(data, (uint256)));
     }
 
     function getAmountsToDeposit(GetAmountsToDepositParams memory parameters) internal view returns (uint256 balance0, uint256 balance1) {
@@ -49,51 +60,45 @@ library UniswapV3OneSidedUsingCurve {
         uint256 share0 = FullMath.mulDiv(cache.sqrtRatioBX - parameters.sqrtRatioX, MULTIPLIER, distance);
         uint256 share1 = FullMath.mulDiv(parameters.sqrtRatioX - cache.sqrtRatioAX, MULTIPLIER, distance);
 
-        console.log("shares", share0, share1, share0 + share1);
         if (parameters.amountInIsToken0) {
             cache.tokenIntermediate = FullMath.mulDiv(parameters.totalAmountIn, share1, MULTIPLIER);
             balance0 = parameters.totalAmountIn - cache.tokenIntermediate;
-            balance1 = parameters.curvePool.get_dy_underlying(parameters.i, parameters.j, cache.tokenIntermediate);
+            balance1 = get_dy(parameters.pool, parameters.selector, parameters.i, parameters.j, cache.tokenIntermediate);
 
             _updateBalanceLeft(cache, balance0, balance1);
-
-            console.log("swap amountInIsToken0 TRUE");
-
             for (uint256 i = 0; i < SWAP_IMBALANCE_MAX_PASS; i++) {
                 if (cache.balance0Left <= parameters.minToken0Imbalance && cache.balance1Left <= parameters.minToken1Imbalance) {
                     break;
                 }
 
                 if (cache.balance0Left * cache.amountIn1 > cache.balance1Left * cache.amountIn0) {
-                    console.log(i, "A");
-
                     cache.tokenIntermediate = FullMath.mulDiv(cache.balance0Left, share1, MULTIPLIER);
                     balance0 = balance0 - cache.tokenIntermediate;
-                    balance1 = parameters.curvePool.get_dy_underlying(parameters.i, parameters.j, parameters.totalAmountIn - balance0);
+                    balance1 = get_dy(
+                        parameters.pool,
+                        parameters.selector,
+                        parameters.i,
+                        parameters.j,
+                        parameters.totalAmountIn - balance0
+                    );
 
                     _updateBalanceLeft(cache, balance0, balance1);
                 }
 
                 if (cache.balance1Left * cache.amountIn0 > cache.balance0Left * cache.amountIn1) {
-                    console.log(i, "B");
-
                     cache.tokenIntermediate = FullMath.mulDiv(cache.balance1Left, share0, MULTIPLIER);
                     balance1 = balance1 - cache.tokenIntermediate;
 
-                    uint256 amount = parameters.curvePool.get_dy_underlying(parameters.j, parameters.i, cache.tokenIntermediate);
+                    uint256 amount = get_dy(parameters.pool, parameters.selector, parameters.j, parameters.i, cache.tokenIntermediate);
                     balance0 += amount;
 
                     _updateBalanceLeft(cache, balance0, balance1);
                 }
-
-                console.log("iter", i);
             }
         } else {
-            console.log("swap amountInIsToken0 FALSE");
-
             cache.tokenIntermediate = FullMath.mulDiv(parameters.totalAmountIn, share0, MULTIPLIER);
             balance1 = parameters.totalAmountIn - cache.tokenIntermediate;
-            balance0 = parameters.curvePool.get_dy_underlying(parameters.i, parameters.j, cache.tokenIntermediate);
+            balance0 = get_dy(parameters.pool, parameters.selector, parameters.i, parameters.j, cache.tokenIntermediate);
             _updateBalanceLeft(cache, balance0, balance1);
 
             for (uint256 i = 0; i < SWAP_IMBALANCE_MAX_PASS; i++) {
@@ -102,27 +107,27 @@ library UniswapV3OneSidedUsingCurve {
                 }
 
                 if (cache.balance0Left * cache.amountIn1 > cache.balance1Left * cache.amountIn0) {
-                    console.log(i, "A");
-
                     cache.tokenIntermediate = FullMath.mulDiv(cache.balance0Left, share1, MULTIPLIER);
                     balance0 = balance0 - cache.tokenIntermediate;
 
-                    uint256 amount = parameters.curvePool.get_dy_underlying(parameters.j, parameters.i, cache.tokenIntermediate);
+                    uint256 amount = get_dy(parameters.pool, parameters.selector, parameters.j, parameters.i, cache.tokenIntermediate);
                     balance1 += amount;
 
                     _updateBalanceLeft(cache, balance0, balance1);
                 }
 
                 if (cache.balance1Left * cache.amountIn0 > cache.balance0Left * cache.amountIn1) {
-                    console.log(i, "B");
-
                     cache.tokenIntermediate = FullMath.mulDiv(cache.balance1Left, share0, MULTIPLIER);
                     balance1 = balance1 - cache.tokenIntermediate;
-                    balance0 = parameters.curvePool.get_dy_underlying(parameters.i, parameters.j, parameters.totalAmountIn - balance1);
+                    balance0 = get_dy(
+                        parameters.pool,
+                        parameters.selector,
+                        parameters.i,
+                        parameters.j,
+                        parameters.totalAmountIn - balance1
+                    );
                     _updateBalanceLeft(cache, balance0, balance1);
                 }
-
-                console.log("iter", i);
             }
         }
     }
