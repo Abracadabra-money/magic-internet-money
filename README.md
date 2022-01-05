@@ -21,7 +21,7 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 | Contract                                    | Address                                    | Note                                                |
 | ------------------------------------------- | ------------------------------------------ | --------------------------------------------------- |
 | EthereumWithdrawer                          | 0xB2c3A9c577068479B1E5119f6B7da98d25Ba48f4 | Withdraw MIM fees from cauldron and swap for SPELL. |
-| **v85% LTV .5% initial 3% Interest 8% Fee** |                                            |                                                     |
+| **85% LTV .5% initial 3% Interest 8% Fee** |                                            |                                                     |
 | **Popsicle USDC/WETH 0.3%**                 |                                            |                                                     |
 | PopsicleUSDCWETHCauldron                    | 0xfD5165bD318AB6e18bD0439a736e662986F6C5b2 |                                                     |
 | PopsicleUSDCWETHProxyOracle                 | 0x52B2773FB2f69d565C651d364f0AA95eBED097E4 |                                                     |
