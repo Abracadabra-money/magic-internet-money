@@ -6,7 +6,7 @@ import { BentoBoxV1, CauldronV2, ERC20Mock, IERC20, IOracle } from "../typechain
 import { expect } from "chai";
 import { BigNumber } from "@ethersproject/bignumber";
 import { PopsicleUSDCWETHSwapper, PopsicleUSDCWETHLevSwapper, IPopsicle } from "../typechain";
-import { ParametersPerChain } from "../deploy/PopsicleCauldrons";
+import { ParametersPerChain } from "../deploy/PolygonPopsicleCauldrons";
 import { IOptimizerStrategy } from "../typechain/IOptimizerStrategy";
 
 // Top holders at the given fork block
@@ -17,21 +17,13 @@ const MIM_WHALE = "0xbbc4A8d076F4B1888fec42581B6fc58d242CF2D5";
 // 1: some plp whale address
 // 2: the maximum amount to leverage
 const parameters = [
-  /*["USDC/WETH 0.3%", "0xc1c3d73e3f7be5549198cb275c7ba45f637a299a", 5_000_000],
-  ["WETH/USDT 0.3%", "0xd09729321471210e4c75b902f36c89f71c934a9c", 2_000_000],
-  ["USDC/WETH 0.05%", "0x66339a4C857997b2cb3A1139CC37f68fbdf9A795", 8_000_000],
-  ["WETH/USDT 0.05%", "0x400700aeBE5c2A2c45A42664298a541E77a99cBc", 8_000_000],*/
-  ["UST/USDT 0.05%", "0x7a601F344F1c7353eBE5cc0F6F8bcC3E7aAE143a", 8_000_000],
-  ["USDC/UST 0.05%", "0x8F40dCD6BA523561A8a497001896330965520fa4", 10_000_000],
-  ["USDC/USDT 0.01%", "0xC805F55C18c62e278382cC16f51Ea5C4Becfc74D", 10_000_000],
-  ["WBTC/WETH 0.3%", "0x9b0b2d0704950bf12fc960b5797eb73abacc2c99", 15_000_000],
-  ["WBTC/WETH 0.05%", "0x20023e9c1e71e94c86fe720bf963f420280f7ec9", 15_000_000],
+  ["USDC/WETH 0.3%", "0xc1c3d73e3f7be5549198cb275c7ba45f637a299a", 5_000_000],
 ];
 
 const cases = ParametersPerChain[ChainId.Mainnet].cauldrons.map((c, index) => [...parameters[index], ...Object.values(c)]);
 
 forEach(cases).describe(
-  "Popsicle %s Cauldron",
+  "Polyg9on Popsicle %s Cauldron",
   async (
     _name,
     plpWhale,
@@ -71,15 +63,15 @@ forEach(cases).describe(
         params: [
           {
             forking: {
-              jsonRpcUrl: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-              blockNumber: 13880131,
+              jsonRpcUrl: process.env.POLYGON_RPC_URL,
+              blockNumber: 23300257,
             },
           },
         ],
       });
 
       hre.getChainId = () => Promise.resolve(ChainId.Mainnet.toString());
-      await deployments.fixture(["PopsicleCauldrons"]);
+      await deployments.fixture(["PolygonPopsicleCauldrons"]);
       const { deployer } = await getNamedAccounts();
       deployerSigner = await ethers.getSigner(deployer);
 

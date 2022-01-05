@@ -18,7 +18,7 @@ export const ParametersPerChain = {
     // Parameter orders is important since this is used by the test suite as well
     cauldrons: [
       // USDC/WETH 0.3%
-      /*{
+      {
         plpAddress: "0xaE7b92C8B14E7bdB523408aE0A6fFbf3f589adD9",
         cauldronDeploymentName: "PopsicleUSDCWETHCauldron",
         proxyOracleDeploymentName: "PopsicleUSDCWETHProxyOracle",
@@ -46,7 +46,7 @@ export const ParametersPerChain = {
         token0Aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
         token1Aggregator: "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D", // USDT
       },
-      
+
       // USDC/WETH 0.05%
       {
         plpAddress: "0x9683D433621A83aA7dd290106e1da85251317F55",
@@ -77,8 +77,8 @@ export const ParametersPerChain = {
         token1Aggregator: "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D", // USDT
       },
 
-       // UST/USDT
-       {
+      // UST/USDT
+      {
         plpAddress: "0xbA38029806AbE4B45D5273098137DDb52dA8e62F",
         cauldronDeploymentName: "PopsicleUSTUSDTCauldron",
         proxyOracleDeploymentName: "PopsicleUSTUSDTProxyOracle",
@@ -91,7 +91,7 @@ export const ParametersPerChain = {
         token0Aggregator: "0x8b6d9085f310396C6E4f0012783E9f850eaa8a82", // UST
         token1Aggregator: "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D", // USDT
       },
-*/
+
       // USDC/UST
       {
         plpAddress: "0x71fd405e9C2f55522A73911b4A2F39CD80E06051",
@@ -106,7 +106,6 @@ export const ParametersPerChain = {
         token0Aggregator: "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6", // USDC
         token1Aggregator: "0x8b6d9085f310396C6E4f0012783E9f850eaa8a82", // UST
       },
-/*
       // USDC/USDT
       {
         plpAddress: "0x989442D5cCB27E7931095B0f3165c75a6def9bc3",
@@ -136,7 +135,6 @@ export const ParametersPerChain = {
         token0Aggregator: "0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c", // BTC
         token1Aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
       },
-
       // WBTC/WETH 0.05%
       {
         plpAddress: "0xBE5d1d15617879B22C7b6a8e1e16aDD6d0bE3c61",
@@ -150,7 +148,7 @@ export const ParametersPerChain = {
         levSwapperDeploymentName: "PopsicleWBTCWETHLevSwapper005Fee",
         token0Aggregator: "0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c", // BTC
         token1Aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
-      },*/
+      },
     ],
   },
 };
