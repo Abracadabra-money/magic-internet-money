@@ -6,7 +6,7 @@ import { BentoBoxV1, CauldronV2, ERC20Mock, IERC20, IOracle } from "../typechain
 import { expect } from "chai";
 import { BigNumber } from "@ethersproject/bignumber";
 import { PopsicleUSDCWETHSwapper, PopsicleUSDCWETHLevSwapper, IPopsicle } from "../typechain";
-import { ParametersPerChain } from "../deploy/PolygonPopsicleCauldrons";
+import { ParametersPerChain } from "../deploy/PolygonPopsicleCauldrons.ts.disabled";
 import { IOptimizerStrategy } from "../typechain/IOptimizerStrategy";
 
 // Top holders at the given fork block

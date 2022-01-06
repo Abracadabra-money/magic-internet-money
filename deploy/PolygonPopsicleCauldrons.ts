@@ -119,7 +119,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   }
 };
 
-export default deployFunction;
+/*export default deployFunction;
 
 if (network.name !== "hardhat") {
   deployFunction.skip = ({ getChainId }) =>
@@ -135,4 +135,4 @@ if (network.name !== "hardhat") {
 }
 
 deployFunction.tags = ["PolygonPopsicleCauldrons"];
-deployFunction.dependencies = [];
+deployFunction.dependencies = [];*/

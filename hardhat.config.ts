@@ -168,7 +168,7 @@ const config: HardhatUserConfig = {
       tags: ["staging"],
     },
     polygon: {
-      url: "https://rpc-mainnet.maticvigil.com",
+      url: "https://rpc-mainnet.matic.quiknode.pro",
       accounts,
       chainId: 137,
       live: true,
