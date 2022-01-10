@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "@rari-capital/solmate/src/tokens/ERC20.sol";
-import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
-
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 
 import "../../../interfaces/IPopsicle.sol";
@@ -11,11 +8,10 @@ import "../../../libraries/UniswapV3OneSidedUsingCurve.sol";
 import "../../../interfaces/IBentoBoxV1.sol";
 import "../../../interfaces/curve/ICurvePool.sol";
 import "../../../interfaces/curve/ICurveThreeCryptoPool.sol";
+import "../../../interfaces/Tether.sol";
 
 /// @notice WBTC/WETH Popsicle Leverage Swapper for Ethereum
 contract PopsicleWBTCWETHLevSwapper {
-    using SafeTransferLib for ERC20;
-
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce);
     IPopsicle public immutable popsicle;
 
@@ -24,7 +20,7 @@ contract PopsicleWBTCWETHLevSwapper {
     IERC20 private constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);
     IERC20 private constant WBTC = IERC20(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599);
     IERC20 public constant WETH = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
-    ERC20 private constant USDT = ERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7);
+    Tether private constant USDT = Tether(0xdAC17F958D2ee523a2206206994597C13D831ec7);
 
     uint256 private constant MIN_WBTC_IMBALANCE = 1e3; // 0.00001 wBTC
     uint256 private constant MIN_WETH_IMBALANCE = 0.0002 ether;
@@ -36,7 +32,7 @@ contract PopsicleWBTCWETHLevSwapper {
         WBTC.approve(address(_popsicle), type(uint256).max);
         WETH.approve(address(_popsicle), type(uint256).max);
         WBTC.approve(address(THREECRYPTO), type(uint256).max);
-        USDT.safeApprove(address(THREECRYPTO), type(uint256).max);
+        USDT.approve(address(THREECRYPTO), type(uint256).max);
         pool = IUniswapV3Pool(_popsicle.pool());
         popsicle = _popsicle;
     }

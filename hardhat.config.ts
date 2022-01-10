@@ -173,6 +173,8 @@ const config: HardhatUserConfig = {
       chainId: 137,
       live: true,
       saveDeployments: true,
+      gas: 4100000,
+      gasPrice: 100000000000
     },
     xdai: {
       url: "https://rpc.xdaichain.com",

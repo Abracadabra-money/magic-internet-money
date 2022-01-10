@@ -3,8 +3,6 @@ pragma solidity ^0.8.10;
 
 import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol";
 import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Router01.sol";
-import "@rari-capital/solmate/src/tokens/ERC20.sol";
-import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 
@@ -13,11 +11,10 @@ import "../../../libraries/UniswapV3OneSidedUsingCurve.sol";
 import "../../../interfaces/IBentoBoxV1.sol";
 import "../../../interfaces/curve/ICurvePool.sol";
 import "../../../interfaces/curve/ICurveThreePool.sol";
+import "../../../interfaces/Tether.sol";
 
 /// @notice USDC/USDT Popsicle Leverage Swapper for Ethereum
 contract PopsicleUSDCUSDTLevSwapper {
-    using SafeTransferLib for ERC20;
-
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce);
     IPopsicle public immutable popsicle;
 
@@ -26,7 +23,7 @@ contract PopsicleUSDCUSDTLevSwapper {
     IERC20 private constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);
 
     IERC20 private constant USDC = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
-    ERC20 private constant USDT = ERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7);
+    Tether private constant USDT = Tether(0xdAC17F958D2ee523a2206206994597C13D831ec7);
 
     uint256 private constant MIN_USDC_IMBALANCE = 1e6;
     uint256 private constant MIN_USDT_IMBALANCE = 1e6;
@@ -35,8 +32,8 @@ contract PopsicleUSDCUSDTLevSwapper {
 
     constructor(IPopsicle _popsicle) {
         MIM.approve(address(MIM3POOL), type(uint256).max);
-        USDT.safeApprove(address(_popsicle), type(uint256).max);
-        USDT.safeApprove(address(THREEPOOL), type(uint256).max);
+        USDT.approve(address(_popsicle), type(uint256).max);
+        USDT.approve(address(THREEPOOL), type(uint256).max);
         USDC.approve(address(_popsicle), type(uint256).max);
         pool = IUniswapV3Pool(_popsicle.pool());
         popsicle = _popsicle;

@@ -2,11 +2,11 @@
 import forEach from "mocha-each";
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { ChainId, getBigNumber, impersonate } from "../utilities";
-import { BentoBoxV1, CauldronV2, ERC20Mock, IERC20, IOracle } from "../typechain";
+import { DegenBox, CauldronV2, ERC20Mock, IERC20, IOracle } from "../typechain";
 import { expect } from "chai";
 import { BigNumber } from "@ethersproject/bignumber";
 import { PopsicleUSDCWETHSwapper, PopsicleUSDCWETHLevSwapper, IPopsicle } from "../typechain";
-import { ParametersPerChain } from "../deploy/PolygonPopsicleCauldrons.ts.disabled";
+import { ParametersPerChain } from "../deploy/PolygonPopsicleCauldrons.ts";
 import { IOptimizerStrategy } from "../typechain/IOptimizerStrategy";
 
 // Top holders at the given fork block
@@ -23,7 +23,7 @@ const parameters = [
 const cases = ParametersPerChain[ChainId.Mainnet].cauldrons.map((c, index) => [...parameters[index], ...Object.values(c)]);
 
 forEach(cases).describe(
-  "Polyg9on Popsicle %s Cauldron",
+  "Polygon Popsicle %s Cauldron",
   async (
     _name,
     plpWhale,
@@ -51,7 +51,7 @@ forEach(cases).describe(
     let ProxyOracle: IOracle;
     let PLPSwapper: PopsicleUSDCWETHSwapper;
     let PLPLevSwapper: PopsicleUSDCWETHLevSwapper;
-    let DegenBox: BentoBoxV1;
+    let DegenBox: DegenBox;
     let mimShare: BigNumber;
     let plpShare: BigNumber;
     let deployerSigner;
@@ -77,7 +77,7 @@ forEach(cases).describe(
 
       Cauldron = await ethers.getContractAt<CauldronV2>("CauldronV2", (await ethers.getContract(cauldronName)).address);
       ProxyOracle = await ethers.getContract<IOracle>(proxyOracleName);
-      DegenBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce");
+      DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce");
       MIM = await ethers.getContractAt<ERC20Mock>("ERC20Mock", "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3");
       PLP = await ethers.getContractAt<IPopsicle>("IPopsicle", plpAddress);
 
