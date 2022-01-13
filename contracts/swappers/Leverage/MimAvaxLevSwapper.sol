@@ -33,8 +33,8 @@ interface IBentoBoxV1 {
 
 contract MimAvaxLevSwapper {
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0x1fC83f75499b7620d53757f0b01E2ae626aAE530);
-    IUniswapV2Pair public constant MIMAVAX = IUniswapV2Pair(0x781655d802670bbA3c89aeBaaEa59D3182fD755D);
-    IUniswapV2Router01 public constant ROUTER = IUniswapV2Router01(0x60aE616a2155Ee3d9A68541Ba4544862310933d4);
+    IUniswapV2Pair public constant MIMAVAX = IUniswapV2Pair(0xcBb424fd93cDeC0EF330d8A8C985E8b147F62339);
+    IUniswapV2Router01 public constant ROUTER = IUniswapV2Router01(0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506);
 
     uint256 private constant DEADLINE = 0xf000000000000000000000000000000000000000000000000000000000000000; // ~ placeholder for swap deadline
 
