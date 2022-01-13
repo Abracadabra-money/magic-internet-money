@@ -23,8 +23,8 @@ contract wMemoOracle is IOracle {
     using FixedPoint for *;
     using BoringMath for uint256;
     uint256 public constant PERIOD = 10 minutes;
-    IAggregator public constant AVAX_USD = IAggregator(0x0A77230d17318075983913bC2145DB16C7366156);
-    IUniswapV2Pair public constant pair = IUniswapV2Pair(0xf64e1c5B6E17031f5504481Ac8145F4c3eab4917);
+    IAggregator public constant MIM_USD = IAggregator(0x54EdAB30a7134A16a54218AE64C73e1DAf48a8Fb);
+    IUniswapV2Pair public constant WMEMO_MIM = IUniswapV2Pair(0x4d308C46EA9f234ea515cC51F16fba776451cac8);
 
     IWMEMO public constant WMEMO = IWMEMO(0x0da67235dD5787D67955420C84ca1cEcd4E5Bb3b);
 
@@ -36,11 +36,11 @@ contract wMemoOracle is IOracle {
 
     PairInfo public pairInfo;
     function _get(uint32 blockTimestamp) public view returns (uint256) {
-        uint256 priceCumulative = pair.price1CumulativeLast();
+        uint256 priceCumulative = WMEMO_MIM.price0CumulativeLast();
 
         // if time has elapsed since the last update on the pair, mock the accumulated price values
-        (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast) = IUniswapV2Pair(pair).getReserves();
-        priceCumulative += uint256(FixedPoint.fraction(reserve0, reserve1)._x) * (blockTimestamp - blockTimestampLast); // overflows ok
+        (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast) = IUniswapV2Pair(WMEMO_MIM).getReserves();
+        priceCumulative += uint256(FixedPoint.fraction(reserve1, reserve0)._x) * (blockTimestamp - blockTimestampLast); // overflows ok
 
         // overflow is desired, casting never truncates
         // cumulative price is in (uq112x112 price * seconds) units so we simply wrap it after division by time elapsed
@@ -62,10 +62,10 @@ contract wMemoOracle is IOracle {
         }
 
         uint256 priceCumulative = _get(blockTimestamp);
-        pairInfo.priceAverage = uint144(1e53 / (uint256(1e18).mul(uint256(FixedPoint
+        pairInfo.priceAverage = uint144(1e44 / uint256(FixedPoint
             .uq112x112(uint224((priceCumulative - pairInfo.priceCumulativeLast) / timeElapsed))
             .mul(1e18)
-            .decode144())).mul(uint256(AVAX_USD.latestAnswer())) / WMEMO.MEMOTowMEMO(1e9)));
+            .decode144()).mul(uint256(MIM_USD.latestAnswer())));
         pairInfo.blockTimestampLast = blockTimestamp;
         pairInfo.priceCumulativeLast = priceCumulative;
 
@@ -85,10 +85,10 @@ contract wMemoOracle is IOracle {
         }
 
         uint256 priceCumulative = _get(blockTimestamp);
-        uint144 priceAverage = uint144(1e53 / (uint256(1e18).mul(uint256(FixedPoint
+        uint144 priceAverage = uint144(1e44 / uint256(FixedPoint
             .uq112x112(uint224((priceCumulative - pairInfo.priceCumulativeLast) / timeElapsed))
             .mul(1e18)
-            .decode144())).mul(uint256(AVAX_USD.latestAnswer())) / WMEMO.MEMOTowMEMO(1e9)));
+            .decode144()).mul(uint256(MIM_USD.latestAnswer())));
 
         return (true, priceAverage);
     }
@@ -96,8 +96,8 @@ contract wMemoOracle is IOracle {
     // Check the current spot exchange rate without any state changes
     /// @inheritdoc IOracle
     function peekSpot(bytes calldata data) external view override returns (uint256 rate) {
-        (uint256 reserve0, uint256 reserve1, ) = pair.getReserves();
-        rate = 1e53 / (uint256(1e18).mul(reserve0.mul(1e18) / reserve1).mul(uint256(AVAX_USD.latestAnswer())) / WMEMO.MEMOTowMEMO(1e9));
+        (uint256 reserve0, uint256 reserve1, ) = WMEMO_MIM.getReserves();
+        rate = 1e44 / (reserve1.mul(1e18) / reserve0).mul(uint256(MIM_USD.latestAnswer()));
     }
 
     /// @inheritdoc IOracle

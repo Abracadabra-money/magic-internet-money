@@ -24,8 +24,7 @@ contract wMEMOLevSwapper {
 
     // Local variables
     IBentoBoxV1 public constant bentoBox = IBentoBoxV1(0xf4F46382C2bE1603Dc817551Ff9A7b333Ed1D18f);
-    IUniswapV2Pair constant TIME_AVAX = IUniswapV2Pair(0xf64e1c5B6E17031f5504481Ac8145F4c3eab4917);
-    IUniswapV2Pair constant AVAX_MIM = IUniswapV2Pair(0x781655d802670bbA3c89aeBaaEa59D3182fD755D);
+    IUniswapV2Pair constant WMEMO_MIM = IUniswapV2Pair(0x4d308C46EA9f234ea515cC51F16fba776451cac8);
     IERC20 public constant MIM = IERC20(0x130966628846BFd36ff31a822705796e8cb8C18D);
     IERC20 public constant MEMO = IERC20(0x136Acd46C134E8269052c62A67042D6bDeDde3C9);
     IWMEMO public constant WMEMO = IWMEMO(0x0da67235dD5787D67955420C84ca1cEcd4E5Bb3b);
@@ -68,52 +67,21 @@ contract wMEMOLevSwapper {
         uint256 shareFrom
     ) public returns (uint256 extraShare, uint256 shareReturned) {
 
-        uint256 amountFirst;
-        uint256 amountIntermediate;
+        (uint256 amountMIMFrom, ) = bentoBox.withdraw(MIM, address(this), address(WMEMO_MIM), 0, shareFrom);
 
-        {
+        (address token0, ) = UniswapV2Library.sortTokens(address(WMEMO), address(MIM));
 
-            (uint256 amountMIMFrom, ) = bentoBox.withdraw(MIM, address(this), address(AVAX_MIM), 0, shareFrom);
+        (uint256 reserve0, uint256 reserve1, ) = WMEMO_MIM.getReserves();
 
-            (address token0, ) = UniswapV2Library.sortTokens(address(MIM), WAVAX);
+        (reserve0, reserve1) = address(MIM) == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
+        
+        uint256 amountTo = getAmountOut(amountMIMFrom, reserve0, reserve1);
 
-            (uint256 reserve0, uint256 reserve1, ) = AVAX_MIM.getReserves();
+        (uint256 amount0Out, uint256 amount1Out) = address(MIM) == token0
+                ? (uint256(0), amountTo)
+                : (amountTo, uint256(0));
 
-            (reserve0, reserve1) = address(MIM) == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
-            
-            amountFirst = getAmountOut(amountMIMFrom, reserve0, reserve1);
-
-            (uint256 amount0Out, uint256 amount1Out) = address(MIM) == token0
-                    ? (uint256(0), amountFirst)
-                    : (amountFirst, uint256(0));
-
-            AVAX_MIM.swap(amount0Out, amount1Out, address(TIME_AVAX), new bytes(0));
-        }
-
-        {
-
-            (address token0, ) = UniswapV2Library.sortTokens(address(WAVAX), address(TIME));
-
-            (uint256 reserve0, uint256 reserve1, ) = TIME_AVAX.getReserves();
-
-            (reserve0, reserve1) = WAVAX == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
-            
-            amountIntermediate = getAmountOut(amountFirst, reserve0, reserve1);
-
-            (uint256 amount0Out, uint256 amount1Out) = WAVAX == token0
-                    ? (uint256(0), amountIntermediate)
-                    : (amountIntermediate, uint256(0));
-
-            TIME_AVAX.swap(amount0Out, amount1Out, address(this), new bytes(0));
-        }
-
-        STAKING_MANAGER.stake(amountIntermediate, address(this));
-
-        STAKING_MANAGER.claim(address(this));
-
-        uint256 amountTo = WMEMO.wrap(amountIntermediate);
-
-        WMEMO.transfer(address(bentoBox), amountTo);
+        WMEMO_MIM.swap(amount0Out, amount1Out, address(bentoBox), new bytes(0));
 
         (, shareReturned) = bentoBox.deposit(WMEMO, address(bentoBox), recipient, amountTo, 0);
         extraShare = shareReturned.sub(shareToMin);
