@@ -35,7 +35,16 @@ const config: HardhatUserConfig = {
     tests: "test",
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_TOKEN,
+    apiKey: {
+      mainnet: process.env.ETHERSCAN_TOKEN,
+      ropsten: process.env.ETHERSCAN_TOKEN,
+      kovan: process.env.ETHERSCAN_TOKEN,
+      optimisticEthereum: process.env.ETHERSCAN_TOKEN,
+      arbitrumOne: process.env.ETHERSCAN_TOKEN,
+      avalanche: process.env.SNOWTRACE_TOKEN,
+      opera: process.env.FTMSCAN_TOKEN,
+      bsc: process.env.BSCSCAN_TOKEN
+    }
   },
   gasReporter: {
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
@@ -151,7 +160,7 @@ const config: HardhatUserConfig = {
       tags: ["prod"],
     },
     fantom: {
-      url: "https://rpcapi.fantom.network",
+      url: "https://rpc.ftm.tools/",
       accounts,
       chainId: 250,
       live: true,
@@ -217,6 +226,9 @@ const config: HardhatUserConfig = {
       },
       {
         version: "0.8.4",
+      },
+      {
+        version: "0.8.6",
       },
       {
         version: "0.8.7",
