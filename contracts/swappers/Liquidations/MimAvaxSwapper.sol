@@ -24,7 +24,7 @@ interface IBentoBoxV1 {
 
 contract MimAvaxSwapper is ISwapperGeneric {
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0x1fC83f75499b7620d53757f0b01E2ae626aAE530);
-    IUniswapV2Pair public constant MIMAVAX = IUniswapV2Pair(0x781655d802670bbA3c89aeBaaEa59D3182fD755D);
+    IUniswapV2Pair public constant MIMAVAX = IUniswapV2Pair(0xcBb424fd93cDeC0EF330d8A8C985E8b147F62339);
     IERC20 public constant MIM = IERC20(0x130966628846BFd36ff31a822705796e8cb8C18D);
     IERC20 public constant WAVAX = IERC20(0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7);
 
