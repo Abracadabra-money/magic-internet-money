@@ -8,17 +8,19 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   const { deployer } = await getNamedAccounts();
 
-  await deploy("MimAvaxSwapper", {
+  await deploy("MimAvaxSLPSwapper", {
     from: deployer,
     args: [],
     log: true,
+    contract: "MimAvaxSwapper",
     deterministicDeployment: false,
   });
 
-  await deploy("MimAvaxLevSwapper", {
+  await deploy("MimAvaxSLPLevSwapper", {
     from: deployer,
     args: [],
     log: true,
+    contract: "MimAvaxLevSwapper",
     deterministicDeployment: false,
   });
 };

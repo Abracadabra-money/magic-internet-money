@@ -10,7 +10,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   const { deployer } = await getNamedAccounts();
 
-  await deploy("MimAvaxProxyOracle", {
+  await deploy("MimAvaxSLPProxyOracle", {
     from: deployer,
     args: [],
     log: true,
@@ -27,10 +27,10 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   const MimAvaxOracle = await ethers.getContract<AggregatorV3Interface>("MimAvaxOracleV1");
 
-  await deploy("MimAvaxLPChainlinkOracleV1", {
+  await deploy("MimAvaxSLPChainlinkOracleV1", {
     from: deployer,
     args: [
-      "0x781655d802670bbA3c89aeBaaEa59D3182fD755D", // Trader Joe MIM/Avax
+      "0xcBb424fd93cDeC0EF330d8A8C985E8b147F62339", // SLP MIM/Avax
       MimAvaxOracle.address,
     ],
     contract: "LPChainlinkOracleV1",
@@ -38,18 +38,18 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     deterministicDeployment: false,
   });
 
-  const LPChainlinkOracleV1 = await ethers.getContract<IAggregator>("MimAvaxLPChainlinkOracleV1");
+  const LPChainlinkOracleV1 = await ethers.getContract<IAggregator>("MimAvaxSLPChainlinkOracleV1");
 
-  await deploy("MimAvaxLPOracle", {
+  await deploy("MimAvaxSLPOracle", {
     from: deployer,
-    args: [LPChainlinkOracleV1.address, "LP MIM/AVAX"],
+    args: [LPChainlinkOracleV1.address, "SLP MIM/AVAX"],
     log: true,
     contract: "AvaxLPOracle",
     deterministicDeployment: false,
   });
 
-  const MimAvaxLPOracle = await ethers.getContract<AvaxLPOracle>("MimAvaxLPOracle");
-  const ProxyOracle = await ethers.getContract<ProxyOracle>("MimAvaxProxyOracle");
+  const MimAvaxLPOracle = await ethers.getContract<AvaxLPOracle>("MimAvaxSLPOracle");
+  const ProxyOracle = await ethers.getContract<ProxyOracle>("MimAvaxSLPProxyOracle");
   if ((await ProxyOracle.oracleImplementation()) !== MimAvaxLPOracle.address) {
     await ProxyOracle.changeOracleImplementation(MimAvaxLPOracle.address);
   }
