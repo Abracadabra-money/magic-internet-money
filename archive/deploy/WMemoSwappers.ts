@@ -38,5 +38,5 @@ if (network.name !== "hardhat") {
     });
 }
 
-deployFunction.tags = ["WbtcSwappers"];
+deployFunction.tags = ["WMemoSwappers"];
 deployFunction.dependencies = [];
