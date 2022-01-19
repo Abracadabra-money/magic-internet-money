@@ -99,4 +99,29 @@ maybe("MultiFeeDistribution", async () => {
     aliceJoeBalanceAfter = await JOE.balanceOf(alice.address);
     expect(aliceJoeBalanceAfter.sub(aliceJoeBalanceBefore)).to.be.within(getBigNumber(20).sub(getBigNumber(1)), getBigNumber(20));
   });
+
+  it("should add reward and split in 2 users", async () => {
+    const [deployer, alice, bob, carol] = await ethers.getSigners();
+    const rewardsDuration = parseInt((await MultiFeeDistribution.rewardsDuration()).toString());
+    await MultiFeeDistribution.connect(deployer).addReward(joe);
+
+    const aliceJoeBalanceBefore = await JOE.balanceOf(alice.address);
+    await MultiFeeDistribution.connect(alice).stake(getBigNumber(10_000));
+
+    const bobJoeBalanceBefore = await JOE.balanceOf(alice.address);
+    await MultiFeeDistribution.connect(bob).stake(getBigNumber(10_000));
+
+    // need to notify reward to get rewards started
+    await JOE.connect(deployer).approve(MultiFeeDistribution.address, ethers.constants.MaxUint256);
+    await MultiFeeDistribution.connect(deployer).notifyReward(JOE.address, getBigNumber(10));
+
+    await advanceTime(rewardsDuration);
+    await MultiFeeDistribution.connect(alice).getReward([JOE.address]);
+    const aliceJoeBalanceAfter = await JOE.balanceOf(alice.address);
+    expect(aliceJoeBalanceAfter.sub(aliceJoeBalanceBefore)).to.be.within(getBigNumber(5).sub(getBigNumber(1)), getBigNumber(5));
+
+    await MultiFeeDistribution.connect(bob).getReward([JOE.address]);
+    const bobJoeBalanceAfter = await JOE.balanceOf(alice.address);
+    expect(bobJoeBalanceAfter.sub(bobJoeBalanceBefore)).to.be.within(getBigNumber(5).sub(getBigNumber(1)), getBigNumber(5));
+  });
 });
