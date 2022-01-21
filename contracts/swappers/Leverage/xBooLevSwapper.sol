@@ -108,7 +108,7 @@ contract xBooLevSwapper {
         uint256 amountTo = xBOO.balanceOf(address(this));
         xBOO.transfer(address(bentoBox), amountTo);
 
-        (, shareReturned) = bentoBox.deposit(WFTM, address(bentoBox), recipient, amountTo, 0);
+        (, shareReturned) = bentoBox.deposit(xBOO, address(bentoBox), recipient, amountTo, 0);
         extraShare = shareReturned.sub(shareToMin);
     }
 }
