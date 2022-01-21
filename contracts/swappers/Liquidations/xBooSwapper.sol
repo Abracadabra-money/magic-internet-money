@@ -71,7 +71,7 @@ contract xBooSwapper is ISwapper {
     ) public override returns (uint256 extraShare, uint256 shareReturned) {
 
         {
-            (uint256 amountXbooFrom,) = bentoBox.withdraw(fromToken, address(this), address(BOO_FTM), 0, shareFrom);
+            (uint256 amountXbooFrom,) = bentoBox.withdraw(fromToken, address(this), address(this), 0, shareFrom);
             xBOO.leave(amountXbooFrom);
         }
         
@@ -79,6 +79,8 @@ contract xBooSwapper is ISwapper {
 
         {
             uint256 amountFrom = BOO.balanceOf(address(this));
+
+            BOO.transfer(address(BOO_FTM), amountFrom);
             
             (address token0, ) = UniswapV2Library.sortTokens(address(BOO), address(WFTM));
 
@@ -114,7 +116,7 @@ contract xBooSwapper is ISwapper {
             USDC_WFTM.swap(amount0Out, amount1Out, address(this), new bytes(0));
         }
 
-        uint256 amountTo = ThreeCrypto.exchange(2, 0, amountIntermediate, 0, address(USDC_WFTM));
+        uint256 amountTo = ThreeCrypto.exchange(2, 0, amountIntermediate, 0, address(bentoBox));
 
         (, shareReturned) = bentoBox.deposit(toToken, address(bentoBox), recipient, amountTo, 0);
         extraShare = shareReturned.sub(shareToMin);
