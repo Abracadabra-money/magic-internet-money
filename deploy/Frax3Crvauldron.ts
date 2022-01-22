@@ -4,7 +4,8 @@ import { ethers, network } from "hardhat";
 import { ChainId } from "../utilities";
 import { expect } from "chai";
 import { xMerlin } from "../test/constants";
-import { ConvexStakingWrapperAbra } from "../typechain";
+import { BentoBoxV1, CauldronV2Checkpoint, ConvexStakingWrapperAbra, ProxyOracle } from "../typechain";
+import { Frax3CrvOracle } from "../typechain/Frax3CrvOracle";
 
 // List of supported chains to deploy on
 const supportedChains = [ChainId.Mainnet, ChainId.Fantom, ChainId.BSC];
@@ -12,7 +13,7 @@ const supportedChains = [ChainId.Mainnet, ChainId.Fantom, ChainId.BSC];
 export const ParametersPerChain = {
   [ChainId.Mainnet]: {
     bentoBox: "0xF5BCE5077908a1b7370B9ae04AdC565EBd643966",
-    CauldronV2CheckpointV1: "0x1DF188958A8674B5177f77667b8D173c3CdD9e51",
+    CauldronV2CheckpoinMasterContract: "0x1DF188958A8674B5177f77667b8D173c3CdD9e51",
     curveToken: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B", // frax3crv
     convexToken: "0xbE0F6478E0E4894CFb14f32855603A083A57c7dA", // cvxFRAX3CRV-f
     convexPool: "0xB900EF131301B307dB5eFcbed9DBb50A3e209B2e",
@@ -58,10 +59,8 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   const ConvexStakingWrapperAbra = await ethers.getContract<ConvexStakingWrapperAbra>("ConvexStakingWrapperAbra");
 
-  await ConvexStakingWrapperAbra.initialize(parameters.curveToken, parameters.convexToken, parameters.convexPool, parameters.convexPoolId, parameters.bentoBox);
-  /*
   // Proxy Oracle
-  await deploy("Frax3CrvOracle", {
+  await deploy("Frax3CrvProxyOracle", {
     from: deployer,
     args: [],
     log: true,
@@ -70,34 +69,34 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   });
 
   // Oracle Implementation
-  await deploy("Frax3CrvOracle" , {
+  await deploy("Frax3CrvOracle", {
     from: deployer,
-    args: [parameters.plpAddress, parameters.token0Aggregator, parameters.token1Aggregator],
+    args: [],
     log: true,
     deterministicDeployment: false,
   });
 
   // Cauldron
   const BentoBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", parameters.bentoBox);
-  const ProxyOracle = await ethers.getContract<ProxyOracle>("Frax3CrvOracle");
+  const ProxyOracle = await ethers.getContract<ProxyOracle>("Frax3CrvProxyOracle");
 
   let initData = ethers.utils.defaultAbiCoder.encode(
     ["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"],
-    [parameters.plpAddress, ProxyOracle.address, parameters.oracleData, interest, liquidationFee, maximumCollateralRatio, borrowFee]
+    [ConvexStakingWrapperAbra.address, ProxyOracle.address, parameters.oracleData, interest, liquidationFee, maximumCollateralRatio, borrowFee]
   );
-  const tx = await (await BentoBox.deploy(parameters.cauldronV2MasterContract, initData, true)).wait();
+  const tx = await (await BentoBox.deploy(parameters.CauldronV2CheckpoinMasterContract, initData, true)).wait();
 
   const deployEvent = tx?.events?.[0];
   expect(deployEvent?.eventSignature).to.be.eq("LogDeploy(address,bytes,address)");
 
   // Register the deployment so it's available within the test using `getContract`
   deployments.save("Frax3CrvCauldron", {
-    abi: require("../../CauldronV2Checkpoint.json"),
+    abi: require("../abi/CauldronV2Checkpoint.json"),
     address: deployEvent?.args?.cloneAddress,
   });
 
   // Liquidation Swapper
-  await deploy("Frax3CrvSwapper", {
+  await deploy("StkFrax3CrvSwapper", {
     from: deployer,
     args: [ConvexStakingWrapperAbra.address],
     log: true,
@@ -105,20 +104,33 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   });
 
   // Leverage Swapper
-  await deploy("Frax3CrvLevSwapper", {
+  await deploy("StkFrax3CrvLevSwapper", {
     from: deployer,
     args: [ConvexStakingWrapperAbra.address],
     log: true,
     deterministicDeployment: false,
   });
 
-  const PopsiclePLPOracle = await ethers.getContract<PLPOracle>(parameters.oracleDeploymentName);
-  if ((await ProxyOracle.oracleImplementation()) !== PopsiclePLPOracle.address) {
-    await ProxyOracle.changeOracleImplementation(PopsiclePLPOracle.address);
+  const Frax3CrvOracle = await ethers.getContract<Frax3CrvOracle>("Frax3CrvOracle");
+  const Frax3CrvCauldron = await ethers.getContract<CauldronV2Checkpoint>("Frax3CrvCauldron");
+
+  await ConvexStakingWrapperAbra.initialize(
+    parameters.curveToken,
+    parameters.convexToken,
+    parameters.convexPool,
+    parameters.convexPoolId,
+    Frax3CrvCauldron.address
+  );
+
+  if ((await ProxyOracle.oracleImplementation()) !== Frax3CrvOracle.address) {
+    await ProxyOracle.changeOracleImplementation(Frax3CrvOracle.address);
+  }
+  if ((await ConvexStakingWrapperAbra.owner()) !== xMerlin) {
+    await ConvexStakingWrapperAbra.transferOwnership(xMerlin);
   }
   if ((await ProxyOracle.owner()) !== xMerlin) {
     await ProxyOracle.transferOwnership(xMerlin, true, false);
-  }*/
+  }
 };
 
 export default deployFunction;
