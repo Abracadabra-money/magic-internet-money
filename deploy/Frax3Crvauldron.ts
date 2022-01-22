@@ -18,18 +18,7 @@ export const ParametersPerChain = {
     convexToken: "0xbE0F6478E0E4894CFb14f32855603A083A57c7dA", // cvxFRAX3CRV-f
     convexPool: "0xB900EF131301B307dB5eFcbed9DBb50A3e209B2e",
     convexPoolId: 32,
-
-    oracleData: "0x0000000000000000000000000000000000000000",
-    cauldronDeploymentName: "PopsicleUSDCWETHCauldron",
-    proxyOracleDeploymentName: "PopsicleUSDCWETHProxyOracle",
-    oracleDeploymentName: "PopsicleUSDCWETHOracle",
-
-    swapperName: "PopsicleUSDCWETHSwapper",
-    swapperDeploymentName: "PopsicleUSDCWETHSwapper03Fee",
-    levSwapperName: "PopsicleUSDCWETHLevSwapper",
-    levSwapperDeploymentName: "PopsicleUSDCWETHLevSwapper03Fee",
-    token0Aggregator: "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6", // USDC
-    token1Aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
+    oracleData: "0x0000000000000000000000000000000000000000"
   },
 };
 

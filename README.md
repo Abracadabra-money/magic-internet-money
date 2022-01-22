@@ -19,6 +19,18 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 
 ## Ethereum
 
+### Cauldrons
+
+| Contract                 | Address                                    | Note                                      |
+| ------------------------ | ------------------------------------------ | ----------------------------------------- |
+| **Frax3Crv**             |                                            |                                           |
+| Frax3CrvCauldron         | 0x5559d5E4910Fa3D36b4Ad4B56C5E46cB3d4a4366 | 90% LTV .5% initial 1% Interest, 1.5% fee |
+| ConvexStakingWrapperAbra | 0x2F1Ba281cA9c32BCe9C6E8792Ba6448434178f89 | Frax3Crv to Convex stkFrax3Crv Wrapper    |
+| Frax3CrvProxyOracle      | 0x66a809a31E6909C835219cC09eA0f52135fF0a11 | Using Frax3CrvOracle                      |
+| Frax3CrvOracle           | 0xD9bA8821e9EeFC89cBc80DA1EB5e3518BE383E63 |                                           |
+| StkFrax3CrvSwapper       | 0x30D525cbB79D2baaE7637eA748631a6360Ce7c16 | Liquidation Swapper                       |
+| StkFrax3CrvLevSwapper    | 0xc2758B836Cf4eebb4712746A087b426959E1De26 | Leverage Swapper                          |
+
 ### Utilities
 
 | Contract           | Address                                    | Note                                                                                                                         |

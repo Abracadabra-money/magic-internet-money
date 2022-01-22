@@ -1,0 +1,234 @@
+{
+  "address": "0xc2758B836Cf4eebb4712746A087b426959E1De26",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IConvex",
+          "name": "_stkFrax3Crv",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "FRAX3CRV",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "FRAX3CRVPOOL",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIM",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIM3POOL",
+      "outputs": [
+        {
+          "internalType": "contract CurvePool",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "TETHER",
+      "outputs": [
+        {
+          "internalType": "contract TetherToken",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "bentoBox",
+      "outputs": [
+        {
+          "internalType": "contract IBentoBoxV1",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "stkFrax3Crv",
+      "outputs": [
+        {
+          "internalType": "contract IConvex",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareToMin",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareFrom",
+          "type": "uint256"
+        }
+      ],
+      "name": "swap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "extraShare",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareReturned",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "threePool",
+      "outputs": [
+        {
+          "internalType": "contract CurvePool",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x2622d67afded26427f3c4f59e821b589a530f7b906e33fa3f5ddcb73ae2fdb59",
+  "receipt": {
+    "to": null,
+    "from": "0xfB3485c2e209A5cfBDC1447674256578f1A80eE3",
+    "contractAddress": "0xc2758B836Cf4eebb4712746A087b426959E1De26",
+    "transactionIndex": 147,
+    "gasUsed": "555793",
+    "logsBloom": "0x00000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000010000000000000000002000000000200000000001200000004000000000000000000004000000000008000000000000000000000080000000000000002010000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000020000000000020000000080000000000000000000080000000000000000000000000000000000000000000000000000000020000000000004000000020000000010000000000000000000000000000000000000000000001000000400000000",
+    "blockHash": "0x95f9d6e11b2270a6db0dd45a334c7503757e056025da04d01b5384ceab607ea9",
+    "transactionHash": "0x2622d67afded26427f3c4f59e821b589a530f7b906e33fa3f5ddcb73ae2fdb59",
+    "logs": [
+      {
+        "transactionIndex": 147,
+        "blockNumber": 14057332,
+        "transactionHash": "0x2622d67afded26427f3c4f59e821b589a530f7b906e33fa3f5ddcb73ae2fdb59",
+        "address": "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
+        "topics": [
+          "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+          "0x000000000000000000000000c2758b836cf4eebb4712746a087b426959e1de26",
+          "0x0000000000000000000000005a6a4d54456819380173272a5e8e9b9904bdf41b"
+        ],
+        "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "logIndex": 228,
+        "blockHash": "0x95f9d6e11b2270a6db0dd45a334c7503757e056025da04d01b5384ceab607ea9"
+      },
+      {
+        "transactionIndex": 147,
+        "blockNumber": 14057332,
+        "transactionHash": "0x2622d67afded26427f3c4f59e821b589a530f7b906e33fa3f5ddcb73ae2fdb59",
+        "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        "topics": [
+          "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+          "0x000000000000000000000000c2758b836cf4eebb4712746a087b426959e1de26",
+          "0x000000000000000000000000a79828df1850e8a3a3064576f380d90aecdd3359"
+        ],
+        "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "logIndex": 229,
+        "blockHash": "0x95f9d6e11b2270a6db0dd45a334c7503757e056025da04d01b5384ceab607ea9"
+      },
+      {
+        "transactionIndex": 147,
+        "blockNumber": 14057332,
+        "transactionHash": "0x2622d67afded26427f3c4f59e821b589a530f7b906e33fa3f5ddcb73ae2fdb59",
+        "address": "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
+        "topics": [
+          "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+          "0x000000000000000000000000c2758b836cf4eebb4712746a087b426959e1de26",
+          "0x0000000000000000000000002f1ba281ca9c32bce9c6e8792ba6448434178f89"
+        ],
+        "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "logIndex": 230,
+        "blockHash": "0x95f9d6e11b2270a6db0dd45a334c7503757e056025da04d01b5384ceab607ea9"
+      }
+    ],
+    "blockNumber": 14057332,
+    "cumulativeGasUsed": "10508340",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x2F1Ba281cA9c32BCe9C6E8792Ba6448434178f89"
+  ],
+  "solcInputHash": "270b37c1f8049bbbb1c63f14bbd05e8c",
+  "metadata": "{\"compiler\":{\"version\":\"0.6.12+commit.27d51765\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IConvex\",\"name\":\"_stkFrax3Crv\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"FRAX3CRV\",\"outputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"FRAX3CRVPOOL\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MIM\",\"outputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MIM3POOL\",\"outputs\":[{\"internalType\":\"contract CurvePool\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"TETHER\",\"outputs\":[{\"internalType\":\"contract TetherToken\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"bentoBox\",\"outputs\":[{\"internalType\":\"contract IBentoBoxV1\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"stkFrax3Crv\",\"outputs\":[{\"internalType\":\"contract IConvex\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"shareToMin\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"shareFrom\",\"type\":\"uint256\"}],\"name\":\"swap\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"extraShare\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"shareReturned\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"threePool\",\"outputs\":[{\"internalType\":\"contract CurvePool\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/swappers/Leverage/StkFrax3CrvLevSwapper.sol\":\"StkFrax3CrvLevSwapper\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/swappers/Leverage/StkFrax3CrvLevSwapper.sol\":{\"content\":\"// SPDX-License-Identifier: MIXED\\r\\n\\r\\n// File @boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol@v1.2.2\\r\\n// License-Identifier: MIT\\r\\npragma solidity 0.6.12;\\r\\n\\r\\n/// @notice A library for performing overflow-/underflow-safe math,\\r\\n/// updated with awesomeness from of DappHub (https://github.com/dapphub/ds-math).\\r\\nlibrary BoringMath {\\r\\n    function add(uint256 a, uint256 b) internal pure returns (uint256 c) {\\r\\n        require((c = a + b) >= b, \\\"BoringMath: Add Overflow\\\");\\r\\n    }\\r\\n\\r\\n    function sub(uint256 a, uint256 b) internal pure returns (uint256 c) {\\r\\n        require((c = a - b) <= a, \\\"BoringMath: Underflow\\\");\\r\\n    }\\r\\n\\r\\n    function mul(uint256 a, uint256 b) internal pure returns (uint256 c) {\\r\\n        require(b == 0 || (c = a * b) / b == a, \\\"BoringMath: Mul Overflow\\\");\\r\\n    }\\r\\n\\r\\n    function to128(uint256 a) internal pure returns (uint128 c) {\\r\\n        require(a <= uint128(-1), \\\"BoringMath: uint128 Overflow\\\");\\r\\n        c = uint128(a);\\r\\n    }\\r\\n\\r\\n    function to64(uint256 a) internal pure returns (uint64 c) {\\r\\n        require(a <= uint64(-1), \\\"BoringMath: uint64 Overflow\\\");\\r\\n        c = uint64(a);\\r\\n    }\\r\\n\\r\\n    function to32(uint256 a) internal pure returns (uint32 c) {\\r\\n        require(a <= uint32(-1), \\\"BoringMath: uint32 Overflow\\\");\\r\\n        c = uint32(a);\\r\\n    }\\r\\n}\\r\\n\\r\\n/// @notice A library for performing overflow-/underflow-safe addition and subtraction on uint128.\\r\\nlibrary BoringMath128 {\\r\\n    function add(uint128 a, uint128 b) internal pure returns (uint128 c) {\\r\\n        require((c = a + b) >= b, \\\"BoringMath: Add Overflow\\\");\\r\\n    }\\r\\n\\r\\n    function sub(uint128 a, uint128 b) internal pure returns (uint128 c) {\\r\\n        require((c = a - b) <= a, \\\"BoringMath: Underflow\\\");\\r\\n    }\\r\\n}\\r\\n\\r\\n/// @notice A library for performing overflow-/underflow-safe addition and subtraction on uint64.\\r\\nlibrary BoringMath64 {\\r\\n    function add(uint64 a, uint64 b) internal pure returns (uint64 c) {\\r\\n        require((c = a + b) >= b, \\\"BoringMath: Add Overflow\\\");\\r\\n    }\\r\\n\\r\\n    function sub(uint64 a, uint64 b) internal pure returns (uint64 c) {\\r\\n        require((c = a - b) <= a, \\\"BoringMath: Underflow\\\");\\r\\n    }\\r\\n}\\r\\n\\r\\n/// @notice A library for performing overflow-/underflow-safe addition and subtraction on uint32.\\r\\nlibrary BoringMath32 {\\r\\n    function add(uint32 a, uint32 b) internal pure returns (uint32 c) {\\r\\n        require((c = a + b) >= b, \\\"BoringMath: Add Overflow\\\");\\r\\n    }\\r\\n\\r\\n    function sub(uint32 a, uint32 b) internal pure returns (uint32 c) {\\r\\n        require((c = a - b) <= a, \\\"BoringMath: Underflow\\\");\\r\\n    }\\r\\n}\\r\\n\\r\\n// File @boringcrypto/boring-solidity/contracts/interfaces/IERC20.sol@v1.2.2\\r\\n// License-Identifier: MIT\\r\\npragma solidity 0.6.12;\\r\\n\\r\\ninterface IERC20 {\\r\\n    function totalSupply() external view returns (uint256);\\r\\n\\r\\n    function balanceOf(address account) external view returns (uint256);\\r\\n\\r\\n    function allowance(address owner, address spender) external view returns (uint256);\\r\\n\\r\\n    function approve(address spender, uint256 amount) external returns (bool);\\r\\n\\r\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\r\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\r\\n\\r\\n    /// @notice EIP 2612\\r\\n    function permit(\\r\\n        address owner,\\r\\n        address spender,\\r\\n        uint256 value,\\r\\n        uint256 deadline,\\r\\n        uint8 v,\\r\\n        bytes32 r,\\r\\n        bytes32 s\\r\\n    ) external;\\r\\n}\\r\\n\\r\\n// File @boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol@v1.2.2\\r\\n// License-Identifier: MIT\\r\\npragma solidity 0.6.12;\\r\\n\\r\\n// solhint-disable avoid-low-level-calls\\r\\n\\r\\nlibrary BoringERC20 {\\r\\n    bytes4 private constant SIG_SYMBOL = 0x95d89b41; // symbol()\\r\\n    bytes4 private constant SIG_NAME = 0x06fdde03; // name()\\r\\n    bytes4 private constant SIG_DECIMALS = 0x313ce567; // decimals()\\r\\n    bytes4 private constant SIG_TRANSFER = 0xa9059cbb; // transfer(address,uint256)\\r\\n    bytes4 private constant SIG_TRANSFER_FROM = 0x23b872dd; // transferFrom(address,address,uint256)\\r\\n\\r\\n    function returnDataToString(bytes memory data) internal pure returns (string memory) {\\r\\n        if (data.length >= 64) {\\r\\n            return abi.decode(data, (string));\\r\\n        } else if (data.length == 32) {\\r\\n            uint8 i = 0;\\r\\n            while (i < 32 && data[i] != 0) {\\r\\n                i++;\\r\\n            }\\r\\n            bytes memory bytesArray = new bytes(i);\\r\\n            for (i = 0; i < 32 && data[i] != 0; i++) {\\r\\n                bytesArray[i] = data[i];\\r\\n            }\\r\\n            return string(bytesArray);\\r\\n        } else {\\r\\n            return \\\"???\\\";\\r\\n        }\\r\\n    }\\r\\n\\r\\n    /// @notice Provides a safe ERC20.symbol version which returns '???' as fallback string.\\r\\n    /// @param token The address of the ERC-20 token contract.\\r\\n    /// @return (string) Token symbol.\\r\\n    function safeSymbol(IERC20 token) internal view returns (string memory) {\\r\\n        (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(SIG_SYMBOL));\\r\\n        return success ? returnDataToString(data) : \\\"???\\\";\\r\\n    }\\r\\n\\r\\n    /// @notice Provides a safe ERC20.name version which returns '???' as fallback string.\\r\\n    /// @param token The address of the ERC-20 token contract.\\r\\n    /// @return (string) Token name.\\r\\n    function safeName(IERC20 token) internal view returns (string memory) {\\r\\n        (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(SIG_NAME));\\r\\n        return success ? returnDataToString(data) : \\\"???\\\";\\r\\n    }\\r\\n\\r\\n    /// @notice Provides a safe ERC20.decimals version which returns '18' as fallback value.\\r\\n    /// @param token The address of the ERC-20 token contract.\\r\\n    /// @return (uint8) Token decimals.\\r\\n    function safeDecimals(IERC20 token) internal view returns (uint8) {\\r\\n        (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(SIG_DECIMALS));\\r\\n        return success && data.length == 32 ? abi.decode(data, (uint8)) : 18;\\r\\n    }\\r\\n\\r\\n    /// @notice Provides a safe ERC20.transfer version for different ERC-20 implementations.\\r\\n    /// Reverts on a failed transfer.\\r\\n    /// @param token The address of the ERC-20 token.\\r\\n    /// @param to Transfer tokens to.\\r\\n    /// @param amount The token amount.\\r\\n    function safeTransfer(\\r\\n        IERC20 token,\\r\\n        address to,\\r\\n        uint256 amount\\r\\n    ) internal {\\r\\n        (bool success, bytes memory data) = address(token).call(abi.encodeWithSelector(SIG_TRANSFER, to, amount));\\r\\n        require(success && (data.length == 0 || abi.decode(data, (bool))), \\\"BoringERC20: Transfer failed\\\");\\r\\n    }\\r\\n\\r\\n    /// @notice Provides a safe ERC20.transferFrom version for different ERC-20 implementations.\\r\\n    /// Reverts on a failed transfer.\\r\\n    /// @param token The address of the ERC-20 token.\\r\\n    /// @param from Transfer tokens from.\\r\\n    /// @param to Transfer tokens to.\\r\\n    /// @param amount The token amount.\\r\\n    function safeTransferFrom(\\r\\n        IERC20 token,\\r\\n        address from,\\r\\n        address to,\\r\\n        uint256 amount\\r\\n    ) internal {\\r\\n        (bool success, bytes memory data) = address(token).call(abi.encodeWithSelector(SIG_TRANSFER_FROM, from, to, amount));\\r\\n        require(success && (data.length == 0 || abi.decode(data, (bool))), \\\"BoringERC20: TransferFrom failed\\\");\\r\\n    }\\r\\n}\\r\\n\\r\\n// File @boringcrypto/boring-solidity/contracts/libraries/BoringRebase.sol@v1.2.2\\r\\n// License-Identifier: MIT\\r\\npragma solidity 0.6.12;\\r\\n\\r\\nstruct Rebase {\\r\\n    uint128 elastic;\\r\\n    uint128 base;\\r\\n}\\r\\n\\r\\n/// @notice A rebasing library using overflow-/underflow-safe math.\\r\\nlibrary RebaseLibrary {\\r\\n    using BoringMath for uint256;\\r\\n    using BoringMath128 for uint128;\\r\\n\\r\\n    /// @notice Calculates the base value in relationship to `elastic` and `total`.\\r\\n    function toBase(\\r\\n        Rebase memory total,\\r\\n        uint256 elastic,\\r\\n        bool roundUp\\r\\n    ) internal pure returns (uint256 base) {\\r\\n        if (total.elastic == 0) {\\r\\n            base = elastic;\\r\\n        } else {\\r\\n            base = elastic.mul(total.base) / total.elastic;\\r\\n            if (roundUp && base.mul(total.elastic) / total.base < elastic) {\\r\\n                base = base.add(1);\\r\\n            }\\r\\n        }\\r\\n    }\\r\\n\\r\\n    /// @notice Calculates the elastic value in relationship to `base` and `total`.\\r\\n    function toElastic(\\r\\n        Rebase memory total,\\r\\n        uint256 base,\\r\\n        bool roundUp\\r\\n    ) internal pure returns (uint256 elastic) {\\r\\n        if (total.base == 0) {\\r\\n            elastic = base;\\r\\n        } else {\\r\\n            elastic = base.mul(total.elastic) / total.base;\\r\\n            if (roundUp && elastic.mul(total.base) / total.elastic < base) {\\r\\n                elastic = elastic.add(1);\\r\\n            }\\r\\n        }\\r\\n    }\\r\\n\\r\\n    /// @notice Add `elastic` to `total` and doubles `total.base`.\\r\\n    /// @return (Rebase) The new total.\\r\\n    /// @return base in relationship to `elastic`.\\r\\n    function add(\\r\\n        Rebase memory total,\\r\\n        uint256 elastic,\\r\\n        bool roundUp\\r\\n    ) internal pure returns (Rebase memory, uint256 base) {\\r\\n        base = toBase(total, elastic, roundUp);\\r\\n        total.elastic = total.elastic.add(elastic.to128());\\r\\n        total.base = total.base.add(base.to128());\\r\\n        return (total, base);\\r\\n    }\\r\\n\\r\\n    /// @notice Sub `base` from `total` and update `total.elastic`.\\r\\n    /// @return (Rebase) The new total.\\r\\n    /// @return elastic in relationship to `base`.\\r\\n    function sub(\\r\\n        Rebase memory total,\\r\\n        uint256 base,\\r\\n        bool roundUp\\r\\n    ) internal pure returns (Rebase memory, uint256 elastic) {\\r\\n        elastic = toElastic(total, base, roundUp);\\r\\n        total.elastic = total.elastic.sub(elastic.to128());\\r\\n        total.base = total.base.sub(base.to128());\\r\\n        return (total, elastic);\\r\\n    }\\r\\n\\r\\n    /// @notice Add `elastic` and `base` to `total`.\\r\\n    function add(\\r\\n        Rebase memory total,\\r\\n        uint256 elastic,\\r\\n        uint256 base\\r\\n    ) internal pure returns (Rebase memory) {\\r\\n        total.elastic = total.elastic.add(elastic.to128());\\r\\n        total.base = total.base.add(base.to128());\\r\\n        return total;\\r\\n    }\\r\\n\\r\\n    /// @notice Subtract `elastic` and `base` to `total`.\\r\\n    function sub(\\r\\n        Rebase memory total,\\r\\n        uint256 elastic,\\r\\n        uint256 base\\r\\n    ) internal pure returns (Rebase memory) {\\r\\n        total.elastic = total.elastic.sub(elastic.to128());\\r\\n        total.base = total.base.sub(base.to128());\\r\\n        return total;\\r\\n    }\\r\\n\\r\\n    /// @notice Add `elastic` to `total` and update storage.\\r\\n    /// @return newElastic Returns updated `elastic`.\\r\\n    function addElastic(Rebase storage total, uint256 elastic) internal returns (uint256 newElastic) {\\r\\n        newElastic = total.elastic = total.elastic.add(elastic.to128());\\r\\n    }\\r\\n\\r\\n    /// @notice Subtract `elastic` from `total` and update storage.\\r\\n    /// @return newElastic Returns updated `elastic`.\\r\\n    function subElastic(Rebase storage total, uint256 elastic) internal returns (uint256 newElastic) {\\r\\n        newElastic = total.elastic = total.elastic.sub(elastic.to128());\\r\\n    }\\r\\n}\\r\\n\\r\\n// File @sushiswap/bentobox-sdk/contracts/IBatchFlashBorrower.sol@v1.0.2\\r\\n// License-Identifier: MIT\\r\\npragma solidity 0.6.12;\\r\\n\\r\\ninterface IBatchFlashBorrower {\\r\\n    function onBatchFlashLoan(\\r\\n        address sender,\\r\\n        IERC20[] calldata tokens,\\r\\n        uint256[] calldata amounts,\\r\\n        uint256[] calldata fees,\\r\\n        bytes calldata data\\r\\n    ) external;\\r\\n}\\r\\n\\r\\n// File @sushiswap/bentobox-sdk/contracts/IFlashBorrower.sol@v1.0.2\\r\\n// License-Identifier: MIT\\r\\npragma solidity 0.6.12;\\r\\n\\r\\ninterface IFlashBorrower {\\r\\n    function onFlashLoan(\\r\\n        address sender,\\r\\n        IERC20 token,\\r\\n        uint256 amount,\\r\\n        uint256 fee,\\r\\n        bytes calldata data\\r\\n    ) external;\\r\\n}\\r\\n\\r\\n// File @sushiswap/bentobox-sdk/contracts/IStrategy.sol@v1.0.2\\r\\n// License-Identifier: MIT\\r\\npragma solidity 0.6.12;\\r\\n\\r\\ninterface IStrategy {\\r\\n    // Send the assets to the Strategy and call skim to invest them\\r\\n    function skim(uint256 amount) external;\\r\\n\\r\\n    // Harvest any profits made converted to the asset and pass them to the caller\\r\\n    function harvest(uint256 balance, address sender) external returns (int256 amountAdded);\\r\\n\\r\\n    // Withdraw assets. The returned amount can differ from the requested amount due to rounding.\\r\\n    // The actualAmount should be very close to the amount. The difference should NOT be used to report a loss. That's what harvest is for.\\r\\n    function withdraw(uint256 amount) external returns (uint256 actualAmount);\\r\\n\\r\\n    // Withdraw all assets in the safest way possible. This shouldn't fail.\\r\\n    function exit(uint256 balance) external returns (int256 amountAdded);\\r\\n}\\r\\n\\r\\n// File @sushiswap/bentobox-sdk/contracts/IBentoBoxV1.sol@v1.0.2\\r\\n// License-Identifier: MIT\\r\\npragma solidity 0.6.12;\\r\\npragma experimental ABIEncoderV2;\\r\\n\\r\\ninterface IBentoBoxV1 {\\r\\n    event LogDeploy(address indexed masterContract, bytes data, address indexed cloneAddress);\\r\\n    event LogDeposit(address indexed token, address indexed from, address indexed to, uint256 amount, uint256 share);\\r\\n    event LogFlashLoan(address indexed borrower, address indexed token, uint256 amount, uint256 feeAmount, address indexed receiver);\\r\\n    event LogRegisterProtocol(address indexed protocol);\\r\\n    event LogSetMasterContractApproval(address indexed masterContract, address indexed user, bool approved);\\r\\n    event LogStrategyDivest(address indexed token, uint256 amount);\\r\\n    event LogStrategyInvest(address indexed token, uint256 amount);\\r\\n    event LogStrategyLoss(address indexed token, uint256 amount);\\r\\n    event LogStrategyProfit(address indexed token, uint256 amount);\\r\\n    event LogStrategyQueued(address indexed token, address indexed strategy);\\r\\n    event LogStrategySet(address indexed token, address indexed strategy);\\r\\n    event LogStrategyTargetPercentage(address indexed token, uint256 targetPercentage);\\r\\n    event LogTransfer(address indexed token, address indexed from, address indexed to, uint256 share);\\r\\n    event LogWhiteListMasterContract(address indexed masterContract, bool approved);\\r\\n    event LogWithdraw(address indexed token, address indexed from, address indexed to, uint256 amount, uint256 share);\\r\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\r\\n\\r\\n    function balanceOf(IERC20, address) external view returns (uint256);\\r\\n\\r\\n    function batch(bytes[] calldata calls, bool revertOnFail) external payable returns (bool[] memory successes, bytes[] memory results);\\r\\n\\r\\n    function batchFlashLoan(\\r\\n        IBatchFlashBorrower borrower,\\r\\n        address[] calldata receivers,\\r\\n        IERC20[] calldata tokens,\\r\\n        uint256[] calldata amounts,\\r\\n        bytes calldata data\\r\\n    ) external;\\r\\n\\r\\n    function claimOwnership() external;\\r\\n\\r\\n    function deploy(\\r\\n        address masterContract,\\r\\n        bytes calldata data,\\r\\n        bool useCreate2\\r\\n    ) external payable;\\r\\n\\r\\n    function deposit(\\r\\n        IERC20 token_,\\r\\n        address from,\\r\\n        address to,\\r\\n        uint256 amount,\\r\\n        uint256 share\\r\\n    ) external payable returns (uint256 amountOut, uint256 shareOut);\\r\\n\\r\\n    function flashLoan(\\r\\n        IFlashBorrower borrower,\\r\\n        address receiver,\\r\\n        IERC20 token,\\r\\n        uint256 amount,\\r\\n        bytes calldata data\\r\\n    ) external;\\r\\n\\r\\n    function harvest(\\r\\n        IERC20 token,\\r\\n        bool balance,\\r\\n        uint256 maxChangeAmount\\r\\n    ) external;\\r\\n\\r\\n    function masterContractApproved(address, address) external view returns (bool);\\r\\n\\r\\n    function masterContractOf(address) external view returns (address);\\r\\n\\r\\n    function nonces(address) external view returns (uint256);\\r\\n\\r\\n    function owner() external view returns (address);\\r\\n\\r\\n    function pendingOwner() external view returns (address);\\r\\n\\r\\n    function pendingStrategy(IERC20) external view returns (IStrategy);\\r\\n\\r\\n    function permitToken(\\r\\n        IERC20 token,\\r\\n        address from,\\r\\n        address to,\\r\\n        uint256 amount,\\r\\n        uint256 deadline,\\r\\n        uint8 v,\\r\\n        bytes32 r,\\r\\n        bytes32 s\\r\\n    ) external;\\r\\n\\r\\n    function registerProtocol() external;\\r\\n\\r\\n    function setMasterContractApproval(\\r\\n        address user,\\r\\n        address masterContract,\\r\\n        bool approved,\\r\\n        uint8 v,\\r\\n        bytes32 r,\\r\\n        bytes32 s\\r\\n    ) external;\\r\\n\\r\\n    function setStrategy(IERC20 token, IStrategy newStrategy) external;\\r\\n\\r\\n    function setStrategyTargetPercentage(IERC20 token, uint64 targetPercentage_) external;\\r\\n\\r\\n    function strategy(IERC20) external view returns (IStrategy);\\r\\n\\r\\n    function strategyData(IERC20)\\r\\n        external\\r\\n        view\\r\\n        returns (\\r\\n            uint64 strategyStartDate,\\r\\n            uint64 targetPercentage,\\r\\n            uint128 balance\\r\\n        );\\r\\n\\r\\n    function toAmount(\\r\\n        IERC20 token,\\r\\n        uint256 share,\\r\\n        bool roundUp\\r\\n    ) external view returns (uint256 amount);\\r\\n\\r\\n    function toShare(\\r\\n        IERC20 token,\\r\\n        uint256 amount,\\r\\n        bool roundUp\\r\\n    ) external view returns (uint256 share);\\r\\n\\r\\n    function totals(IERC20) external view returns (Rebase memory totals_);\\r\\n\\r\\n    function transfer(\\r\\n        IERC20 token,\\r\\n        address from,\\r\\n        address to,\\r\\n        uint256 share\\r\\n    ) external;\\r\\n\\r\\n    function transferMultiple(\\r\\n        IERC20 token,\\r\\n        address from,\\r\\n        address[] calldata tos,\\r\\n        uint256[] calldata shares\\r\\n    ) external;\\r\\n\\r\\n    function transferOwnership(\\r\\n        address newOwner,\\r\\n        bool direct,\\r\\n        bool renounce\\r\\n    ) external;\\r\\n\\r\\n    function whitelistMasterContract(address masterContract, bool approved) external;\\r\\n\\r\\n    function whitelistedMasterContracts(address) external view returns (bool);\\r\\n\\r\\n    function withdraw(\\r\\n        IERC20 token_,\\r\\n        address from,\\r\\n        address to,\\r\\n        uint256 amount,\\r\\n        uint256 share\\r\\n    ) external returns (uint256 amountOut, uint256 shareOut);\\r\\n}\\r\\n\\r\\n// File contracts/swappers/Leverage/YVIBLevSwapper.sol\\r\\n// License-Identifier: MIT\\r\\npragma solidity 0.6.12;\\r\\n\\r\\ninterface CurvePool {\\r\\n    function exchange_underlying(\\r\\n        int128 i,\\r\\n        int128 j,\\r\\n        uint256 dx,\\r\\n        uint256 min_dy,\\r\\n        address receiver\\r\\n    ) external returns (uint256);\\r\\n\\r\\n    function approve(address _spender, uint256 _value) external returns (bool);\\r\\n\\r\\n    function add_liquidity(\\r\\n        address pool,\\r\\n        uint256[4] memory amounts,\\r\\n        uint256 _min_mint_amount\\r\\n    ) external returns (uint256);\\r\\n}\\r\\n\\r\\ninterface YearnVault {\\r\\n    function withdraw() external returns (uint256);\\r\\n\\r\\n    function deposit(uint256 amount, address recipient) external returns (uint256);\\r\\n}\\r\\n\\r\\ninterface TetherToken {\\r\\n    function approve(address _spender, uint256 _value) external;\\r\\n}\\r\\n\\r\\ninterface IConvex is IERC20 {\\r\\n    function withdrawAndUnwrap(uint256 _amount) external;\\r\\n\\r\\n    //deposit a curve token\\r\\n    function deposit(uint256 _amount, address _to) external;\\r\\n}\\r\\n\\r\\ncontract StkFrax3CrvLevSwapper {\\r\\n    using BoringMath for uint256;\\r\\n    using BoringERC20 for IERC20;\\r\\n\\r\\n    // Local variables\\r\\n    IBentoBoxV1 public constant bentoBox = IBentoBoxV1(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);\\r\\n    CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);\\r\\n    address public constant FRAX3CRVPOOL = 0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B;\\r\\n    CurvePool public constant threePool = CurvePool(0xA79828DF1850E8a3A3064576f380D90aECDD3359);\\r\\n\\r\\n    IConvex public immutable stkFrax3Crv;\\r\\n    TetherToken public constant TETHER = TetherToken(0xdAC17F958D2ee523a2206206994597C13D831ec7);\\r\\n    IERC20 public constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);\\r\\n    IERC20 public constant FRAX3CRV = IERC20(0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B);\\r\\n\\r\\n    constructor(IConvex _stkFrax3Crv) public {\\r\\n        stkFrax3Crv = _stkFrax3Crv;\\r\\n        MIM.approve(address(MIM3POOL), type(uint256).max);\\r\\n        TETHER.approve(address(threePool), type(uint256).max);\\r\\n        FRAX3CRV.approve(address(_stkFrax3Crv), type(uint256).max);\\r\\n    }\\r\\n\\r\\n    // Swaps to a flexible amount, from an exact input amount\\r\\n    function swap(\\r\\n        address recipient,\\r\\n        uint256 shareToMin,\\r\\n        uint256 shareFrom\\r\\n    ) public returns (uint256 extraShare, uint256 shareReturned) {\\r\\n        (uint256 amountFrom, ) = bentoBox.withdraw(MIM, address(this), address(this), 0, shareFrom);\\r\\n\\r\\n        uint256 amountUSDT = MIM3POOL.exchange_underlying(0, 3, amountFrom, 0, address(this));\\r\\n\\r\\n        // Pool token order is FRAX, DAI, USDC, USDT\\r\\n        uint256[4] memory amountsAdded = [0, 0, 0, amountUSDT];\\r\\n        uint256 frax3CrvAmount = threePool.add_liquidity(FRAX3CRVPOOL, amountsAdded, 0);\\r\\n\\r\\n        stkFrax3Crv.deposit(frax3CrvAmount, address(bentoBox));\\r\\n\\r\\n        (, shareReturned) = bentoBox.deposit(stkFrax3Crv, address(bentoBox), recipient, frax3CrvAmount, 0);\\r\\n        extraShare = shareReturned.sub(shareToMin);\\r\\n    }\\r\\n}\\r\\n\",\"keccak256\":\"0x586dc02496829983e9967fa0e9264f31b16b94c1672d2ca79510d2b03059577f\",\"license\":\"MIXED\"}},\"version\":1}",
+  "bytecode": "0x60a060405234801561001057600080fd5b506040516109dc3803806109dc83398101604081905261002f9161021f565b6001600160601b0319606082901b1660805260405163095ea7b360e01b81527399d8a9c45b2eca8864373a26d1459e3dff1e17f39063095ea7b39061009090735a6a4d54456819380173272a5e8e9b9904bdf41b9060001990600401610246565b602060405180830381600087803b1580156100aa57600080fd5b505af11580156100be573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906100e291906101f8565b5060405163095ea7b360e01b815273dac17f958d2ee523a2206206994597c13d831ec79063095ea7b3906101329073a79828df1850e8a3a3064576f380d90aecdd33599060001990600401610246565b600060405180830381600087803b15801561014c57600080fd5b505af1158015610160573d6000803e3d6000fd5b505060405163095ea7b360e01b815273d632f22692fac7611d2aa1c0d552930d43caed3b925063095ea7b3915061019f90849060001990600401610246565b602060405180830381600087803b1580156101b957600080fd5b505af11580156101cd573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101f191906101f8565b505061025f565b600060208284031215610209578081fd5b81518015158114610218578182fd5b9392505050565b600060208284031215610230578081fd5b81516001600160a01b0381168114610218578182fd5b6001600160a01b03929092168252602082015260400190565b60805160601c6107566102866000398061010952806103de528061048952506107566000f3fe608060405234801561001057600080fd5b50600436106100935760003560e01c806378e7e3d11161006657806378e7e3d1146100ce57806382a485a0146100d65780639f1d0f59146100de578063a80e2b37146100d6578063daec383d146100ff57610093565b8063043008201461009857806322a88c09146100b65780635305bd8e146100be5780636b2ace87146100c6575b600080fd5b6100a0610107565b6040516100ad9190610609565b60405180910390f35b6100a061012b565b6100a0610143565b6100a061015b565b6100a0610173565b6100a061018b565b6100f16100ec36600461058f565b6101a3565b6040516100ad929190610712565b6100a0610527565b7f000000000000000000000000000000000000000000000000000000000000000081565b735a6a4d54456819380173272a5e8e9b9904bdf41b81565b73a79828df1850e8a3a3064576f380d90aecdd335981565b73f5bce5077908a1b7370b9ae04adc565ebd64396681565b73dac17f958d2ee523a2206206994597c13d831ec781565b73d632f22692fac7611d2aa1c0d552930d43caed3b81565b60405163097da6d360e41b81526000908190819073f5bce5077908a1b7370b9ae04adc565ebd643966906397da6d30906101fd907399d8a9c45b2eca8864373a26d1459e3dff1e17f3903090819087908b90600401610665565b6040805180830381600087803b15801561021657600080fd5b505af115801561022a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061024e91906105e6565b506040516322770cc360e11b8152909150600090735a6a4d54456819380173272a5e8e9b9904bdf41b906344ee198690610295908490600390879083903090600401610699565b602060405180830381600087803b1580156102af57600080fd5b505af11580156102c3573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906102e791906105ce565b90506102f1610571565b6040518060800160405280600081526020016000815260200160008152602001838152509050600073a79828df1850e8a3a3064576f380d90aecdd33596001600160a01b031663384e03db73d632f22692fac7611d2aa1c0d552930d43caed3b8460006040518463ffffffff1660e01b81526004016103729392919061061d565b602060405180830381600087803b15801561038c57600080fd5b505af11580156103a0573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103c491906105ce565b604051636e553f6560e01b81529091506001600160a01b037f00000000000000000000000000000000000000000000000000000000000000001690636e553f659061042990849073f5bce5077908a1b7370b9ae04adc565ebd643966906004016106fb565b600060405180830381600087803b15801561044357600080fd5b505af1158015610457573d6000803e3d6000fd5b505060405162ae511b60e21b815273f5bce5077908a1b7370b9ae04adc565ebd64396692506302b9446c91506104ba907f00000000000000000000000000000000000000000000000000000000000000009084908e908790600090600401610665565b6040805180830381600087803b1580156104d357600080fd5b505af11580156104e7573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061050b91906105e6565b95506105199050858961053f565b955050505050935093915050565b7399d8a9c45b2eca8864373a26d1459e3dff1e17f381565b8082038281111561056b5760405162461bcd60e51b8152600401610562906106cc565b60405180910390fd5b92915050565b60405180608001604052806004906020820280368337509192915050565b6000806000606084860312156105a3578283fd5b83356001600160a01b03811681146105b9578384fd5b95602085013595506040909401359392505050565b6000602082840312156105df578081fd5b5051919050565b600080604083850312156105f8578182fd5b505080516020909101519092909150565b6001600160a01b0391909116815260200190565b6001600160a01b038416815260c0810160208083018560005b600481101561065357815183529183019190830190600101610636565b505050508260a0830152949350505050565b6001600160a01b03958616815293851660208501529190931660408301526060820192909252608081019190915260a00190565b600f95860b81529390940b6020840152604083019190915260608201526001600160a01b03909116608082015260a00190565b602080825260159082015274426f72696e674d6174683a20556e646572666c6f7760581b604082015260600190565b9182526001600160a01b0316602082015260400190565b91825260208201526040019056fea26469706673582212203f75bebcbecf662f5657c3055a64609dcd5c58feb6ed58b8c4e07ecf2ec495ee64736f6c634300060c0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100935760003560e01c806378e7e3d11161006657806378e7e3d1146100ce57806382a485a0146100d65780639f1d0f59146100de578063a80e2b37146100d6578063daec383d146100ff57610093565b8063043008201461009857806322a88c09146100b65780635305bd8e146100be5780636b2ace87146100c6575b600080fd5b6100a0610107565b6040516100ad9190610609565b60405180910390f35b6100a061012b565b6100a0610143565b6100a061015b565b6100a0610173565b6100a061018b565b6100f16100ec36600461058f565b6101a3565b6040516100ad929190610712565b6100a0610527565b7f000000000000000000000000000000000000000000000000000000000000000081565b735a6a4d54456819380173272a5e8e9b9904bdf41b81565b73a79828df1850e8a3a3064576f380d90aecdd335981565b73f5bce5077908a1b7370b9ae04adc565ebd64396681565b73dac17f958d2ee523a2206206994597c13d831ec781565b73d632f22692fac7611d2aa1c0d552930d43caed3b81565b60405163097da6d360e41b81526000908190819073f5bce5077908a1b7370b9ae04adc565ebd643966906397da6d30906101fd907399d8a9c45b2eca8864373a26d1459e3dff1e17f3903090819087908b90600401610665565b6040805180830381600087803b15801561021657600080fd5b505af115801561022a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061024e91906105e6565b506040516322770cc360e11b8152909150600090735a6a4d54456819380173272a5e8e9b9904bdf41b906344ee198690610295908490600390879083903090600401610699565b602060405180830381600087803b1580156102af57600080fd5b505af11580156102c3573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906102e791906105ce565b90506102f1610571565b6040518060800160405280600081526020016000815260200160008152602001838152509050600073a79828df1850e8a3a3064576f380d90aecdd33596001600160a01b031663384e03db73d632f22692fac7611d2aa1c0d552930d43caed3b8460006040518463ffffffff1660e01b81526004016103729392919061061d565b602060405180830381600087803b15801561038c57600080fd5b505af11580156103a0573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103c491906105ce565b604051636e553f6560e01b81529091506001600160a01b037f00000000000000000000000000000000000000000000000000000000000000001690636e553f659061042990849073f5bce5077908a1b7370b9ae04adc565ebd643966906004016106fb565b600060405180830381600087803b15801561044357600080fd5b505af1158015610457573d6000803e3d6000fd5b505060405162ae511b60e21b815273f5bce5077908a1b7370b9ae04adc565ebd64396692506302b9446c91506104ba907f00000000000000000000000000000000000000000000000000000000000000009084908e908790600090600401610665565b6040805180830381600087803b1580156104d357600080fd5b505af11580156104e7573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061050b91906105e6565b95506105199050858961053f565b955050505050935093915050565b7399d8a9c45b2eca8864373a26d1459e3dff1e17f381565b8082038281111561056b5760405162461bcd60e51b8152600401610562906106cc565b60405180910390fd5b92915050565b60405180608001604052806004906020820280368337509192915050565b6000806000606084860312156105a3578283fd5b83356001600160a01b03811681146105b9578384fd5b95602085013595506040909401359392505050565b6000602082840312156105df578081fd5b5051919050565b600080604083850312156105f8578182fd5b505080516020909101519092909150565b6001600160a01b0391909116815260200190565b6001600160a01b038416815260c0810160208083018560005b600481101561065357815183529183019190830190600101610636565b505050508260a0830152949350505050565b6001600160a01b03958616815293851660208501529190931660408301526060820192909252608081019190915260a00190565b600f95860b81529390940b6020840152604083019190915260608201526001600160a01b03909116608082015260a00190565b602080825260159082015274426f72696e674d6174683a20556e646572666c6f7760581b604082015260600190565b9182526001600160a01b0316602082015260400190565b91825260208201526040019056fea26469706673582212203f75bebcbecf662f5657c3055a64609dcd5c58feb6ed58b8c4e07ecf2ec495ee64736f6c634300060c0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
