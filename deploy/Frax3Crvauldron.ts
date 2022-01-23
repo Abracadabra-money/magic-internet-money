@@ -37,7 +37,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const maximumCollateralRatio = 90 * 1e3; // 85% LTV
   const liquidationFee = 1.5 * 1e3 + 1e5; // 8% fee
   const borrowFee = 0.5 * OPENING_CONVERSION; // .5% initial
-  const interest = parseInt(String(1 * INTEREST_CONVERSION)); // 3% Interest
+  const interest = parseInt(String(1 * INTEREST_CONVERSION)); // 1% Interest
 
   await deploy("ConvexStakingWrapperAbra", {
     from: deployer,
