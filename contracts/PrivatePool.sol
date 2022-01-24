@@ -20,6 +20,7 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol";
+
 import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
 import "@boringcrypto/boring-solidity/contracts/interfaces/IMasterContract.sol";
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringRebase.sol";
@@ -40,43 +41,15 @@ contract PrivatePool is BoringOwnable, IMasterContract {
 
     event LogExchangeRate(uint256 rate);
     event LogAccrue(uint256 accruedAmount, uint256 feeAmount);
-    event LogAddCollateral(
-        address indexed from,
-        address indexed to,
-        uint256 share
-    );
+    event LogAddCollateral(address indexed from, address indexed to, uint256 share);
     event LogAddAsset(address indexed from, uint256 share);
-    event LogRemoveCollateral(
-        address indexed from,
-        address indexed to,
-        uint256 share
-    );
+    event LogRemoveCollateral(address indexed from, address indexed to, uint256 share);
     event LogRemoveAsset(address indexed to, uint256 share);
-    event LogBorrow(
-        address indexed from,
-        address indexed to,
-        uint256 amount,
-        uint256 openFeeAmount,
-        uint256 part
-    );
-    event LogRepay(
-        address indexed from,
-        address indexed to,
-        uint256 amount,
-        uint256 part
-    );
-    event LogSeizeCollateral(
-        address indexed from,
-        uint256 collateralShare,
-        uint256 debtAmount,
-        uint256 debtPart
-    );
+    event LogBorrow(address indexed from, address indexed to, uint256 amount, uint256 openFeeAmount, uint256 part);
+    event LogRepay(address indexed from, address indexed to, uint256 amount, uint256 part);
+    event LogSeizeCollateral(address indexed from, uint256 collateralShare, uint256 debtAmount, uint256 debtPart);
     event LogFeeTo(address indexed newFeeTo);
-    event LogWithdrawFees(
-        address indexed feeTo,
-        uint256 assetFeeShare,
-        uint256 collateralFeeShare
-    );
+    event LogWithdrawFees(address indexed feeTo, uint256 assetFeeShare, uint256 collateralFeeShare);
 
     // Immutables (for MasterContract and all clones)
     IBentoBoxV1 public immutable bentoBox;
@@ -165,24 +138,12 @@ contract PrivatePool is BoringOwnable, IMasterContract {
 
     /// @notice Serves as the constructor for clones, as clones can't have a regular constructor
     function init(bytes calldata data) public payable override {
-        require(
-            address(collateral) == address(0),
-            "PrivatePool: already initialized"
-        );
+        require(address(collateral) == address(0), "PrivatePool: already initialized");
 
         InitSettings memory settings = abi.decode(data, (InitSettings));
-        require(
-            address(settings.collateral) != address(0),
-            "PrivatePool: bad pair"
-        );
-        require(
-            settings.LIQUIDATION_MULTIPLIER_BPS >= BPS,
-            "PrivatePool: negative liquidation bonus"
-        );
-        require(
-            settings.COLLATERALIZATION_RATE_BPS <= BPS,
-            "PrivatePool: bad collateralization rate"
-        );
+        require(address(settings.collateral) != address(0), "PrivatePool: bad pair");
+        require(settings.LIQUIDATION_MULTIPLIER_BPS >= BPS, "PrivatePool: negative liquidation bonus");
+        require(settings.COLLATERALIZATION_RATE_BPS <= BPS, "PrivatePool: bad collateralization rate");
 
         collateral = settings.collateral;
         asset = settings.asset;
@@ -196,8 +157,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         _aI.COLLATERALIZATION_RATE_BPS = settings.COLLATERALIZATION_RATE_BPS;
         _aI.LIQUIDATION_MULTIPLIER_BPS = settings.LIQUIDATION_MULTIPLIER_BPS;
         _aI.BORROW_OPENING_FEE_BPS = settings.BORROW_OPENING_FEE_BPS;
-        _aI.LIQUIDATION_SEIZE_COLLATERAL = settings
-            .LIQUIDATION_SEIZE_COLLATERAL;
+        _aI.LIQUIDATION_SEIZE_COLLATERAL = settings.LIQUIDATION_SEIZE_COLLATERAL;
         accrueInfo = _aI;
 
         for (uint256 i = 0; i < settings.borrowers.length; i++) {
@@ -223,9 +183,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         // - _totalDebt.elastic is 128 bits
         // - INTEREST_PER_SECOND is 64 bits
         // - elapsedTime fits in 64 bits for the next 580 billion (10^9) years
-        uint256 extraAmount = (uint256(_totalDebt.elastic) *
-            _accrueInfo.INTEREST_PER_SECOND *
-            elapsedTime) / 1e18;
+        uint256 extraAmount = (uint256(_totalDebt.elastic) * _accrueInfo.INTEREST_PER_SECOND * elapsedTime) / 1e18;
 
         // If the interest rate is too high, then this will overflow and
         // effectively lock up all funds. Do not set the interest rate too
@@ -245,11 +203,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
             uint256 feeShare = bentoBox.toShare(asset, feeAmount, false);
             if (_assetBalance.reservesShare < feeShare) {
                 _assetBalance.feesEarnedShare += _assetBalance.reservesShare;
-                feesOwedAmount += bentoBox.toAmount(
-                    asset,
-                    feeShare - _assetBalance.reservesShare,
-                    false
-                );
+                feesOwedAmount += bentoBox.toAmount(asset, feeShare - _assetBalance.reservesShare, false);
                 _assetBalance.reservesShare = 0;
             } else {
                 // feesEarned + fee <= feesEarned + reserves <= Bento balance:
@@ -264,11 +218,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
 
     /// @notice Concrete implementation of `isSolvent`. Includes a third parameter to allow caching `exchangeRate`.
     /// @param _exchangeRate The exchange rate. Used to cache the `exchangeRate` between calls.
-    function _isSolvent(address borrower, uint256 _exchangeRate)
-        internal
-        view
-        returns (bool)
-    {
+    function _isSolvent(address borrower, uint256 _exchangeRate) internal view returns (bool) {
         // accrue must have already been called!
         uint256 debtPart = borrowerDebtPart[borrower];
         if (debtPart == 0) return true;
@@ -350,17 +300,12 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         (uint256 leftLo, uint256 leftHi) = FullMath.fullMul(
             collateralShare * bentoBoxTotals.elastic,
             // Cast needed to avoid uint128 overflow
-            uint256(accrueInfo.COLLATERALIZATION_RATE_BPS) *
-                _totalDebt.base *
-                1e14
+            uint256(accrueInfo.COLLATERALIZATION_RATE_BPS) * _totalDebt.base * 1e14
         );
         uint256 rightLo;
         uint256 rightHi;
         if (_exchangeRate <= type(uint128).max) {
-            (rightLo, rightHi) = FullMath.fullMul(
-                debtPart * _totalDebt.elastic,
-                _exchangeRate * bentoBoxTotals.base
-            );
+            (rightLo, rightHi) = FullMath.fullMul(debtPart * _totalDebt.elastic, _exchangeRate * bentoBoxTotals.base);
         } else {
             // We multiply it out in stages to be safe. If the total overflows
             // 512 bits then we are done, as the LHS is guaranteed to be less.
@@ -372,10 +317,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
             // bHi * 2^512 + bLo * 2^256       = xr * aHi * 2^256
             //               cHi * 2^256 + cLo = xr *               aLo
             //
-            (uint256 aLo, uint256 aHi) = FullMath.fullMul(
-                debtPart * _totalDebt.elastic,
-                bentoBoxTotals.base
-            );
+            (uint256 aLo, uint256 aHi) = FullMath.fullMul(debtPart * _totalDebt.elastic, bentoBoxTotals.base);
             (uint256 bLo, uint256 bHi) = FullMath.fullMul(_exchangeRate, aHi);
             if (bHi > 0) {
                 return false;
@@ -394,10 +336,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
     /// @dev Checks if the borrower is solvent in the closed liquidation case at the end of the function body.
     modifier solvent() {
         _;
-        require(
-            _isSolvent(msg.sender, exchangeRate),
-            "PrivatePool: borrower insolvent"
-        );
+        require(_isSolvent(msg.sender, exchangeRate), "PrivatePool: borrower insolvent");
     }
 
     /// @notice Gets the exchange rate. I.e how much collateral to buy 1e18 asset.
@@ -430,10 +369,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         bool skim
     ) internal {
         if (skim) {
-            require(
-                share <= bentoBox.balanceOf(token, address(this)).sub(total),
-                "PrivatePool: skim too much"
-            );
+            require(share <= bentoBox.balanceOf(token, address(this)).sub(total), "PrivatePool: skim too much");
         } else {
             bentoBox.transfer(token, msg.sender, address(this), share);
         }
@@ -450,32 +386,24 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         uint256 share
     ) public {
         uint256 supplied = userCollateralShare[to];
-        require(
-            supplied > 0 || approvedBorrowers[to],
-            "PrivatePool: unapproved borrower"
-        );
+        require(supplied > 0 || approvedBorrowers[to], "PrivatePool: unapproved borrower");
 
         // No overflow: the total for ALL users fits in 128 bits, or the
         // BentoBox transfer (_addTokens) fails.
         userCollateralShare[to] = supplied + share;
         CollateralBalance memory _collateralBalance = collateralBalance;
         // No overflow: the sum fits in the BentoBox total
-        uint256 prevTotal = _collateralBalance.userTotalShare +
-            _collateralBalance.feesEarnedShare;
+        uint256 prevTotal = _collateralBalance.userTotalShare + _collateralBalance.feesEarnedShare;
         // No overflow if cast safe: fits in the BentoBox or _addTokens reverts
         // Cast safe: _addTokens does not truncate the value
-        collateralBalance.userTotalShare =
-            _collateralBalance.userTotalShare +
-            uint128(share);
+        collateralBalance.userTotalShare = _collateralBalance.userTotalShare + uint128(share);
         _addTokens(collateral, share, prevTotal, skim);
         emit LogAddCollateral(skim ? address(bentoBox) : msg.sender, to, share);
     }
 
     /// @dev Concrete implementation of `removeCollateral`.
     function _removeCollateral(address to, uint256 share) internal {
-        userCollateralShare[msg.sender] = userCollateralShare[msg.sender].sub(
-            share
-        );
+        userCollateralShare[msg.sender] = userCollateralShare[msg.sender].sub(share);
         // No underflow: userTotalShare > userCollateralShare[msg.sender]
         // Cast safe: Bento transfer reverts if it is not.
         collateralBalance.userTotalShare -= uint128(share);
@@ -505,8 +433,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
     ) internal {
         IERC20 _asset = asset;
         AssetBalance memory _assetBalance = assetBalance;
-        uint256 priorAssetTotalShare = _assetBalance.reservesShare +
-            _assetBalance.feesEarnedShare;
+        uint256 priorAssetTotalShare = _assetBalance.reservesShare + _assetBalance.feesEarnedShare;
         Rebase memory bentoBoxTotals = bentoBox.totals(_asset);
 
         uint256 toFeesShare = 0;
@@ -521,27 +448,17 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         if (_assetBalance.reservesShare == 0) {
             uint256 _feesOwedAmount = feesOwedAmount;
             if (_feesOwedAmount > 0) {
-                uint256 feesOwedShare = bentoBoxTotals.toBase(
-                    _feesOwedAmount,
-                    false
-                );
+                uint256 feesOwedShare = bentoBoxTotals.toBase(_feesOwedAmount, false);
                 // New fees cannot pay off existing fees:
                 if (toReservesShare < feesOwedShare) {
-                    feesOwedAmount = bentoBoxTotals.toElastic(
-                        feesOwedShare - toReservesShare,
-                        false
-                    );
+                    feesOwedAmount = bentoBoxTotals.toElastic(feesOwedShare - toReservesShare, false);
                     _assetBalance.feesEarnedShare += uint128(takenShare);
                 } else {
                     feesOwedAmount = 0;
                     // No overflow: assuming the transfer at the end succeeds:
                     //     feesOwedShare <= toReservesShare <= (Bento balance),
-                    _assetBalance.feesEarnedShare += uint128(
-                        feesOwedShare + toFeesShare
-                    );
-                    _assetBalance.reservesShare = uint128(
-                        toReservesShare - feesOwedShare
-                    );
+                    _assetBalance.feesEarnedShare += uint128(feesOwedShare + toFeesShare);
+                    _assetBalance.reservesShare = uint128(toReservesShare - feesOwedShare);
                 }
             } else {
                 _assetBalance.reservesShare = uint128(toReservesShare);
@@ -575,9 +492,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
     function _removeAsset(address to, uint256 share) internal {
         require(msg.sender == lender, "PrivatePool: not the lender");
         // Cast safe: Bento transfer reverts unless stronger condition holds
-        assetBalance.reservesShare = assetBalance.reservesShare.sub(
-            uint128(share)
-        );
+        assetBalance.reservesShare = assetBalance.reservesShare.sub(uint128(share));
         bentoBox.transfer(asset, address(this), to, share);
         emit LogRemoveAsset(to, share);
     }
@@ -591,14 +506,8 @@ contract PrivatePool is BoringOwnable, IMasterContract {
     }
 
     /// @dev Concrete implementation of `borrow`.
-    function _borrow(address to, uint256 amount)
-        internal
-        returns (uint256 part, uint256 share)
-    {
-        require(
-            approvedBorrowers[msg.sender],
-            "PrivatePool: unapproved borrower"
-        );
+    function _borrow(address to, uint256 amount) internal returns (uint256 part, uint256 share) {
+        require(approvedBorrowers[msg.sender], "PrivatePool: unapproved borrower");
         IERC20 _asset = asset;
         Rebase memory bentoBoxTotals = bentoBox.totals(_asset);
         AccrueInfo memory _accrueInfo = accrueInfo;
@@ -609,14 +518,10 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         // BentoBox shares total if the transfer succeeds. But then "amount"
         // must fit in the token total; at least up to some rounding error,
         // which cannot be more than 128 bits either.
-        uint256 openFeeAmount = (amount * _accrueInfo.BORROW_OPENING_FEE_BPS) /
-            BPS;
+        uint256 openFeeAmount = (amount * _accrueInfo.BORROW_OPENING_FEE_BPS) / BPS;
         // No overflow: Same reason. Also, we just divided by BPS..
         uint256 protocolFeeAmount = (openFeeAmount * PROTOCOL_FEE_BPS) / BPS;
-        uint256 protocolFeeShare = bentoBoxTotals.toBase(
-            protocolFeeAmount,
-            false
-        );
+        uint256 protocolFeeShare = bentoBoxTotals.toBase(protocolFeeAmount, false);
 
         // The protocol component of the opening fee cannot be owed:
         AssetBalance memory _assetBalance = assetBalance;
@@ -625,9 +530,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         // these calculations: `share` is not modified.
         // Theoretically the fee could just make it overflow 128 bits.
         // Underflow check is core business logic:
-        _assetBalance.reservesShare = _assetBalance.reservesShare.sub(
-            (share + protocolFeeShare).to128()
-        );
+        _assetBalance.reservesShare = _assetBalance.reservesShare.sub((share + protocolFeeShare).to128());
         // Cast is safe: `share` fits. Also, the checked cast above succeeded.
         // No overflow: protocolFeeShare < reservesShare, and both balances
         // together fit in the Bento share balance,
@@ -648,11 +551,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
     /// @notice Sender borrows `amount` and transfers it to `to`.
     /// @return part Total part of the debt held by borrowers.
     /// @return share Total amount in shares borrowed.
-    function borrow(address to, uint256 amount)
-        public
-        solvent
-        returns (uint256 part, uint256 share)
-    {
+    function borrow(address to, uint256 amount) public solvent returns (uint256 part, uint256 share) {
         accrue();
         (part, share) = _borrow(to, amount);
     }
@@ -717,9 +616,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         uint256 value1,
         uint256 value2
     ) internal pure returns (uint256 outNum) {
-        outNum = inNum >= 0
-            ? uint256(inNum)
-            : (inNum == USE_VALUE1 ? value1 : value2);
+        outNum = inNum >= 0 ? uint256(inNum) : (inNum == USE_VALUE1 ? value1 : value2);
     }
 
     /// @dev Helper function for depositing into `bentoBox`.
@@ -729,20 +626,10 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         uint256 value1,
         uint256 value2
     ) internal returns (uint256, uint256) {
-        (IERC20 token, address to, int256 amount, int256 share) = abi.decode(
-            data,
-            (IERC20, address, int256, int256)
-        );
+        (IERC20 token, address to, int256 amount, int256 share) = abi.decode(data, (IERC20, address, int256, int256));
         amount = int256(_num(amount, value1, value2)); // Done this way to avoid stack too deep errors
         share = int256(_num(share, value1, value2));
-        return
-            bentoBox.deposit{value: value}(
-                token,
-                msg.sender,
-                to,
-                uint256(amount),
-                uint256(share)
-            );
+        return bentoBox.deposit{value: value}(token, msg.sender, to, uint256(amount), uint256(share));
     }
 
     /// @dev Helper function to withdraw from the `bentoBox`.
@@ -751,18 +638,8 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         uint256 value1,
         uint256 value2
     ) internal returns (uint256, uint256) {
-        (IERC20 token, address to, int256 amount, int256 share) = abi.decode(
-            data,
-            (IERC20, address, int256, int256)
-        );
-        return
-            bentoBox.withdraw(
-                token,
-                msg.sender,
-                to,
-                _num(amount, value1, value2),
-                _num(share, value1, value2)
-            );
+        (IERC20 token, address to, int256 amount, int256 share) = abi.decode(data, (IERC20, address, int256, int256));
+        return bentoBox.withdraw(token, msg.sender, to, _num(amount, value1, value2), _num(share, value1, value2));
     }
 
     /// @dev Helper function to perform a contract call and eventually extracting revert messages on failure.
@@ -774,13 +651,10 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         uint256 value1,
         uint256 value2
     ) internal returns (bytes memory, uint8) {
-        (
-            address callee,
-            bytes memory callData,
-            bool useValue1,
-            bool useValue2,
-            uint8 returnValues
-        ) = abi.decode(data, (address, bytes, bool, bool, uint8));
+        (address callee, bytes memory callData, bool useValue1, bool useValue2, uint8 returnValues) = abi.decode(
+            data,
+            (address, bytes, bool, bool, uint8)
+        );
 
         if (useValue1 && !useValue2) {
             callData = abi.encodePacked(callData, value1);
@@ -790,14 +664,9 @@ contract PrivatePool is BoringOwnable, IMasterContract {
             callData = abi.encodePacked(callData, value1, value2);
         }
 
-        require(
-            callee != address(bentoBox) && callee != address(this),
-            "PrivatePool: can't call"
-        );
+        require(callee != address(bentoBox) && callee != address(this), "PrivatePool: can't call");
 
-        (bool success, bytes memory returnData) = callee.call{value: value}(
-            callData
-        );
+        (bool success, bytes memory returnData) = callee.call{value: value}(callData);
         require(success, "PrivatePool: call failed");
         return (returnData, returnValues);
     }
@@ -827,123 +696,56 @@ contract PrivatePool is BoringOwnable, IMasterContract {
                 status.hasAccrued = true;
             }
             if (action == ACTION_ADD_COLLATERAL) {
-                (int256 share, address to, bool skim) = abi.decode(
-                    datas[i],
-                    (int256, address, bool)
-                );
+                (int256 share, address to, bool skim) = abi.decode(datas[i], (int256, address, bool));
                 addCollateral(to, skim, _num(share, value1, value2));
             } else if (action == ACTION_ADD_ASSET) {
-                (int256 share, bool skim) = abi.decode(
-                    datas[i],
-                    (int256, bool)
-                );
+                (int256 share, bool skim) = abi.decode(datas[i], (int256, bool));
                 _addAsset(skim, _num(share, value1, value2));
             } else if (action == ACTION_REPAY) {
-                (int256 part, address to, bool skim) = abi.decode(
-                    datas[i],
-                    (int256, address, bool)
-                );
+                (int256 part, address to, bool skim) = abi.decode(datas[i], (int256, address, bool));
                 _repay(to, skim, _num(part, value1, value2));
             } else if (action == ACTION_REMOVE_ASSET) {
-                (int256 share, address to) = abi.decode(
-                    datas[i],
-                    (int256, address)
-                );
+                (int256 share, address to) = abi.decode(datas[i], (int256, address));
                 _removeAsset(to, _num(share, value1, value2));
             } else if (action == ACTION_REMOVE_COLLATERAL) {
-                (int256 share, address to) = abi.decode(
-                    datas[i],
-                    (int256, address)
-                );
+                (int256 share, address to) = abi.decode(datas[i], (int256, address));
                 _removeCollateral(to, _num(share, value1, value2));
                 status.needsSolvencyCheck = true;
             } else if (action == ACTION_BORROW) {
-                (int256 amount, address to) = abi.decode(
-                    datas[i],
-                    (int256, address)
-                );
+                (int256 amount, address to) = abi.decode(datas[i], (int256, address));
                 (value1, value2) = _borrow(to, _num(amount, value1, value2));
                 status.needsSolvencyCheck = true;
             } else if (action == ACTION_UPDATE_EXCHANGE_RATE) {
-                (bool must_update, uint256 minRate, uint256 maxRate) = abi
-                    .decode(datas[i], (bool, uint256, uint256));
+                (bool must_update, uint256 minRate, uint256 maxRate) = abi.decode(datas[i], (bool, uint256, uint256));
                 (bool updated, uint256 rate) = updateExchangeRate();
-                require(
-                    (!must_update || updated) &&
-                        rate > minRate &&
-                        (maxRate == 0 || rate > maxRate),
-                    "PrivatePool: rate not ok"
-                );
+                require((!must_update || updated) && rate > minRate && (maxRate == 0 || rate > maxRate), "PrivatePool: rate not ok");
             } else if (action == ACTION_BENTO_SETAPPROVAL) {
-                (
-                    address user,
-                    address _masterContract,
-                    bool approved,
-                    uint8 v,
-                    bytes32 r,
-                    bytes32 s
-                ) = abi.decode(
-                        datas[i],
-                        (address, address, bool, uint8, bytes32, bytes32)
-                    );
-                bentoBox.setMasterContractApproval(
-                    user,
-                    _masterContract,
-                    approved,
-                    v,
-                    r,
-                    s
-                );
-            } else if (action == ACTION_BENTO_DEPOSIT) {
-                (value1, value2) = _bentoDeposit(
+                (address user, address _masterContract, bool approved, uint8 v, bytes32 r, bytes32 s) = abi.decode(
                     datas[i],
-                    values[i],
-                    value1,
-                    value2
+                    (address, address, bool, uint8, bytes32, bytes32)
                 );
+                bentoBox.setMasterContractApproval(user, _masterContract, approved, v, r, s);
+            } else if (action == ACTION_BENTO_DEPOSIT) {
+                (value1, value2) = _bentoDeposit(datas[i], values[i], value1, value2);
             } else if (action == ACTION_BENTO_WITHDRAW) {
                 (value1, value2) = _bentoWithdraw(datas[i], value1, value2);
             } else if (action == ACTION_BENTO_TRANSFER) {
-                (IERC20 token, address to, int256 share) = abi.decode(
-                    datas[i],
-                    (IERC20, address, int256)
-                );
-                bentoBox.transfer(
-                    token,
-                    msg.sender,
-                    to,
-                    _num(share, value1, value2)
-                );
+                (IERC20 token, address to, int256 share) = abi.decode(datas[i], (IERC20, address, int256));
+                bentoBox.transfer(token, msg.sender, to, _num(share, value1, value2));
             } else if (action == ACTION_BENTO_TRANSFER_MULTIPLE) {
-                (
-                    IERC20 token,
-                    address[] memory tos,
-                    uint256[] memory shares
-                ) = abi.decode(datas[i], (IERC20, address[], uint256[]));
+                (IERC20 token, address[] memory tos, uint256[] memory shares) = abi.decode(datas[i], (IERC20, address[], uint256[]));
                 bentoBox.transferMultiple(token, msg.sender, tos, shares);
             } else if (action == ACTION_CALL) {
-                (bytes memory returnData, uint8 returnValues) = _call(
-                    values[i],
-                    datas[i],
-                    value1,
-                    value2
-                );
+                (bytes memory returnData, uint8 returnValues) = _call(values[i], datas[i], value1, value2);
 
                 if (returnValues == 1) {
                     (value1) = abi.decode(returnData, (uint256));
                 } else if (returnValues == 2) {
-                    (value1, value2) = abi.decode(
-                        returnData,
-                        (uint256, uint256)
-                    );
+                    (value1, value2) = abi.decode(returnData, (uint256, uint256));
                 }
             } else if (action == ACTION_GET_REPAY_SHARE) {
                 int256 part = abi.decode(datas[i], (int256));
-                value1 = bentoBox.toShare(
-                    asset,
-                    totalDebt.toElastic(_num(part, value1, value2), true),
-                    true
-                );
+                value1 = bentoBox.toShare(asset, totalDebt.toElastic(_num(part, value1, value2), true), true);
             } else if (action == ACTION_GET_REPAY_PART) {
                 int256 amount = abi.decode(datas[i], (int256));
                 value1 = totalDebt.toBase(_num(amount, value1, value2), false);
@@ -951,10 +753,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         }
 
         if (status.needsSolvencyCheck) {
-            require(
-                _isSolvent(msg.sender, exchangeRate),
-                "PrivatePool: borrower insolvent"
-            );
+            require(_isSolvent(msg.sender, exchangeRate), "PrivatePool: borrower insolvent");
         }
     }
 
@@ -974,10 +773,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         accrue();
 
         AccrueInfo memory _accrueInfo = accrueInfo;
-        require(
-            block.timestamp >= _accrueInfo.EXPIRATION,
-            "PrivatePool: no liquidation yet"
-        );
+        require(block.timestamp >= _accrueInfo.EXPIRATION, "PrivatePool: no liquidation yet");
 
         uint256 allCollateralShare;
         uint256 allDebtAmount;
@@ -989,16 +785,11 @@ contract PrivatePool is BoringOwnable, IMasterContract {
             // If we set an expiration at all, then by the above check it is
             // now past and every borrower can be liquidated at the current
             // price:
-            if (
-                (_accrueInfo.EXPIRATION > 0) ||
-                !_isSolvent(borrower, _exchangeRate)
-            ) {
+            if ((_accrueInfo.EXPIRATION > 0) || !_isSolvent(borrower, _exchangeRate)) {
                 uint256 debtPart;
                 {
                     uint256 availableDebtPart = borrowerDebtPart[borrower];
-                    debtPart = maxDebtParts[i] > availableDebtPart
-                        ? availableDebtPart
-                        : maxDebtParts[i];
+                    debtPart = maxDebtParts[i] > availableDebtPart ? availableDebtPart : maxDebtParts[i];
                     // No underflow: ensured by definition of debtPart
                     borrowerDebtPart[borrower] = availableDebtPart - debtPart;
                 }
@@ -1007,9 +798,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
                 // The exchange rate need not be reasonable: with an expiration
                 // time set there is no _isSolvent() call.
                 uint256 collateralShare = bentoBoxTotals.toBase(
-                    (debtAmount * _accrueInfo.LIQUIDATION_MULTIPLIER_BPS).mul(
-                        _exchangeRate
-                    ) / (BPS * EXCHANGE_RATE_PRECISION),
+                    (debtAmount * _accrueInfo.LIQUIDATION_MULTIPLIER_BPS).mul(_exchangeRate) / (BPS * EXCHANGE_RATE_PRECISION),
                     false
                 );
 
@@ -1018,30 +807,13 @@ contract PrivatePool is BoringOwnable, IMasterContract {
                 // "full" liquidation or less).
                 // Underflow check is business logic: the liquidator can only
                 // take enough to cover the loan (and bonus).
-                userCollateralShare[borrower] = userCollateralShare[borrower]
-                    .sub(collateralShare);
+                userCollateralShare[borrower] = userCollateralShare[borrower].sub(collateralShare);
 
                 if (_accrueInfo.LIQUIDATION_SEIZE_COLLATERAL) {
-                    emit LogSeizeCollateral(
-                        borrower,
-                        collateralShare,
-                        debtAmount,
-                        debtPart
-                    );
+                    emit LogSeizeCollateral(borrower, collateralShare, debtAmount, debtPart);
                 } else {
-                    emit LogRemoveCollateral(
-                        borrower,
-                        swapper == ISimpleSwapper(0) ? to : address(swapper),
-                        collateralShare
-                    );
-                    emit LogRepay(
-                        swapper == ISimpleSwapper(0)
-                            ? msg.sender
-                            : address(swapper),
-                        borrower,
-                        debtAmount,
-                        debtPart
-                    );
+                    emit LogRemoveCollateral(borrower, swapper == ISimpleSwapper(0) ? to : address(swapper), collateralShare);
+                    emit LogRepay(swapper == ISimpleSwapper(0) ? msg.sender : address(swapper), borrower, debtAmount, debtPart);
                 }
 
                 // No overflow in the below three:
@@ -1077,8 +849,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
             // lender, and the fee to favor the liquidator:
             // Math: All collateral fits in 128 bits (BentoBox), so the
             // multiplications are safe:
-            uint256 excessShare = (allCollateralShare *
-                (_accrueInfo.LIQUIDATION_MULTIPLIER_BPS - BPS)) /
+            uint256 excessShare = (allCollateralShare * (_accrueInfo.LIQUIDATION_MULTIPLIER_BPS - BPS)) /
                 _accrueInfo.LIQUIDATION_MULTIPLIER_BPS;
             uint256 feeShare = (excessShare * PROTOCOL_FEE_BPS) / BPS;
             uint256 lenderShare = allCollateralShare - excessShare;
@@ -1092,12 +863,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
                 collateralBalance = _collateralBalance;
             }
             userCollateralShare[lender] += lenderShare;
-            bentoBox.transfer(
-                collateral,
-                address(this),
-                to,
-                excessShare - feeShare
-            );
+            bentoBox.transfer(collateral, address(this), to, excessShare - feeShare);
         } else {
             // No underflow: allCollateralShare is the sum of quantities that
             //               have successfully been taken out of user balances.
@@ -1109,19 +875,12 @@ contract PrivatePool is BoringOwnable, IMasterContract {
             //  allDebtAmount <= totalDebt.elastic < 2^128 (proof in loop)
             //  LIQUIDATION_MULTIPLIER_BPS < 2^16
             //  PROTOCOL_FEE_BPS <= 10k < 2^14 (or we have bigger problems)
-            uint256 feeAmount = (allDebtAmount *
-                (_accrueInfo.LIQUIDATION_MULTIPLIER_BPS - BPS) *
-                PROTOCOL_FEE_BPS) / (BPS * BPS);
+            uint256 feeAmount = (allDebtAmount * (_accrueInfo.LIQUIDATION_MULTIPLIER_BPS - BPS) * PROTOCOL_FEE_BPS) / (BPS * BPS);
 
             // Swap using a swapper freely chosen by the caller
             // Open (flash) liquidation: get proceeds first and provide the
             // borrow after
-            bentoBox.transfer(
-                collateral,
-                address(this),
-                swapper == ISimpleSwapper(0) ? to : address(swapper),
-                allCollateralShare
-            );
+            bentoBox.transfer(collateral, address(this), swapper == ISimpleSwapper(0) ? to : address(swapper), allCollateralShare);
             if (swapper != ISimpleSwapper(0)) {
                 // TODO: Somehow split _receiveAsset to reduce loads?
                 IERC20 _asset = asset;
@@ -1129,11 +888,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
                     collateral,
                     _asset,
                     msg.sender,
-                    bentoBox.toShare(
-                        _asset,
-                        allDebtAmount.add(feeAmount),
-                        true
-                    ),
+                    bentoBox.toShare(_asset, allDebtAmount.add(feeAmount), true),
                     allCollateralShare
                 );
             }

@@ -16,9 +16,9 @@ import { WETH9, USDC } from "./constants.mainnet";
 
 const ZERO_ADDR = "0x0000000000000000000000000000000000000000";
 
-const WETH_WHALE = '0x6555e1CC97d3cbA6eAddebBCD7Ca51d75771e0B8';
-const USDC_WHALE = '0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503';
-const GENERAL_WHALE = '0x84D34f4f83a87596Cd3FB6887cFf8F17Bf5A7B83';
+const WETH_WHALE = "0x6555e1CC97d3cbA6eAddebBCD7Ca51d75771e0B8";
+const USDC_WHALE = "0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503";
+const GENERAL_WHALE = "0x84D34f4f83a87596Cd3FB6887cFf8F17Bf5A7B83";
 
 const initTypes = {
   collateral: "address",
@@ -53,7 +53,6 @@ const getSignerFor = async (addr) => {
 };
 
 describe("Private Lending Pool - Forked Mainnet", async () => {
-  if (process.env.FORKING !== 'true') { return; }
   let snapshotId;
   let masterContract: PrivatePool;
   let bentoBox: BentoBoxV1;
@@ -61,7 +60,6 @@ describe("Private Lending Pool - Forked Mainnet", async () => {
   let wethWhale: Signer;
   let usdcWhale: Signer;
   let generalWhale: Signer;
-
 
   const deployPair = async (initSettings) => {
     const deployTx = await bentoBox

@@ -37,17 +37,9 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
     using RebaseLibrary for Rebase;
     using BoringERC20 for IERC20;
 
-    event LogAddCollateral(
-        address indexed from,
-        address indexed to,
-        uint256 tokenId
-    );
+    event LogAddCollateral(address indexed from, address indexed to, uint256 tokenId);
     event LogAddAsset(address indexed from, uint256 share);
-    event LogRemoveCollateral(
-        address indexed from,
-        address indexed to,
-        uint256 tokenId
-    );
+    event LogRemoveCollateral(address indexed from, address indexed to, uint256 tokenId);
     event LogRemoveAsset(address indexed to, uint256 share);
     event LogBorrow(address indexed from, address indexed to, uint256 tokenId);
     event LogRepay(address indexed from, uint256 tokenId);
@@ -124,16 +116,10 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
 
     /// @notice De facto constructor for clone contracts
     function init(bytes calldata data) public payable override {
-        require(
-            address(collateral) == address(0),
-            "PrivatePool: already initialized"
-        );
+        require(address(collateral) == address(0), "PrivatePool: already initialized");
 
         InitSettings memory settings = abi.decode(data, (InitSettings));
-        require(
-            address(settings.collateral) != address(0),
-            "PrivatePool: bad pair"
-        );
+        require(address(settings.collateral) != address(0), "PrivatePool: bad pair");
 
         collateral = settings.collateral;
         asset = settings.asset;
@@ -148,9 +134,7 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
     }
 
     // Enforces that settings are valid
-    function _updateLoanParams(uint256 tokenId, TokenLoanParams memory params)
-        internal
-    {
+    function _updateLoanParams(uint256 tokenId, TokenLoanParams memory params) internal {
         require(params.openFeeBPS < BPS, "PrivatePool: open fee");
         tokenLoanParams[tokenId] = params;
     }
@@ -158,9 +142,7 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
     // Enforces that changes only benefit the borrower, if any.
     // Can be changed, but only in favour of the borrower. This includes giving
     // them another shot.
-    function updateLoanParams(uint256 tokenId, TokenLoanParams calldata params)
-        public
-    {
+    function updateLoanParams(uint256 tokenId, TokenLoanParams calldata params) public {
         require(msg.sender == lender, "PrivatePool: not the lender");
         uint8 loanStatus = tokenLoan[tokenId].status;
         if (loanStatus == LOAN_TAKEN) {
@@ -189,14 +171,8 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         require(loanParams.valuation > 0, "PrivatePool: loan unavailable");
 
         if (skim) {
-            require(
-                collateral.ownerOf(tokenId) == address(this),
-                "PrivatePool: skim failed"
-            );
-            require(
-                tokenLoan[tokenId].status == LOAN_INITIAL,
-                "PrivatePool: in use"
-            );
+            require(collateral.ownerOf(tokenId) == address(this), "PrivatePool: skim failed");
+            require(tokenLoan[tokenId].status == LOAN_INITIAL, "PrivatePool: in use");
         } else {
             collateral.safeTransferFrom(msg.sender, address(this), tokenId);
         }
@@ -230,19 +206,13 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
     function removeCollateral(uint256 tokenId, address to) public {
         TokenLoan memory loan = tokenLoan[tokenId];
         if (msg.sender == loan.borrower) {
-            require(
-                loan.status == LOAN_COLLATERAL_DEPOSITED,
-                "PrivatePool: not paid off"
-            );
+            require(loan.status == LOAN_COLLATERAL_DEPOSITED, "PrivatePool: not paid off");
         } else {
             // We are seizing collateral as the lender. The loan has to be
             // expired and not paid off:
             require(loan.status == LOAN_TAKEN, "PrivatePool: paid off");
             require(msg.sender == lender, "PrivatePool: not the lender");
-            require(
-                tokenLoanParams[tokenId].expiration <= block.timestamp,
-                "PrivatePool: not expired"
-            );
+            require(tokenLoanParams[tokenId].expiration <= block.timestamp, "PrivatePool: not expired");
         }
         delete tokenLoan[tokenId];
         collateral.safeTransferFrom(address(this), to, tokenId);
@@ -262,8 +232,7 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
     ) internal {
         IERC20 _asset = asset;
         AssetBalance memory _assetBalance = assetBalance;
-        uint256 priorAssetTotalShare = _assetBalance.reservesShare +
-            _assetBalance.feesEarnedShare;
+        uint256 priorAssetTotalShare = _assetBalance.reservesShare + _assetBalance.feesEarnedShare;
         Rebase memory bentoBoxTotals = bentoBox.totals(_asset);
 
         uint256 toFeesShare = 0;
@@ -282,13 +251,7 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         assetBalance = _assetBalance;
 
         if (skim) {
-            require(
-                takenShare <=
-                    bentoBox.balanceOf(_asset, address(this)).sub(
-                        priorAssetTotalShare
-                    ),
-                "PrivatePool: skim too much"
-            );
+            require(takenShare <= bentoBox.balanceOf(_asset, address(this)).sub(priorAssetTotalShare), "PrivatePool: skim too much");
         } else {
             bentoBox.transfer(_asset, msg.sender, address(this), takenShare);
         }
@@ -309,9 +272,7 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
     function removeAsset(address to, uint256 share) public {
         require(msg.sender == lender, "PrivatePool: not the lender");
         // Cast safe: Bento transfer reverts unless stronger condition holds
-        assetBalance.reservesShare = assetBalance.reservesShare.sub(
-            uint128(share)
-        );
+        assetBalance.reservesShare = assetBalance.reservesShare.sub(uint128(share));
         bentoBox.transfer(asset, address(this), to, share);
         emit LogRemoveAsset(to, share);
     }
@@ -329,11 +290,7 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         TokenLoan memory loan = tokenLoan[tokenId];
         // If you managed to add the collateral, then you are approved. (Even
         // if we add a method to update the borrower whitelist later..)
-        require(
-            loan.status == LOAN_COLLATERAL_DEPOSITED &&
-                loan.borrower == msg.sender,
-            "PrivatePool: no collateral"
-        );
+        require(loan.status == LOAN_COLLATERAL_DEPOSITED && loan.borrower == msg.sender, "PrivatePool: no collateral");
         TokenLoanParams memory params = tokenLoanParams[tokenId];
         require(params.expiration > block.timestamp, "PrivatePool: expired");
         require(
@@ -350,11 +307,9 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         uint256 protocolFeeShare;
         {
             // No overflow: max 128 + 16 bits
-            uint256 openFeeAmount = (uint256(params.valuation) *
-                params.openFeeBPS) / BPS;
+            uint256 openFeeAmount = (uint256(params.valuation) * params.openFeeBPS) / BPS;
             // No overflow: max 144 + 16 bits
-            uint256 protocolFeeAmount = (openFeeAmount * PROTOCOL_FEE_BPS) /
-                BPS;
+            uint256 protocolFeeAmount = (openFeeAmount * PROTOCOL_FEE_BPS) / BPS;
             // No underflow: openFeeBPS < BPS is enforced.
             amount = params.valuation - openFeeAmount;
             protocolFeeShare = bentoBoxTotals.toBase(protocolFeeAmount, false);
@@ -368,9 +323,7 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
             // results of these calculations: `share` is not modified.
             // Theoretically the fee could just make it overflow 128 bits.
             // Underflow check is core business logic:
-            _assetBalance.reservesShare = _assetBalance.reservesShare.sub(
-                (share + protocolFeeShare).to128()
-            );
+            _assetBalance.reservesShare = _assetBalance.reservesShare.sub((share + protocolFeeShare).to128());
             // Cast is safe: `share` fits. Also, the checked cast above
             // succeeded.  No overflow: protocolFeeShare < reservesShare, and
             // both balances together fit in the Bento share balance,
@@ -476,10 +429,7 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         TokenLoan memory loan = tokenLoan[tokenId];
         require(loan.status == LOAN_TAKEN, "PrivatePool: no loan");
         TokenLoanParams memory loanParams = tokenLoanParams[tokenId];
-        require(
-            loanParams.expiration > block.timestamp,
-            "PrivatePool: loan expired"
-        );
+        require(loanParams.expiration > block.timestamp, "PrivatePool: loan expired");
 
         uint256 principal = loanParams.valuation;
 
@@ -528,9 +478,7 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         uint256 value1,
         uint256 value2
     ) internal pure returns (uint256 outNum) {
-        outNum = inNum >= 0
-            ? uint256(inNum)
-            : (inNum == USE_VALUE1 ? value1 : value2);
+        outNum = inNum >= 0 ? uint256(inNum) : (inNum == USE_VALUE1 ? value1 : value2);
     }
 
     /// @dev Helper function for depositing into `bentoBox`.
@@ -540,20 +488,10 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         uint256 value1,
         uint256 value2
     ) internal returns (uint256, uint256) {
-        (IERC20 token, address to, int256 amount, int256 share) = abi.decode(
-            data,
-            (IERC20, address, int256, int256)
-        );
+        (IERC20 token, address to, int256 amount, int256 share) = abi.decode(data, (IERC20, address, int256, int256));
         amount = int256(_num(amount, value1, value2)); // Done this way to avoid stack too deep errors
         share = int256(_num(share, value1, value2));
-        return
-            bentoBox.deposit{value: value}(
-                token,
-                msg.sender,
-                to,
-                uint256(amount),
-                uint256(share)
-            );
+        return bentoBox.deposit{value: value}(token, msg.sender, to, uint256(amount), uint256(share));
     }
 
     /// @dev Helper function to withdraw from the `bentoBox`.
@@ -562,18 +500,8 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         uint256 value1,
         uint256 value2
     ) internal returns (uint256, uint256) {
-        (IERC20 token, address to, int256 amount, int256 share) = abi.decode(
-            data,
-            (IERC20, address, int256, int256)
-        );
-        return
-            bentoBox.withdraw(
-                token,
-                msg.sender,
-                to,
-                _num(amount, value1, value2),
-                _num(share, value1, value2)
-            );
+        (IERC20 token, address to, int256 amount, int256 share) = abi.decode(data, (IERC20, address, int256, int256));
+        return bentoBox.withdraw(token, msg.sender, to, _num(amount, value1, value2), _num(share, value1, value2));
     }
 
     /// @dev Helper function to perform a contract call and eventually extracting revert messages on failure.
@@ -585,13 +513,10 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         uint256 value1,
         uint256 value2
     ) internal returns (bytes memory, uint8) {
-        (
-            address callee,
-            bytes memory callData,
-            bool useValue1,
-            bool useValue2,
-            uint8 returnValues
-        ) = abi.decode(data, (address, bytes, bool, bool, uint8));
+        (address callee, bytes memory callData, bool useValue1, bool useValue2, uint8 returnValues) = abi.decode(
+            data,
+            (address, bytes, bool, bool, uint8)
+        );
 
         if (useValue1 && !useValue2) {
             callData = abi.encodePacked(callData, value1);
@@ -601,14 +526,9 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
             callData = abi.encodePacked(callData, value1, value2);
         }
 
-        require(
-            callee != address(bentoBox) && callee != address(this),
-            "PrivatePool: can't call"
-        );
+        require(callee != address(bentoBox) && callee != address(this), "PrivatePool: can't call");
 
-        (bool success, bytes memory returnData) = callee.call{value: value}(
-            callData
-        );
+        (bool success, bytes memory returnData) = callee.call{value: value}(callData);
         require(success, "PrivatePool: call failed");
         return (returnData, returnValues);
     }
@@ -628,34 +548,19 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         for (uint256 i = 0; i < actions.length; i++) {
             uint8 action = actions[i];
             if (action == ACTION_ADD_COLLATERAL) {
-                (uint256 tokenId, address to, bool skim) = abi.decode(
-                    datas[i],
-                    (uint256, address, bool)
-                );
+                (uint256 tokenId, address to, bool skim) = abi.decode(datas[i], (uint256, address, bool));
                 addCollateral(tokenId, to, skim);
             } else if (action == ACTION_ADD_ASSET) {
-                (int256 share, bool skim) = abi.decode(
-                    datas[i],
-                    (int256, bool)
-                );
+                (int256 share, bool skim) = abi.decode(datas[i], (int256, bool));
                 addAsset(skim, _num(share, value1, value2));
             } else if (action == ACTION_REPAY) {
-                (uint256 tokenId, bool skim) = abi.decode(
-                    datas[i],
-                    (uint256, bool)
-                );
+                (uint256 tokenId, bool skim) = abi.decode(datas[i], (uint256, bool));
                 repay(tokenId, skim);
             } else if (action == ACTION_REMOVE_ASSET) {
-                (int256 share, address to) = abi.decode(
-                    datas[i],
-                    (int256, address)
-                );
+                (int256 share, address to) = abi.decode(datas[i], (int256, address));
                 removeAsset(to, _num(share, value1, value2));
             } else if (action == ACTION_REMOVE_COLLATERAL) {
-                (uint256 tokenId, address to) = abi.decode(
-                    datas[i],
-                    (uint256, address)
-                );
+                (uint256 tokenId, address to) = abi.decode(datas[i], (uint256, address));
                 removeCollateral(tokenId, to);
             } else if (action == ACTION_BORROW) {
                 (
@@ -665,87 +570,31 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
                     uint64 minExpiration,
                     uint16 maxOpenFeeBPS,
                     uint16 maxAnnualInterestBPS
-                ) = abi.decode(
-                        datas[i],
-                        (
-                            uint256,
-                            address,
-                            uint128,
-                            uint64,
-                            uint16,
-                            uint16
-                        )
-                    );
-                (value1, value2) = borrow(
-                    tokenId,
-                    to,
-                    minValuation,
-                    minExpiration,
-                    maxOpenFeeBPS,
-                    maxAnnualInterestBPS
-                );
+                ) = abi.decode(datas[i], (uint256, address, uint128, uint64, uint16, uint16));
+                (value1, value2) = borrow(tokenId, to, minValuation, minExpiration, maxOpenFeeBPS, maxAnnualInterestBPS);
             } else if (action == ACTION_BENTO_SETAPPROVAL) {
-                (
-                    address user,
-                    address _masterContract,
-                    bool approved,
-                    uint8 v,
-                    bytes32 r,
-                    bytes32 s
-                ) = abi.decode(
-                        datas[i],
-                        (address, address, bool, uint8, bytes32, bytes32)
-                    );
-                bentoBox.setMasterContractApproval(
-                    user,
-                    _masterContract,
-                    approved,
-                    v,
-                    r,
-                    s
-                );
-            } else if (action == ACTION_BENTO_DEPOSIT) {
-                (value1, value2) = _bentoDeposit(
+                (address user, address _masterContract, bool approved, uint8 v, bytes32 r, bytes32 s) = abi.decode(
                     datas[i],
-                    values[i],
-                    value1,
-                    value2
+                    (address, address, bool, uint8, bytes32, bytes32)
                 );
+                bentoBox.setMasterContractApproval(user, _masterContract, approved, v, r, s);
+            } else if (action == ACTION_BENTO_DEPOSIT) {
+                (value1, value2) = _bentoDeposit(datas[i], values[i], value1, value2);
             } else if (action == ACTION_BENTO_WITHDRAW) {
                 (value1, value2) = _bentoWithdraw(datas[i], value1, value2);
             } else if (action == ACTION_BENTO_TRANSFER) {
-                (IERC20 token, address to, int256 share) = abi.decode(
-                    datas[i],
-                    (IERC20, address, int256)
-                );
-                bentoBox.transfer(
-                    token,
-                    msg.sender,
-                    to,
-                    _num(share, value1, value2)
-                );
+                (IERC20 token, address to, int256 share) = abi.decode(datas[i], (IERC20, address, int256));
+                bentoBox.transfer(token, msg.sender, to, _num(share, value1, value2));
             } else if (action == ACTION_BENTO_TRANSFER_MULTIPLE) {
-                (
-                    IERC20 token,
-                    address[] memory tos,
-                    uint256[] memory shares
-                ) = abi.decode(datas[i], (IERC20, address[], uint256[]));
+                (IERC20 token, address[] memory tos, uint256[] memory shares) = abi.decode(datas[i], (IERC20, address[], uint256[]));
                 bentoBox.transferMultiple(token, msg.sender, tos, shares);
             } else if (action == ACTION_CALL) {
-                (bytes memory returnData, uint8 returnValues) = _call(
-                    values[i],
-                    datas[i],
-                    value1,
-                    value2
-                );
+                (bytes memory returnData, uint8 returnValues) = _call(values[i], datas[i], value1, value2);
 
                 if (returnValues == 1) {
                     (value1) = abi.decode(returnData, (uint256));
                 } else if (returnValues == 2) {
-                    (value1, value2) = abi.decode(
-                        returnData,
-                        (uint256, uint256)
-                    );
+                    (value1, value2) = abi.decode(returnData, (uint256, uint256));
                 }
             }
         }
