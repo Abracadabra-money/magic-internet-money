@@ -165,6 +165,10 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         }
     }
 
+    function setApprovedBorrowers(address borrower, bool approved) external onlyOwner {
+        approvedBorrowers[borrower] = approved;
+    }
+
     /// @notice Accrues the interest on the borrowed tokens and handles the accumulation of fees.
     function accrue() public {
         AccrueInfo memory _accrueInfo = accrueInfo;
