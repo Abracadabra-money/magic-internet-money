@@ -32,7 +32,7 @@ describe("Frax3Crv Cauldron", async () => {
         {
           forking: {
             jsonRpcUrl: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-            blockNumber: 14052250,
+            blockNumber: 14057422,
           },
         },
       ],
