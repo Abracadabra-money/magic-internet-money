@@ -145,7 +145,7 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
     // Enforces that changes only benefit the borrower, if any.
     // Can be changed, but only in favour of the borrower. This includes giving
     // them another shot.
-    function updateLoanParams(uint256 tokenId, TokenLoanParams calldata params) public {
+    function updateLoanParams(uint256 tokenId, TokenLoanParams memory params) public {
         require(msg.sender == lender, "PrivatePool: not the lender");
         uint8 loanStatus = tokenLoan[tokenId].status;
         if (loanStatus == LOAN_TAKEN) {
@@ -286,10 +286,7 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
     function borrow(
         uint256 tokenId,
         address to,
-        uint128 minValuation,
-        uint64 minExpiration,
-        uint16 maxOpenFeeBPS,
-        uint16 maxAnnualInterestBPS
+        TokenLoanParams memory offered
     ) public returns (uint256 share, uint256 amount) {
         require(approvedBorrowers[msg.sender], "PrivatePool: unapproved borrower");
 
@@ -299,11 +296,15 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         require(loan.status == LOAN_COLLATERAL_DEPOSITED && loan.borrower == msg.sender, "PrivatePool: no collateral");
         TokenLoanParams memory params = tokenLoanParams[tokenId];
         require(params.expiration > block.timestamp, "PrivatePool: expired");
+
+        // Valuation has to be an exact match, everything else must be at least
+        // as cheap as promised:
         require(
-            params.valuation >= minValuation &&
-                params.expiration >= minExpiration &&
-                params.openFeeBPS <= maxOpenFeeBPS &&
-                params.annualInterestBPS <= maxAnnualInterestBPS,
+            params.valuation == offered.valuation &&
+                params.expiration >= offered.expiration &&
+                params.openFeeBPS <= offered.openFeeBPS &&
+                params.annualInterestBPS <= offered.annualInterestBPS &&
+                params.compoundInterestTerms <= offered.compoundInterestTerms,
             "PrivatePool: bad params"
         );
 
@@ -569,15 +570,8 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
                 (uint256 tokenId, address to) = abi.decode(datas[i], (uint256, address));
                 removeCollateral(tokenId, to);
             } else if (action == ACTION_BORROW) {
-                (
-                    uint256 tokenId,
-                    address to,
-                    uint128 minValuation,
-                    uint64 minExpiration,
-                    uint16 maxOpenFeeBPS,
-                    uint16 maxAnnualInterestBPS
-                ) = abi.decode(datas[i], (uint256, address, uint128, uint64, uint16, uint16));
-                (value1, value2) = borrow(tokenId, to, minValuation, minExpiration, maxOpenFeeBPS, maxAnnualInterestBPS);
+                (uint256 tokenId, address to, TokenLoanParams memory offered) = abi.decode(datas[i], (uint256, address, TokenLoanParams));
+                (value1, value2) = borrow(tokenId, to, offered);
             } else if (action == ACTION_BENTO_SETAPPROVAL) {
                 (address user, address _masterContract, bool approved, uint8 v, bytes32 r, bytes32 s) = abi.decode(
                     datas[i],
