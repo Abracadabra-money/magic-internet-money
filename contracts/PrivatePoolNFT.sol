@@ -133,6 +133,10 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         }
     }
 
+    function setApprovedBorrowers(address borrower, bool approved) external onlyOwner {
+        approvedBorrowers[borrower] = approved;
+    }
+    
     // Enforces that settings are valid
     function _updateLoanParams(uint256 tokenId, TokenLoanParams memory params) internal {
         require(params.openFeeBPS < BPS, "PrivatePool: open fee");
@@ -287,6 +291,8 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         uint16 maxOpenFeeBPS,
         uint16 maxAnnualInterestBPS
     ) public returns (uint256 share, uint256 amount) {
+        require(approvedBorrowers[msg.sender], "PrivatePool: unapproved borrower");
+
         TokenLoan memory loan = tokenLoan[tokenId];
         // If you managed to add the collateral, then you are approved. (Even
         // if we add a method to update the borrower whitelist later..)
