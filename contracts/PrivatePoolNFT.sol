@@ -209,18 +209,19 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
     /// @param tokenId The token
     function removeCollateral(uint256 tokenId, address to) public {
         TokenLoan memory loan = tokenLoan[tokenId];
-        if (msg.sender == loan.borrower) {
-            require(loan.status == LOAN_COLLATERAL_DEPOSITED, "PrivatePool: not paid off");
+        if (loan.status == LOAN_COLLATERAL_DEPOSITED) {
+            // We are withdrawing collateral that is not in use:
+            require(msg.sender == loan.borrower, "PrivatePool: not the borrower");
         } else {
             // We are seizing collateral as the lender. The loan has to be
             // expired and not paid off:
-            require(loan.status == LOAN_TAKEN, "PrivatePool: paid off");
             require(msg.sender == lender, "PrivatePool: not the lender");
+            require(loan.status == LOAN_TAKEN, "PrivatePool: paid off");
             require(tokenLoanParams[tokenId].expiration <= block.timestamp, "PrivatePool: not expired");
         }
+        emit LogRemoveCollateral(loan.borrower, to, tokenId);
         delete tokenLoan[tokenId];
         collateral.safeTransferFrom(address(this), to, tokenId);
-        emit LogRemoveCollateral(loan.borrower, to, tokenId);
     }
 
     /// @param skim True if the amount should be skimmed from the deposit balance of msg.sender.
