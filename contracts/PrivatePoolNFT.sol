@@ -45,6 +45,14 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
     event LogRepay(address indexed from, uint256 tokenId);
     event LogFeeTo(address indexed newFeeTo);
     event LogWithdrawFees(address indexed feeTo, uint256 feeShare);
+    event LogUpdateLoanParams(
+        uint256 tokenId,
+        uint128 valuation,
+        uint64 expiration,
+        uint16 openFeeBPS,
+        uint16 annualInterestBPS,
+        uint8 compoundInterestTerms
+    );
 
     // Immutables (for MasterContract and all clones)
     IBentoBoxV1 public immutable bentoBox;
@@ -140,6 +148,14 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
     function _updateLoanParams(uint256 tokenId, TokenLoanParams memory params) internal {
         require(params.openFeeBPS < BPS, "PrivatePool: open fee");
         tokenLoanParams[tokenId] = params;
+        emit LogUpdateLoanParams(
+            tokenId,
+            params.valuation,
+            params.expiration,
+            params.openFeeBPS,
+            params.annualInterestBPS,
+            params.compoundInterestTerms
+        );
     }
 
     // Enforces that changes only benefit the borrower, if any.
@@ -149,11 +165,12 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         require(msg.sender == lender, "PrivatePool: not the lender");
         uint8 loanStatus = tokenLoan[tokenId].status;
         if (loanStatus == LOAN_TAKEN) {
-            TokenLoanParams memory current = tokenLoanParams[tokenId];
+            TokenLoanParams memory cur = tokenLoanParams[tokenId];
             require(
-                params.expiration >= current.expiration &&
-                    params.valuation <= current.valuation &&
-                    params.annualInterestBPS <= current.annualInterestBPS,
+                params.expiration >= cur.expiration &&
+                    params.valuation <= cur.valuation &&
+                    params.annualInterestBPS <= cur.annualInterestBPS &&
+                    params.compoundInterestTerms <= cur.compoundInterestTerms,
                 "PrivatePool: worse params"
             );
         }
