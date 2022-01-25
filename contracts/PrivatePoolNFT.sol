@@ -79,6 +79,7 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         uint64 expiration; // Pay before this or get liquidated
         uint16 openFeeBPS; // Fixed cost of taking out the loan
         uint16 annualInterestBPS; // Variable cost of taking out the loan
+        uint8 compoundInterestTerms; // Might as well. Stay under 50.
     }
     mapping(uint256 => TokenLoanParams) public tokenLoanParams;
 
@@ -92,8 +93,6 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
     }
     mapping(uint256 => TokenLoan) public tokenLoan;
 
-    // TODO: Configurable per loan?
-    uint256 private constant COMPOUND_INTEREST_TERMS = 4; // Do not go over 50.
     uint256 private constant PROTOCOL_FEE_BPS = 1000; // Do not go over 100%..
     uint256 private constant BPS = 10_000;
     uint256 private constant YEAR = 3600 * 24 * 365;
@@ -355,7 +354,7 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
     /// may be very inaccurate. Which does not matter, because the BentoBox
     /// cannot hold that high a balance.
     ///
-    /// @param n Highest term. Set n=1 for linear (non-compound) interest.
+    /// @param n Highest order term. Set n=1 (or 0) for linear interest only.
     function calculateInterest(
         uint256 principal,
         uint256 t,
@@ -369,7 +368,7 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
         //      t         = 30,000 years    (40 bits)
         //      interest  = 655.35% APR     (16 bits)
         //
-        // Even then, we will not see an overflow until the fifth term:
+        // Even then, we will not see an overflow until after the fifth term:
         //
         // k        denom > 2^   term * x <= 2^     term * x / denom <= 2^
         // ---------------------------------------------------------------
@@ -445,7 +444,7 @@ contract PrivatePoolNFT is BoringOwnable, IMasterContract, IERC721Receiver {
             principal,
             block.timestamp - loan.startTime,
             loanParams.annualInterestBPS,
-            COMPOUND_INTEREST_TERMS
+            loanParams.compoundInterestTerms
         ).to128();
         // No overflow (both lines): to128() would have reverted
         amount = principal + interest;
