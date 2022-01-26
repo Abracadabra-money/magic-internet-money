@@ -79,7 +79,7 @@ contract FTMDegenSwapper is ISwapper {
             USDC_WFTM.swap(amount0Out, amount1Out, address(this), new bytes(0));
         }
 
-        uint256 amountTo = ThreeCrypto.exchange(2, 0, amountFirst, 0, address(USDC_WFTM));
+        uint256 amountTo = ThreeCrypto.exchange(2, 0, amountFirst, 0, address(bentoBox));
 
         (, shareReturned) = bentoBox.deposit(toToken, address(bentoBox), recipient, amountTo, 0);
         extraShare = shareReturned.sub(shareToMin);
