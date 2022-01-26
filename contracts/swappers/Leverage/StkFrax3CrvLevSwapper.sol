@@ -545,7 +545,6 @@ contract StkFrax3CrvLevSwapper {
     // Local variables
     IBentoBoxV1 public constant bentoBox = IBentoBoxV1(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);
     CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
-    address public constant FRAX3CRVPOOL = 0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B;
     CurvePool public constant threePool = CurvePool(0xA79828DF1850E8a3A3064576f380D90aECDD3359);
 
     IConvex public immutable stkFrax3Crv;
@@ -572,7 +571,7 @@ contract StkFrax3CrvLevSwapper {
 
         // Pool token order is FRAX, DAI, USDC, USDT
         uint256[4] memory amountsAdded = [0, 0, 0, amountUSDT];
-        uint256 frax3CrvAmount = threePool.add_liquidity(FRAX3CRVPOOL, amountsAdded, 0);
+        uint256 frax3CrvAmount = threePool.add_liquidity(address(FRAX3CRV), amountsAdded, 0);
 
         stkFrax3Crv.deposit(frax3CrvAmount, address(bentoBox));
 

@@ -19,8 +19,8 @@ export const ParametersPerChain = {
     convexPool: "0xB900EF131301B307dB5eFcbed9DBb50A3e209B2e",
     proxyOracle: "0x66a809a31E6909C835219cC09eA0f52135fF0a11",
 
-    convextStakingWrapperAbraProxy: "",
-    //convextStakingWrapperAbraImpl: "0x8B66dd4006563616af40dF90C61b499787ec17a4",
+    convextStakingWrapperAbraProxy: "0xb24BE15aB68DC8bC5CC62183Af1eBE9Ecd043250",
+    //convextStakingWrapperAbraImpl: "0xD379454E9f28302A3bbE92b271605cbEA5aEa0A2",
     //convextStakingWrapperAbraFactory: "0x66807B5598A848602734B82E432dD88DBE13fC8f",
 
     convexPoolId: 32,
@@ -47,8 +47,6 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const interest = parseInt(String(1 * INTEREST_CONVERSION)); // 1% Interest
 
   const ConvexStakingWrapperAbra = await ethers.getContractAt<IConvexStakingWrapperAbra>("IConvexStakingWrapperAbra", parameters.convextStakingWrapperAbraProxy);
-
-  expect(await ConvexStakingWrapperAbra.owner()).to.be.eq(deployer);
 
   // Cauldron
   const BentoBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", parameters.bentoBox);
@@ -85,16 +83,16 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   const Frax3CrvCauldron = await ethers.getContract<CauldronV2Checkpoint>("Frax3CrvCauldron");
 
-  await ConvexStakingWrapperAbra.initialize(
+  await (await ConvexStakingWrapperAbra.initialize(
     parameters.curveToken,
     parameters.convexToken,
     parameters.convexPool,
     parameters.convexPoolId,
     Frax3CrvCauldron.address
-  );
+  )).wait();
 
   if ((await ConvexStakingWrapperAbra.owner()) !== xMerlin) {
-    await ConvexStakingWrapperAbra.transferOwnership(xMerlin);
+    await (await ConvexStakingWrapperAbra.transferOwnership(xMerlin)).wait();
   }
 };
 

@@ -1,6 +1,6 @@
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { ChainId, getBigNumber, impersonate } from "../utilities";
-import { BentoBoxV1, CauldronV2, CauldronV2Checkpoint, ConvexStakingWrapperAbra, ERC20Mock, IERC20, IOracle } from "../typechain";
+import { BentoBoxV1, CauldronV2, CauldronV2Checkpoint, ConvexStakingWrapperAbra, ERC20Mock, IConvexStakingWrapperAbra, IERC20, IOracle } from "../typechain";
 import { expect } from "chai";
 import { BigNumber } from "@ethersproject/bignumber";
 import { StkFrax3CrvSwapper } from "../typechain/StkFrax3CrvSwapper";
@@ -32,7 +32,7 @@ describe("Frax3Crv Cauldron", async () => {
         {
           forking: {
             jsonRpcUrl: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-            blockNumber: 14057422,
+            blockNumber: 14081761,
           },
         },
       ],
@@ -44,9 +44,9 @@ describe("Frax3Crv Cauldron", async () => {
     deployerSigner = await ethers.getSigner(deployer);
 
     Cauldron = await ethers.getContractAt<CauldronV2>("CauldronV2", (await ethers.getContract("Frax3CrvCauldron")).address);
-    ProxyOracle = await ethers.getContract<IOracle>("Frax3CrvProxyOracle");
+    ProxyOracle = await ethers.getContractAt<IOracle>("IOracle", "0x66a809a31E6909C835219cC09eA0f52135fF0a11");
     BentoBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", "0xF5BCE5077908a1b7370B9ae04AdC565EBd643966");
-    ConvextStakingWrapper = await ethers.getContract<ConvexStakingWrapperAbra>("ConvexStakingWrapperAbra");
+    ConvextStakingWrapper = await ethers.getContractAt<IConvexStakingWrapperAbra>("IConvexStakingWrapperAbra", "0xb24BE15aB68DC8bC5CC62183Af1eBE9Ecd043250");
     MIM = await ethers.getContractAt<ERC20Mock>("ERC20Mock", "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3");
     Frax3CRV = await ethers.getContractAt<IERC20>("ERC20Mock", "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B");
 
