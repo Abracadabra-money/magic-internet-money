@@ -1,27 +1,9 @@
-import {
-  ethers,
-  network,
-  deployments,
-  getNamedAccounts,
-  artifacts,
-} from "hardhat";
+import { ethers, network, deployments, getNamedAccounts, artifacts } from "hardhat";
 import { expect } from "chai";
 import { BigNumberish, Signer } from "ethers";
 
-import {
-  advanceNextTime,
-  duration,
-  encodeParameters,
-  getBigNumber,
-  impersonate,
-} from "../utilities";
-import {
-  BentoBoxMock,
-  ERC20Mock,
-  OracleMock,
-  WETH9Mock,
-  PrivatePool,
-} from "../typechain";
+import { advanceNextTime, duration, encodeParameters, getBigNumber, impersonate } from "../utilities";
+import { BentoBoxMock, ERC20Mock, OracleMock, WETH9Mock, PrivatePool } from "../typechain";
 import { encodeInitData } from "./PrivatePool";
 
 const { formatUnits } = ethers.utils;
@@ -102,13 +84,9 @@ describe("Private Lending Pool", async () => {
     });
 
   const deployPair = async (initSettings) => {
-    const deployTx = await bentoBox
-      .deploy(masterContract.address, encodeInitData(initSettings), false)
-      .then((tx) => tx.wait());
+    const deployTx = await bentoBox.deploy(masterContract.address, encodeInitData(initSettings), false).then((tx) => tx.wait());
     const [deployEvent] = deployTx.events;
-    expect(deployEvent.eventSignature).to.equal(
-      "LogDeploy(address,bytes,address)"
-    );
+    expect(deployEvent.eventSignature).to.equal("LogDeploy(address,bytes,address)");
     const { cloneAddress } = deployEvent.args;
     return ethers.getContractAt<PrivatePool>("PrivatePool", cloneAddress);
   };
@@ -123,20 +101,10 @@ describe("Private Lending Pool", async () => {
         ["Guineas", guineas],
       ]) {
         const balance = await contract.balanceOf(acc.address);
-        const bentoShares = await bentoBox.balanceOf(
-          contract.address,
-          acc.address
-        );
-        const bentoBalance = await bentoBox.toAmount(
-          contract.address,
-          bentoShares,
-          false
-        );
+        const bentoShares = await bentoBox.balanceOf(contract.address, acc.address);
+        const bentoBalance = await bentoBox.toAmount(contract.address, bentoShares, false);
         console.log(`${token}:            ${formatUnits(balance)}`);
-        console.log(
-          `${token} (BentoBox):`,
-          `${formatUnits(bentoBalance)} (${formatUnits(bentoShares)} shares)\n`
-        );
+        console.log(`${token} (BentoBox):`, `${formatUnits(bentoBalance)} (${formatUnits(bentoShares)} shares)\n`);
       }
     }
   };
@@ -263,9 +231,7 @@ describe("Private Lending Pool", async () => {
     });
 
     it("Should refuse to initialize twice", async () => {
-      await expect(mainPair.init(encodeInitData({}))).to.be.revertedWith(
-        "PrivatePool: already initialized"
-      );
+      await expect(mainPair.init(encodeInitData({}))).to.be.revertedWith("PrivatePool: already initialized");
     });
   });
 
@@ -289,9 +255,7 @@ describe("Private Lending Pool", async () => {
       const [g, a, p] = [guineas, alice, mainPair].map((x) => x.address);
 
       await bentoBox.connect(alice).transfer(g, a, p, share);
-      await expect(mainPair.connect(alice).addAsset(true, share))
-        .to.emit(mainPair, "LogAddAsset")
-        .withArgs(bentoBox.address, share);
+      await expect(mainPair.connect(alice).addAsset(true, share)).to.emit(mainPair, "LogAddAsset").withArgs(bentoBox.address, share);
 
       const assetBalance = await mainPair.assetBalance();
       expect(assetBalance.reservesShare).to.equal(getBigNumber(450));
@@ -309,10 +273,7 @@ describe("Private Lending Pool", async () => {
       const [g, a, p] = [guineas, alice, mainPair].map((x) => x.address);
       const actions = [Cook.ACTION_BENTO_DEPOSIT, Cook.ACTION_ADD_ASSET];
       const datas = [
-        encodeParameters(
-          ["address", "address", "uint256", "uint256"],
-          [g, a, amount, 0]
-        ),
+        encodeParameters(["address", "address", "uint256", "uint256"], [g, a, amount, 0]),
         encodeParameters(["int256", "bool"], [share, false]),
       ];
       const values = [0, 0];
@@ -340,9 +301,7 @@ describe("Private Lending Pool", async () => {
       const [g, a, p] = [guineas, alice, mainPair].map((x) => x.address);
 
       await bentoBox.connect(alice).transfer(g, a, p, share);
-      await expect(
-        mainPair.connect(alice).addAsset(true, share.add(1))
-      ).to.be.revertedWith("PrivatePool: skim too much");
+      await expect(mainPair.connect(alice).addAsset(true, share.add(1))).to.be.revertedWith("PrivatePool: skim too much");
     });
 
     it("Should let anyone add assets", async () => {
@@ -410,9 +369,7 @@ describe("Private Lending Pool", async () => {
     it("Should refuse collateral for unapproved borrowers", async () => {
       const share = getBigNumber(55);
       const to = alice.address;
-      await expect(
-        mainPair.connect(bob).addCollateral(to, false, share)
-      ).to.be.revertedWith("PrivatePool: unapproved borrower");
+      await expect(mainPair.connect(bob).addCollateral(to, false, share)).to.be.revertedWith("PrivatePool: unapproved borrower");
     });
 
     it("Should let approved borrowers add collateral (skim)", async () => {
@@ -473,9 +430,7 @@ describe("Private Lending Pool", async () => {
     });
 
     it("Should refuse to lend to unapproved borrowers", async () => {
-      await expect(
-        mainPair.connect(alice).borrow(alice.address, 1)
-      ).to.be.revertedWith("PrivatePool: unapproved borrower");
+      await expect(mainPair.connect(alice).borrow(alice.address, 1)).to.be.revertedWith("PrivatePool: unapproved borrower");
     });
 
     it("Should enforce LTV requirements when borrowing", async () => {
@@ -487,21 +442,14 @@ describe("Private Lending Pool", async () => {
       const collatAmount = collatShare1.mul(531).div(700); // WETH ratio
       const borrowAmount = collatAmount.mul(9); // 75% of 12
 
-      await expect(
-        mainPair.connect(bob).borrow(bob.address, borrowAmount)
-      ).to.be.revertedWith("PrivatePool: borrower insolvent");
+      await expect(mainPair.connect(bob).borrow(bob.address, borrowAmount)).to.be.revertedWith("PrivatePool: borrower insolvent");
 
       // Accounting for the 0.1% open fee is enough to make it succeed:
       const withFee = borrowAmount.mul(1000).div(1001);
-      await expect(mainPair.connect(bob).borrow(bob.address, withFee)).to.emit(
-        mainPair,
-        "LogBorrow"
-      );
+      await expect(mainPair.connect(bob).borrow(bob.address, withFee)).to.emit(mainPair, "LogBorrow");
 
       // Borrowing even one more wei is enough to make it fail again:
-      await expect(
-        mainPair.connect(bob).borrow(bob.address, withFee.add(1))
-      ).to.be.revertedWith("PrivatePool: borrower insolvent");
+      await expect(mainPair.connect(bob).borrow(bob.address, withFee.add(1))).to.be.revertedWith("PrivatePool: borrower insolvent");
     });
 
     it("Should collect the protocol fee immediately", async () => {
@@ -521,9 +469,7 @@ describe("Private Lending Pool", async () => {
       const protocolFeeShare = protocolFee.mul(9).div(20);
       const takenShare = borrowShare.add(protocolFeeShare);
 
-      await expect(
-        mainPair.connect(bob).borrow(bob.address, borrowAmount)
-      ).to.emit(mainPair, "LogBorrow");
+      await expect(mainPair.connect(bob).borrow(bob.address, borrowAmount)).to.emit(mainPair, "LogBorrow");
 
       const assetBalance = await mainPair.assetBalance();
       expect(assetBalance.reservesShare).to.equal(assetShare.sub(takenShare));
@@ -535,35 +481,24 @@ describe("Private Lending Pool", async () => {
     it("Should not lend out more than there is", async () => {
       // There are 1000 guineas of assets; 150 WETH allows for borrowing
       // 1350 and is therefore enough:
-      await mainPair
-        .connect(bob)
-        .addCollateral(bob.address, false, getBigNumber(150));
+      await mainPair.connect(bob).addCollateral(bob.address, false, getBigNumber(150));
 
       // More than reserves
-      await expect(
-        mainPair.connect(bob).borrow(bob.address, getBigNumber(1001))
-      ).to.be.revertedWith("BoringMath: Underflow");
+      await expect(mainPair.connect(bob).borrow(bob.address, getBigNumber(1001))).to.be.revertedWith("BoringMath: Underflow");
     });
 
     it("Should not defer the protocol fee on new loans", async () => {
       // This amounts to testing that the amount + protocol fee need to be in
       // reserve:
-      await mainPair
-        .connect(bob)
-        .addCollateral(bob.address, false, getBigNumber(150));
+      await mainPair.connect(bob).addCollateral(bob.address, false, getBigNumber(150));
 
       // Exactly the reserves (our test amounts divide cleanly), but that is
       // not enough with the fee:
       const reservesAmount = getBigNumber(1000);
-      await expect(
-        mainPair.connect(bob).borrow(bob.address, reservesAmount)
-      ).to.be.revertedWith("BoringMath: Underflow");
+      await expect(mainPair.connect(bob).borrow(bob.address, reservesAmount)).to.be.revertedWith("BoringMath: Underflow");
 
       const cutoff = reservesAmount.mul(1000).div(1001);
-      await expect(mainPair.connect(bob).borrow(bob.address, cutoff)).to.emit(
-        mainPair,
-        "LogBorrow"
-      );
+      await expect(mainPair.connect(bob).borrow(bob.address, cutoff)).to.emit(mainPair, "LogBorrow");
     });
   });
 
@@ -604,20 +539,13 @@ describe("Private Lending Pool", async () => {
       await advanceNextTime(YEAR);
 
       const perSecond = MainTestSettings.INTEREST_PER_SECOND;
-      const extraAmount = debtAmount1
-        .mul(MainTestSettings.INTEREST_PER_SECOND)
-        .mul(YEAR)
-        .div(getBigNumber(1));
+      const extraAmount = debtAmount1.mul(MainTestSettings.INTEREST_PER_SECOND).mul(YEAR).div(getBigNumber(1));
       const feeAmount = extraAmount.div(10);
 
-      await expect(mainPair.accrue())
-        .to.emit(mainPair, "LogAccrue")
-        .withArgs(extraAmount, feeAmount);
+      await expect(mainPair.accrue()).to.emit(mainPair, "LogAccrue").withArgs(extraAmount, feeAmount);
 
       // Protocol cut of the open fee + fee on interest, both in shares:
-      expect((await mainPair.assetBalance()).feesEarnedShare).to.equal(
-        openFee1.div(10).mul(9).div(20).add(feeAmount.mul(9).div(20))
-      );
+      expect((await mainPair.assetBalance()).feesEarnedShare).to.equal(openFee1.div(10).mul(9).div(20).add(feeAmount.mul(9).div(20)));
       expect(await mainPair.feesOwedAmount()).to.equal(0);
 
       const totalDebt = await mainPair.totalDebt();
@@ -628,17 +556,13 @@ describe("Private Lending Pool", async () => {
       // all the rounding, this should be roughly 0.07007 times the amount
       // taken out.  Since the contract rounds down, we expect to be under, so
       // round up for the test:
-      expect(
-        extraAmount.mul(100_000).add(borrowAmount1.sub(1)).div(borrowAmount1)
-      ).to.equal(7007);
+      expect(extraAmount.mul(100_000).add(borrowAmount1.sub(1)).div(borrowAmount1)).to.equal(7007);
     });
 
     it("Should not do anything if nothing is borrowed", async () => {
       await mainPair.accrue();
       // No "LogAccrue" event. Cleaner way to do this?
-      expect(
-        await ethers.provider.send("eth_getLogs", [{ fromBlock: "latest" }])
-      ).to.deep.equal([]);
+      expect(await ethers.provider.send("eth_getLogs", [{ fromBlock: "latest" }])).to.deep.equal([]);
     });
 
     it("Should defer fees if everything is loaned out", async () => {
@@ -648,9 +572,7 @@ describe("Private Lending Pool", async () => {
       const almostEverything = assetAmount.mul(99).div(100);
       const openFee = almostEverything.div(1000);
       const openProtocolFeeShare = openFee.div(10).mul(9).div(20);
-      const remainingShare = assetShare
-        .sub(almostEverything.mul(9).div(20))
-        .sub(openProtocolFeeShare);
+      const remainingShare = assetShare.sub(almostEverything.mul(9).div(20)).sub(openProtocolFeeShare);
       const initialDebt = almostEverything.add(openFee);
 
       await mainPair.connect(bob).borrow(bob.address, almostEverything);
@@ -660,14 +582,9 @@ describe("Private Lending Pool", async () => {
       // 7000% interest; the fee is 7% of the initial debt, which is more than
       // remaining asset reserves. It should still work:
       const perSecond = MainTestSettings.INTEREST_PER_SECOND;
-      const extraAmount = initialDebt
-        .mul(MainTestSettings.INTEREST_PER_SECOND)
-        .mul(time)
-        .div(getBigNumber(1));
+      const extraAmount = initialDebt.mul(MainTestSettings.INTEREST_PER_SECOND).mul(time).div(getBigNumber(1));
       const feeAmount = extraAmount.div(10);
-      await expect(mainPair.accrue())
-        .to.emit(mainPair, "LogAccrue")
-        .withArgs(extraAmount, feeAmount);
+      await expect(mainPair.accrue()).to.emit(mainPair, "LogAccrue").withArgs(extraAmount, feeAmount);
 
       // Outstanding debt is recorded normally:
       const totalDebt = await mainPair.totalDebt();
@@ -678,9 +595,7 @@ describe("Private Lending Pool", async () => {
       // These already included the protocol fee:
       const assetBalance = await mainPair.assetBalance();
       expect(assetBalance.reservesShare).to.equal(0);
-      expect(assetBalance.feesEarnedShare).to.equal(
-        remainingShare.add(openProtocolFeeShare)
-      );
+      expect(assetBalance.feesEarnedShare).to.equal(remainingShare.add(openProtocolFeeShare));
 
       // We collected the remaining asset reserves as fee. The rest is owed:
       const feeShare = feeAmount.mul(9).div(20);
@@ -716,18 +631,12 @@ describe("Private Lending Pool", async () => {
       // with "seize collateral"-type liquidations; then it's the lender. This
       // may change if we allow modifying the whitelist; then we'll have to
       // cleanly handle no-longer-whitelisted users.
-      expect(
-        await mainPair.connect(bob).removeCollateral(bob.address, collatShare1)
-      )
+      expect(await mainPair.connect(bob).removeCollateral(bob.address, collatShare1))
         .to.emit(mainPair, "LogRemoveCollateral")
         .withArgs(bob.address, bob.address, collatShare1);
 
       const remainder = getBigNumber(12);
-      expect(
-        await mainPair
-          .connect(carol)
-          .removeCollateral(carol.address, collatShare2.sub(remainder))
-      )
+      expect(await mainPair.connect(carol).removeCollateral(carol.address, collatShare2.sub(remainder)))
         .to.emit(mainPair, "LogRemoveCollateral")
         .withArgs(carol.address, carol.address, collatShare2.sub(remainder));
     });
@@ -784,10 +693,7 @@ describe("Private Lending Pool", async () => {
       expect(await mainPair.borrowerDebtPart(bob.address)).to.equal(debtPart);
 
       await advanceNextTime(timeStep);
-      const extraAmount = debtAmount
-        .mul(MainTestSettings.INTEREST_PER_SECOND)
-        .mul(timeStep)
-        .div(one);
+      const extraAmount = debtAmount.mul(MainTestSettings.INTEREST_PER_SECOND).mul(timeStep).div(one);
       debtAmount = debtAmount.add(extraAmount);
 
       // "parts" are in units of the initial debt. These should cover it:
@@ -796,10 +702,7 @@ describe("Private Lending Pool", async () => {
       // Bob owns all the debt, so this is the conversion. Rounding is up, in
       // favour of the contract, so that the amount definitely covers the
       // part intended to be paid back:
-      const repayAmount = repayPart
-        .mul(debtAmount)
-        .add(debtPart.sub(1))
-        .div(debtPart);
+      const repayAmount = repayPart.mul(debtAmount).add(debtPart.sub(1)).div(debtPart);
 
       // "Smallest number of shares covering this" -- so rounded up again:
       // Note that -- as in the UniV2 AMMs, for instance -- this number of
@@ -841,17 +744,11 @@ describe("Private Lending Pool", async () => {
       };
       t0.bobDebtPart = t0.bobDebtAmount;
 
-      expect(t0.assetBalance.reservesShare).to.equal(
-        assetShare
-          .sub(bobLoanAmount.mul(9).div(20))
-          .sub(bobLoanAmount.div(10_000).mul(9).div(20))
-      );
+      expect(t0.assetBalance.reservesShare).to.equal(assetShare.sub(bobLoanAmount.mul(9).div(20)).sub(bobLoanAmount.div(10_000).mul(9).div(20)));
       expect(t0.totalDebt.elastic).to.equal(t0.bobDebtAmount);
 
       const t1 = {
-        accruedInterest: t0.bobDebtAmount
-          .mul(MainTestSettings.INTEREST_PER_SECOND.mul(timeStep))
-          .div(one),
+        accruedInterest: t0.bobDebtAmount.mul(MainTestSettings.INTEREST_PER_SECOND.mul(timeStep)).div(one),
       };
       // We find the number of shares Carol should borrow to drain reserves. We
       // account for the protocol cut of Bob's accrued interest, and Carol's
@@ -861,11 +758,7 @@ describe("Private Lending Pool", async () => {
       // of wiggle room (here and elsewhere); "multiplication and then division
       // with rounding" is not an invertible operation, and not every target
       // can be reached no matter how you round. (Try (M * 2) / 1 == 3).
-      const carolLoanShare = t0.assetBalance.reservesShare
-        .sub(t1.accruedInterest.div(10).mul(9).div(20))
-        .add(1)
-        .mul(10_000)
-        .div(10_001);
+      const carolLoanShare = t0.assetBalance.reservesShare.sub(t1.accruedInterest.div(10).mul(9).div(20)).add(1).mul(10_000).div(10_001);
       const carolLoanAmount = carolLoanShare.mul(20).div(9).add(2);
 
       await advanceNextTime(timeStep);
@@ -885,9 +778,7 @@ describe("Private Lending Pool", async () => {
       await mainPair.accrue();
 
       const t2 = {
-        accruedInterest: t1.totalDebt.elastic
-          .mul(MainTestSettings.INTEREST_PER_SECOND.mul(timeStep))
-          .div(one),
+        accruedInterest: t1.totalDebt.elastic.mul(MainTestSettings.INTEREST_PER_SECOND.mul(timeStep)).div(one),
         assetBalance: await mainPair.assetBalance(),
         totalDebt: await mainPair.totalDebt(),
         feesOwedAmount: await mainPair.feesOwedAmount(),
@@ -898,22 +789,16 @@ describe("Private Lending Pool", async () => {
       // the error is more than 1 or even `toAmount(1)`:
       expect(t2.assetBalance.reservesShare).to.equal(0);
       expect(t2.feesOwedAmount).to.be.gt(0);
-      expect(t2.feesOwedAmount.sub(t2.accruedInterest.div(10)).abs()).to.be.lte(
-        5
-      );
+      expect(t2.feesOwedAmount.sub(t2.accruedInterest.div(10)).abs()).to.be.lte(5);
 
       // Repaying triggers another accrual, so we (advance a fixed time and)
       // determine how much will be owed after that:
       const t3 = {
-        accruedInterest: t2.totalDebt.elastic
-          .mul(MainTestSettings.INTEREST_PER_SECOND.mul(timeStep))
-          .div(one),
+        accruedInterest: t2.totalDebt.elastic.mul(MainTestSettings.INTEREST_PER_SECOND.mul(timeStep)).div(one),
       };
       // Intermediate value; we would see it if we did something that accrues
       // but not deposits any assets:
-      t3.feesOwedBeforeRepay = t2.feesOwedAmount.add(
-        t3.accruedInterest.div(10)
-      );
+      t3.feesOwedBeforeRepay = t2.feesOwedAmount.add(t3.accruedInterest.div(10));
 
       // A debt "part" corresponds to 1 token when the first loan is taken out.
       // When interest accrues this amount grows correspondingly; it never
@@ -937,11 +822,7 @@ describe("Private Lending Pool", async () => {
       // taken out of reserves, they were not "earned" until we made the
       // repayment. At which point we expect "fees earned" to have increased
       // by exactly that amount (in shares):
-      expect(t3.assetBalance.feesEarnedShare).to.equal(
-        t2.assetBalance.feesEarnedShare.add(
-          t3.feesOwedBeforeRepay.mul(9).div(20)
-        )
-      );
+      expect(t3.assetBalance.feesEarnedShare).to.equal(t2.assetBalance.feesEarnedShare.add(t3.feesOwedBeforeRepay.mul(9).div(20)));
       expect(t3.feesOwedAmount).to.equal(0);
 
       // Debt gets paid off as normal; in particular the fees are not added to
@@ -951,16 +832,11 @@ describe("Private Lending Pool", async () => {
 
       // The small amount we repaid in excess of the fees owed should have gone
       // to asset reserves.
-      const excessRepayAmount = repayPart
-        .mul(t3.totalDebt.elastic)
-        .div(t3.totalDebt.base)
-        .sub(t3.feesOwedBeforeRepay);
+      const excessRepayAmount = repayPart.mul(t3.totalDebt.elastic).div(t3.totalDebt.base).sub(t3.feesOwedBeforeRepay);
       const excessRepayShare = excessRepayAmount.mul(9).div(20);
 
       // Again, giving it a few wei of leeway due to rounding in _receiveAsset:
-      expect(
-        t3.assetBalance.reservesShare.sub(excessRepayShare).abs()
-      ).to.be.lte(5);
+      expect(t3.assetBalance.reservesShare.sub(excessRepayShare).abs()).to.be.lte(5);
     });
   });
 
@@ -985,9 +861,7 @@ describe("Private Lending Pool", async () => {
       const [a, b, c] = [alice, bob, carol].map((x) => x.address);
       await mainPair.connect(alice).addAsset(false, assetShare);
       await mainPair.connect(bob).addCollateral(b, false, bobCollateralShare);
-      await mainPair
-        .connect(carol)
-        .addCollateral(c, false, carolCollateralShare);
+      await mainPair.connect(carol).addCollateral(c, false, carolCollateralShare);
 
       await oracle.set(one.div(10)); // one WETH is 10 guineas
       await mainPair.updateExchangeRate();
@@ -1014,14 +888,9 @@ describe("Private Lending Pool", async () => {
     it("Should refuse to liquidate solvent borrowers, at all", async () => {
       // Not enough time will have passed to make either borrower insolvent
       // over the accrued interest:
-      await expect(
-        mainPair.liquidate(
-          [bob.address, carol.address],
-          [one, one],
-          alice.address,
-          AddressZero
-        )
-      ).to.be.revertedWith("PrivatePool: all are solvent");
+      await expect(mainPair.liquidate([bob.address, carol.address], [one, one], alice.address, AddressZero)).to.be.revertedWith(
+        "PrivatePool: all are solvent"
+      );
     });
 
     it("Should liquidate insolvent borrowers only", async () => {
@@ -1036,16 +905,7 @@ describe("Private Lending Pool", async () => {
 
       // Alice has guineas and has approved the contract. That she is also the
       // lender makes no difference in the execution path taken.
-      await expect(
-        mainPair
-          .connect(alice)
-          .liquidate(
-            [bob.address, carol.address],
-            [one, one],
-            alice.address,
-            AddressZero
-          )
-      )
+      await expect(mainPair.connect(alice).liquidate([bob.address, carol.address], [one, one], alice.address, AddressZero))
         .to.emit(mainPair, "LogRemoveCollateral")
         .to.emit(mainPair, "LogRepay");
 
@@ -1060,10 +920,7 @@ describe("Private Lending Pool", async () => {
 
         assetBalance: await mainPair.assetBalance(),
 
-        aliceBentoGuineas: await bentoBox.balanceOf(
-          guineas.address,
-          alice.address
-        ),
+        aliceBentoGuineas: await bentoBox.balanceOf(guineas.address, alice.address),
         aliceBentoWeth: await bentoBox.balanceOf(weth.address, alice.address),
 
         blockTimestamp: (await ethers.provider.getBlock("latest")).timestamp,
@@ -1088,45 +945,28 @@ describe("Private Lending Pool", async () => {
       const minRepayShare = bobLiquidatePart.mul(9).div(20);
       // Not entirely accurate because it gets calculated differently, but
       // equivalent up to rounding effects:
-      const protocolFeeShare = minRepayShare
-        .mul(MainTestSettings.LIQUIDATION_MULTIPLIER_BPS)
-        .div(10_000)
-        .sub(minRepayShare)
-        .div(10);
-      const aliceMaxBentoGuineas = t0.aliceBentoGuineas
-        .sub(minRepayShare)
-        .sub(protocolFeeShare);
+      const protocolFeeShare = minRepayShare.mul(MainTestSettings.LIQUIDATION_MULTIPLIER_BPS).div(10_000).sub(minRepayShare).div(10);
+      const aliceMaxBentoGuineas = t0.aliceBentoGuineas.sub(minRepayShare).sub(protocolFeeShare);
 
       expect(t1.aliceBentoGuineas).to.be.lte(aliceMaxBentoGuineas);
-      expect(t1.aliceBentoGuineas).to.be.gte(
-        aliceMaxBentoGuineas.mul(9999).div(10_000)
-      );
+      expect(t1.aliceBentoGuineas).to.be.gte(aliceMaxBentoGuineas.mul(9999).div(10_000));
 
-      const aliceMinBentoWeth = t0.aliceBentoWeth.add(
-        bobMinCollateralTakenShare
-      );
+      const aliceMinBentoWeth = t0.aliceBentoWeth.add(bobMinCollateralTakenShare);
       expect(t1.aliceBentoWeth).to.be.gte(aliceMinBentoWeth);
-      expect(t1.aliceBentoWeth).to.be.lte(
-        aliceMinBentoWeth.mul(10_001).div(10_000)
-      );
+      expect(t1.aliceBentoWeth).to.be.lte(aliceMinBentoWeth.mul(10_001).div(10_000));
 
       // If we want a firm lower bound on asset reserves, we need to account
       // for interest: the accrue() call right before liquidations charges
       // interest, and takes the protocol cut of that interest out of reserves.
       // We divide rounding up:
-      const maxInterestFee = MainTestSettings.INTEREST_PER_SECOND.mul(
-        t1.blockTimestamp - t0.blockTimestamp
-      )
+      const maxInterestFee = MainTestSettings.INTEREST_PER_SECOND.mul(t1.blockTimestamp - t0.blockTimestamp)
         .mul(t0.totalDebt.elastic)
         .add(one.sub(1))
         .div(one)
         .add(9)
         .div(10);
-      const minAssetReserves = t0.assetBalance.reservesShare
-        .add(minRepayShare)
-        .sub(maxInterestFee);
-      const minFeesEarnedShare =
-        t0.assetBalance.feesEarnedShare.add(protocolFeeShare);
+      const minAssetReserves = t0.assetBalance.reservesShare.add(minRepayShare).sub(maxInterestFee);
+      const minFeesEarnedShare = t0.assetBalance.feesEarnedShare.add(protocolFeeShare);
       expect(t1.assetBalance.reservesShare).to.be.gte(minAssetReserves);
       expect(t1.assetBalance.feesEarnedShare).to.be.gte(minFeesEarnedShare);
 
@@ -1136,21 +976,13 @@ describe("Private Lending Pool", async () => {
 
       // Bob got liquidated; this affects his balance and the totals:
       expect(t1.bobDebtPart).to.equal(t0.bobDebtPart.sub(bobLiquidatePart));
-      expect(t1.totalDebt.base).to.equal(
-        t0.totalDebt.base.sub(bobLiquidatePart)
-      );
+      expect(t1.totalDebt.base).to.equal(t0.totalDebt.base.sub(bobLiquidatePart));
 
-      const bobMaxCollateralShare = t0.bobCollateralShare.sub(
-        bobMinCollateralTakenShare
-      );
+      const bobMaxCollateralShare = t0.bobCollateralShare.sub(bobMinCollateralTakenShare);
       expect(t1.bobCollateralShare).to.be.lte(bobMaxCollateralShare);
-      expect(t1.bobCollateralShare).to.be.gte(
-        bobMaxCollateralShare.mul(9999).div(10_000)
-      );
+      expect(t1.bobCollateralShare).to.be.gte(bobMaxCollateralShare.mul(9999).div(10_000));
       // Equivalent check..
-      expect(t1.collateralBalance.userTotalShare).to.equal(
-        t1.bobCollateralShare.add(t1.carolCollateralShare)
-      );
+      expect(t1.collateralBalance.userTotalShare).to.equal(t1.bobCollateralShare.add(t1.carolCollateralShare));
     });
   });
 
@@ -1214,14 +1046,9 @@ describe("Private Lending Pool", async () => {
     it("Should refuse to liquidate solvent borrowers, at all", async () => {
       // Not enough time will have passed to make either borrower insolvent
       // over the accrued interest:
-      await expect(
-        pair.liquidate(
-          [bob.address, carol.address],
-          [one, one],
-          alice.address,
-          AddressZero
-        )
-      ).to.be.revertedWith("PrivatePool: all are solvent");
+      await expect(pair.liquidate([bob.address, carol.address], [one, one], alice.address, AddressZero)).to.be.revertedWith(
+        "PrivatePool: all are solvent"
+      );
     });
 
     it("Should liquidate insolvent borrowers only", async () => {
@@ -1236,16 +1063,10 @@ describe("Private Lending Pool", async () => {
 
       // That Alice she is also the lender makes no difference in the execution
       // path taken.
-      await expect(
-        pair
-          .connect(alice)
-          .liquidate(
-            [bob.address, carol.address],
-            [one, one],
-            alice.address,
-            AddressZero
-          )
-      ).to.emit(pair, "LogSeizeCollateral");
+      await expect(pair.connect(alice).liquidate([bob.address, carol.address], [one, one], alice.address, AddressZero)).to.emit(
+        pair,
+        "LogSeizeCollateral"
+      );
 
       const t1 = {
         totalDebt: await pair.totalDebt(),
@@ -1259,10 +1080,7 @@ describe("Private Lending Pool", async () => {
         assetBalance: await pair.assetBalance(),
         collateralBalance: await pair.collateralBalance(),
 
-        aliceBentoGuineas: await bentoBox.balanceOf(
-          guineas.address,
-          alice.address
-        ),
+        aliceBentoGuineas: await bentoBox.balanceOf(guineas.address, alice.address),
         aliceBentoWeth: await bentoBox.balanceOf(weth.address, alice.address),
 
         blockTimestamp: (await ethers.provider.getBlock("latest")).timestamp,
@@ -1287,16 +1105,10 @@ describe("Private Lending Pool", async () => {
         .mul(9)
         .div(10);
       const minCollateralFeeShare = minCollateralLiquidatorShare.div(9);
-      const minCollateralLenderShare = bobMinCollateralTakenShare
-        .mul(10_000)
-        .div(MainTestSettings.LIQUIDATION_MULTIPLIER_BPS);
+      const minCollateralLenderShare = bobMinCollateralTakenShare.mul(10_000).div(MainTestSettings.LIQUIDATION_MULTIPLIER_BPS);
 
-      expect(t1.collateralBalance.feesEarnedShare).to.be.gte(
-        minCollateralFeeShare
-      );
-      expect(t1.collateralBalance.feesEarnedShare).to.be.lte(
-        minCollateralFeeShare.mul(10_001).div(10_000)
-      );
+      expect(t1.collateralBalance.feesEarnedShare).to.be.gte(minCollateralFeeShare);
+      expect(t1.collateralBalance.feesEarnedShare).to.be.lte(minCollateralFeeShare.mul(10_001).div(10_000));
 
       // Alice gets the bonus only, in kind, minus the protocol fee. The
       // contract gets the protocol fee over the bonus.
@@ -1304,31 +1116,22 @@ describe("Private Lending Pool", async () => {
       expect(t1.aliceBentoGuineas).to.equal(t0.aliceBentoGuineas);
 
       // Alice the liquidator:
-      const aliceMinBentoWeth = t0.aliceBentoWeth.add(
-        minCollateralLiquidatorShare
-      );
+      const aliceMinBentoWeth = t0.aliceBentoWeth.add(minCollateralLiquidatorShare);
       expect(t1.aliceBentoWeth).to.be.gte(aliceMinBentoWeth);
-      expect(t1.aliceBentoWeth).to.be.lte(
-        aliceMinBentoWeth.mul(10_001).div(10_000)
-      );
+      expect(t1.aliceBentoWeth).to.be.lte(aliceMinBentoWeth.mul(10_001).div(10_000));
 
       // Alice the lender:
       expect(t1.aliceCollateralShare).to.be.gte(minCollateralLenderShare);
-      expect(t1.aliceCollateralShare).to.be.lte(
-        minCollateralLenderShare.mul(10_001).div(10_000)
-      );
+      expect(t1.aliceCollateralShare).to.be.lte(minCollateralLenderShare.mul(10_001).div(10_000));
 
       // Asset reserves do not really change, except for the interest fee..
-      const maxInterestFee = MainTestSettings.INTEREST_PER_SECOND.mul(
-        t1.blockTimestamp - t0.blockTimestamp
-      )
+      const maxInterestFee = MainTestSettings.INTEREST_PER_SECOND.mul(t1.blockTimestamp - t0.blockTimestamp)
         .mul(t0.totalDebt.elastic)
         .add(one.sub(1))
         .div(one)
         .add(9)
         .div(10);
-      const minAssetReserves =
-        t0.assetBalance.reservesShare.sub(maxInterestFee);
+      const minAssetReserves = t0.assetBalance.reservesShare.sub(maxInterestFee);
       expect(t1.assetBalance.reservesShare).to.be.gte(minAssetReserves);
 
       // Carol was not insolvent, so that liquidation failed:
@@ -1337,23 +1140,13 @@ describe("Private Lending Pool", async () => {
 
       // Bob got liquidated; this affects his balance and the totals:
       expect(t1.bobDebtPart).to.equal(t0.bobDebtPart.sub(bobLiquidatePart));
-      expect(t1.totalDebt.base).to.equal(
-        t0.totalDebt.base.sub(bobLiquidatePart)
-      );
+      expect(t1.totalDebt.base).to.equal(t0.totalDebt.base.sub(bobLiquidatePart));
 
-      const bobMaxCollateralShare = t0.bobCollateralShare.sub(
-        bobMinCollateralTakenShare
-      );
+      const bobMaxCollateralShare = t0.bobCollateralShare.sub(bobMinCollateralTakenShare);
       expect(t1.bobCollateralShare).to.be.lte(bobMaxCollateralShare);
-      expect(t1.bobCollateralShare).to.be.gte(
-        bobMaxCollateralShare.mul(9999).div(10_000)
-      );
+      expect(t1.bobCollateralShare).to.be.gte(bobMaxCollateralShare.mul(9999).div(10_000));
       // Given that individual shares are as expected, this tests the total:
-      expect(t1.collateralBalance.userTotalShare).to.equal(
-        t1.bobCollateralShare
-          .add(t1.carolCollateralShare)
-          .add(t1.aliceCollateralShare)
-      );
+      expect(t1.collateralBalance.userTotalShare).to.equal(t1.bobCollateralShare.add(t1.carolCollateralShare).add(t1.aliceCollateralShare));
     });
   });
 
@@ -1383,24 +1176,12 @@ describe("Private Lending Pool", async () => {
       await coinPair.updateExchangeRate();
 
       await dollar.connect(alice).approve(bentoBox.address, MaxUint256);
-      await bentoBox
-        .connect(alice)
-        .deposit(
-          dollar.address,
-          alice.address,
-          alice.address,
-          totalSupply.div(10),
-          0
-        );
+      await bentoBox.connect(alice).deposit(dollar.address, alice.address, alice.address, totalSupply.div(10), 0);
       await coinPair.connect(alice).addAsset(false, totalSupply.div(10));
 
       await coin.connect(bob).approve(bentoBox.address, MaxUint256);
-      await bentoBox
-        .connect(bob)
-        .deposit(coin.address, bob.address, bob.address, totalSupply, 0);
-      await coinPair
-        .connect(bob)
-        .addCollateral(bob.address, false, totalSupply);
+      await bentoBox.connect(bob).deposit(coin.address, bob.address, bob.address, totalSupply, 0);
+      await coinPair.connect(bob).addCollateral(bob.address, false, totalSupply);
 
       const assetBalance = await coinPair.assetBalance();
       const collateralBalance = await coinPair.collateralBalance();
@@ -1414,25 +1195,15 @@ describe("Private Lending Pool", async () => {
       expect(bentoCoinTotals.elastic).to.equal(totalSupply);
 
       if (shouldPass) {
-        await expect(coinPair.connect(bob).borrow(bob.address, 1))
-          .to.emit(coinPair, "LogBorrow")
-          .to.emit(bentoBox, "LogTransfer");
+        await expect(coinPair.connect(bob).borrow(bob.address, 1)).to.emit(coinPair, "LogBorrow").to.emit(bentoBox, "LogTransfer");
       } else {
-        await expect(
-          coinPair.connect(bob).borrow(bob.address, 1)
-        ).to.be.revertedWith("BoringMath: Mul Overflow");
+        await expect(coinPair.connect(bob).borrow(bob.address, 1)).to.be.revertedWith("BoringMath: Mul Overflow");
       }
     };
 
-    it(
-      "Works with all SPELL as collateral (no strat losses)",
-      makeIsSolventTest(getBigNumber(210_000_000_000n, 18), true)
-    );
+    it("Works with all SPELL as collateral (no strat losses)", makeIsSolventTest(getBigNumber(210_000_000_000n, 18), true));
 
     // This fails with the old Kashi-style `isSolvent`:
-    it(
-      "No longer breaks at 393 billion (18-decimal) tokens",
-      makeIsSolventTest(getBigNumber(393_000_000_000n, 18), true)
-    );
+    it("No longer breaks at 393 billion (18-decimal) tokens", makeIsSolventTest(getBigNumber(393_000_000_000n, 18), true));
   });
 });
