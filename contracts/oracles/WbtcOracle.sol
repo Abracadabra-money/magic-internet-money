@@ -10,16 +10,16 @@ interface IAggregator {
 
 interface IERC20 {
     function totalSupply() external view returns (uint256);
+
     function balanceOf(address account) external view returns (uint256);
 }
 
 contract WbtcOracle is IOracle {
-    IAggregator constant public BTCUSD = IAggregator(0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c);
+    IAggregator public constant BTCUSD = IAggregator(0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c);
 
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get() internal view returns (uint256) {
-
         return 1e16 / uint256(BTCUSD.latestAnswer());
     }
 

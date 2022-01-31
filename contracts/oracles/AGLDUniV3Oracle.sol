@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity =0.7.6;
-import '@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol';
+import "@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol";
 import "../interfaces/IOracle.sol";
 
 interface IAggregator {
     function latestAnswer() external view returns (int256 answer);
 }
+
 contract AGLDUniV3ChainlinkOracle is IOracle {
     using LowGasSafeMath for uint256; // Keep everything in uint256
     IAggregator public constant ETH_USD = IAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
@@ -18,15 +19,9 @@ contract AGLDUniV3ChainlinkOracle is IOracle {
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get() internal view returns (uint256) {
-
         int24 timeWeightedTick = OracleLibrary.consult(pool, period);
 
-        uint256 priceETH = OracleLibrary.getQuoteAtTick(
-            timeWeightedTick,
-            BASE_AMOUNT,
-            AGLD,
-            WETH
-        );
+        uint256 priceETH = OracleLibrary.getQuoteAtTick(timeWeightedTick, BASE_AMOUNT, AGLD, WETH);
 
         return 1e44 / priceETH.mul(uint256(ETH_USD.latestAnswer()));
     }

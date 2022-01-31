@@ -10,16 +10,16 @@ interface IAggregator {
 
 interface IERC20 {
     function totalSupply() external view returns (uint256);
+
     function balanceOf(address account) external view returns (uint256);
 }
 
 contract WethOracle is IOracle {
-    IAggregator constant public ETHUSD = IAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
+    IAggregator public constant ETHUSD = IAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
 
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get() internal view returns (uint256) {
-
         return 1e26 / uint256(ETHUSD.latestAnswer());
     }
 
