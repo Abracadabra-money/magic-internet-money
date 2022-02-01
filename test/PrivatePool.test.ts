@@ -233,6 +233,14 @@ describe("Private Lending Pool", async () => {
     it("Should refuse to initialize twice", async () => {
       await expect(mainPair.init(encodeInitData({}))).to.be.revertedWith("PrivatePool: already initialized");
     });
+
+    it("Should not exceed the EIP-170 size limit", async () => {
+      // ..or just rely on Hardhat?
+      const code = await ethers.provider.send("eth_getCode", [masterContract.address]);
+      // Hex string, starting with "0x":
+      const byteCount = (code.length - 2) / 2;
+      expect(byteCount).to.be.lte(0x6000);
+    });
   });
 
   describeSnapshot("Add Asset", async () => {
