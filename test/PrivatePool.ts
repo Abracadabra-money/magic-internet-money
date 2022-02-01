@@ -47,7 +47,6 @@ export const encodeInitDataNFT = makeStructEncoder({
   collateral: "address",
   asset: "address",
   lender: "address",
-  borrowers: "address[]",
   tokenIds: "uint256[]",
   loanParams: loanParamsArrayType,
 });
