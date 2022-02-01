@@ -153,7 +153,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
 
         AccrueInfo memory _aI;
         _aI.INTEREST_PER_SECOND = settings.INTEREST_PER_SECOND;
-        _aI.EXPIRATION = settings.EXPIRATION;
+        _aI.EXPIRATION = settings.EXPIRATION == 0 ? uint64(-1) : settings.EXPIRATION;
         _aI.COLLATERALIZATION_RATE_BPS = settings.COLLATERALIZATION_RATE_BPS;
         _aI.LIQUIDATION_MULTIPLIER_BPS = settings.LIQUIDATION_MULTIPLIER_BPS;
         _aI.BORROW_OPENING_FEE_BPS = settings.BORROW_OPENING_FEE_BPS;
@@ -777,19 +777,20 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         accrue();
 
         AccrueInfo memory _accrueInfo = accrueInfo;
-        require(block.timestamp >= _accrueInfo.EXPIRATION, "PrivatePool: no liquidation yet");
 
         uint256 allCollateralShare;
         uint256 allDebtAmount;
         uint256 allDebtPart;
         Rebase memory _totalDebt = totalDebt;
         Rebase memory bentoBoxTotals = bentoBox.totals(collateral);
+
         for (uint256 i = 0; i < borrowers.length; i++) {
+            // TODO: Find a way to not have it here; only for stack reasons
             address borrower = borrowers[i];
             // If we set an expiration at all, then by the above check it is
             // now past and every borrower can be liquidated at the current
             // price:
-            if ((_accrueInfo.EXPIRATION > 0) || !_isSolvent(borrower, _exchangeRate)) {
+            if (block.timestamp >= accrueInfo.EXPIRATION || !_isSolvent(borrower, _exchangeRate)) {
                 uint256 debtPart;
                 {
                     uint256 availableDebtPart = borrowerDebtPart[borrower];
