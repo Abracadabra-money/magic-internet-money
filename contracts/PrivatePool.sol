@@ -220,9 +220,9 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         emit LogAccrue(extraAmount, feeAmount);
     }
 
-    /// @notice Concrete implementation of `isSolvent`. Includes a third parameter to allow caching `exchangeRate`.
-    /// @param _exchangeRate The exchange rate. Used to cache the `exchangeRate` between calls.
-    function _isSolvent(address borrower, uint256 _exchangeRate) internal view returns (bool) {
+    function _isSolvent(address borrower) internal returns (bool) {
+        (, uint256 _exchangeRate) = updateExchangeRate();
+
         // accrue must have already been called!
         uint256 debtPart = borrowerDebtPart[borrower];
         if (debtPart == 0) return true;
@@ -340,7 +340,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
     /// @dev Checks if the borrower is solvent in the closed liquidation case at the end of the function body.
     modifier solvent() {
         _;
-        require(_isSolvent(msg.sender, exchangeRate), "PrivatePool: borrower insolvent");
+        require(_isSolvent(msg.sender), "PrivatePool: borrower insolvent");
     }
 
     /// @notice Gets the exchange rate. I.e how much collateral to buy 1e18 asset.
@@ -757,7 +757,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         }
 
         if (status.needsSolvencyCheck) {
-            require(_isSolvent(msg.sender, exchangeRate), "PrivatePool: borrower insolvent");
+            require(_isSolvent(msg.sender), "PrivatePool: borrower insolvent");
         }
     }
 
@@ -790,7 +790,7 @@ contract PrivatePool is BoringOwnable, IMasterContract {
             // If we set an expiration at all, then by the above check it is
             // now past and every borrower can be liquidated at the current
             // price:
-            if (block.timestamp >= accrueInfo.EXPIRATION || !_isSolvent(borrower, _exchangeRate)) {
+            if (block.timestamp >= accrueInfo.EXPIRATION || !_isSolvent(borrower)) {
                 uint256 debtPart;
                 {
                     uint256 availableDebtPart = borrowerDebtPart[borrower];
