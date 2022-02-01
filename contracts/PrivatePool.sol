@@ -846,29 +846,38 @@ contract PrivatePool is BoringOwnable, IMasterContract {
         totalDebt = _totalDebt;
 
         if (_accrueInfo.LIQUIDATION_SEIZE_COLLATERAL) {
-            // As with normal liquidations, the liquidator gets the excess, the
-            // protocol gets a cut of the excess, and the lender gets 100% of
-            // the value of the loan.
+            // Unlike normal liquidations, the liquidator and the lender share
+            // the excess. This compensates the lender for agreeing to payment
+            // in the collateral. The protocol gets a cut of the total excess.
+            // So the final distribution is
+            // - X% excess (configurable via LIQUIDATION_MULTIPLIER_BPS)
+            // - (10% of X) protocol fee
+            // - (45% of X) liquidator share of bonus
+            // - 100% + (45% of X) debt + lender share of bonus
             // allCollateralShare already includes the bonus, which in turn
             // includes the protocol fee. We round the bonus down to favor the
-            // lender, and the fee to favor the liquidator:
+            // lender, and the fee to favor the liquidator and lender:
             // Math: All collateral fits in 128 bits (BentoBox), so the
             // multiplications are safe:
             uint256 excessShare = (allCollateralShare * (_accrueInfo.LIQUIDATION_MULTIPLIER_BPS - BPS)) /
                 _accrueInfo.LIQUIDATION_MULTIPLIER_BPS;
             uint256 feeShare = (excessShare * PROTOCOL_FEE_BPS) / BPS;
-            uint256 lenderShare = allCollateralShare - excessShare;
-            // (Stack depth): liquidatorShare = excessShare - feeShare;
-
+            uint256 liquidatorShare = (excessShare - feeShare) / 2;
+            // We would add more variables for clarity, but stack depth:
             {
                 CollateralBalance memory _collateralBalance = collateralBalance;
                 // No underflow: All amounts fit in the collateral Bento total
-                _collateralBalance.userTotalShare -= uint128(excessShare);
+                // The lender is also a "user", so only the fee and liquidator
+                // share leave the user total "account":
+                _collateralBalance.userTotalShare -= uint128(feeShare + liquidatorShare);
                 _collateralBalance.feesEarnedShare += uint128(feeShare);
                 collateralBalance = _collateralBalance;
             }
-            userCollateralShare[lender] += lenderShare;
-            bentoBox.transfer(collateral, address(this), to, excessShare - feeShare);
+            // The rest goes to the lender:
+            userCollateralShare[lender] += (allCollateralShare - feeShare - liquidatorShare);
+            // The liquidator gets the other half -- rounded in their favour,
+            // if applicable:
+            bentoBox.transfer(collateral, address(this), to, liquidatorShare);
         } else {
             // No underflow: allCollateralShare is the sum of quantities that
             //               have successfully been taken out of user balances.

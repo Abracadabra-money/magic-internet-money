@@ -1107,19 +1107,26 @@ describe("Private Lending Pool", async () => {
         .div(531);
 
       // These need not add up (rounding), but should be firm lower bounds:
-      const minCollateralLiquidatorShare = bobMinCollateralTakenShare
+      // Nine tenth of the excess is bonus, one tenth is fees:
+      const minCollateralBonusShare = bobMinCollateralTakenShare
         .mul(MainTestSettings.LIQUIDATION_MULTIPLIER_BPS - 10_000)
         .div(MainTestSettings.LIQUIDATION_MULTIPLIER_BPS)
         .mul(9)
         .div(10);
-      const minCollateralFeeShare = minCollateralLiquidatorShare.div(9);
-      const minCollateralLenderShare = bobMinCollateralTakenShare.mul(10_000).div(MainTestSettings.LIQUIDATION_MULTIPLIER_BPS);
+      const minCollateralFeeShare = minCollateralBonusShare.div(9);
+      // The liquidator and the lender each get half the bonus, and the lender
+      // gets the loan value as well:
+      const minCollateralLiquidatorShare = minCollateralBonusShare.div(2);
+      const minCollateralLenderShare = bobMinCollateralTakenShare
+        .mul(10_000)
+        .div(MainTestSettings.LIQUIDATION_MULTIPLIER_BPS)
+        .add(minCollateralLiquidatorShare);
 
       expect(t1.collateralBalance.feesEarnedShare).to.be.gte(minCollateralFeeShare);
       expect(t1.collateralBalance.feesEarnedShare).to.be.lte(minCollateralFeeShare.mul(10_001).div(10_000));
 
-      // Alice gets the bonus only, in kind, minus the protocol fee. The
-      // contract gets the protocol fee over the bonus.
+      // Alice gets the liquidator part of the bonus only, in kind, minus the
+      // protocol fee. The contract gets the protocol fee over the bonus.
       // No repayment:
       expect(t1.aliceBentoGuineas).to.equal(t0.aliceBentoGuineas);
 
