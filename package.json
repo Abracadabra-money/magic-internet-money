@@ -8,6 +8,7 @@
     "build": "hardhat compile",
     "build:flat": "hardhat compile && cross-env CONTRACTS_PATH=./contracts-flat hardhat compile",
     "rebuild": "hardhat clean && hardhat compile",
+    "fork": "hardhat node",
     "node": "cross-env HARDHAT_LOCAL_NODE=1 hardhat node",
     "mainnet:deploy": "hardhat --network mainnet deploy",
     "mainnet:verify": "hardhat --network mainnet etherscan-verify --solc-input --license GPL-3.0 --force-license",
