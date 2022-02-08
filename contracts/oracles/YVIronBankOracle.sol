@@ -17,11 +17,11 @@ interface ICurvePool {
 }
 
 contract YVIronBankOracle is IOracle {
-    ICurvePool constant public IronBank = ICurvePool(0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF);
-    IYearnVault constant public YVIB = IYearnVault(0x27b7b1ad7288079A66d12350c828D3C00A6F07d7);
-    IAggregator constant public DAI = IAggregator(0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9);
-    IAggregator constant public USDC = IAggregator(0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6);
-    IAggregator constant public USDT = IAggregator(0x3E7d1eAB13ad0104d2750B8863b489D65364e32D);
+    ICurvePool public constant IronBank = ICurvePool(0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF);
+    IYearnVault public constant YVIB = IYearnVault(0x27b7b1ad7288079A66d12350c828D3C00A6F07d7);
+    IAggregator public constant DAI = IAggregator(0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9);
+    IAggregator public constant USDC = IAggregator(0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6);
+    IAggregator public constant USDT = IAggregator(0x3E7d1eAB13ad0104d2750B8863b489D65364e32D);
 
     /**
      * @dev Returns the smallest of two numbers.
@@ -34,7 +34,6 @@ contract YVIronBankOracle is IOracle {
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get() internal view returns (uint256) {
-
         // As the price should never be negative, the unchecked conversion is acceptable
         uint256 minStable = min(uint256(DAI.latestAnswer()), min(uint256(USDC.latestAnswer()), uint256(USDT.latestAnswer())));
 

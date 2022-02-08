@@ -34,6 +34,7 @@ contract XJoeOracleV2 is IOracle {
     }
 
     PairInfo public pairInfo;
+
     function _get(uint32 blockTimestamp) public view returns (uint256) {
         uint256 priceCumulative = JOE_AVAX.price0CumulativeLast();
 
@@ -60,16 +61,20 @@ contract XJoeOracleV2 is IOracle {
             return (false, 0);
         }
         uint32 timeElapsed = blockTimestamp - pairInfo.blockTimestampLast; // overflow is desired
-              console.log(timeElapsed);
+        console.log(timeElapsed);
         if (timeElapsed < PERIOD) {
             return (true, pairInfo.priceAverage);
         }
 
         uint256 priceCumulative = _get(blockTimestamp);
-        pairInfo.priceAverage = uint144(1e44 / toXJOE(uint256(FixedPoint
-            .uq112x112(uint224((priceCumulative - pairInfo.priceCumulativeLast) / timeElapsed))
-            .mul(1e18)
-            .decode144())).mul(uint256(AVAX_USD.latestAnswer())));
+        pairInfo.priceAverage = uint144(
+            1e44 /
+                toXJOE(
+                    uint256(
+                        FixedPoint.uq112x112(uint224((priceCumulative - pairInfo.priceCumulativeLast) / timeElapsed)).mul(1e18).decode144()
+                    )
+                ).mul(uint256(AVAX_USD.latestAnswer()))
+        );
         pairInfo.blockTimestampLast = blockTimestamp;
         pairInfo.priceCumulativeLast = priceCumulative;
 
@@ -89,10 +94,14 @@ contract XJoeOracleV2 is IOracle {
         }
 
         uint256 priceCumulative = _get(blockTimestamp);
-        uint144 priceAverage = uint144(1e44 / toXJOE(uint256(FixedPoint
-            .uq112x112(uint224((priceCumulative - pairInfo.priceCumulativeLast) / timeElapsed))
-            .mul(1e18)
-            .decode144())).mul(uint256(AVAX_USD.latestAnswer())));
+        uint144 priceAverage = uint144(
+            1e44 /
+                toXJOE(
+                    uint256(
+                        FixedPoint.uq112x112(uint224((priceCumulative - pairInfo.priceCumulativeLast) / timeElapsed)).mul(1e18).decode144()
+                    )
+                ).mul(uint256(AVAX_USD.latestAnswer()))
+        );
 
         return (true, priceAverage);
     }

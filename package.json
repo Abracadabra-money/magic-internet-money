@@ -35,7 +35,7 @@
     "boba:verify": "hardhat sourcify --network boba",
     "moonriver:deploy": "hardhat --network moonriver deploy",
     "moonriver:verify": "hardhat --network moonriver etherscan-verify --solc-input --license GPL-3.0 --force-license",
-    "format": "prettier --write contracts/**/*.sol *.js *.json test/**/*.js",
+    "format": "prettier --write contracts/**/*.sol *.js *.json *.ts test/**/*.ts",
     "pretty-quick": "pretty-quick",
     "test": "cross-env TS_NODE_TRANSPILE_ONLY=1 hardhat test",
     "test:coverage": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" hardhat coverage",

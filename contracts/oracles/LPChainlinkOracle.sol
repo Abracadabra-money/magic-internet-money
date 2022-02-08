@@ -6,17 +6,18 @@ interface IAggregator {
 }
 
 interface AggregatorV3Interface {
-  function decimals() external view returns (uint8);
-  function latestRoundData()
-    external
-    view
-    returns (
-      uint80 roundId,
-      int256 answer,
-      uint256 startedAt,
-      uint256 updatedAt,
-      uint80 answeredInRound
-    );
+    function decimals() external view returns (uint8);
+
+    function latestRoundData()
+        external
+        view
+        returns (
+            uint80 roundId,
+            int256 answer,
+            uint256 startedAt,
+            uint256 updatedAt,
+            uint80 answeredInRound
+        );
 }
 
 interface IERC20 {
@@ -25,8 +26,11 @@ interface IERC20 {
 
 interface IUniswapV2Pair {
     function totalSupply() external view returns (uint256);
+
     function token0() external view returns (address);
+
     function token1() external view returns (address);
+
     function getReserves()
         external
         view
@@ -120,10 +124,10 @@ contract LPChainlinkOracleV1 is IAggregator {
 
         uint256 normalizedReserve0 = reserve0 * (10**(WAD - token0Decimals));
         uint256 normalizedReserve1 = reserve1 * (10**(WAD - token1Decimals));
-    
+
         uint256 k = normalizedReserve0 * normalizedReserve1;
-        (,int256 priceFeed,,,) = tokenOracle.latestRoundData();
-        
+        (, int256 priceFeed, , , ) = tokenOracle.latestRoundData();
+
         uint256 normalizedPriceFeed = uint256(priceFeed) * (10**(WAD - oracleDecimals));
 
         uint256 totalValue = uint256(sqrt((k / 1e18) * normalizedPriceFeed)) * 2;

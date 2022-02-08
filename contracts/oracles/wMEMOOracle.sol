@@ -16,7 +16,7 @@ interface IAggregator {
 }
 
 interface IWMEMO {
-    function MEMOTowMEMO( uint256 _amount ) external view returns ( uint256 );
+    function MEMOTowMEMO(uint256 _amount) external view returns (uint256);
 }
 
 contract wMemoOracle is IOracle {
@@ -35,6 +35,7 @@ contract wMemoOracle is IOracle {
     }
 
     PairInfo public pairInfo;
+
     function _get(uint32 blockTimestamp) public view returns (uint256) {
         uint256 priceCumulative = WMEMO_MIM.price0CumulativeLast();
 
@@ -62,10 +63,11 @@ contract wMemoOracle is IOracle {
         }
 
         uint256 priceCumulative = _get(blockTimestamp);
-        pairInfo.priceAverage = uint144(1e44 / uint256(FixedPoint
-            .uq112x112(uint224((priceCumulative - pairInfo.priceCumulativeLast) / timeElapsed))
-            .mul(1e18)
-            .decode144()).mul(uint256(MIM_USD.latestAnswer())));
+        pairInfo.priceAverage = uint144(
+            1e44 /
+                uint256(FixedPoint.uq112x112(uint224((priceCumulative - pairInfo.priceCumulativeLast) / timeElapsed)).mul(1e18).decode144())
+                    .mul(uint256(MIM_USD.latestAnswer()))
+        );
         pairInfo.blockTimestampLast = blockTimestamp;
         pairInfo.priceCumulativeLast = priceCumulative;
 
@@ -85,10 +87,11 @@ contract wMemoOracle is IOracle {
         }
 
         uint256 priceCumulative = _get(blockTimestamp);
-        uint144 priceAverage = uint144(1e44 / uint256(FixedPoint
-            .uq112x112(uint224((priceCumulative - pairInfo.priceCumulativeLast) / timeElapsed))
-            .mul(1e18)
-            .decode144()).mul(uint256(MIM_USD.latestAnswer())));
+        uint144 priceAverage = uint144(
+            1e44 /
+                uint256(FixedPoint.uq112x112(uint224((priceCumulative - pairInfo.priceCumulativeLast) / timeElapsed)).mul(1e18).decode144())
+                    .mul(uint256(MIM_USD.latestAnswer()))
+        );
 
         return (true, priceAverage);
     }

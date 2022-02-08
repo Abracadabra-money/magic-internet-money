@@ -23,7 +23,7 @@ describe("Boba / Moonriver Fork Tests", async () => {
 
     const USDC = await ethers.getContractAt<ERC20>("ERC20", "0xE3F5a90F9cb311505cd691a46596599aA1A0AD7D");
     console.log((await USDC.totalSupply()).toString());
-    
+
     expect(Withdrawer.address).to.not.eq(ethers.constants.AddressZero);
   });
 
