@@ -10,16 +10,16 @@ interface IAggregator {
 
 interface IERC20 {
     function totalSupply() external view returns (uint256);
+
     function balanceOf(address account) external view returns (uint256);
 }
 
 contract SpellOracle is IOracle {
-    IAggregator constant public SPELLUSD = IAggregator(0x8c110B94C5f1d347fAcF5E1E938AB2db60E3c9a8);
+    IAggregator public constant SPELLUSD = IAggregator(0x8c110B94C5f1d347fAcF5E1E938AB2db60E3c9a8);
 
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get() internal view returns (uint256) {
-
         return 1e26 / uint256(SPELLUSD.latestAnswer());
     }
 

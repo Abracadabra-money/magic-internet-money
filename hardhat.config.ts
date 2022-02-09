@@ -5,7 +5,7 @@ import "@nomiclabs/hardhat-solhint";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
-import "@tenderly/hardhat-tenderly"
+import "@tenderly/hardhat-tenderly";
 import "hardhat-abi-exporter";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
@@ -43,8 +43,8 @@ const config: HardhatUserConfig = {
       arbitrumOne: process.env.ETHERSCAN_TOKEN,
       avalanche: process.env.SNOWTRACE_TOKEN,
       opera: process.env.FTMSCAN_TOKEN,
-      bsc: process.env.BSCSCAN_TOKEN
-    }
+      bsc: process.env.BSCSCAN_TOKEN,
+    },
   },
   gasReporter: {
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
@@ -213,8 +213,8 @@ const config: HardhatUserConfig = {
     bail: true,
   },
   tenderly: {
-    project: process.env.TENDERLY_PROJECT || 'project',
-    username: process.env.TENDERLY_USERNAME || '',
+    project: process.env.TENDERLY_PROJECT || "project",
+    username: process.env.TENDERLY_USERNAME || "",
   },
   solidity: {
     compilers: [

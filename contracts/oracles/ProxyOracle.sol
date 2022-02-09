@@ -7,13 +7,11 @@ import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
 /// @author 0xMerlin
 /// @notice Oracle used for getting the price of an oracle implementation
 contract ProxyOracle is IOracle, BoringOwnable {
-
     IOracle public oracleImplementation;
 
     event LogOracleImplementationChange(IOracle indexed oldOracle, IOracle indexed newOracle);
 
-    constructor() public {
-    }
+    constructor() public {}
 
     function changeOracleImplementation(IOracle newOracle) external onlyOwner {
         IOracle oldOracle = oracleImplementation;
