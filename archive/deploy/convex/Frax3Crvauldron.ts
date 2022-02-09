@@ -1,3 +1,8 @@
+/**
+ * This is the first deployment file used before Convex made changes to ConvexStakingWrapperAbra.
+ * FraxConvexWrapperV2.ts has been created to only redeploy the swappers and cauldron. The new ConvexStakingWrapperAbra
+ * has been created directly from etherscan using Convex's minimal proxy factory https://etherscan.io/address/0x66807b5598a848602734b82e432dd88dbe13fc8f#code
+ */
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, network } from "hardhat";
