@@ -10,7 +10,7 @@ interface IAggregator {
 }
 
 interface IWOHM {
-    function sOHMTowOHM( uint256 _amount ) external view returns ( uint256 );
+    function sOHMTowOHM(uint256 _amount) external view returns (uint256);
 }
 
 contract wOHMOracle is IOracle {
@@ -23,7 +23,8 @@ contract wOHMOracle is IOracle {
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get() internal view returns (uint256) {
-        return 1e44 / (uint256(1e18).mul(uint256(ohmOracle.latestAnswer()).mul(uint256(ethUSDOracle.latestAnswer()))) / WOHM.sOHMTowOHM(1e9));
+        return
+            1e44 / (uint256(1e18).mul(uint256(ohmOracle.latestAnswer()).mul(uint256(ethUSDOracle.latestAnswer()))) / WOHM.sOHMTowOHM(1e9));
     }
 
     // Get the latest exchange rate
@@ -34,7 +35,7 @@ contract wOHMOracle is IOracle {
 
     // Check the last exchange rate without any state changes
     /// @inheritdoc IOracle
-    function peek(bytes calldata ) public view override returns (bool, uint256) {
+    function peek(bytes calldata) public view override returns (bool, uint256) {
         return (true, _get());
     }
 

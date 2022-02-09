@@ -82,8 +82,10 @@ contract SimpleSLPTWAP1Oracle is IOracle {
         }
 
         uint256 priceCumulative = _get(pair, blockTimestamp);
-        uint144 priceAverage =
-            FixedPoint.uq112x112(uint224((priceCumulative - pairs[pair].priceCumulativeLast) / timeElapsed)).mul(10**18).decode144();
+        uint144 priceAverage = FixedPoint
+            .uq112x112(uint224((priceCumulative - pairs[pair].priceCumulativeLast) / timeElapsed))
+            .mul(10**18)
+            .decode144();
 
         return (true, priceAverage);
     }

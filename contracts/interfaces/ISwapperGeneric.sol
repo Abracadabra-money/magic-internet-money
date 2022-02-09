@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.6.12;
+pragma solidity >=0.6.12;
+
 interface IERC20 {
     function totalSupply() external view returns (uint256);
 
     function balanceOf(address account) external view returns (uint256);
+
     function transfer(address recipient, uint256 amount) external returns (bool);
+
     function allowance(address owner, address spender) external view returns (uint256);
 
     function approve(address spender, uint256 amount) external returns (bool);
@@ -23,6 +26,7 @@ interface IERC20 {
         bytes32 s
     ) external;
 }
+
 interface ISwapperGeneric {
     /// @notice Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper.
     /// Swaps it for at least 'amountToMin' of token 'to'.

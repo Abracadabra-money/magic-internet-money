@@ -17,9 +17,9 @@ interface ICurvePool {
 }
 
 contract YVCrvStETHOracle is IOracle {
-    ICurvePool constant public STETH = ICurvePool(0xDC24316b9AE028F1497c275EB9192a3Ea0f67022);
-    IYearnVault constant public YVSTETH = IYearnVault(0xdCD90C7f6324cfa40d7169ef80b12031770B4325);
-    IAggregator constant public ETH = IAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
+    ICurvePool public constant STETH = ICurvePool(0xDC24316b9AE028F1497c275EB9192a3Ea0f67022);
+    IYearnVault public constant YVSTETH = IYearnVault(0xdCD90C7f6324cfa40d7169ef80b12031770B4325);
+    IAggregator public constant ETH = IAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
 
     /**
      * @dev Returns the smallest of two numbers.
@@ -32,7 +32,6 @@ contract YVCrvStETHOracle is IOracle {
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get() internal view returns (uint256) {
-
         uint256 yVCurvePrice = STETH.get_virtual_price() * uint256(ETH.latestAnswer()) * YVSTETH.pricePerShare();
 
         return 1e62 / yVCurvePrice;

@@ -16,8 +16,6 @@
     "./typechain",
     "./examples"
   ],
-  "exclude": [
-    "./archive"
-  ],
+  "exclude": ["./archive"],
   "files": ["hardhat.config.ts"]
 }

@@ -28,7 +28,7 @@ contract AVAXOracle is IOracle {
 
     // Check the last exchange rate without any state changes
     /// @inheritdoc IOracle
-    function peek(bytes calldata ) public view override returns (bool, uint256) {
+    function peek(bytes calldata) public view override returns (bool, uint256) {
         return (true, _get());
     }
 
