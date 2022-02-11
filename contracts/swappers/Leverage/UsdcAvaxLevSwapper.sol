@@ -32,7 +32,7 @@ interface IBentoBoxV1 {
 }
 
 contract UsdcAvaxLevSwapper {
-    IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0x1fC83f75499b7620d53757f0b01E2ae626aAE530);
+    IBentoBoxV1 public immutable DEGENBOX;
     IUniswapV2Pair public constant USDCAVAX = IUniswapV2Pair(0xA389f9430876455C36478DeEa9769B7Ca4E3DDB1);
     IUniswapV2Pair public constant MIMAVAX = IUniswapV2Pair(0x781655d802670bbA3c89aeBaaEa59D3182fD755D);
     IUniswapV2Router01 public constant ROUTER = IUniswapV2Router01(0x60aE616a2155Ee3d9A68541Ba4544862310933d4);
@@ -43,8 +43,9 @@ contract UsdcAvaxLevSwapper {
     IERC20 public constant WAVAX = IERC20(0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7);
     IERC20 public constant USDC = IERC20(0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664);
 
-    constructor() {
-        USDCAVAX.approve(address(DEGENBOX), type(uint256).max);
+    constructor(IBentoBoxV1 _DEGENBOX) {
+        DEGENBOX = _DEGENBOX;
+        USDCAVAX.approve(address(_DEGENBOX), type(uint256).max);
         WAVAX.approve(address(ROUTER), type(uint256).max);
         USDC.approve(address(ROUTER), type(uint256).max);
     }
