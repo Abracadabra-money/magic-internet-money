@@ -38,8 +38,8 @@ describe("Lev/Liquidation UsdcAvax Swappers", async () => {
     const { deployer } = await getNamedAccounts();
     deployerSigner = await ethers.getSigner(deployer);
 
-    UsdcAvaxSwapper = await ethers.getContract<UsdcAvaxSwapper>("UsdcAvaxSwapper");
-    UsdcAvaxLevSwapper = await ethers.getContract<UsdcAvaxLevSwapper>("UsdcAvaxLevSwapper");
+    UsdcAvaxSwapper = await ethers.getContract<UsdcAvaxSwapper>("PopsicleUsdcAvaxSwapper");
+    UsdcAvaxLevSwapper = await ethers.getContract<UsdcAvaxLevSwapper>("PopsicleUsdcAvaxLevSwapper");
     DegenBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", "0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4");
     MIM = await ethers.getContractAt<IERC20>("ERC20", "0x130966628846BFd36ff31a822705796e8cb8C18D");
     USDCAVAX = await ethers.getContractAt<IERC20>("ERC20", "0xA389f9430876455C36478DeEa9769B7Ca4E3DDB1");

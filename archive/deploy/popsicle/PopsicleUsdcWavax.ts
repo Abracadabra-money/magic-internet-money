@@ -41,8 +41,9 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
      ["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"],
      [parameters.collateral, ProxyOracle.address, parameters.oracleData, interest, liquidationFee, maximumCollateralRatio, borrowFee]
    );
+   
    const tx = await (await DegenBox.deploy(parameters.CauldronV2MultiChain, initData, true)).wait();
- 
+
    const deployEvent = tx?.events?.[0];
    expect(deployEvent?.eventSignature).to.be.eq("LogDeploy(address,bytes,address)");
  
