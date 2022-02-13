@@ -148,3 +148,4 @@ The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra
 | ----------------------------------- | ------------------------------------------ | ---- |
 | DegenBox                            | 0xe56F37Ef2e54ECaA41a9675da1c3445736d60B42 |      |
 | CauldronV2MultiChain MasterContract | 0x9031c0Fd5bD1405132028A3e0eb277C705B3d8f7 |      |
+
