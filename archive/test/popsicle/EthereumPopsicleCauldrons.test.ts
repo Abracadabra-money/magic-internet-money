@@ -2,30 +2,32 @@
 import forEach from "mocha-each";
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { ChainId, getBigNumber, impersonate } from "../utilities";
-import { BentoBoxV1, CauldronV2, ERC20Mock, IERC20, IOracle } from "../typechain";
+import { CauldronV2, DegenBox, ERC20Mock, IOracle } from "../typechain";
 import { expect } from "chai";
 import { BigNumber } from "@ethersproject/bignumber";
 import { PopsicleUSDCWETHSwapper, PopsicleUSDCWETHLevSwapper, IPopsicle } from "../typechain";
-import { ParametersPerChain } from "../deploy/PopsicleCauldrons";
+import { ParametersPerChain } from "../deploy/EthereumPopsicleCauldrons";
 import { IOptimizerStrategy } from "../typechain/IOptimizerStrategy";
 
 // Top holders at the given fork block
 const MIM_WHALE = "0xbbc4A8d076F4B1888fec42581B6fc58d242CF2D5";
+const FORKBLOCK = 13880131;
 
 // In order:
 // 0: name
 // 1: some plp whale address
 // 2: the maximum amount to leverage
+// 3: oracle price - Beware that its value is based on the value of the plp at FORKBLOCK
 const parameters = [
-  ["USDC/WETH 0.3%", "0xc1c3d73e3f7be5549198cb275c7ba45f637a299a", 5_000_000],
-  ["WETH/USDT 0.3%", "0xd09729321471210e4c75b902f36c89f71c934a9c", 2_000_000],
-  ["USDC/WETH 0.05%", "0x66339a4C857997b2cb3A1139CC37f68fbdf9A795", 8_000_000],
-  ["WETH/USDT 0.05%", "0x400700aeBE5c2A2c45A42664298a541E77a99cBc", 8_000_000],
-  ["UST/USDT 0.05%", "0x7a601F344F1c7353eBE5cc0F6F8bcC3E7aAE143a", 8_000_000],
-  ["USDC/UST 0.05%", "0x8F40dCD6BA523561A8a497001896330965520fa4", 10_000_000],
-  ["USDC/USDT 0.01%", "0xC805F55C18c62e278382cC16f51Ea5C4Becfc74D", 10_000_000],
-  ["WBTC/WETH 0.3%", "0x9b0b2d0704950bf12fc960b5797eb73abacc2c99", 15_000_000],
-  ["WBTC/WETH 0.05%", "0x20023e9c1e71e94c86fe720bf963f420280f7ec9", 15_000_000],
+  ["USDC/WETH 0.3%", "0xc1c3d73e3f7be5549198cb275c7ba45f637a299a", 5_000_000, "117961428762440234"],
+  ["WETH/USDT 0.3%", "0xd09729321471210e4c75b902f36c89f71c934a9c", 2_000_000, "115370773062134310"],
+  ["USDC/WETH 0.05%", "0x66339a4C857997b2cb3A1139CC37f68fbdf9A795", 8_000_000, "120456791272272233"],
+  ["WETH/USDT 0.05%", "0x400700aeBE5c2A2c45A42664298a541E77a99cBc", 8_000_000, "118590058029848930"],
+  ["UST/USDT 0.05%", "0x7a601F344F1c7353eBE5cc0F6F8bcC3E7aAE143a", 8_000_000, "246061403811821516143"],
+  ["USDC/UST 0.05%", "0x8F40dCD6BA523561A8a497001896330965520fa4", 10_000_000, "247387550646867877961"],
+  ["USDC/USDT 0.01%", "0xC805F55C18c62e278382cC16f51Ea5C4Becfc74D", 10_000_000, "4562744821826080"],
+  ["WBTC/WETH 0.3%", "0x9b0b2d0704950bf12fc960b5797eb73abacc2c99", 15_000_000, "7657590609092784"],
+  ["WBTC/WETH 0.05%", "0x20023e9c1e71e94c86fe720bf963f420280f7ec9", 15_000_000, "7281841661520880"],
 ];
 
 const cases = ParametersPerChain[ChainId.Mainnet].cauldrons.map((c, index) => [...parameters[index], ...Object.values(c)]);
@@ -36,6 +38,7 @@ forEach(cases).describe(
     _name,
     plpWhale,
     maxInputAmount,
+    oraclePeekSpot,
     plpAddress,
     cauldronName,
     proxyOracleName,
@@ -59,7 +62,7 @@ forEach(cases).describe(
     let ProxyOracle: IOracle;
     let PLPSwapper: PopsicleUSDCWETHSwapper;
     let PLPLevSwapper: PopsicleUSDCWETHLevSwapper;
-    let DegenBox: BentoBoxV1;
+    let DegenBox: DegenBox;
     let mimShare: BigNumber;
     let plpShare: BigNumber;
     let deployerSigner;
@@ -72,7 +75,7 @@ forEach(cases).describe(
           {
             forking: {
               jsonRpcUrl: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-              blockNumber: 13880131,
+              blockNumber: FORKBLOCK,
             },
           },
         ],
@@ -85,7 +88,7 @@ forEach(cases).describe(
 
       Cauldron = await ethers.getContractAt<CauldronV2>("CauldronV2", (await ethers.getContract(cauldronName)).address);
       ProxyOracle = await ethers.getContract<IOracle>(proxyOracleName);
-      DegenBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce");
+      DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce");
       MIM = await ethers.getContractAt<ERC20Mock>("ERC20Mock", "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3");
       PLP = await ethers.getContractAt<IPopsicle>("IPopsicle", plpAddress);
 
@@ -124,8 +127,11 @@ forEach(cases).describe(
       await MIM.connect(mimWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
       await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, MIM_WHALE, PLPLevSwapper.address, 0, mimShare);
 
-      plpPrice = 1 / parseFloat(ethers.utils.formatEther(await ProxyOracle.peekSpot("0x")));
+      const spot = await ProxyOracle.peekSpot("0x");
+      plpPrice = 1 / parseFloat(ethers.utils.formatEther(spot));
       console.log(`1 PLP = $${plpPrice} usd`);
+      console.log("spot: ", spot.toString());
+      expect(spot).to.be.eq(oraclePeekSpot);
       snapshotId = await ethers.provider.send("evm_snapshot", []);
     });
 

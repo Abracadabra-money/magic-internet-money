@@ -11,13 +11,15 @@ import { IOptimizerStrategy } from "../typechain/IOptimizerStrategy";
 
 // Top holders at the given fork block
 const MIM_WHALE = "0xbbc4A8d076F4B1888fec42581B6fc58d242CF2D5";
+const FORKBLOCK = 23300257;
 
 // In order:
 // 0: name
 // 1: some plp whale address
 // 2: the maximum amount to leverage
+// 3: oracle price - Beware that its value is based on the value of the plp at FORKBLOCK
 const parameters = [
-  ["USDC/WETH 0.3%", "0xc1c3d73e3f7be5549198cb275c7ba45f637a299a", 5_000_000],
+  ["USDC/WETH 0.3%", "0xc1c3d73e3f7be5549198cb275c7ba45f637a299a", 5_000_000, "123"],
 ];
 
 const cases = ParametersPerChain[ChainId.Mainnet].cauldrons.map((c, index) => [...parameters[index], ...Object.values(c)]);
@@ -28,6 +30,7 @@ forEach(cases).describe(
     _name,
     plpWhale,
     maxInputAmount,
+    oraclePeekSpot,
     plpAddress,
     cauldronName,
     proxyOracleName,
@@ -64,7 +67,7 @@ forEach(cases).describe(
           {
             forking: {
               jsonRpcUrl: process.env.POLYGON_RPC_URL,
-              blockNumber: 23300257,
+              blockNumber: FORKBLOCK,
             },
           },
         ],
@@ -116,8 +119,12 @@ forEach(cases).describe(
       await MIM.connect(mimWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
       await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, MIM_WHALE, PLPLevSwapper.address, 0, mimShare);
 
-      plpPrice = 1 / parseFloat(ethers.utils.formatEther(await ProxyOracle.peekSpot("0x")));
+      const spot = await ProxyOracle.peekSpot("0x");
+      plpPrice = 1 / parseFloat(ethers.utils.formatEther(spot));
       console.log(`1 PLP = $${plpPrice} usd`);
+      console.log("spot: ", spot.toString());
+      expect(spot).to.be.eq(oraclePeekSpot);
+
       snapshotId = await ethers.provider.send("evm_snapshot", []);
     });
 
