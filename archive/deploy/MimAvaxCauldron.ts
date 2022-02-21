@@ -13,7 +13,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   const BentoBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", "0x1fC83f75499b7620d53757f0b01E2ae626aAE530");
   const CauldronV2MasterContract = "0x02E07B6F27E5eC37CA6E9f846b6D48704031625A"; // CauldronV2
-  const collateral = "0x781655d802670bbA3c89aeBaaEa59D3182fD755D"; // MIM/AVAX
+  const collateral = "0xcBb424fd93cDeC0EF330d8A8C985E8b147F62339"; // MIM/AVAX
   const oracleProxy = await ethers.getContract<ProxyOracle>("MimAvaxProxyOracle");
   const oracleData = "0x0000000000000000000000000000000000000000";
 
@@ -36,7 +36,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const deployEvent = tx?.events?.[0];
   expect(deployEvent?.eventSignature).to.be.eq("LogDeploy(address,bytes,address)");
 
-  deployments.save("MimAvaxCauldron", {
+  deployments.save("MimAvaxCauldronSLP", {
     abi: [],
     address: deployEvent?.args?.cloneAddress,
   });
@@ -57,5 +57,5 @@ if (network.name !== "hardhat" || process.env.HARDHAT_LOCAL_NODE) {
     });
 }
 
-deployFunction.tags = ["MimAvaxCauldron"];
+deployFunction.tags = ["MimAvaxCauldronSLP"];
 deployFunction.dependencies = ["MimAvaxOracles"];
