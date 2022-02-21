@@ -1,0 +1,41 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/oracles/PopsicleUSDCWETHOracle.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity 0.8.10;\r\nimport \"../interfaces/IOracle.sol\";\r\nimport \"../interfaces/IPopsicle.sol\";\r\n\r\n// Chainlink Aggregator\r\ninterface IAggregator {\r\n    function latestAnswer() external view returns (int256 answer);\r\n}\r\n\r\ncontract PopsicleUSDCWETHOracle is IOracle {\r\n    IAggregator public constant USDC = IAggregator(0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6);\r\n    IAggregator public constant ETH = IAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);\r\n    IPopsicle public immutable popsicle;\r\n\r\n    constructor(IPopsicle _popsicle) {\r\n        popsicle = _popsicle;\r\n    }\r\n\r\n    // Calculates the lastest exchange rate\r\n    // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD\r\n    function _get() internal view returns (uint256) {\r\n        (uint256 amount0, uint256 amount1) = popsicle.usersAmounts();\r\n\r\n        uint256 usdcPrice = (amount0 * uint256(USDC.latestAnswer())) * 1e12;\r\n        uint256 wethPrice = amount1 * uint256(ETH.latestAnswer());\r\n        uint256 popsiclePrice = ((usdcPrice + wethPrice) * 1e10) / popsicle.totalSupply();\r\n\r\n        return 1e36 / popsiclePrice;\r\n    }\r\n\r\n    // Get the latest exchange rate\r\n    /// @inheritdoc IOracle\r\n    function get(bytes calldata) public view override returns (bool, uint256) {\r\n        return (true, _get());\r\n    }\r\n\r\n    // Check the last exchange rate without any state changes\r\n    /// @inheritdoc IOracle\r\n    function peek(bytes calldata) public view override returns (bool, uint256) {\r\n        return (true, _get());\r\n    }\r\n\r\n    // Check the current spot exchange rate without any state changes\r\n    /// @inheritdoc IOracle\r\n    function peekSpot(bytes calldata data) external view override returns (uint256 rate) {\r\n        (, rate) = peek(data);\r\n    }\r\n\r\n    /// @inheritdoc IOracle\r\n    function name(bytes calldata) public pure override returns (string memory) {\r\n        return \"Chainlink Popsicle\";\r\n    }\r\n\r\n    /// @inheritdoc IOracle\r\n    function symbol(bytes calldata) public pure override returns (string memory) {\r\n        return \"LINK/PLP\";\r\n    }\r\n}\r\n"
+    },
+    "contracts/interfaces/IOracle.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity >= 0.6.12;\r\n\r\ninterface IOracle {\r\n    /// @notice Get the latest exchange rate.\r\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\r\n    /// For example:\r\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\r\n    /// @return success if no valid (recent) rate is available, return false else true.\r\n    /// @return rate The rate of the requested asset / pair / pool.\r\n    function get(bytes calldata data) external returns (bool success, uint256 rate);\r\n\r\n    /// @notice Check the last exchange rate without any state changes.\r\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\r\n    /// For example:\r\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\r\n    /// @return success if no valid (recent) rate is available, return false else true.\r\n    /// @return rate The rate of the requested asset / pair / pool.\r\n    function peek(bytes calldata data) external view returns (bool success, uint256 rate);\r\n\r\n    /// @notice Check the current spot exchange rate without any state changes. For oracles like TWAP this will be different from peek().\r\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\r\n    /// For example:\r\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\r\n    /// @return rate The rate of the requested asset / pair / pool.\r\n    function peekSpot(bytes calldata data) external view returns (uint256 rate);\r\n\r\n    /// @notice Returns a human readable (short) name about this oracle.\r\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\r\n    /// For example:\r\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\r\n    /// @return (string) A human readable symbol name about this oracle.\r\n    function symbol(bytes calldata data) external view returns (string memory);\r\n\r\n    /// @notice Returns a human readable name about this oracle.\r\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\r\n    /// For example:\r\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\r\n    /// @return (string) A human readable name about this oracle.\r\n    function name(bytes calldata data) external view returns (string memory);\r\n}\r\n"
+    },
+    "contracts/interfaces/IPopsicle.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity >= 0.6.12;\r\n\r\ninterface IPopsicle {\r\n    function pool() external view returns (address);\r\n\r\n    function usersAmounts() external view returns (uint256 amount0, uint256 amount1);\r\n\r\n    function totalSupply() external view returns (uint256 amount);\r\n\r\n    function balanceOf(address account) external view returns (uint256);\r\n\r\n    function allowance(address owner, address spender) external view returns (uint256);\r\n\r\n    function approve(address spender, uint256 amount) external returns (bool);\r\n\r\n    function withdraw(uint256 shares, address to) external returns (uint256 amount0, uint256 amount1);\r\n\r\n    function tickLower() external view returns(int24);\r\n    function tickUpper() external view returns(int24);\r\n    \r\n    function deposit(\r\n        uint256 amount0Desired,\r\n        uint256 amount1Desired,\r\n        address to\r\n    )\r\n        external\r\n        returns (\r\n            uint256 shares,\r\n            uint256 amount0,\r\n            uint256 amount1\r\n        );\r\n}"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
