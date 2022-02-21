@@ -19,7 +19,7 @@ export const ParametersPerChain = {
     convexPool: "0xB900EF131301B307dB5eFcbed9DBb50A3e209B2e",
     proxyOracle: "0x66a809a31E6909C835219cC09eA0f52135fF0a11",
 
-    convextStakingWrapperAbraProxy: "0x1adc3139eB79aA6832a80927e4489dE85E83F8ec",
+    convextStakingWrapperAbraProxy: "0x873221f8651bC14aa58b79489a4A927130259844",
     //convextStakingWrapperAbraImpl: "0xD379454E9f28302A3bbE92b271605cbEA5aEa0A2",
     //convextStakingWrapperAbraFactory: "0x66807B5598A848602734B82E432dD88DBE13fC8f",
 
@@ -40,10 +40,10 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const INTEREST_CONVERSION = 1e18 / (365.25 * 3600 * 24) / 100;
   const OPENING_CONVERSION = 1e5 / 100;
 
-  // 90% LTV .5% initial 1% Interest, 1.5% fee
-  const maximumCollateralRatio = 90 * 1e3; // 90% LTV
-  const liquidationFee = 1.5 * 1e3 + 1e5; // 1.5% fee
-  const borrowFee = 1.5 * OPENING_CONVERSION; // 1.5% initial
+  // 80% LTV 1% borrow fee 1% Interest, 1.5% liquidation fee
+  const maximumCollateralRatio = 80 * 1e3; // 80% LTV
+  const liquidationFee = 1.5 * 1e3 + 1e5; // 1.5% liquidation fee
+  const borrowFee = 1 * OPENING_CONVERSION; // 1% borrow fee
   const interest = parseInt(String(1 * INTEREST_CONVERSION)); // 1% Interest
 
   const ConvexStakingWrapperAbra = await ethers.getContractAt<IConvexStakingWrapperAbra>("IConvexStakingWrapperAbra", parameters.convextStakingWrapperAbraProxy);
