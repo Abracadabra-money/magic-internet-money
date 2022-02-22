@@ -8,7 +8,6 @@ const makeStructTypeString = (namedTypes) => `tuple(${_.map(namedTypes, (t, name
 const loanParams = {
   valuation: "uint128",
   expiration: "uint64",
-  openFeeBPS: "uint16",
   annualInterestBPS: "uint16",
   compoundInterestTerms: "uint8",
 };
@@ -41,14 +40,6 @@ export const encodeInitData = makeStructEncoder({
   LIQUIDATION_MULTIPLIER_BPS: "uint16",
   BORROW_OPENING_FEE_BPS: "uint16",
   LIQUIDATION_SEIZE_COLLATERAL: "bool",
-});
-
-export const encodeInitDataNFT = makeStructEncoder({
-  collateral: "address",
-  asset: "address",
-  lender: "address",
-  tokenIds: "uint256[]",
-  loanParams: loanParamsArrayType,
 });
 
 export const encodeLoanParamsNFT = makeStructEncoder(loanParams);
