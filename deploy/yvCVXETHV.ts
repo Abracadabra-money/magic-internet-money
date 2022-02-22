@@ -11,12 +11,15 @@ const supportedChains = [ChainId.Mainnet];
 
 export const ParametersPerChain = {
   [ChainId.Mainnet]: {
+    cauldronDeploymentName: "yvCVXETHCauldron",
     degenBox: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
     cauldronV2MasterContract: "0x476b1E35DDE474cB9Aa1f6B85c9Cc589BFa85c1F",
     oracleData: "0x0000000000000000000000000000000000000000",
     collateral: "0x1635b506a88fBF428465Ad65d00e8d6B6E5846C3", // yvCurve-CVXETH
     proxyOracleDeploymentName: "YVCVXETHOracleProxy",
-    oracleDeploymentName: "YVCVXETHOracle",
+    oracleName: "YVCVXETHOracle",
+    swapperName: "YVCVXETHSwapper",
+    levSwapperName: "YVCVXETHLevSwapper",
   },
 };
 
@@ -46,9 +49,9 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   });
 
   // Oracle Implementation
-  await deploy(parameters.oracleDeploymentName, {
+  await deploy(parameters.oracleName, {
     from: deployer,
-    args: [parameters.collateral, parameters.token0Aggregator, parameters.token1Aggregator],
+    args: [],
     log: true,
     deterministicDeployment: false,
   });
@@ -59,8 +62,9 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   let initData = ethers.utils.defaultAbiCoder.encode(
     ["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"],
-    [parameters.plpAddress, ProxyOracle.address, parameters.oracleData, interest, liquidation, collateralization, opening]
+    [parameters.collateral, ProxyOracle.address, parameters.oracleData, interest, liquidation, collateralization, opening]
   );
+
   const tx = await (await DegenBox.deploy(parameters.cauldronV2MasterContract, initData, true)).wait();
 
   const deployEvent = tx?.events?.[0];
@@ -73,24 +77,22 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   });
 
   // Liquidation Swapper
-  await deploy(parameters.swapperDeploymentName, {
+  await deploy(parameters.swapperName, {
     from: deployer,
-    args: [parameters.plpAddress],
+    args: [],
     log: true,
-    contract: parameters.swapperName,
     deterministicDeployment: false,
   });
 
   // Leverage Swapper
-  await deploy(parameters.levSwapperDeploymentName, {
+  await deploy(parameters.levSwapperName, {
     from: deployer,
-    args: [parameters.plpAddress],
+    args: [],
     log: true,
-    contract: parameters.levSwapperName,
     deterministicDeployment: false,
   });
 
-  const OracleImplementation = await ethers.getContract(parameters.oracleDeploymentName);
+  const OracleImplementation = await ethers.getContract(parameters.oracleName);
   if ((await ProxyOracle.oracleImplementation()) !== OracleImplementation.address) {
     await ProxyOracle.changeOracleImplementation(OracleImplementation.address);
   }
@@ -114,5 +116,5 @@ if (network.name !== "hardhat") {
     });
 }
 
-deployFunction.tags = ["yCVXETH"];
+deployFunction.tags = ["yvCVXETH"];
 deployFunction.dependencies = [];

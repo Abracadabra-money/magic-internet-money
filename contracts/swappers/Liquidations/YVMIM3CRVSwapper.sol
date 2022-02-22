@@ -5,28 +5,9 @@ import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol";
 import "../../interfaces/IBentoBoxV1.sol";
 import "../../interfaces/curve/ICurvePool.sol";
 import "../../interfaces/yearn/IYearnVault.sol";
-import "../../interfaces/IERC20.sol";
+import "../../interfaces/ISwapperGeneric.sol";
 
-interface ISwapper {
-    function swap(
-        IERC20 fromToken,
-        IERC20 toToken,
-        address recipient,
-        uint256 shareToMin,
-        uint256 shareFrom
-    ) external returns (uint256 extraShare, uint256 shareReturned);
-
-    function swapExact(
-        IERC20 fromToken,
-        IERC20 toToken,
-        address recipient,
-        address refundTo,
-        uint256 shareFromSupplied,
-        uint256 shareToExact
-    ) external returns (uint256 shareUsed, uint256 shareReturned);
-}
-
-contract YVMIM3CRVSwapper is ISwapper {
+contract YVMIM3CRVSwapper is ISwapperGeneric {
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce);
     CurvePool public constant MIM3CRV = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
     IYearnVault public constant YVMIM3CRV = IYearnVault(0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8);
@@ -34,7 +15,7 @@ contract YVMIM3CRVSwapper is ISwapper {
 
     constructor() {}
 
-    /// @inheritdoc ISwapper
+    /// @inheritdoc ISwapperGeneric
     function swap(
         IERC20,
         IERC20,
@@ -54,7 +35,7 @@ contract YVMIM3CRVSwapper is ISwapper {
         extraShare = shareReturned - shareToMin;
     }
 
-    /// @inheritdoc ISwapper
+    /// @inheritdoc ISwapperGeneric
     function swapExact(
         IERC20,
         IERC20,

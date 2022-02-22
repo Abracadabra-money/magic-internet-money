@@ -4,6 +4,7 @@ pragma solidity 0.8.4;
 import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol";
 import "../../interfaces/IBentoBoxV1.sol";
 import "../../interfaces/yearn/IYearnVault.sol";
+import "../../interfaces/ILevSwapperGeneric.sol";
 
 interface CurvePool {
     function add_liquidity(
@@ -13,7 +14,7 @@ interface CurvePool {
     ) external returns (uint256);
 }
 
-contract YVMIM3CrvLevSwapper {
+contract YVMIM3CrvLevSwapper is ILevSwapperGeneric {
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce);
     CurvePool public constant THREEPOOL = CurvePool(0xA79828DF1850E8a3A3064576f380D90aECDD3359);
     IERC20 public constant MIM3CRV = IERC20(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
@@ -25,12 +26,12 @@ contract YVMIM3CrvLevSwapper {
         MIM3CRV.approve(address(YVMIM3CRV), type(uint256).max);
     }
 
-    // Swaps to a flexible amount, from an exact input amount
+    /// @inheritdoc ILevSwapperGeneric
     function swap(
         address recipient,
         uint256 shareToMin,
         uint256 shareFrom
-    ) public returns (uint256 extraShare, uint256 shareReturned) {
+    ) public override returns (uint256 extraShare, uint256 shareReturned) {
         (uint256 mimAmount, ) = DEGENBOX.withdraw(MIM, address(this), address(this), 0, shareFrom);
 
         // MIM -> MIM3CRV

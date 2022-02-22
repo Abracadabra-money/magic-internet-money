@@ -7,31 +7,12 @@ import "../../interfaces/curve/ICurvePool.sol";
 import "../../interfaces/curve/ICurveThreeCryptoPool.sol";
 import "../../interfaces/yearn/IYearnVault.sol";
 import "../../interfaces/Tether.sol";
-import "../../interfaces/IERC20.sol";
+import "../../interfaces/ISwapperGeneric.sol";
 
-interface ISwapper {
-    function swap(
-        IERC20 fromToken,
-        IERC20 toToken,
-        address recipient,
-        uint256 shareToMin,
-        uint256 shareFrom
-    ) external returns (uint256 extraShare, uint256 shareReturned);
-
-    function swapExact(
-        IERC20 fromToken,
-        IERC20 toToken,
-        address recipient,
-        address refundTo,
-        uint256 shareFromSupplied,
-        uint256 shareToExact
-    ) external returns (uint256 shareUsed, uint256 shareReturned);
-}
-
-contract YVCVXETHSwapper is ISwapper {
+contract YVCVXETHSwapper is ISwapperGeneric {
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce);
     CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
-    CurvePool public constant CVXETH = CurvePool(0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4);
+    CurvePool public constant CVXETHPOOL = CurvePool(0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4);
     IYearnVault public constant YVCVXETH = IYearnVault(0x1635b506a88fBF428465Ad65d00e8d6B6E5846C3);
     Tether public constant USDT = Tether(0xdAC17F958D2ee523a2206206994597C13D831ec7);
     IERC20 public constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);
@@ -43,7 +24,7 @@ contract YVCVXETHSwapper is ISwapper {
         USDT.approve(address(MIM3POOL), type(uint256).max);
     }
 
-    /// @inheritdoc ISwapper
+    /// @inheritdoc ISwapperGeneric
     function swap(
         IERC20,
         IERC20,
@@ -57,7 +38,7 @@ contract YVCVXETHSwapper is ISwapper {
         uint256 cvxEthAmount = YVCVXETH.withdraw();
 
         // Curve CVXETH -> WETH
-        uint256 wethAmount = CVXETH.remove_liquidity_one_coin(cvxEthAmount, 0, 0);
+        uint256 wethAmount = CVXETHPOOL.remove_liquidity_one_coin(cvxEthAmount, uint256(0), 0);
 
         // WETH -> USDT
         THREECRYPTO.exchange(2, 0, wethAmount, 0);
@@ -69,7 +50,7 @@ contract YVCVXETHSwapper is ISwapper {
         extraShare = shareReturned - shareToMin;
     }
 
-    /// @inheritdoc ISwapper
+    /// @inheritdoc ISwapperGeneric
     function swapExact(
         IERC20,
         IERC20,
