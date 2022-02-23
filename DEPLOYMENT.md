@@ -4,15 +4,21 @@
 
 ### Cauldrons
 
-| Contract                 | Address                                    | Note                                      |
-| ------------------------ | ------------------------------------------ | ----------------------------------------- |
-| **Frax3Crv**             |                                            |                                           |
-| Frax3CrvCauldron         | 0xdF3561AbDB5732cb43E1a381CDD66f84068Ad689 | 90% LTV .5% initial 1% Interest, 1.5% fee |
-| ConvexStakingWrapperAbra | 0xb24BE15aB68DC8bC5CC62183Af1eBE9Ecd043250 | Frax3Crv to Convex stkFrax3Crv Wrapper    |
-| Frax3CrvProxyOracle      | 0x66a809a31E6909C835219cC09eA0f52135fF0a11 | Using Frax3CrvOracle                      |
-| Frax3CrvOracle           | 0xD9bA8821e9EeFC89cBc80DA1EB5e3518BE383E63 |                                           |
-| StkFrax3CrvSwapper       | 0x9B0F7675e7F0246bbced0A352194026ed2Ff5fd3 | Liquidation Swapper                       |
-| StkFrax3CrvLevSwapper    | 0x6335163c8FAeE040AC1f9A4A7fCf6182ed6Caae4 | Leverage Swapper                          |
+| Contract                 | Address                                    | Note                                       |
+| ------------------------ | ------------------------------------------ | ------------------------------------------ |
+| **Frax3Crv**             |                                            |                                            |
+| Frax3CrvCauldron         | 0xdF3561AbDB5732cb43E1a381CDD66f84068Ad689 | 90% LTV .5% initial 1% Interest, 1.5% fee  |
+| ConvexStakingWrapperAbra | 0xb24BE15aB68DC8bC5CC62183Af1eBE9Ecd043250 | Frax3Crv to Convex stkFrax3Crv Wrapper     |
+| Frax3CrvProxyOracle      | 0x66a809a31E6909C835219cC09eA0f52135fF0a11 | Using Frax3CrvOracle                       |
+| Frax3CrvOracle           | 0xD9bA8821e9EeFC89cBc80DA1EB5e3518BE383E63 |                                            |
+| StkFrax3CrvSwapper       | 0x9B0F7675e7F0246bbced0A352194026ed2Ff5fd3 | Liquidation Swapper                        |
+| StkFrax3CrvLevSwapper    | 0x6335163c8FAeE040AC1f9A4A7fCf6182ed6Caae4 | Leverage Swapper                           |
+| **yvCVXETH**             |                                            |                                            |
+| yvCVXETHCauldron         | 0xf179fe36a36B32a4644587B8cdee7A23af98ed37 | 75% LTV .5% initial 1% Interest, 12.5% fee |
+| YVCVXETHOracleProxy      | 0xa32D03497FF5C32bcfeebE6A677Dbe4A496fD918 | Using YVCVXETHOracle                       |
+| YVCVXETHOracle           | 0x991536BF23fa40B578Fc3e1e3725E51D1bF889F3 |                                            |
+| YVCVXETHSwapper          | 0xF80a7b98b59e7F71BAa149990bAA6044728321bb | Liquidation Swapper                        |
+| YVCVXETHLevSwapper       | 0xE345156cDEc151D9F843F94ADE7770EFA9d56417 | Leverage Swapper                           |
 
 ### Utilities
 
