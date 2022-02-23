@@ -8,7 +8,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   const { deployer } = await getNamedAccounts();
 
-  await deploy("MimFTMSpiritSwapper", {
+  await deploy("MimFTMSpookySwapper", {
     from: deployer,
     args: [],
     log: true,
@@ -16,7 +16,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     deterministicDeployment: false,
   });
 
-  await deploy("MimFtmSpiritLevSwapper", {
+  await deploy("MimFtmSpookyLevSwapper", {
     from: deployer,
     args: [],
     log: true,
@@ -40,5 +40,5 @@ if (network.name !== "hardhat") {
     });
 }
 
-deployFunction.tags = ["MimFtmSwappers"];
+deployFunction.tags = ["MimFtmSpookySwappers"];
 deployFunction.dependencies = [];
