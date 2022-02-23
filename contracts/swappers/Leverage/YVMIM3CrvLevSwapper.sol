@@ -14,7 +14,7 @@ interface CurvePool {
     ) external returns (uint256);
 }
 
-contract YVMIM3CrvLevSwapper is ILevSwapperGeneric {
+contract YVMIM3CRVLevSwapper is ILevSwapperGeneric {
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce);
     CurvePool public constant THREEPOOL = CurvePool(0xA79828DF1850E8a3A3064576f380D90aECDD3359);
     IERC20 public constant MIM3CRV = IERC20(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);

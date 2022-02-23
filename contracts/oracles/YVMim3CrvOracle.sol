@@ -16,10 +16,10 @@ interface ICurvePool {
     function get_virtual_price() external view returns (uint256 price);
 }
 
-contract YVMim3CrvOracle is IOracle {
+contract YVMIM3CRVOracle is IOracle {
     ICurvePool public constant MIM3CRV = ICurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);
     IYearnVault public constant YVMIM3CRV = IYearnVault(0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8);
-    IAggregator public constant MIM = IAggregator(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);
+    IAggregator public constant MIM = IAggregator(0x7A364e8770418566e3eb2001A96116E6138Eb32F);
     IAggregator constant public DAI = IAggregator(0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9);
     IAggregator constant public USDC = IAggregator(0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6);
     IAggregator constant public USDT = IAggregator(0x3E7d1eAB13ad0104d2750B8863b489D65364e32D);

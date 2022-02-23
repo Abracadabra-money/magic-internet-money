@@ -1,24 +1,38 @@
 /* eslint-disable prefer-const */
+import forEach from "mocha-each";
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { ChainId, getBigNumber, impersonate } from "../utilities";
 import { CauldronV2, DegenBox, ERC20Mock, ILevSwapperGeneric, IOracle, ISwapperGeneric, YearnVaultMock } from "../typechain";
 import { expect } from "chai";
 import { BigNumber } from "@ethersproject/bignumber";
-import { ParametersPerChain } from "../deploy/yvCVXETHV";
+import { ParametersPerChain as yvCVXETHVParameters } from "../deploy/yvCVXETH";
+import { ParametersPerChain as yvMIM3CRVParameters } from "../deploy/yvMIM3CRV";
 
 // Top holders at the given fork block
 const MIM_WHALE = "0xbbc4A8d076F4B1888fec42581B6fc58d242CF2D5";
 const FORKBLOCK = 14258111;
 
-const CURVE_TOKEN_WHALE = "0x38ee5f5a39c01cb43473992c12936ba1219711ab"; 
-const CURVE_TOKEN = "0x3A283D9c08E8b55966afb64C515f5143cf907611";
-const ORACLE_EXPECTED_PRICE = "2127532160056478";
+// In order:
+// 0: name
+// 1: hardhat deployment script name
+// 2: curve token address
+// 2: curve token whale 
+// 3: oracle price - Beware that its value is based on the value at FORKBLOCK
+const cases = [
+  ["yvMIM3CRV", "yvMIM3CRV", "0x5a6A4D54456819380173272A5E8E9B9904BdF41B", "0xbcd0e1cbd64e932a47f9dffcb3dbc3f0814c3e9f", "923323510514221085", yvMIM3CRVParameters[ChainId.Mainnet]],
+  ["yvCVXETH", "yvCVXETH", "0x3A283D9c08E8b55966afb64C515f5143cf907611", "0x38ee5f5a39c01cb43473992c12936ba1219711ab", "2127532160056478", yvCVXETHVParameters[ChainId.Mainnet]],
+];
 
-const parameters = ParametersPerChain[ChainId.Mainnet];
-
-describe(
-  "yvCVXETH Cauldron",
-  async () => {
+forEach(cases).describe(
+  "%s Cauldron",
+  async (
+    _name,
+    deploymentName,
+    curveToken,
+    curveTokenWhale,
+    oracleExpectedPrice,
+    parameters,
+  ) => {
     let snapshotId;
     let MIM: ERC20Mock;
     let YearnVault: YearnVaultMock;
@@ -48,7 +62,7 @@ describe(
       });
 
       hre.getChainId = () => Promise.resolve(ChainId.Mainnet.toString());
-      await deployments.fixture(["yvCVXETH"]);
+      await deployments.fixture([deploymentName]);
       const { deployer } = await getNamedAccounts();
       deployerSigner = await ethers.getSigner(deployer);
 
@@ -58,27 +72,30 @@ describe(
       MIM = await ethers.getContractAt<ERC20Mock>("ERC20Mock", "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3");
       YearnVault = await ethers.getContractAt<YearnVaultMock>("YearnVaultMock", parameters.collateral);
       YearnVaultAsErc20 = await ethers.getContractAt<ERC20Mock>("ERC20Mock", parameters.collateral);
-      CurveToken = await ethers.getContractAt<ERC20Mock>("ERC20Mock", CURVE_TOKEN);
+      CurveToken = await ethers.getContractAt<ERC20Mock>("ERC20Mock", curveToken);
 
       Swapper = await ethers.getContract<ISwapperGeneric>(parameters.swapperName);
       LevSwapper = await ethers.getContract<ILevSwapperGeneric>(parameters.levSwapperName);
 
       await impersonate(MIM_WHALE);
-      await impersonate(CURVE_TOKEN_WHALE);
+      await impersonate(curveTokenWhale);
 
       const mimWhaleSigner = await ethers.getSigner(MIM_WHALE);
-      const curveTokenWhaleSigner = await ethers.getSigner(CURVE_TOKEN_WHALE);
+      const curveTokenWhaleSigner = await ethers.getSigner(curveTokenWhale);
 
       // Mint yearn vault tokens
-      const curveTokenAmount = await CurveToken.balanceOf(CURVE_TOKEN_WHALE);
+      const curveTokenAmount = await CurveToken.balanceOf(curveTokenWhale);
       await CurveToken.connect(curveTokenWhaleSigner).approve(YearnVault.address, curveTokenAmount);
-      await YearnVault.connect(curveTokenWhaleSigner).deposit(curveTokenAmount, CURVE_TOKEN_WHALE);
-      const yearnTokenAmount = await YearnVaultAsErc20.balanceOf(CURVE_TOKEN_WHALE);
-      
+
+      console.log(`Depositing ${curveTokenAmount} token inside yearn vault...`)
+      await YearnVault.connect(curveTokenWhaleSigner).deposit(curveTokenAmount, curveTokenWhale);
+      const yearnTokenAmount = await YearnVaultAsErc20.balanceOf(curveTokenWhale);
+      console.log(`Got ${yearnTokenAmount} yvToken back`)
+
       // Deposit yearn vault token in DegenBox for the liquidation swapper
       collateralShare = await DegenBox.toShare(YearnVault.address, yearnTokenAmount, true);
       await YearnVaultAsErc20.connect(curveTokenWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
-      await DegenBox.connect(curveTokenWhaleSigner).deposit(YearnVault.address, CURVE_TOKEN_WHALE, Swapper.address, 0, collateralShare);
+      await DegenBox.connect(curveTokenWhaleSigner).deposit(YearnVault.address, curveTokenWhale, Swapper.address, 0, collateralShare);
 
       // Deposit 5M MIM in DegenBox for LevSwapper
       mimShare = await DegenBox.toShare(MIM.address, getBigNumber(5_000_000), true);
@@ -89,7 +106,7 @@ describe(
       yvTokenPrice = 1 / parseFloat(ethers.utils.formatEther(spot));
       console.log(`1 yvToken = $${yvTokenPrice} usd`);
       console.log("spot: ", spot.toString());
-      expect(spot).to.be.eq(ORACLE_EXPECTED_PRICE);
+      expect(spot).to.be.eq(oracleExpectedPrice);
 
       snapshotId = await ethers.provider.send("evm_snapshot", []);
     });
