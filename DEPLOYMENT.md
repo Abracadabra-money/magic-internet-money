@@ -4,15 +4,15 @@
 
 ### Cauldrons
 
-| Contract                 | Address                                    | Note                                      |
-| ------------------------ | ------------------------------------------ | ----------------------------------------- |
-| **Frax3Crv**             |                                            |                                           |
-| Frax3CrvCauldron         | 0xdF3561AbDB5732cb43E1a381CDD66f84068Ad689 | 90% LTV .5% initial 1% Interest, 1.5% fee |
-| ConvexStakingWrapperAbra | 0xb24BE15aB68DC8bC5CC62183Af1eBE9Ecd043250 | Frax3Crv to Convex stkFrax3Crv Wrapper    |
-| Frax3CrvProxyOracle      | 0x66a809a31E6909C835219cC09eA0f52135fF0a11 | Using Frax3CrvOracle                      |
-| Frax3CrvOracle           | 0xD9bA8821e9EeFC89cBc80DA1EB5e3518BE383E63 |                                           |
-| StkFrax3CrvSwapper       | 0x9B0F7675e7F0246bbced0A352194026ed2Ff5fd3 | Liquidation Swapper                       |
-| StkFrax3CrvLevSwapper    | 0x6335163c8FAeE040AC1f9A4A7fCf6182ed6Caae4 | Leverage Swapper                          |
+| Contract                 | Address                                    | Note                                     |
+| ------------------------ | ------------------------------------------ | ---------------------------------------- |
+| **Frax3Crv**             |                                            |                                          |
+| Frax3CrvCauldron         | 0x81446B23e28377e1a15b6d0b67f7A2ACe3A8E5bB | 80% LTV 1% initial 1% Interest, 1.5% fee |
+| ConvexStakingWrapperAbra | 0x873221f8651bC14aa58b79489a4A927130259844 | Frax3Crv to Convex stkFrax3Crv Wrapper   |
+| Frax3CrvProxyOracle      | 0x66a809a31E6909C835219cC09eA0f52135fF0a11 | Using Frax3CrvOracle                     |
+| Frax3CrvOracle           | 0xD9bA8821e9EeFC89cBc80DA1EB5e3518BE383E63 |                                          |
+| StkFrax3CrvSwapper       | 0xD69E75C1c2a0f2838A6bbA8BDFf9d08C8f137cD9 | Liquidation Swapper                      |
+| StkFrax3CrvLevSwapper    | 0xFd2281453d970964c46B58CD4eBF50B45E820D58 | Leverage Swapper                         |
 
 ### Utilities
 
