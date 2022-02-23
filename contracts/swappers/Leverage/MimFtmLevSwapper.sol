@@ -33,8 +33,8 @@ interface IBentoBoxV1 {
 
 contract MimFtmLevSwapper {
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0x74A0BcA2eeEdf8883cb91E37e9ff49430f20a616);
-    IUniswapV2Pair public constant MIMFTM = IUniswapV2Pair(0x6f86e65b255c9111109d2D2325ca2dFc82456efc);
-    IUniswapV2Router01 public constant ROUTER = IUniswapV2Router01(0xF491e7B69E4244ad4002BC14e878a34207E38c29);
+    IUniswapV2Pair public constant MIMFTM = IUniswapV2Pair(0xB32b31DfAfbD53E310390F641C7119b5B9Ea0488);
+    IUniswapV2Router01 public constant ROUTER = IUniswapV2Router01(0x16327E3FbDaCA3bcF7E38F5Af2599D2DDc33aE52);
 
     uint256 private constant DEADLINE = 0xf000000000000000000000000000000000000000000000000000000000000000; // ~ placeholder for swap deadline
 
@@ -72,10 +72,10 @@ contract MimFtmLevSwapper {
 
         // Determine optimal amount of AVAX to swap for liquidity providing
         (uint256 reserve1, uint256 reserve0, ) = MIMFTM.getReserves();
-        uint256 mimSwapInAmount = _calculateSwapInAmount(reserve0, amountFrom);
+        uint256 mimSwapInAmount = _calculateSwapInAmount(reserve1, amountFrom);
         uint256 avaxAmount = _getAmountOut(mimSwapInAmount, reserve0, reserve1);
         MIM.transfer(address(MIMFTM), mimSwapInAmount);
-        MIMFTM.swap(0, avaxAmount, address(this), "");
+        MIMFTM.swap(avaxAmount, 0, address(this), "");
 
         ROUTER.addLiquidity(
             address(MIM),
