@@ -1,0 +1,41 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/oracles/FtmLPOracle.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity 0.8.10;\nimport \"../interfaces/IOracle.sol\";\n\n// Chainlink Aggregator\n\ninterface IAggregator {\n    function latestAnswer() external view returns (int256 answer);\n}\n\ncontract FtmLPOracle is IOracle {\n    IAggregator public constant FTM = IAggregator(0xf4766552D15AE4d256Ad41B6cf2933482B0680dc);\n\n    /// @dev should be using an implementation of LPChainlinkOracle\n    IAggregator public immutable lpOracle;\n    string private desc;\n\n    constructor(IAggregator _lpOracle, string memory _desc) {\n        lpOracle = _lpOracle;\n        desc = _desc;\n    }\n\n    /// @notice Returns 1 USD price in LP denominated in USD\n    /// @dev lpOracle.latestAnswer() returns the price of 1 LP in FTM multipled by FTM Price.\n    /// It's then inverted so it gives how many LP can 1 USD buy.\n    function _get() internal view returns (uint256) {\n        uint256 lpPrice = uint256(lpOracle.latestAnswer()) * uint256(FTM.latestAnswer());\n\n        return 1e44 / lpPrice;\n    }\n\n    // Get the latest exchange rate\n    /// @inheritdoc IOracle\n    function get(bytes calldata) public view override returns (bool, uint256) {\n        return (true, _get());\n    }\n\n    // Check the last exchange rate without any state changes\n    /// @inheritdoc IOracle\n    function peek(bytes calldata) public view override returns (bool, uint256) {\n        return (true, _get());\n    }\n\n    // Check the current spot exchange rate without any state changes\n    /// @inheritdoc IOracle\n    function peekSpot(bytes calldata data) external view override returns (uint256 rate) {\n        (, rate) = peek(data);\n    }\n\n    /// @inheritdoc IOracle\n    function name(bytes calldata) public view override returns (string memory) {\n        return desc;\n    }\n\n    /// @inheritdoc IOracle\n    function symbol(bytes calldata) public view override returns (string memory) {\n        return desc;\n    }\n}\n"
+    },
+    "contracts/interfaces/IOracle.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity >=0.6.12;\n\ninterface IOracle {\n    /// @notice Get the latest exchange rate.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return success if no valid (recent) rate is available, return false else true.\n    /// @return rate The rate of the requested asset / pair / pool.\n    function get(bytes calldata data) external returns (bool success, uint256 rate);\n\n    /// @notice Check the last exchange rate without any state changes.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return success if no valid (recent) rate is available, return false else true.\n    /// @return rate The rate of the requested asset / pair / pool.\n    function peek(bytes calldata data) external view returns (bool success, uint256 rate);\n\n    /// @notice Check the current spot exchange rate without any state changes. For oracles like TWAP this will be different from peek().\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return rate The rate of the requested asset / pair / pool.\n    function peekSpot(bytes calldata data) external view returns (uint256 rate);\n\n    /// @notice Returns a human readable (short) name about this oracle.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return (string) A human readable symbol name about this oracle.\n    function symbol(bytes calldata data) external view returns (string memory);\n\n    /// @notice Returns a human readable name about this oracle.\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\n    /// For example:\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\n    /// @return (string) A human readable name about this oracle.\n    function name(bytes calldata data) external view returns (string memory);\n}\n"
+    },
+    "contracts/oracles/MimFTMOracle.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity 0.8.10;\n\ninterface AggregatorV3Interface {\n    function decimals() external view returns (uint8);\n\n    function latestRoundData()\n        external\n        view\n        returns (\n            uint80 roundId,\n            int256 answer,\n            uint256 startedAt,\n            uint256 updatedAt,\n            uint80 answeredInRound\n        );\n}\n\n/// @title MimFTMOracleV1\n/// @author 0xCalibur\n/// @notice Oracle used for getting the price of 1 MIM in AVAX using Chainlink\ncontract MimFTMOracleV1 is AggregatorV3Interface {\n    AggregatorV3Interface public constant MIMUSD = AggregatorV3Interface(0x28de48D3291F31F839274B8d82691c77DF1c5ceD);\n    AggregatorV3Interface public constant FTMUSD = AggregatorV3Interface(0xf4766552D15AE4d256Ad41B6cf2933482B0680dc);\n\n    function decimals() external pure override returns (uint8) {\n        return 18;\n    }\n\n    function latestRoundData()\n        external\n        view\n        override\n        returns (\n            uint80 roundId,\n            int256 answer,\n            uint256 startedAt,\n            uint256 updatedAt,\n            uint80 answeredInRound\n        )\n    {\n        (, int256 mimUsdFeed, , , ) = MIMUSD.latestRoundData();\n        (, int256 ftmUsdFeed, , , ) = FTMUSD.latestRoundData();\n\n        return (0, (mimUsdFeed * 1e18) / ftmUsdFeed, 0, 0, 0);\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
