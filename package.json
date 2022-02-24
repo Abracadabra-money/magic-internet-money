@@ -9,7 +9,7 @@
     "rebuild": "hardhat clean && hardhat compile",
     "node": "cross-env HARDHAT_LOCAL_NODE=1 hardhat node",
     "mainnet:deploy": "hardhat --network mainnet deploy",
-    "mainnet:verify": "hardhat --network mainnet etherscan-verify --solc-input --license GPL-3.0 --force-license",
+    "mainnet:verify": "hardhat --network mainnet etherscan-verify --solc-input --license GPL-3.0 --force-license --sleep",
     "avalanche:deploy": "hardhat --network avalanche deploy",
     "avalanche:verify": "hardhat --network avalanche etherscan-verify --solc-input --license GPL-3.0 --force-license",
     "polygon:deploy": "hardhat --network polygon deploy",
