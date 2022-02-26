@@ -126,10 +126,12 @@ contract CRVLocker is Ownable {
         lastClaimTimestamp = IVECRVFeeDistributor(CURVE_VE_CRV_FEE_DISTRIBUTOR).time_cursor_of(address(curveMCRVVoter));
     }
 
+    // IVECRVFeeDistributor claim_many can claim more than CRV3, should we change claim_many to claim only with explcitly 3crv or 
+    // add parameters to harvest to harvest one or many tokens and delegate it to a swapper?
     function harvest() external onlyOwner {
         uint256 amount = IERC20(CRV3).balanceOf(address(curveMCRVVoter));
         if (amount > 0) {
-            // TODO: Should this be transfered to a Swappet proxy and delegate the swapping to it?
+            // Should this be transfered to a Swappet proxy and delegate the swapping to it?
             curveMCRVVoter.safeExecute(CRV3, 0, abi.encodeWithSignature("transfer(address,uint256)", address(this), amount));
 
             // TODO:
