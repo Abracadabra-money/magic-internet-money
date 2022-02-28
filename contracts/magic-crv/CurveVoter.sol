@@ -6,14 +6,6 @@ import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 // solhint-disable func-name-mixedcase
-interface Gauge {
-    function deposit(uint256) external;
-
-    function balanceOf(address) external view returns (uint256);
-
-    function withdraw(uint256) external;
-}
-
 interface VoteEscrow {
     function create_lock(uint256, uint256) external;
 
@@ -22,12 +14,12 @@ interface VoteEscrow {
     function withdraw() external;
 }
 
-/// @dev fork of yearn CurveYCRVVoter ported to solidity 0.8
-contract CurveMCRVVoter is Ownable {
+contract CurveVoter is Ownable {
     using SafeTransferLib for ERC20;
 
     error NotAuthorized();
 
+    uint256 constant private MAXTIME  = 4 * 365 * 86400; // 4 years
     ERC20 public constant CRV = ERC20(0xD533a949740bb3306d119CC777fa900bA034cd52);
     address public constant ESCROW = 0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2;
 
@@ -54,12 +46,23 @@ contract CurveMCRVVoter is Ownable {
         token.safeTransfer(to, amount);
     }
 
+    /// @notice creates a 4 years lock
+    function createMaxLock(uint256 _value) external onlyCRVLockerOrOwner {
+        CRV.safeApprove(ESCROW, 0);
+        CRV.safeApprove(ESCROW, _value);
+
+        // solhint-disable-next-line not-rely-on-time
+        VoteEscrow(ESCROW).create_lock(_value, block.timestamp + MAXTIME);
+    }
+
+    /// @notice creates an arbitrary lock
     function createLock(uint256 _value, uint256 _unlockTime) external onlyCRVLockerOrOwner {
         CRV.safeApprove(ESCROW, 0);
         CRV.safeApprove(ESCROW, _value);
         VoteEscrow(ESCROW).create_lock(_value, _unlockTime);
     }
 
+    /// @notice add amount to the current lock created with `createLock` or `createMaxLock`
     function increaseAmount(uint256 _value) external onlyCRVLockerOrOwner {
         CRV.safeApprove(ESCROW, 0);
         CRV.safeApprove(ESCROW, _value);
