@@ -3,7 +3,7 @@ pragma solidity ^0.8.10;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "../interfaces/IERC20.sol";
 
 interface Gauge {
     function deposit(uint256) external;
@@ -64,8 +64,8 @@ contract CRVLocker is Ownable {
 
     address public constant CURVE_GAUGE_CONTROLLER = 0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB;
     address public constant CURVE_VE_CRV_FEE_DISTRIBUTOR = 0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc;
-    address public constant CRV3 = 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490;
     address public constant CRV = 0xD533a949740bb3306d119CC777fa900bA034cd52;
+    address public constant CRV3 = 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490;
 
     ICurveMCRVVoter public immutable curveMCRVVoter;
 
@@ -115,7 +115,7 @@ contract CRVLocker is Ownable {
         );
     }
 
-    function claim() external onlyMagicCRV {
+    function claim(address recipient) external onlyMagicCRV {
         // solhint-disable-next-line not-rely-on-time
         if (block.timestamp < lastClaimTimestamp + 7 days) {
             return;
@@ -124,20 +124,10 @@ contract CRVLocker is Ownable {
         address p = address(curveMCRVVoter);
         IVECRVFeeDistributor(CURVE_VE_CRV_FEE_DISTRIBUTOR).claim_many([p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p]);
         lastClaimTimestamp = IVECRVFeeDistributor(CURVE_VE_CRV_FEE_DISTRIBUTOR).time_cursor_of(address(curveMCRVVoter));
-    }
 
-    // IVECRVFeeDistributor claim_many can claim more than CRV3, should we change claim_many to claim only with explcitly 3crv or 
-    // add parameters to harvest to harvest one or many tokens and delegate it to a swapper?
-    function harvest() external onlyOwner {
         uint256 amount = IERC20(CRV3).balanceOf(address(curveMCRVVoter));
         if (amount > 0) {
-            // Should this be transfered to a Swappet proxy and delegate the swapping to it?
-            curveMCRVVoter.safeExecute(CRV3, 0, abi.encodeWithSignature("transfer(address,uint256)", address(this), amount));
-
-            // TODO:
-            // swap 3CRV to CRV
-            // call lockCRV
-            // Should onlyOwner be replaced with onlyHarvesters?
+            curveMCRVVoter.safeExecute(CRV3, 0, abi.encodeWithSignature("transfer(address,uint256)", recipient, amount));
         }
     }
 }
