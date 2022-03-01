@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, network } from "hardhat";
-import { CRVLocker, EthereumWithdrawer, MagicCRV } from "../typechain";
+import { MagicCRV } from "../typechain";
 import { ChainId, setDeploymentSupportedChains } from "../utilities";
 import { xMerlin } from "../test/constants";
 import { CurveVoter } from "../typechain/CurveVoter";
@@ -26,31 +26,19 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   });
   const CurveVoter = await ethers.getContract<CurveVoter>("CurveVoter");
 
-  await deploy("CRVLocker", {
-    from: deployer,
-    args: [CurveVoter.address],
-    log: true,
-    deterministicDeployment: false,
-  });
-  const CRVLocker = await ethers.getContract<CRVLocker>("CRVLocker");
-  await CurveVoter.setCRVLocker(CRVLocker.address);
-
   await deploy("MagicCRV", {
     from: deployer,
     args: [
-      CurveVoter.address,
-      CRVLocker.address
+      CurveVoter.address
     ],
     log: true,
     deterministicDeployment: false,
   });
 
   const MagicCRV = await ethers.getContract<MagicCRV>("MagicCRV");
+  await CurveVoter.setMagicCRV(MagicCRV.address);
 
   if(network.name !== "hardhat") {
-    if ((await CRVLocker.owner()) != xMerlin) {
-      await CRVLocker.transferOwnership(xMerlin);
-    }
     if ((await CurveVoter.owner()) != xMerlin) {
       await CurveVoter.transferOwnership(xMerlin);
     }

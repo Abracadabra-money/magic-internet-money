@@ -4,7 +4,7 @@ pragma solidity ^0.8.10;
 import "@rari-capital/solmate/src/tokens/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-interface ICRVLocker {
+interface ICurveVoter {
     function lock() external;
 
     function claim(address) external;
@@ -13,9 +13,7 @@ interface ICRVLocker {
 contract MagicCRV is ERC20, Ownable {
     ERC20 public constant CRV = ERC20(0xD533a949740bb3306d119CC777fa900bA034cd52);
     ERC20 public constant CRV3 = ERC20(0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490);
-
-    ICRVLocker public immutable crvLocker;
-    address public immutable curveVoter;
+    ICurveVoter public immutable curveVoter;
 
     mapping(address => uint256) public claimables;
     mapping(address => uint256) public rewardIndexes;
@@ -23,9 +21,8 @@ contract MagicCRV is ERC20, Ownable {
     uint256 public rewardIndex = 0;
     uint256 public crv3Balance = 0;
 
-    constructor(address _curveVoter, ICRVLocker _crvLocker) ERC20("MagicCRV", "mCRV", 18) {
+    constructor(ICurveVoter _curveVoter) ERC20("MagicCRV", "mCRV", 18) {
         curveVoter = _curveVoter;
-        crvLocker = _crvLocker;
     }
 
     function update() external {
@@ -41,14 +38,14 @@ contract MagicCRV is ERC20, Ownable {
     }
 
     function deposit(uint256 _amount) external {
-        CRV.transferFrom(msg.sender, curveVoter, _amount);
+        CRV.transferFrom(msg.sender, address(curveVoter), _amount);
 
         /// @dev the update must be done before minting to avoid
         /// the new deposit dilluting the previous depositor's rewards.
         _updateFor(msg.sender);
 
         _mint(msg.sender, _amount);
-        crvLocker.lock();
+        curveVoter.lock();
     }
 
     function _update() internal {
@@ -95,7 +92,7 @@ contract MagicCRV is ERC20, Ownable {
     }
 
     function _claimCurveRewards() internal {
-        crvLocker.claim(address(this));
+        curveVoter.claim(address(this));
     }
 
     function _claimFor(address recipient) internal {
