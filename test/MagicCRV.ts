@@ -79,8 +79,8 @@ describe("MagicCRV", async () => {
     await network.provider.send("evm_revert", [snapshotId]);
     snapshotId = await ethers.provider.send("evm_snapshot", []);
   });
-
-  it("not be able to create another lock", async () => {
+  
+  it("should not be able to create another lock", async () => {
     await expect(CurveVoter.connect(deployerSigner).createMaxLock(1)).to.be.revertedWith("Withdraw old tokens first");
   });
 
@@ -124,7 +124,26 @@ describe("MagicCRV", async () => {
     expect(crv3After.sub(crv3Before)).to.be.gt(0);
   });
 
-  it("should be able to vote on gauge controller", async() => {
+  it("should not be able to vote on gauge controller when not an allowed voter", async () => {
+    const [, alice] = await ethers.getSigners();
 
+    await expect(CurveVoter.connect(alice).voteForMaxMIMGaugeWeights()).to.be.revertedWith("NotAllowedVoter()");
+  });
+
+  it("should be able to vote on gauge controller", async () => {
+    const [, alice, bob] = await ethers.getSigners();
+
+    await CurveVoter.setAllowedVoter(alice.address, true);
+    await CurveVoter.connect(alice).voteForMaxMIMGaugeWeights();
+    await advanceTime(10 * 24 * 60 * 60); // 1 vote per 10 days
+
+    await CurveVoter.connect(alice).voteForMaxMIMGaugeWeights();
+
+    await expect(CurveVoter.connect(bob).voteForMaxMIMGaugeWeights()).to.be.revertedWith("NotAllowedVoter()");
+    await CurveVoter.setAllowedVoter(bob.address, true);
+    await expect(CurveVoter.connect(bob).voteForGaugeWeights("0xb0f5d00e5916c8b8981e99191A1458704B587b2b", 420)).to.be.revertedWith("Used too much power");
+
+    await CurveVoter.setAllowedVoter(alice.address, false);
+    await expect(CurveVoter.connect(alice).voteForMaxMIMGaugeWeights()).to.be.revertedWith("NotAllowedVoter()");
   });
 });

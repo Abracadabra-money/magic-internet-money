@@ -30,7 +30,7 @@ contract CurveVoter is Ownable {
     address public magicCRV;
 
     modifier onlyAllowedVoters() {
-        if (!voters[msg.sender]) {
+        if (!voters[msg.sender] && msg.sender != owner()) {
             revert NotAllowedVoter();
         }
         _;
@@ -68,7 +68,7 @@ contract CurveVoter is Ownable {
     function voteForMaxMIMGaugeWeights() public onlyAllowedVoters {
         IGaugeController(GAUGE_CONTROLLER).vote_for_gauge_weights(MIM_GAUGE, MAX_VOTE_WEIGHT);
     }
-    
+
     function claim(address recipient) external onlyMagicCRV {
         // solhint-disable-next-line not-rely-on-time
         if (block.timestamp < lastClaimTimestamp + 7 days) {
