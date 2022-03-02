@@ -42,10 +42,51 @@ contract MagicCRV is ERC20, Ownable {
 
         /// @dev the update must be done before minting to avoid
         /// the new deposit dilluting the previous depositor's rewards.
+        _update();
         _updateFor(msg.sender);
 
         _mint(msg.sender, _amount);
         curveVoter.lock();
+    }
+
+    function transfer(address to, uint256 amount) public override returns (bool) {
+        _update();
+        _updateFor(msg.sender);
+        _updateFor(to);
+
+        return super.transfer(to, amount);
+    }
+
+    /// @dev ERC20 `transferFrom` code is copied over because we should call the update
+    /// routine after the allowance checks but before the balance update, otherwise
+    /// the user would pay extra gas for the updates if the allowance isn't higher enough
+    /// to satisfy `amount` transfer.
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) public override returns (bool) {
+        uint256 allowed = allowance[from][msg.sender]; // Saves gas for limited approvals.
+
+        if (allowed != type(uint256).max) {
+            allowance[from][msg.sender] = allowed - amount;
+        }
+
+        _update();
+        _updateFor(msg.sender);
+        _updateFor(to);
+        
+        balanceOf[from] -= amount;
+
+        // Cannot overflow because the sum of all user
+        // balances can't exceed the max uint256 value.
+        unchecked {
+            balanceOf[to] += amount;
+        }
+
+        emit Transfer(from, to, amount);
+
+        return true;
     }
 
     function _update() internal {
@@ -69,7 +110,6 @@ contract MagicCRV is ERC20, Ownable {
     }
 
     function _updateFor(address recipient) internal {
-        _update();
         uint256 balance = balanceOf[recipient];
         if (balance > 0) {
             uint256 currentIndex = rewardIndexes[recipient];
@@ -96,6 +136,7 @@ contract MagicCRV is ERC20, Ownable {
     }
 
     function _claimFor(address recipient) internal {
+        _update();
         _updateFor(recipient);
 
         uint256 claimable = claimables[recipient];
