@@ -1,25 +1,53 @@
 // SPDX-License-Identifier: MIT
+// solhint-disable func-name-mixedcase
 pragma solidity ^0.8.10;
 
+import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 import "@rari-capital/solmate/src/tokens/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 interface ICurveVoter {
     function lock() external;
 
-    function claim(address) external;
+    function claim(address recipient) external;
 }
 
-contract MagicCRV is ERC20, Ownable {
+interface ICheckpointToken {
+    function user_checkpoint(address[2] calldata accounts) external returns (bool);
+}
+
+contract MagicCRV is ERC20, Ownable, ICheckpointToken {
+    using SafeTransferLib for ERC20;
+
+    error Shutdown();
+    error CannotWithdraw();
+
     ERC20 public constant CRV = ERC20(0xD533a949740bb3306d119CC777fa900bA034cd52);
     ERC20 public constant CRV3 = ERC20(0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490);
     ICurveVoter public immutable curveVoter;
 
+    struct DelegatorInfo {
+        bool exists;
+        bool allowed;
+    }
+
     mapping(address => uint256) public claimables;
     mapping(address => uint256) public rewardIndexes;
+    mapping(address => DelegatorInfo) public knownDelegators;
+    DelegatorInfo[] public delegators;
 
+    /// @dev global reward states
     uint256 public rewardIndex = 0;
     uint256 public crv3Balance = 0;
+
+    bool public shutdown;
+
+    modifier notShutdown() {
+        if (shutdown) {
+            revert Shutdown();
+        }
+        _;
+    }
 
     constructor(ICurveVoter _curveVoter) ERC20("MagicCRV", "mCRV", 18) {
         curveVoter = _curveVoter;
@@ -29,15 +57,39 @@ contract MagicCRV is ERC20, Ownable {
         _update();
     }
 
-    function claim() external {
+    function claim() external notShutdown {
         _claimFor(msg.sender);
     }
 
-    function claimFor(address recipient) external {
+    function claimFor(address recipient) external notShutdown {
         _claimFor(recipient);
     }
 
-    function deposit(uint256 _amount) external {
+    /// @notice set an adresse as a reward delegator.
+    /// a delegator cannot claim rewards but the user that has a share of its
+    /// total balance.
+    /// beware that disabling a delegator will make users not longer able
+    /// to claim their rewards from it.
+    function setAllowedDelegator(address account, bool allowed) external onlyOwner {
+        if (knownDelegators[account].exists) {
+            knownDelegators[account].allowed = allowed;
+            return;
+        }
+
+        DelegatorInfo memory info = DelegatorInfo({exists: true, allowed: allowed});
+        knownDelegators[account] = info;
+        delegators.push(info);
+    }
+
+    /// @notice emergency shutdown
+    /// - blocks the users from claiming their rewards;
+    /// - still allows the underlying 3crv reward harvesting process;
+    /// - `withdraw` becomes available so the 3crv can still be rescued;
+    function setShutdown(bool _shutdown) external onlyOwner {
+        shutdown = _shutdown;
+    }
+
+    function deposit(uint256 _amount) external notShutdown {
         CRV.transferFrom(msg.sender, address(curveVoter), _amount);
 
         /// @dev the update must be done before minting to avoid
@@ -75,7 +127,7 @@ contract MagicCRV is ERC20, Ownable {
         _update();
         _updateFor(msg.sender);
         _updateFor(to);
-        
+
         balanceOf[from] -= amount;
 
         // Cannot overflow because the sum of all user
@@ -88,6 +140,8 @@ contract MagicCRV is ERC20, Ownable {
 
         return true;
     }
+
+    function user_checkpoint(address[2] calldata accounts) external returns (bool) {}
 
     function _update() internal {
         if (totalSupply > 0) {
@@ -144,5 +198,18 @@ contract MagicCRV is ERC20, Ownable {
         crv3Balance -= claimable;
 
         CRV3.transfer(recipient, claimable);
+    }
+
+    /// @notice emergency withdraw in case the contract is shutdown
+    function withdraw(
+        ERC20 token,
+        address to,
+        uint256 amount
+    ) external onlyOwner {
+        if (!shutdown) {
+            revert CannotWithdraw();
+        }
+
+        token.safeTransfer(to, amount);
     }
 }
