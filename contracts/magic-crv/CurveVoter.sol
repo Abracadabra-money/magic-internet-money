@@ -52,8 +52,8 @@ contract CurveVoter is Ownable {
 
     constructor() {}
 
-    function setAllowedVoter(address _voter, bool allowed) external onlyOwner {
-        voters[_voter] = allowed;
+    function setAllowedVoter(address voter, bool allowed) external onlyOwner {
+        voters[voter] = allowed;
     }
 
     function setMagicCRV(address _magicCRV) external onlyOwner {

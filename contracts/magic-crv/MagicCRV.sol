@@ -91,7 +91,7 @@ contract MagicCRV is ERC20, Ownable {
 
     function _update() internal {
         if (totalSupply > 0) {
-            _claimCurveRewards();
+            curveVoter.claim(address(this));
 
             uint256 currentCrv3Balance = CRV3.balanceOf(address(this));
             if (currentCrv3Balance > crv3Balance) {
@@ -129,10 +129,6 @@ contract MagicCRV is ERC20, Ownable {
         } else {
             rewardIndexes[recipient] = rewardIndex;
         }
-    }
-
-    function _claimCurveRewards() internal {
-        curveVoter.claim(address(this));
     }
 
     function _claimFor(address recipient) internal {
