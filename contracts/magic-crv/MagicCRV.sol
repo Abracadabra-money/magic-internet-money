@@ -21,20 +21,25 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
 
     error Shutdown();
     error CannotWithdraw();
+    error DelegatorNotAllowed();
 
     ERC20 public constant CRV = ERC20(0xD533a949740bb3306d119CC777fa900bA034cd52);
     ERC20 public constant CRV3 = ERC20(0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490);
     ICurveVoter public immutable curveVoter;
 
     struct DelegatorInfo {
-        bool exists;
         bool allowed;
+        bool exists;
+        mapping(address => uint256) balanceOf;
+        mapping(address => uint256) claimables;
+        mapping(address => uint256) rewardIndexes;
     }
 
     mapping(address => uint256) public claimables;
     mapping(address => uint256) public rewardIndexes;
-    mapping(address => DelegatorInfo) public knownDelegators;
-    DelegatorInfo[] public delegators;
+
+    mapping(address => DelegatorInfo) public delegatorInfo;
+    address[] public delegators;
 
     /// @dev global reward states
     uint256 public rewardIndex = 0;
@@ -66,19 +71,19 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
     }
 
     /// @notice set an adresse as a reward delegator.
-    /// a delegator cannot claim rewards but the user that has a share of its
+    /// a delegator cannot claim rewards, only the users that have shares of its
     /// total balance.
     /// beware that disabling a delegator will make users not longer able
     /// to claim their rewards from it.
     function setAllowedDelegator(address account, bool allowed) external onlyOwner {
-        if (knownDelegators[account].exists) {
-            knownDelegators[account].allowed = allowed;
-            return;
+        if (!delegatorInfo[account].exists) {
+            delegatorInfo[account].exists = true;
+            delegators.push(account);
         }
 
-        DelegatorInfo memory info = DelegatorInfo({exists: true, allowed: allowed});
-        knownDelegators[account] = info;
-        delegators.push(info);
+        delegatorInfo[account].allowed = allowed;
+        claimables[account] = 0;
+        rewardIndexes[account] = rewardIndex;
     }
 
     /// @notice emergency shutdown
@@ -102,9 +107,7 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
     }
 
     function transfer(address to, uint256 amount) public override returns (bool) {
-        _update();
-        _updateFor(msg.sender);
-        _updateFor(to);
+        _updateRewardsTransfer(msg.sender, to);
 
         return super.transfer(to, amount);
     }
@@ -124,9 +127,7 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
             allowance[from][msg.sender] = allowed - amount;
         }
 
-        _update();
-        _updateFor(msg.sender);
-        _updateFor(to);
+        _updateRewardsTransfer(from, to);
 
         balanceOf[from] -= amount;
 
@@ -139,6 +140,20 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
         emit Transfer(from, to, amount);
 
         return true;
+    }
+
+    function _updateRewardsTransfer(address from, address to) internal {
+        _update();
+
+        /// @dev don't update account level rewards when it's a delegator
+        if (!delegatorInfo[from].allowed) {
+            _updateFor(from);
+            _updateForDelegators(from);
+        }
+        if (!delegatorInfo[to].allowed) {
+            _updateFor(to);
+            _updateForDelegators(to);
+        }
     }
 
     function user_checkpoint(address[2] calldata accounts) external returns (bool) {}
@@ -159,6 +174,34 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
                         crv3Balance = currentCrv3Balance;
                     }
                 }
+            }
+        }
+    }
+
+    function _updateForDelegators(address recipient) internal {
+        for (uint256 i = 0; i < delegators.length; i++) {
+            address delegator = delegators[i];
+            DelegatorInfo storage info = delegatorInfo[delegator];
+
+            uint256 balance = info.balanceOf[recipient];
+            if (balance > 0) {
+                uint256 currentIndex = info.rewardIndexes[recipient];
+
+                // update user reward index to the latest
+                info.rewardIndexes[recipient] = rewardIndex;
+
+                // update the user claimable amount based on the
+                // different between the latest recorded index and
+                // the current one.
+                uint256 deltaIndex = rewardIndex - currentIndex;
+
+                if (deltaIndex > 0) {
+                    // increase the claimable share amount based
+                    // on the delta reward index and the magicCRV balance.
+                    info.claimables[recipient] += (balance * deltaIndex) / 1e18;
+                }
+            } else {
+                info.rewardIndexes[recipient] = rewardIndex;
             }
         }
     }
@@ -186,11 +229,20 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
     }
 
     function _claimFor(address recipient) internal {
+        if (delegatorInfo[recipient].allowed) {
+            revert DelegatorNotAllowed();
+        }
+
         _update();
         _updateFor(recipient);
+        _updateForDelegators(recipient);
 
         uint256 claimable = claimables[recipient];
         claimables[recipient] = 0;
+
+        for (uint256 i = 0; i < delegators.length; i++) {
+            claimable += delegatorInfo[delegators[i]].claimables[recipient];
+        }
 
         /// @dev crv3Balance is updated by _updateFor
         /// and claimable should never be greater than
