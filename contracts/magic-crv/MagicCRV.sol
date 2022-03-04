@@ -72,6 +72,10 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
     }
 
     function _getTotalBalance(address account) internal view returns (uint256) {
+        if (account == address(DEGENBOX)) {
+            return 0;
+        }
+
         uint256 share;
         for (uint256 i = 0; i < cauldrons.length; i++) {
             try ICauldron(cauldrons[i]).userCollateralShare(account) returns (uint256 _share) {
