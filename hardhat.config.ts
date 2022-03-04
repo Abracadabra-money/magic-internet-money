@@ -20,9 +20,6 @@ const accounts = {
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
-  gasReporter: {
-    enabled: (process.env.REPORT_GAS) ? true : false
-  },
   abiExporter: {
     path: "./abi",
     clear: false,
