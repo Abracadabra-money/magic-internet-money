@@ -33,6 +33,7 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
     mapping(address => bool) public knownCauldrons;
     mapping(address => bool) public knownBentoBoxes;
     address[] public cauldrons;
+    address[] public bentoBoxes;
 
     /// @dev global reward states
     uint256 public rewardIndex = 0;
@@ -67,9 +68,14 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
             revert CauldronAlreadyAdded();
         }
 
+        address bentoBox = address(ICauldron(cauldron).bentoBox());
+        if (!knownBentoBoxes[bentoBox]) {
+            bentoBoxes.push(bentoBox);
+            knownBentoBoxes[bentoBox] = true;
+        }
+
         cauldrons.push(cauldron);
         knownCauldrons[cauldron] = true;
-        knownBentoBoxes[address(ICauldron(cauldron).bentoBox())] = true;
     }
 
     function _getTotalBalance(address account) internal view returns (uint256) {
@@ -82,7 +88,6 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
         for (uint256 i = 0; i < cauldrons.length; i++) {
             try ICauldron(cauldrons[i]).userCollateralShare(account) returns (uint256 share) {
                 total += ICauldron(cauldrons[i]).bentoBox().toAmount(address(this), share, false);
-
             } catch {}
         }
 
@@ -168,8 +173,19 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
         return true;
     }
 
+    function _getBalanceInsideBentoBoxes() private returns (uint256 amount) {
+        for (uint256 i = 0; i < bentoBoxes.length; i++) {
+            amount += balanceOf[bentoBoxes[i]];
+        }
+    }
+
     function _update() internal {
-        if (totalSupply > 0) {
+        uint256 supplyOutsideBentoBoxes = totalSupply;
+
+        // total amount in bentoboxes cannot never exceed total supply
+        supplyOutsideBentoBoxes -= _getBalanceInsideBentoBoxes();
+
+        if (supplyOutsideBentoBoxes > 0) {
             curveVoter.claim(address(this));
 
             uint256 currentCrv3Balance = CRV3.balanceOf(address(this));
@@ -178,7 +194,7 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
                 if (balanceDiff > 0) {
                     // Update the reward index based on the ratio between
                     // the new 3crv rewards and the current magicCRV total supply.
-                    uint256 ratio = (balanceDiff * 1e18) / totalSupply;
+                    uint256 ratio = (balanceDiff * 1e18) / supplyOutsideBentoBoxes;
                     if (ratio > 0) {
                         rewardIndex += ratio;
                         crv3Balance = currentCrv3Balance;

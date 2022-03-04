@@ -1,13 +1,16 @@
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { expect } from "chai";
 import { advanceTime, ChainId, duration, getBigNumber, impersonate } from "../utilities";
-import { CurveVoter, ERC20Mock, IFeeDistributor, MagicCRV } from "../typechain";
+import { CauldronV2Checkpoint, CurveVoter, DegenBox, ERC20Mock, IFeeDistributor, MagicCRV } from "../typechain";
 import { ISmartWalletWhitelist } from "../typechain/ISmartWalletWhitelist";
+import { BigNumber } from "ethers";
 
 const CrvWhale = "0x7a16ff8270133f063aab6c9977183d9e72835428";
 const Crv3Whale = "0xCEAF7747579696A2F0bb206a14210e3c9e6fB269";
 const CurveSmartWalletWhitelist = "0xca719728Ef172d0961768581fdF35CB116e0B7a4";
 const CurveDao = "0x40907540d8a6C65c637785e8f8B742ae6b0b9968";
+
+const SCALE = BigNumber.from("1000000000000000000"); // 1e18
 
 describe("MagicCRV", async () => {
   let snapshotId;
@@ -16,6 +19,9 @@ describe("MagicCRV", async () => {
   let CRV: ERC20Mock;
   let CRV3: ERC20Mock;
   let FeeDistibutor: IFeeDistributor;
+  let CauldronMC: CauldronV2Checkpoint;
+  let Cauldron: CauldronV2Checkpoint;
+  let DegenBox: DegenBox;
   let deployerSigner;
   let curveDaoSigner;
   let crvWhaleSigner;
@@ -35,7 +41,7 @@ describe("MagicCRV", async () => {
     });
 
     hre.getChainId = () => Promise.resolve(ChainId.Mainnet.toString());
-    await deployments.fixture(["MagicCRV", "MagicCRVCauldron"]);
+    await deployments.fixture(["MagicCRV", "DegenBoxCauldronV2Checkpoint", "MagicCRVCauldron"]);
     const { deployer, alice } = await getNamedAccounts();
     deployerSigner = await ethers.getSigner(deployer);
 
@@ -71,6 +77,10 @@ describe("MagicCRV", async () => {
 
     // Create initial lock
     await CurveVoter.createMaxLock(1);
+
+    DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce");
+    Cauldron = await ethers.getContract<CauldronV2Checkpoint>("MagicCRVCauldron");
+    CauldronMC = await ethers.getContract<CauldronV2Checkpoint>("DegenBoxCauldronV2Checkpoint");
 
     snapshotId = await ethers.provider.send("evm_snapshot", []);
   });
@@ -149,11 +159,92 @@ describe("MagicCRV", async () => {
     await expect(CurveVoter.connect(alice).voteForMaxMIMGaugeWeights()).to.be.revertedWith("NotAllowedVoter()");
   });
 
-  it("should not be possible to claim from degenbox", async () => {});
+  it("should not be possible to claim and deposit when shutdown and allow withdrawals", async () => {
+    const [, alice] = await ethers.getSigners();
+    await MagicCRV.connect(alice).claim();
+    await MagicCRV.connect(alice).deposit(1);
 
-  it("should not be possible to claim when shutdown", async () => {});
+    await expect(MagicCRV.withdraw(CRV3.address, alice.address, 1)).to.be.revertedWith("CannotWithdraw()");
 
-  it("should not be possible to deposit when shutdown", async () => {});
+    await MagicCRV.setShutdown(true);
 
-  it("should be possible to claim reward when deposited into a cauldron", async () => {});
+    await expect(MagicCRV.connect(alice).claim()).to.be.revertedWith("Shutdown()");
+    await expect(MagicCRV.connect(alice).deposit(1)).to.be.revertedWith("Shutdown()");
+
+    await CRV3.connect(crv3WhaleSigner).transfer(MagicCRV.address, 1);
+    await MagicCRV.withdraw(CRV3.address, alice.address, 1);
+  });
+
+  describe("Cauldron Claiming", async () => {
+    const setup = async (signer, initialCrvAmount, balanceForCauldron) => {
+      // transfer crv from 3crv whale
+      await CRV.connect(crvWhaleSigner).transfer(signer.address, initialCrvAmount);
+
+      await CRV.connect(signer).approve(MagicCRV.address, ethers.constants.MaxUint256);
+      await MagicCRV.connect(signer).deposit(await CRV.balanceOf(signer.address));
+      const balance = await MagicCRV.balanceOf(signer.address);
+
+      await MagicCRV.connect(signer).approve(DegenBox.address, ethers.constants.MaxUint256);
+      await DegenBox.connect(signer).deposit(MagicCRV.address, signer.address, signer.address, balanceForCauldron, 0);
+
+      const magicCRVShare = await DegenBox.balanceOf(MagicCRV.address, signer.address);
+      expect(await DegenBox.toAmount(MagicCRV.address, magicCRVShare, false)).to.be.equal(balanceForCauldron);
+
+      await DegenBox.connect(signer).setMasterContractApproval(
+        signer.address,
+        CauldronMC.address,
+        true,
+        0,
+        ethers.constants.HashZero,
+        ethers.constants.HashZero
+      );
+    };
+
+    const addRewards = async (amount) => {
+      await CRV3.connect(crv3WhaleSigner).transfer(MagicCRV.address, amount);
+    };
+
+    const addCollateral = async (signer, amount) => {
+      const share = await DegenBox.toShare(MagicCRV.address, amount, false);
+      await Cauldron.connect(signer).addCollateral(signer.address, false, share);
+    };
+
+    const removeCollateral = async (signer, amount) => {
+      const share = await DegenBox.toShare(MagicCRV.address, amount, false);
+      await Cauldron.connect(signer).removeCollateral(signer.address, share);
+    };
+
+    const expectRewards = async (signer, amount, ) => {
+      const crv3BalanceBefore = await CRV3.balanceOf(signer.address);
+      await MagicCRV.connect(signer).claim();
+      const crv3BalanceAfter = await CRV3.balanceOf(signer.address);
+
+      expect(crv3BalanceAfter.sub(crv3BalanceBefore)).to.be.closeTo(amount, 1e4);
+    };
+
+    it.only("should be possible to claim reward when deposited into a cauldron", async () => {
+      const [, , bob, carol] = await ethers.getSigners();
+
+      // == bob ==
+      // wallet: 5_000
+      // cauldron: 0
+      // not farming: 5_000
+      // == carol ==
+      // wallet: 2_500
+      // cauldron: 0
+      // not farming: 2_500
+      // --
+      // total supply: 15_000
+      await setup(bob, getBigNumber(10_000), getBigNumber(5_000));
+      await setup(carol, getBigNumber(5_000), getBigNumber(2_500));
+      
+      await expectRewards(bob, getBigNumber(0));
+      await expectRewards(carol, getBigNumber(0));
+
+      await addRewards(getBigNumber(100));
+
+      // 100 * (5_000 / 7_500)
+      await expectRewards(bob, getBigNumber(5_000).mul(getBigNumber(100)).div(getBigNumber(7_500)));
+    });
+  });
 });

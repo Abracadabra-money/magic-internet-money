@@ -4,7 +4,7 @@ import { ethers, network } from "hardhat";
 import { ChainId } from "../utilities";
 import { expect } from "chai";
 import { xMerlin } from "../test/constants";
-import { DegenBox, CauldronV2Checkpoint, CurveVoter, IConvexStakingWrapperAbra, IConvexStakingWrapperAbraFactory, MagicCRV, ProxyOracle } from "../typechain";
+import { DegenBox, CauldronV2Checkpoint, CurveVoter, IConvexStakingWrapperAbra, IConvexStakingWrapperAbraFactory, MagicCRV, ProxyOracle, MagicCRVOracle } from "../typechain";
 import { Frax3CrvOracle } from "../typechain/Frax3CrvOracle";
 
 // List of supported chains to deploy on
@@ -38,7 +38,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   // change the `getContracAt` once MagicCRV is deployed
   const MagicCRV = await ethers.getContract<MagicCRV>("MagicCRV");
 
-  const CauldronV2Checkpoint = await ethers.getContract<CauldronV2Checkpoint>("DegenBoxCauldronV2Checkpoint");
+  const CauldronV2CheckpointMC = await ethers.getContract<CauldronV2Checkpoint>("DegenBoxCauldronV2Checkpoint");
 
   // Proxy Oracle
   await deploy("MagicCRVProxyOracle", {
@@ -65,8 +65,8 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     ["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"],
     [MagicCRV.address, ProxyOracle.address, parameters.oracleData, interest, liquidationFee, maximumCollateralRatio, borrowFee]
   );
-  const tx = await (await DegenBox.deploy(CauldronV2Checkpoint.address, initData, true)).wait();
 
+  const tx = await (await DegenBox.deploy(CauldronV2CheckpointMC.address, initData, true)).wait();
   const deployEvent = tx?.events?.[0];
   expect(deployEvent?.eventSignature).to.be.eq("LogDeploy(address,bytes,address)");
 

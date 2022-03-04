@@ -28,15 +28,15 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     deterministicDeployment: false,
   });
 
-  const CauldronV2Checkpoint = await ethers.getContract<CauldronV2Checkpoint>("DegenBoxCauldronV2Checkpoint");
-  await (await CauldronV2Checkpoint.setFeeTo(parameters.feeTo)).wait();
+  const CauldronV2CheckpointMC = await ethers.getContract<CauldronV2Checkpoint>("DegenBoxCauldronV2Checkpoint");
+  await (await CauldronV2CheckpointMC.setFeeTo(parameters.feeTo)).wait();
 
   const DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", parameters.degenBox);
 
   const degenBoxOwner = await DegenBox.owner();
   await impersonate(degenBoxOwner);
   const degenBoxOwnerSigner = await ethers.getSigner(degenBoxOwner);
-  await DegenBox.connect(degenBoxOwnerSigner).whitelistMasterContract(CauldronV2Checkpoint.address, true);
+  await DegenBox.connect(degenBoxOwnerSigner).whitelistMasterContract(CauldronV2CheckpointMC.address, true);
 
   /*if ((await CauldronV2Checkpoint.owner()) != xMerlin) {
     await (await CauldronV2Checkpoint.transferOwnership(xMerlin, true, false)).wait();
