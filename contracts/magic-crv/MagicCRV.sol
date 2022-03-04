@@ -24,7 +24,6 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
     error NotCauldron();
     error CauldronAlreadyAdded();
 
-    IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce);
     ERC20 public constant CRV = ERC20(0xD533a949740bb3306d119CC777fa900bA034cd52);
     ERC20 public constant CRV3 = ERC20(0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490);
     ICurveVoter public immutable curveVoter;
@@ -32,6 +31,7 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
     mapping(address => uint256) public claimables;
     mapping(address => uint256) public rewardIndexes;
     mapping(address => bool) public knownCauldrons;
+    mapping(address => bool) public knownBentoBoxes;
     address[] public cauldrons;
 
     /// @dev global reward states
@@ -72,18 +72,20 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
     }
 
     function _getTotalBalance(address account) internal view returns (uint256) {
-        if (account == address(DEGENBOX)) {
+        if (knownBentoBoxes[account]) {
             return 0;
         }
 
-        uint256 share;
+        uint256 total = balanceOf[account];
+
         for (uint256 i = 0; i < cauldrons.length; i++) {
-            try ICauldron(cauldrons[i]).userCollateralShare(account) returns (uint256 _share) {
-                share = share + _share;
+            try ICauldron(cauldrons[i]).userCollateralShare(account) returns (uint256 share) {
+                total += ICauldron(cauldrons[i]).bentoBox().toAmount(address(this), share, false);
+
             } catch {}
         }
 
-        return balanceOf[account] + DEGENBOX.toAmount(address(this), share, false);
+        return total;
     }
 
     /// @notice emergency shutdown
