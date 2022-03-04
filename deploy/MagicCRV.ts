@@ -1,9 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { ethers, network } from "hardhat";
+import { ethers } from "hardhat";
 import { MagicCRV } from "../typechain";
 import { ChainId, setDeploymentSupportedChains } from "../utilities";
-import { xMerlin } from "../test/constants";
 import { CurveVoter } from "../typechain/CurveVoter";
 
 const ParametersPerChain = {
@@ -37,15 +36,6 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   const MagicCRV = await ethers.getContract<MagicCRV>("MagicCRV");
   await CurveVoter.setMagicCRV(MagicCRV.address);
-
-  if(network.name !== "hardhat") {
-    if ((await CurveVoter.owner()) != xMerlin) {
-      await CurveVoter.transferOwnership(xMerlin);
-    }
-    if ((await MagicCRV.owner()) != xMerlin) {
-      await MagicCRV.transferOwnership(xMerlin);
-    }
-  }
 };
 
 export default deployFunction;

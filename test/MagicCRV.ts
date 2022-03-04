@@ -1,7 +1,7 @@
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { expect } from "chai";
 import { advanceTime, ChainId, duration, getBigNumber, impersonate } from "../utilities";
-import { CurveVoter, IERC20, IFeeDistributor, MagicCRV } from "../typechain";
+import { CurveVoter, ERC20Mock, IFeeDistributor, MagicCRV } from "../typechain";
 import { ISmartWalletWhitelist } from "../typechain/ISmartWalletWhitelist";
 
 const CrvWhale = "0x7a16ff8270133f063aab6c9977183d9e72835428";
@@ -13,8 +13,8 @@ describe("MagicCRV", async () => {
   let snapshotId;
   let CurveVoter: CurveVoter;
   let MagicCRV: MagicCRV;
-  let CRV: IERC20;
-  let CRV3: IERC20;
+  let CRV: ERC20Mock;
+  let CRV3: ERC20Mock;
   let FeeDistibutor: IFeeDistributor;
   let deployerSigner;
   let curveDaoSigner;
@@ -35,15 +35,15 @@ describe("MagicCRV", async () => {
     });
 
     hre.getChainId = () => Promise.resolve(ChainId.Mainnet.toString());
-    await deployments.fixture(["MagicCRV"]);
+    await deployments.fixture(["MagicCRV", "MagicCRVCauldron"]);
     const { deployer, alice } = await getNamedAccounts();
     deployerSigner = await ethers.getSigner(deployer);
 
     crvWhaleSigner = await ethers.getSigner(CrvWhale);
     crv3WhaleSigner = await ethers.getSigner(Crv3Whale);
 
-    CRV = await ethers.getContractAt<IERC20>("ERC20Mock", "0xD533a949740bb3306d119CC777fa900bA034cd52");
-    CRV3 = await ethers.getContractAt<IERC20>("ERC20Mock", "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490");
+    CRV = await ethers.getContractAt<ERC20Mock>("ERC20Mock", "0xD533a949740bb3306d119CC777fa900bA034cd52");
+    CRV3 = await ethers.getContractAt<ERC20Mock>("ERC20Mock", "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490");
     FeeDistibutor = await ethers.getContractAt<IFeeDistributor>("IFeeDistributor", "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc");
 
     await impersonate(CrvWhale);
@@ -79,7 +79,7 @@ describe("MagicCRV", async () => {
     await network.provider.send("evm_revert", [snapshotId]);
     snapshotId = await ethers.provider.send("evm_snapshot", []);
   });
-  
+
   it("should not be able to create another lock", async () => {
     await expect(CurveVoter.connect(deployerSigner).createMaxLock(1)).to.be.revertedWith("Withdraw old tokens first");
   });
@@ -141,9 +141,19 @@ describe("MagicCRV", async () => {
 
     await expect(CurveVoter.connect(bob).voteForMaxMIMGaugeWeights()).to.be.revertedWith("NotAllowedVoter()");
     await CurveVoter.setAllowedVoter(bob.address, true);
-    await expect(CurveVoter.connect(bob).voteForGaugeWeights("0xb0f5d00e5916c8b8981e99191A1458704B587b2b", 420)).to.be.revertedWith("Used too much power");
+    await expect(CurveVoter.connect(bob).voteForGaugeWeights("0xb0f5d00e5916c8b8981e99191A1458704B587b2b", 420)).to.be.revertedWith(
+      "Used too much power"
+    );
 
     await CurveVoter.setAllowedVoter(alice.address, false);
     await expect(CurveVoter.connect(alice).voteForMaxMIMGaugeWeights()).to.be.revertedWith("NotAllowedVoter()");
   });
+
+  it("should not be possible to claim from degenbox", async () => {});
+
+  it("should not be possible to claim when shutdown", async () => {});
+
+  it("should not be possible to deposit when shutdown", async () => {});
+
+  it("should be possible to claim reward when deposited into a cauldron", async () => {});
 });
