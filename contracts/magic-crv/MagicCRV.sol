@@ -69,6 +69,7 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
 
         cauldrons.push(cauldron);
         knownCauldrons[cauldron] = true;
+        knownBentoBoxes[address(ICauldron(cauldron).bentoBox())] = true;
     }
 
     function _getTotalBalance(address account) internal view returns (uint256) {
