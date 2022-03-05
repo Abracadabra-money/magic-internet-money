@@ -101,7 +101,7 @@ contract NFTPair is BoringOwnable, IMasterContract {
     uint256 private constant PROTOCOL_FEE_BPS = 1000;
     uint256 private constant OPEN_FEE_BPS = 100;
     uint256 private constant BPS = 10_000;
-    uint256 private constant YEAR = 3600 * 24 * 365;
+    uint256 private constant YEAR_BPS = 3600 * 24 * 365 * 10_000;
 
     /// @notice The constructor is only used for the initial master contract.
     /// @notice Subsequent clones are initialised via `init`.
@@ -248,84 +248,80 @@ contract NFTPair is BoringOwnable, IMasterContract {
     ///
     ///   principal * time * apr <= result <= principal * (e^(time * apr) - 1),
     ///
-    /// where time = t/YEAR, but once the result no longer fits in 128 bits it
-    /// may be very inaccurate. Which does not matter, because the BentoBox
-    /// cannot hold that high a balance.
+    /// where time = t/YEAR, up to at most the rounding error obtained in
+    /// calculating linear interest.
     ///
-    /// @param n Highest order term. Set n=1 (or 0) for linear interest only.
+    /// If the theoretical result that we are approximating (the rightmost part
+    /// of the above inquality) fits in 128 bits, then the function is
+    /// guaranteed not to revert (unless n > 250, which is way too high).
+    /// If even the linear interest (leftmost part of the inequality) does not
+    /// the function will revert.
+    /// Otherwise, the function may revert, return a reasonable result, or
+    /// return a very inaccurate result. Even then the above inequality is
+    /// respected.
+    ///
+    /// @param n Highest order term. Treats both 0 and 1 as "linear only".
     function calculateInterest(
         uint256 principal,
-        uint256 t,
-        uint256 aprBPS,
-        uint256 n
+        uint64 t,
+        uint16 aprBPS,
+        uint8 n
     ) public pure returns (uint256 interest) {
-        // These calculations can, in principle, overflow, given sufficiently
-        // ridiculous inputs, as shown in the following table:
+        // We calculate
         //
-        //      principal = 2^128 - 1       (128 bits)
-        //      t         = 30,000 years    (40 bits)
-        //      interest  = 655.35% APR     (16 bits)
+        //  ----- n                                       ----- n
+        //   \           principal * (t * aprBPS)^k        \
+        //    )          --------------------------   =:    )          term_k
+        //   /                k! * YEAR_BPS^k              /
+        //  ----- k = 1                                   ----- k = 1
         //
-        // Even then, we will not see an overflow until after the fifth term:
+        // which approaches, but never exceeds the "theoretical" result,
         //
-        // k        denom > 2^   term * x <= 2^     term * x / denom <= 2^
-        // ---------------------------------------------------------------
-        // 1        38           128 + 56 = 184     184 - 38 = 146
-        // 2        39           146 + 56 = 202     202 - 39 = 163
-        // 3        40           163 + 56 = 219     219 - 40 = 179
-        // 4        42           179 + 56 = 235     235 - 42 = 193
-        // 5        45           193 + 56 = 249     249 - 45 = 204
+        //          M := principal * [ exp (t * aprBPS / YEAR_BPS) - 1
         //
-        // (Denominator bits: floor (lg (k! * 10_000 * YEAR)) )
+        // as n goes to infinity. We use the fact that
         //
-        // To be fair, five terms would not adequately capture the effects of
-        // this much compound interest over this time period. On the high end
-        // of actual usage we expect to see, it does, and there is no overflow:
+        //               principal * (t * aprBPS)^(k-1) * (t * aprBPS)
+        //      term_k = ---------------------------------------------
+        //                  (k-1)! * k * YEAR_BPS^(k-1) * YEAR_BPS
         //
-        //      principal = 1 billion ether (1e27)          (90 bits)
-        //      t         = 5 years (~158 million seconds)  (28 bits)
-        //      apr       = 30%                             (12 bits)
+        //                             t * aprBPS
+        //             = term_{k-1} * ------------                          (*)
+        //                            k * YEAR_BPS
         //
-        // k        denom > 2^   term * x <= 2^     term * x / denom <= 2^
-        // ---------------------------------------------------------------
-        // 1        38           90 + 40 = 130      130 - 38 = 92
-        // 2        39           92 + 40 = 132      132 - 39 = 93
-        // 3        40           93 + 40 = 133      133 - 40 = 93
-        // 4        42           93 + 40 = 133      133 - 42 = 91
+        // to calculate the terms one by one. The principal affords us the
+        // precision to carry out the division without resorting to fixed-point
+        // math. Any rounding error is downward, which we consider acceptable.
         //
-        // ..and from here on, the terms keep getting smaller; the factorial in
-        // the denominator "wins". Indeed, the result is dominated by the "2"
-        // and "3" terms: the partial sums are:
+        // Since all numbers involved are positive, each term is certainly
+        // bounded above by M. From (*) we see that any intermediate results
+        // are at most
         //
-        // n            Σ_1..n (1.5^k / k!)
-        // --------------------------------------
-        // 1            1.5
-        // 2            2.625
-        // 3            3.1875
-        // 4            3.3984375
-        // 5            3.46171875
-        // ...
-        // (Infinity)   3.48168907... (e^1.5 - 1)
+        //                      denom_k := k * YEAR_BPS.
         //
-        // Finally: the denominator overflows at n = 51; n = 50 is "safe"
-        // but useless; if we need that many terms, interest is high enough
-        // to be unpayable.
-        // However, n >= 252 is not safe; 10_000 * YEAR * 252! = 0 mod 2^256.
+        // times M. Since YEAR_BPS fits in 38 bits, denom_k fits in 46 bits,
+        // which proves that all calculations will certainly not overflow if M
+        // fits in 128 bits.
         //
-        // Since even abnormal values will result in a few "valid" terms that
-        // are enough to make the interest unpayably high, it suffices to check
-        // that the total cannot go down (final `add`). If that calculation
-        // overflows, then reverting is no worse than anything else we may do.
+        // If M does not fit, then the intermediate results for some term may
+        // eventually overflow, but this cannot happen at the first term, and
+        // neither can the total overflow because it uses checked math.
         //
-        uint256 x = t * aprBPS;
-        uint256 denom = YEAR * BPS;
-        uint256 term = (principal * x) / denom;
-        interest = term;
+        // This constitutes a guarantee of specified behavior when M >= 2^128.
+        //
+        uint256 x = uint256(t) * aprBPS;
+        uint256 term_k = (principal * x) / YEAR_BPS;
+        uint256 denom_k = YEAR_BPS;
+
+        interest = term_k;
         for (uint256 k = 2; k <= n; k++) {
-            term *= x; // Safe: See above.
-            denom *= k; // Fits up to k = 50; no problem after
-            term /= denom; // Safe until k = 251
-            interest = interest.add(term); // <- Only overflow check we need
+            denom_k += YEAR_BPS;
+            term_k = (term_k * x) / denom_k;
+            interest = interest.add(term_k); // <- Only overflow check we need
+        }
+
+        if (interest >= 2**128) {
+            revert();
         }
     }
 
@@ -335,17 +331,17 @@ contract NFTPair is BoringOwnable, IMasterContract {
         TokenLoanParams memory loanParams = tokenLoanParams[tokenId];
         require(loanParams.expiration > block.timestamp, "NFTPair: loan expired");
 
-        uint256 principal = loanParams.valuation;
+        uint128 principal = loanParams.valuation;
 
         // No underflow: loan.startTime is only ever set to a block timestamp
+        // Cast is safe: if this overflows, then all loans have expired anyway
         uint256 interest = calculateInterest(
             principal,
-            block.timestamp - loan.startTime,
+            uint64(block.timestamp - loan.startTime),
             loanParams.annualInterestBPS,
             loanParams.compoundInterestTerms
         ).to128();
         uint256 fee = (interest * PROTOCOL_FEE_BPS) / BPS;
-        // No overflow (both lines): to128() would have reverted
         amount = principal + interest;
 
         uint256 totalShare = bentoBox.toShare(asset, amount, false);
