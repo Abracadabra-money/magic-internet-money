@@ -234,6 +234,7 @@ contract NFTPair is BoringOwnable, IMasterContract {
         // No overflow: addends (and result) must fit in BentoBox
         feesEarnedShare += protocolFeeShare;
 
+        loan.lender = msg.sender;
         loan.status = LOAN_OUTSTANDING;
         loan.startTime = uint64(block.timestamp); // Do not use in 12e10 years..
         tokenLoan[tokenId] = loan;
