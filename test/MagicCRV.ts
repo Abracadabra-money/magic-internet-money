@@ -176,19 +176,13 @@ describe("MagicCRV", async () => {
   });
 
   describe("Cauldron Claiming", async () => {
-    const setup = async (signer, initialCrvAmount, balanceForCauldron) => {
+    const setup = async (signer, initialAmount) => {
       // transfer crv from 3crv whale
-      await CRV.connect(crvWhaleSigner).transfer(signer.address, initialCrvAmount);
+      await CRV.connect(crvWhaleSigner).transfer(signer.address, initialAmount);
 
       await CRV.connect(signer).approve(MagicCRV.address, ethers.constants.MaxUint256);
       await MagicCRV.connect(signer).deposit(await CRV.balanceOf(signer.address));
-      const balance = await MagicCRV.balanceOf(signer.address);
-
       await MagicCRV.connect(signer).approve(DegenBox.address, ethers.constants.MaxUint256);
-      await DegenBox.connect(signer).deposit(MagicCRV.address, signer.address, signer.address, balanceForCauldron, 0);
-
-      const magicCRVShare = await DegenBox.balanceOf(MagicCRV.address, signer.address);
-      expect(await DegenBox.toAmount(MagicCRV.address, magicCRVShare, false)).to.be.equal(balanceForCauldron);
 
       await DegenBox.connect(signer).setMasterContractApproval(
         signer.address,
@@ -206,6 +200,7 @@ describe("MagicCRV", async () => {
 
     const addCollateral = async (signer, amount) => {
       const share = await DegenBox.toShare(MagicCRV.address, amount, false);
+      await DegenBox.connect(signer).deposit(MagicCRV.address, signer.address, signer.address, 0, share);
       await Cauldron.connect(signer).addCollateral(signer.address, false, share);
     };
 
@@ -214,7 +209,7 @@ describe("MagicCRV", async () => {
       await Cauldron.connect(signer).removeCollateral(signer.address, share);
     };
 
-    const expectRewards = async (signer, amount, ) => {
+    const expectRewards = async (signer, amount) => {
       const crv3BalanceBefore = await CRV3.balanceOf(signer.address);
       await MagicCRV.connect(signer).claim();
       const crv3BalanceAfter = await CRV3.balanceOf(signer.address);
@@ -226,25 +221,73 @@ describe("MagicCRV", async () => {
       const [, , bob, carol] = await ethers.getSigners();
 
       // == bob ==
+      // wallet: 10_000
+      // cauldron: 0
+      // == carol ==
       // wallet: 5_000
       // cauldron: 0
-      // not farming: 5_000
-      // == carol ==
-      // wallet: 2_500
-      // cauldron: 0
-      // not farming: 2_500
       // --
       // total supply: 15_000
-      await setup(bob, getBigNumber(10_000), getBigNumber(5_000));
-      await setup(carol, getBigNumber(5_000), getBigNumber(2_500));
-      
+      await setup(bob, getBigNumber(10_000));
+      await setup(carol, getBigNumber(5_000));
+
       await expectRewards(bob, getBigNumber(0));
       await expectRewards(carol, getBigNumber(0));
 
       await addRewards(getBigNumber(100));
 
-      // 100 * (5_000 / 15_000)
-      await expectRewards(bob, getBigNumber(5_000).mul(getBigNumber(100)).div(getBigNumber(15_000)));
+      // bob: 100 * (10_000 / 15_000)
+      await expectRewards(bob, getBigNumber(10_000).mul(getBigNumber(100)).div(getBigNumber(15_000)));
+      // carol: 100 * (5_000 / 15_000)
+      await expectRewards(carol, getBigNumber(5_000).mul(getBigNumber(100)).div(getBigNumber(15_000)));
+
+      // shouldn't claim twice
+      await expectRewards(bob, getBigNumber(0));
+      await expectRewards(carol, getBigNumber(0));
+
+      // == bob ==
+      // wallet: 5_000
+      // cauldron: 5_000
+      // == carol ==
+      // wallet: 4_000
+      // cauldron: 1_000
+      await addCollateral(bob, getBigNumber(5_000));
+      await addCollateral(carol, getBigNumber(1_000));
+
+      await addRewards(getBigNumber(4321));
+
+      // bob: 4321 * (5_000 in wallet + 5_000 in cauldron / 15_000)
+      await expectRewards(bob, getBigNumber(10_000).mul(getBigNumber(4321)).div(getBigNumber(15_000)));
+      // carol: 4321 * (2_500 in wallet + 2_5000 in cauldron / 15_000)
+      await expectRewards(carol, getBigNumber(5_000).mul(getBigNumber(4321)).div(getBigNumber(15_000)));
+
+      // shouldn't claim anything more
+      await expectRewards(bob, getBigNumber(0));
+      await expectRewards(carol, getBigNumber(0));
+
+      // == bob ==
+      // wallet: 5_000
+      // cauldron: 2_500
+      // bentobox: 2_500 (not farming)
+      // == carol ==
+      // wallet: 4_000
+      // cauldron: 500
+      // bentobox: 500 (not farming)
+      // removing collateral moves the tokens to the bentobox
+      await removeCollateral(bob, getBigNumber(2_500));
+      await removeCollateral(carol, getBigNumber(500));
+
+      // the two previous `removeCollateral` amount shouldn't be farming this reward
+      await addRewards(getBigNumber(234));
+
+      // bob: 234 * (5_000 in wallet + 2_500 in cauldron / 15_000)
+      await expectRewards(bob, getBigNumber(7_500).mul(getBigNumber(234)).div(getBigNumber(15_000)));
+      // carol: 234 * (4_000 in wallet + 500 in cauldron / 15_000)
+      await expectRewards(carol, getBigNumber(4_500).mul(getBigNumber(234)).div(getBigNumber(15_000)));
+
+      // shouldn't claim anything more
+      await expectRewards(bob, getBigNumber(0));
+      await expectRewards(carol, getBigNumber(0));
     });
   });
 });
