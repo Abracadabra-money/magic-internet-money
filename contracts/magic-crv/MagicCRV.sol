@@ -5,9 +5,8 @@ pragma solidity ^0.8.10;
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 import "@rari-capital/solmate/src/tokens/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../interfaces/ICauldron.sol";
-import "../interfaces/IBentoBoxV1.sol";
-import "../interfaces/ICheckpointToken.sol";
+import "../interfaces/ICollateralAmountAware.sol";
+import "../interfaces/ICheckpointTokenV2.sol";
 
 interface ICurveVoter {
     function lock() external;
@@ -15,7 +14,7 @@ interface ICurveVoter {
     function claim(address recipient) external;
 }
 
-contract MagicCRV is ERC20, Ownable, ICheckpointToken {
+contract MagicCRV is ERC20, Ownable, ICheckpointTokenV2 {
     using SafeTransferLib for ERC20;
 
     error Shutdown();
@@ -31,9 +30,7 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
     mapping(address => uint256) public claimables;
     mapping(address => uint256) public rewardIndexes;
     mapping(address => bool) public knownCauldrons;
-    mapping(address => bool) public knownBentoBoxes;
     address[] public cauldrons;
-    address[] public bentoBoxes;
 
     /// @dev global reward states
     uint256 public rewardIndex = 0;
@@ -68,26 +65,16 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
             revert CauldronAlreadyAdded();
         }
 
-        address bentoBox = address(ICauldron(cauldron).bentoBox());
-        if (!knownBentoBoxes[bentoBox]) {
-            bentoBoxes.push(bentoBox);
-            knownBentoBoxes[bentoBox] = true;
-        }
-
         cauldrons.push(cauldron);
         knownCauldrons[cauldron] = true;
     }
 
     function _getTotalBalance(address account) internal view returns (uint256) {
-        if (knownBentoBoxes[account]) {
-            return 0;
-        }
-
         uint256 total = balanceOf[account];
 
         for (uint256 i = 0; i < cauldrons.length; i++) {
-            try ICauldron(cauldrons[i]).userCollateralShare(account) returns (uint256 share) {
-                total += ICauldron(cauldrons[i]).bentoBox().toAmount(address(this), share, false);
+            try ICollateralAmountAware(cauldrons[i]).userCollateralAmount(account) returns (uint256 amount) {
+                total += amount;
             } catch {}
         }
 
@@ -166,26 +153,13 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
         return true;
     }
 
-    function user_checkpoint(address[2] calldata accounts) external onlyCauldrons returns (bool) {
+    function onCheckpoint(address account) external onlyCauldrons {
         _update();
-        _updateFor(accounts[0]);
-
-        return true;
-    }
-
-    function _getBalanceInsideBentoBoxes() private returns (uint256 amount) {
-        for (uint256 i = 0; i < bentoBoxes.length; i++) {
-            amount += balanceOf[bentoBoxes[i]];
-        }
+        _updateFor(account);
     }
 
     function _update() internal {
-        uint256 supplyOutsideBentoBoxes = totalSupply;
-
-        // total amount in bentoboxes cannot never exceed total supply
-        supplyOutsideBentoBoxes -= _getBalanceInsideBentoBoxes();
-
-        if (supplyOutsideBentoBoxes > 0) {
+        if (totalSupply > 0) {
             curveVoter.claim(address(this));
 
             uint256 currentCrv3Balance = CRV3.balanceOf(address(this));
@@ -194,7 +168,7 @@ contract MagicCRV is ERC20, Ownable, ICheckpointToken {
                 if (balanceDiff > 0) {
                     // Update the reward index based on the ratio between
                     // the new 3crv rewards and the current magicCRV total supply.
-                    uint256 ratio = (balanceDiff * 1e18) / supplyOutsideBentoBoxes;
+                    uint256 ratio = (balanceDiff * 1e18) / totalSupply;
                     if (ratio > 0) {
                         rewardIndex += ratio;
                         crv3Balance = currentCrv3Balance;

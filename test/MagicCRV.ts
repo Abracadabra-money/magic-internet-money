@@ -1,7 +1,7 @@
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { expect } from "chai";
 import { advanceTime, ChainId, duration, getBigNumber, impersonate } from "../utilities";
-import { CauldronV2Checkpoint, CurveVoter, DegenBox, ERC20Mock, IFeeDistributor, MagicCRV } from "../typechain";
+import { CauldronV2CheckpointV2, CurveVoter, DegenBox, ERC20Mock, IFeeDistributor, MagicCRV } from "../typechain";
 import { ISmartWalletWhitelist } from "../typechain/ISmartWalletWhitelist";
 import { BigNumber } from "ethers";
 
@@ -19,8 +19,8 @@ describe("MagicCRV", async () => {
   let CRV: ERC20Mock;
   let CRV3: ERC20Mock;
   let FeeDistibutor: IFeeDistributor;
-  let CauldronMC: CauldronV2Checkpoint;
-  let Cauldron: CauldronV2Checkpoint;
+  let CauldronMC: CauldronV2CheckpointV2;
+  let Cauldron: CauldronV2CheckpointV2;
   let DegenBox: DegenBox;
   let deployerSigner;
   let curveDaoSigner;
@@ -41,7 +41,7 @@ describe("MagicCRV", async () => {
     });
 
     hre.getChainId = () => Promise.resolve(ChainId.Mainnet.toString());
-    await deployments.fixture(["MagicCRV", "DegenBoxCauldronV2Checkpoint", "MagicCRVCauldron"]);
+    await deployments.fixture(["MagicCRV", "DegenBoxCauldronV2CheckpointV2", "MagicCRVCauldron"]);
     const { deployer, alice } = await getNamedAccounts();
     deployerSigner = await ethers.getSigner(deployer);
 
@@ -79,8 +79,8 @@ describe("MagicCRV", async () => {
     await CurveVoter.createMaxLock(1);
 
     DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce");
-    Cauldron = await ethers.getContract<CauldronV2Checkpoint>("MagicCRVCauldron");
-    CauldronMC = await ethers.getContract<CauldronV2Checkpoint>("DegenBoxCauldronV2Checkpoint");
+    Cauldron = await ethers.getContract<CauldronV2CheckpointV2>("MagicCRVCauldron");
+    CauldronMC = await ethers.getContract<CauldronV2CheckpointV2>("DegenBoxCauldronV2CheckpointV2");
 
     snapshotId = await ethers.provider.send("evm_snapshot", []);
   });
@@ -243,8 +243,8 @@ describe("MagicCRV", async () => {
 
       await addRewards(getBigNumber(100));
 
-      // 100 * (5_000 / 7_500)
-      await expectRewards(bob, getBigNumber(5_000).mul(getBigNumber(100)).div(getBigNumber(7_500)));
+      // 100 * (5_000 / 15_000)
+      await expectRewards(bob, getBigNumber(5_000).mul(getBigNumber(100)).div(getBigNumber(15_000)));
     });
   });
 });

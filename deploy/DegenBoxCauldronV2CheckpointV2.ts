@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { ethers, network } from "hardhat";
-import { CauldronV2Checkpoint, DegenBox, MagicCRV } from "../typechain";
+import { ethers } from "hardhat";
+import { CauldronV2CheckpointV2, DegenBox, MagicCRV } from "../typechain";
 import { ChainId, impersonate, setDeploymentSupportedChains } from "../utilities";
 import { xMerlin } from "../test/constants";
 
@@ -20,15 +20,15 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const chainId = await hre.getChainId();
   const parameters = ParametersPerChain[parseInt(chainId)];
 
-  await deploy("DegenBoxCauldronV2Checkpoint", {
+  await deploy("DegenBoxCauldronV2CheckpointV2", {
     from: deployer,
     args: [parameters.degenBox, parameters.mim],
     log: true,
-    contract: "CauldronV2Checkpoint",
+    contract: "CauldronV2CheckpointV2",
     deterministicDeployment: false,
   });
 
-  const CauldronV2CheckpointMC = await ethers.getContract<CauldronV2Checkpoint>("DegenBoxCauldronV2Checkpoint");
+  const CauldronV2CheckpointMC = await ethers.getContract<CauldronV2CheckpointV2>("DegenBoxCauldronV2CheckpointV2");
   await (await CauldronV2CheckpointMC.setFeeTo(parameters.feeTo)).wait();
 
   const DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", parameters.degenBox);
@@ -47,5 +47,5 @@ export default deployFunction;
 
 setDeploymentSupportedChains(Object.keys(ParametersPerChain), deployFunction);
 
-deployFunction.tags = ["DegenBoxCauldronV2Checkpoint"];
+deployFunction.tags = ["DegenBoxCauldronV2CheckpointV2"];
 deployFunction.dependencies = [];

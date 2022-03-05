@@ -4,8 +4,7 @@ import { ethers, network } from "hardhat";
 import { ChainId } from "../utilities";
 import { expect } from "chai";
 import { xMerlin } from "../test/constants";
-import { DegenBox, CauldronV2Checkpoint, CurveVoter, IConvexStakingWrapperAbra, IConvexStakingWrapperAbraFactory, MagicCRV, ProxyOracle, MagicCRVOracle } from "../typechain";
-import { Frax3CrvOracle } from "../typechain/Frax3CrvOracle";
+import { DegenBox, CauldronV2Checkpoint, CurveVoter, MagicCRV, ProxyOracle, MagicCRVOracle, CauldronV2CheckpointV2 } from "../typechain";
 
 // List of supported chains to deploy on
 const supportedChains = [ChainId.Mainnet, ChainId.Fantom, ChainId.BSC];
@@ -38,7 +37,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   // change the `getContracAt` once MagicCRV is deployed
   const MagicCRV = await ethers.getContract<MagicCRV>("MagicCRV");
 
-  const CauldronV2CheckpointMC = await ethers.getContract<CauldronV2Checkpoint>("DegenBoxCauldronV2Checkpoint");
+  const CauldronV2CheckpointV2MC = await ethers.getContract<CauldronV2CheckpointV2>("DegenBoxCauldronV2CheckpointV2");
 
   // Proxy Oracle
   await deploy("MagicCRVProxyOracle", {
@@ -66,13 +65,13 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     [MagicCRV.address, ProxyOracle.address, parameters.oracleData, interest, liquidationFee, maximumCollateralRatio, borrowFee]
   );
 
-  const tx = await (await DegenBox.deploy(CauldronV2CheckpointMC.address, initData, true)).wait();
+  const tx = await (await DegenBox.deploy(CauldronV2CheckpointV2MC.address, initData, true)).wait();
   const deployEvent = tx?.events?.[0];
   expect(deployEvent?.eventSignature).to.be.eq("LogDeploy(address,bytes,address)");
 
   // Register the deployment so it's available within the test using `getContract`
   deployments.save("MagicCRVCauldron", {
-    abi: require("../abi/CauldronV2Checkpoint.json"),
+    abi: require("../abi/CauldronV2CheckpointV2.json"),
     address: deployEvent?.args?.cloneAddress,
   });
 
@@ -131,4 +130,4 @@ if (network.name !== "hardhat") {
 }
 
 deployFunction.tags = ["MagicCRVCauldron"];
-deployFunction.dependencies = ["DegenBoxCauldronV2Checkpoint", "MagicCRV"];
+deployFunction.dependencies = ["DegenBoxCauldronV2CheckpointV2", "MagicCRV"];
