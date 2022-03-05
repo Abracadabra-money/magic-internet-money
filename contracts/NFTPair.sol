@@ -152,8 +152,8 @@ contract NFTPair is BoringOwnable, IMasterContract {
     /// @param skim True if the token has already been transfered
     function requestLoan(
         uint256 tokenId,
-        address to,
         TokenLoanParams memory params,
+        address to,
         bool skim
     ) public {
         // Edge case: valuation can be zero. That effectively gifts the NFT and
@@ -468,6 +468,12 @@ contract NFTPair is BoringOwnable, IMasterContract {
             } else if (action == ACTION_REMOVE_COLLATERAL) {
                 (uint256 tokenId, address to) = abi.decode(datas[i], (uint256, address));
                 removeCollateral(tokenId, to);
+            } else if (action == ACTION_REQUEST_LOAN) {
+                (uint256 tokenId, TokenLoanParams memory params, address to, bool skim) = abi.decode(
+                    datas[i],
+                    (uint256, TokenLoanParams, address, bool)
+                );
+                requestLoan(tokenId, params, to, skim);
             } else if (action == ACTION_BENTO_SETAPPROVAL) {
                 (address user, address _masterContract, bool approved, uint8 v, bytes32 r, bytes32 s) = abi.decode(
                     datas[i],
