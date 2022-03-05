@@ -331,7 +331,6 @@ contract NFTPair is BoringOwnable, IMasterContract {
     function repay(uint256 tokenId, bool skim) public returns (uint256 amount) {
         TokenLoan memory loan = tokenLoan[tokenId];
         require(loan.status == LOAN_OUTSTANDING, "NFTPair: no loan");
-        require(loan.borrower == msg.sender, "NFTPair: not the borrower");
         TokenLoanParams memory loanParams = tokenLoanParams[tokenId];
         require(loanParams.expiration > block.timestamp, "NFTPair: loan expired");
 
@@ -362,9 +361,10 @@ contract NFTPair is BoringOwnable, IMasterContract {
         }
         // No underflow: PROTOCOL_FEE_BPS < BPS by construction.
         feesEarnedShare += feeShare;
-        bentoBox.transfer(asset, from, loan.lender, totalShare - feeShare);
-        collateral.transferFrom(address(this), msg.sender, tokenId);
         delete tokenLoan[tokenId];
+
+        bentoBox.transfer(asset, from, loan.lender, totalShare - feeShare);
+        collateral.transferFrom(address(this), loan.borrower, tokenId);
 
         emit LogRepay(from, tokenId);
     }
