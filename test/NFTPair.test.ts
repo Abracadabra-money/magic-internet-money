@@ -27,13 +27,11 @@ interface ILoanParams {
   valuation: BigNumber;
   expiration: number;
   annualInterestBPS: number;
-  compoundInterestTerms: BigNumberish;
 }
 interface IPartialLoanParams {
   valuation?: BigNumber;
   expiration?: number;
   annualInterestBPS?: number;
-  compoundInterestTerms?: BigNumberish;
 }
 
 const { formatUnits } = ethers.utils;
@@ -87,7 +85,6 @@ describe("NFT Pair", async () => {
       expiration: nextYear,
       openFeeBPS: 1000,
       annualInterestBPS: 2000,
-      compoundInterestTerms: 5,
       ...params,
     });
 
@@ -183,13 +180,12 @@ describe("NFT Pair", async () => {
         valuation: getBigNumber(10),
         expiration: tomorrow,
         annualInterestBPS: 2000,
-        compoundInterestTerms: 4,
       };
       await expect(pair.connect(alice).requestLoan(apeIds.aliceOne, params, alice.address, false))
         .to.emit(apes, "Transfer")
         .withArgs(alice.address, pair.address, apeIds.aliceOne)
         .to.emit(pair, "LogRequestLoan")
-        .withArgs(alice.address, apeIds.aliceOne, params.valuation, params.expiration, params.annualInterestBPS, params.compoundInterestTerms);
+        .withArgs(alice.address, apeIds.aliceOne, params.valuation, params.expiration, params.annualInterestBPS);
     });
 
     it("Should let anyone with an NFT request a loan (skim)", async () => {
@@ -200,7 +196,6 @@ describe("NFT Pair", async () => {
         valuation: getBigNumber(10),
         expiration: tomorrow,
         annualInterestBPS: 2000,
-        compoundInterestTerms: 4,
       };
       await apes.connect(alice).transferFrom(alice.address, pair.address, apeIds.aliceOne);
       await expect(pair.connect(alice).requestLoan(apeIds.aliceOne, params, alice.address, true)).to.emit(pair, "LogRequestLoan");
@@ -211,7 +206,6 @@ describe("NFT Pair", async () => {
         valuation: getBigNumber(10),
         expiration: tomorrow,
         annualInterestBPS: 2000,
-        compoundInterestTerms: 4,
       };
       await expect(pair.connect(alice).requestLoan(apeIds.aliceOne, params, alice.address, true)).to.be.revertedWith("NFTPair: skim failed");
     });
@@ -221,7 +215,6 @@ describe("NFT Pair", async () => {
         valuation: getBigNumber(10),
         expiration: tomorrow,
         annualInterestBPS: 2000,
-        compoundInterestTerms: 4,
       };
       await expect(pair.connect(alice).requestLoan(apeIds.aliceOne, params, alice.address, false)).to.emit(pair, "LogRequestLoan");
       await expect(pair.connect(bob).requestLoan(apeIds.aliceOne, params, bob.address, true)).to.be.revertedWith("NFTPair: loan exists");
@@ -232,7 +225,6 @@ describe("NFT Pair", async () => {
         valuation: getBigNumber(10),
         expiration: tomorrow,
         annualInterestBPS: 2000,
-        compoundInterestTerms: 4,
       };
       await expect(pair.connect(alice).requestLoan(apeIds.bobOne, params, alice.address, false)).to.be.revertedWith("From not owner");
     });
@@ -255,7 +247,6 @@ describe("NFT Pair", async () => {
         valuation: getBigNumber(1000),
         expiration: tomorrow,
         annualInterestBPS: 2000,
-        compoundInterestTerms: 4,
       };
 
       await pair.connect(alice).requestLoan(apeIds.aliceOne, params1, alice.address, false);
@@ -380,7 +371,6 @@ describe("NFT Pair", async () => {
         valuation: getBigNumber(1000),
         expiration: tomorrow,
         annualInterestBPS: 2000,
-        compoundInterestTerms: 4,
       };
 
       await pair.connect(alice).requestLoan(apeIds.aliceOne, params1, alice.address, false);
@@ -402,7 +392,7 @@ describe("NFT Pair", async () => {
       for (const params of data) {
         await expect(pair.connect(alice).updateLoanParams(apeIds.aliceOne, params))
           .to.emit(pair, "LogUpdateLoanParams")
-          .withArgs(apeIds.aliceOne, params.valuation, params.expiration, params.annualInterestBPS, params.compoundInterestTerms);
+          .withArgs(apeIds.aliceOne, params.valuation, params.expiration, params.annualInterestBPS);
       }
     });
 

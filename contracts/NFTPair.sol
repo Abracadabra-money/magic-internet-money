@@ -36,21 +36,8 @@ contract NFTPair is BoringOwnable, IMasterContract {
     using RebaseLibrary for Rebase;
     using BoringERC20 for IERC20;
 
-    event LogRequestLoan(
-        address indexed borrower,
-        uint256 indexed tokenId,
-        uint128 valuation,
-        uint64 expiration,
-        uint16 annualInterestBPS,
-        uint8 compoundInterestTerms
-    );
-    event LogUpdateLoanParams(
-        uint256 indexed tokenId,
-        uint128 valuation,
-        uint64 expiration,
-        uint16 annualInterestBPS,
-        uint8 compoundInterestTerms
-    );
+    event LogRequestLoan(address indexed borrower, uint256 indexed tokenId, uint128 valuation, uint64 expiration, uint16 annualInterestBPS);
+    event LogUpdateLoanParams(uint256 indexed tokenId, uint128 valuation, uint64 expiration, uint16 annualInterestBPS);
     // This automatically clears the associated loan, if any
     event LogRemoveCollateral(uint256 indexed tokenId, address recipient);
     // Details are in the loan request
@@ -82,7 +69,6 @@ contract NFTPair is BoringOwnable, IMasterContract {
         uint128 valuation; // How much will you get? OK to owe until expiration.
         uint64 expiration; // Pay before this or get liquidated
         uint16 annualInterestBPS; // Variable cost of taking out the loan
-        uint8 compoundInterestTerms; // Might as well. Stay under 50.
     }
     mapping(uint256 => TokenLoanParams) public tokenLoanParams;
 
@@ -102,6 +88,57 @@ contract NFTPair is BoringOwnable, IMasterContract {
     uint256 private constant OPEN_FEE_BPS = 100;
     uint256 private constant BPS = 10_000;
     uint256 private constant YEAR_BPS = 3600 * 24 * 365 * 10_000;
+
+    // Highest order term in the Maclaurin series for exp used by
+    // `calculateIntest`.
+    // Intuitive interpretation: interest continuously accrues on the principal.
+    // That interest, in turn, earns "second-order" interest-on-interest, which
+    // itself earns "third-order" interest, etc. This constant determines how
+    // far we take this until we stop counting.
+    //
+    // The error, in terms of the interest rate, is at least
+    //
+    //            ----- n                        ----- Infinity
+    //             \           x^k                \              x^k
+    //      e^x -   )          ---   , which is    )             --- ,
+    //             /            k!                /               k!
+    //            ----- k = 1       k            ----- k = n + 1
+    //
+    // where n = COMPOUND_INTEREST_TERMS, and x = rt is the total amount of
+    // interest that is owed at rate r over time t. It makes no difference if
+    // this is, say, 5%/year for 10 years, or 50% in one year; the calculation
+    // is the same. Why "at least"? There are also rounding errors. See
+    // `calculateInterest` for more detail.
+    // The factorial in the denominator "wins"; for all reasonable (and quite
+    // a few unreasonable) interest rates, the lower-order terms contribute the
+    // most to the total. The following table lists some of the calculated
+    // approximations for different values of n, along with the "true" result:
+    //
+    // Total:         10%    20%    50%    100%    200%      500%       1000%
+    // -----------------------------------------------------------------------
+    // n = 1:         10.0%  20.0%  50.0%  100.0%  200.0%    500.0%     1000.0%
+    // n = 2:         10.5%  22.0%  62.5%  150.0%  400.0%   1750.0%     6000.0%
+    // n = 3:         10.5%  22.1%  64.6%  166.7%  533.3%   3833.3%    22666.7%
+    // n = 4:         10.5%  22.1%  64.8%  170.8%  600.0%   6437.5%    64333.3%
+    // n = 5:         10.5%  22.1%  64.9%  171.7%  626.7%   9041.7%   147666.7%
+    // n = 6:         10.5%  22.1%  64.9%  171.8%  635.6%  11211.8%   286555.6%
+    // n = 7:         10.5%  22.1%  64.9%  171.8%  638.1%  12761.9%   484968.3%
+    // n = 8:         10.5%  22.1%  64.9%  171.8%  638.7%  13730.7%   732984.1%
+    // n = 9:         10.5%  22.1%  64.9%  171.8%  638.9%  14268.9%  1008557.3%
+    // n = 10:        10.5%  22.1%  64.9%  171.8%  638.9%  14538.1%  1284130.5%
+    //
+    // (n=Infinity):  10.5%  22.1%  64.9%  171.8%  638.9%  14741.3%  2202546.6%
+    //
+    // For instance, calculating the compounding effects of 200% in "total"
+    // interest to the sixth order results in 635.6%, whereas the true result
+    // is 638.9%.
+    // At 500% that difference is a little more dramatic, but it is still in
+    // the same ballpark -- and of little practical consequence unless the
+    // collateral can be expected to go up more than 112 times in value.
+    // Still, for volatile tokens, or an asset that is somehow known to be very
+    // inflationary, use a different number.
+    // Zero (no interest at all) is ignored and treated as one (linear only).
+    uint8 private constant COMPOUND_INTEREST_TERMS = 6;
 
     /// @notice The constructor is only used for the initial master contract.
     /// @notice Subsequent clones are initialised via `init`.
@@ -128,8 +165,7 @@ contract NFTPair is BoringOwnable, IMasterContract {
             require(
                 params.expiration >= cur.expiration &&
                     params.valuation <= cur.valuation &&
-                    params.annualInterestBPS <= cur.annualInterestBPS &&
-                    params.compoundInterestTerms <= cur.compoundInterestTerms,
+                    params.annualInterestBPS <= cur.annualInterestBPS,
                 "NFTPair: worse params"
             );
         } else if (loan.status == LOAN_REQUESTED) {
@@ -142,7 +178,7 @@ contract NFTPair is BoringOwnable, IMasterContract {
             revert("NFTPair: no collateral");
         }
         tokenLoanParams[tokenId] = params;
-        emit LogUpdateLoanParams(tokenId, params.valuation, params.expiration, params.annualInterestBPS, params.compoundInterestTerms);
+        emit LogUpdateLoanParams(tokenId, params.valuation, params.expiration, params.annualInterestBPS);
     }
 
     /// @notice Deposit an NFT as collateral and request a loan against it
@@ -170,7 +206,7 @@ contract NFTPair is BoringOwnable, IMasterContract {
         tokenLoan[tokenId] = loan;
         tokenLoanParams[tokenId] = params;
 
-        emit LogRequestLoan(to, tokenId, params.valuation, params.expiration, params.annualInterestBPS, params.compoundInterestTerms);
+        emit LogRequestLoan(to, tokenId, params.valuation, params.expiration, params.annualInterestBPS);
     }
 
     /// @notice Removes `tokenId` as collateral and transfers it to `to`.
@@ -214,8 +250,7 @@ contract NFTPair is BoringOwnable, IMasterContract {
         require(
             params.valuation == accepted.valuation &&
                 params.expiration <= accepted.expiration &&
-                params.annualInterestBPS >= accepted.annualInterestBPS &&
-                params.compoundInterestTerms >= accepted.compoundInterestTerms,
+                params.annualInterestBPS >= accepted.annualInterestBPS,
             "NFTPair: bad params"
         );
 
@@ -259,14 +294,13 @@ contract NFTPair is BoringOwnable, IMasterContract {
     /// Otherwise, the function may revert, return a reasonable result, or
     /// return a very inaccurate result. Even then the above inequality is
     /// respected.
-    ///
-    /// @param n Highest order term. Treats both 0 and 1 as "linear only".
     function calculateInterest(
         uint256 principal,
         uint64 t,
-        uint16 aprBPS,
-        uint8 n
+        uint16 aprBPS
     ) public pure returns (uint256 interest) {
+        // (NOTE: n is hardcoded as COMPOUND_INTEREST_TERMS)
+        //
         // We calculate
         //
         //  ----- n                                       ----- n
@@ -308,13 +342,12 @@ contract NFTPair is BoringOwnable, IMasterContract {
         // neither can the total overflow because it uses checked math.
         //
         // This constitutes a guarantee of specified behavior when M >= 2^128.
-        //
         uint256 x = uint256(t) * aprBPS;
         uint256 term_k = (principal * x) / YEAR_BPS;
         uint256 denom_k = YEAR_BPS;
 
         interest = term_k;
-        for (uint256 k = 2; k <= n; k++) {
+        for (uint256 k = 2; k <= COMPOUND_INTEREST_TERMS; k++) {
             denom_k += YEAR_BPS;
             term_k = (term_k * x) / denom_k;
             interest = interest.add(term_k); // <- Only overflow check we need
@@ -335,12 +368,7 @@ contract NFTPair is BoringOwnable, IMasterContract {
 
         // No underflow: loan.startTime is only ever set to a block timestamp
         // Cast is safe: if this overflows, then all loans have expired anyway
-        uint256 interest = calculateInterest(
-            principal,
-            uint64(block.timestamp - loan.startTime),
-            loanParams.annualInterestBPS,
-            loanParams.compoundInterestTerms
-        ).to128();
+        uint256 interest = calculateInterest(principal, uint64(block.timestamp - loan.startTime), loanParams.annualInterestBPS).to128();
         uint256 fee = (interest * PROTOCOL_FEE_BPS) / BPS;
         amount = principal + interest;
 
