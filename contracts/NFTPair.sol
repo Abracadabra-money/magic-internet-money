@@ -158,7 +158,7 @@ contract NFTPair is BoringOwnable, IMasterContract {
     ) public {
         // Edge case: valuation can be zero. That effectively gifts the NFT and
         // is therefore a bad idea, but does not break the contract.
-        require(tokenLoan[tokenId].status == LOAN_INITIAL, "NFTPair: Loan exists");
+        require(tokenLoan[tokenId].status == LOAN_INITIAL, "NFTPair: loan exists");
         if (skim) {
             require(collateral.ownerOf(tokenId) == address(this), "NFTPair: skim failed");
         } else {
@@ -206,7 +206,7 @@ contract NFTPair is BoringOwnable, IMasterContract {
         bool skim
     ) public {
         TokenLoan memory loan = tokenLoan[tokenId];
-        require(loan.status == LOAN_REQUESTED, "NFTPair: Not available");
+        require(loan.status == LOAN_REQUESTED, "NFTPair: not available");
         TokenLoanParams memory params = tokenLoanParams[tokenId];
 
         // Valuation has to be an exact match, everything else must be at least
