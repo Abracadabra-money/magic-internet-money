@@ -290,6 +290,49 @@ describe("MagicCRV", async () => {
       await expectRewards(carol, getBigNumber(0));
     });
 
+    it.only("should allow the previous account to claim its due after a transfer and new recipient only on the previous amount", async () => {
+      const [, , bob, carol] = await ethers.getSigners();
+      await setup(bob, getBigNumber(10_000));
+      await setup(carol, getBigNumber(1_000));
+
+      await addCollateral(bob, getBigNumber(5_000));
+
+      // == bob ==
+      // wallet: 5_000
+      // cauldron: 5_000
+      // == carol ==
+      // wallet: 1_000
+      // cauldron: 0
+      await addRewards(getBigNumber(500));
+
+      // move 5_000 from bob -> carol.
+      // Because the rewards are updated before the balance changes:
+      // - bob should be able to claim on the whole 10_000
+      // - alice only on 1_000.
+      await MagicCRV.connect(bob).transfer(carol.address, getBigNumber(5_000));
+      await expectRewards(bob, getBigNumber(10_000).mul(getBigNumber(500)).div(getBigNumber(11_000)));
+      await expectRewards(carol, getBigNumber(1_000).mul(getBigNumber(500)).div(getBigNumber(11_000)));
+
+      // == bob ==
+      // wallet: 0
+      // cauldron: 5_000
+      // == carol ==
+      // wallet: 6_000
+      // cauldron: 0
+      await addRewards(getBigNumber(500));
+      await expectRewards(bob, getBigNumber(5_000).mul(getBigNumber(500)).div(getBigNumber(11_000)));
+      await expectRewards(carol, getBigNumber(6_000).mul(getBigNumber(500)).div(getBigNumber(11_000)));
+
+      // move back bob's 5_000 -> carol
+      await MagicCRV.connect(carol).transfer(bob.address, getBigNumber(5_000));
+      await expectRewards(bob, getBigNumber(0));
+      await expectRewards(carol, getBigNumber(0));
+
+      await addRewards(getBigNumber(500));
+      await expectRewards(bob, getBigNumber(10_000).mul(getBigNumber(500)).div(getBigNumber(11_000)));
+      await expectRewards(carol, getBigNumber(1_000).mul(getBigNumber(500)).div(getBigNumber(11_000)));
+    });
+
     it("should claim the rewards when the reward index moved multiple times", async () => {});
 
     it("should claim rewards when adding collateral from bentobox amount deposited on behalf of a user", async () => {});
@@ -298,7 +341,7 @@ describe("MagicCRV", async () => {
 
     it("should not be farming with disposed amounts", async () => {});
 
-    it.only("should work with multiple cauldrons accross different degenBoxes", async () => {
+    it("should work with multiple cauldrons accross different degenBoxes", async () => {
       const [, , bob, carol] = await ethers.getSigners();
 
       const deployMagicCRVCauldron = async (): Promise<CauldronV2CheckpointV2> => {
