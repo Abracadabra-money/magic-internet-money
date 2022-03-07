@@ -1,7 +1,7 @@
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { expect } from "chai";
 import { advanceTime, ChainId, duration, getBigNumber, impersonate } from "../utilities";
-import { CauldronV2CheckpointV2, CurveVoter, DegenBox, ERC20Mock, IFeeDistributor, MagicCRV } from "../typechain";
+import { CauldronV2CheckpointV2, CurveVoter, DegenBox, ERC20Mock, IBentoBoxV1, IFeeDistributor, MagicCRV } from "../typechain";
 import { ISmartWalletWhitelist } from "../typechain/ISmartWalletWhitelist";
 import { BigNumber } from "ethers";
 
@@ -198,26 +198,26 @@ describe("MagicCRV", async () => {
       await CRV3.connect(crv3WhaleSigner).transfer(MagicCRV.address, amount);
     };
 
-    const addCollateral = async (signer, amount) => {
+    const addCollateral = async (signer, amount, cauldron = Cauldron) => {
       const share = await DegenBox.toShare(MagicCRV.address, amount, false);
       await DegenBox.connect(signer).deposit(MagicCRV.address, signer.address, signer.address, 0, share);
-      await Cauldron.connect(signer).addCollateral(signer.address, false, share);
+      await cauldron.connect(signer).addCollateral(signer.address, false, share);
     };
 
-    const removeCollateral = async (signer, amount) => {
+    const removeCollateral = async (signer, amount, cauldron = Cauldron) => {
       const share = await DegenBox.toShare(MagicCRV.address, amount, false);
-      await Cauldron.connect(signer).removeCollateral(signer.address, share);
+      await cauldron.connect(signer).removeCollateral(signer.address, share);
     };
 
-    const expectRewards = async (signer, amount) => {
+    const expectRewards = async (signer, amount, marginOfError = 1e4) => {
       const crv3BalanceBefore = await CRV3.balanceOf(signer.address);
       await MagicCRV.connect(signer).claim();
       const crv3BalanceAfter = await CRV3.balanceOf(signer.address);
 
-      expect(crv3BalanceAfter.sub(crv3BalanceBefore)).to.be.closeTo(amount, 1e4);
+      expect(crv3BalanceAfter.sub(crv3BalanceBefore)).to.be.closeTo(amount, marginOfError);
     };
 
-    it.only("should be possible to claim reward when deposited into a cauldron", async () => {
+    it("should be possible to claim reward when deposited into a cauldron", async () => {
       const [, , bob, carol] = await ethers.getSigners();
 
       // == bob ==
@@ -288,6 +288,73 @@ describe("MagicCRV", async () => {
       // shouldn't claim anything more
       await expectRewards(bob, getBigNumber(0));
       await expectRewards(carol, getBigNumber(0));
+    });
+
+    it("should claim the rewards when the reward index moved multiple times", async () => {});
+
+    it("should claim rewards when adding collateral from bentobox amount deposited on behalf of a user", async () => {});
+
+    it("should not be farming with liquidated amounts", async () => {});
+
+    it("should not be farming with disposed amounts", async () => {});
+
+    it.only("should work with multiple cauldrons accross different degenBoxes", async () => {
+      const [, , bob, carol] = await ethers.getSigners();
+
+      const deployMagicCRVCauldron = async (): Promise<CauldronV2CheckpointV2> => {
+        const degenBox = await ethers.getContractAt<DegenBox>("DegenBox", "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce");
+        let initData = ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"],
+          // except for the collateral type, the cauldron parameters aren't relevant for the test
+          [MagicCRV.address, ethers.constants.AddressZero, ethers.constants.HashZero, 0, 0, 0, 0]
+        );
+
+        const CauldronV2CheckpointV2MC = await ethers.getContract<CauldronV2CheckpointV2>("DegenBoxCauldronV2CheckpointV2");
+        const tx = await (await degenBox.deploy(CauldronV2CheckpointV2MC.address, initData, false)).wait();
+        const deployEvent = tx?.events?.[0];
+        expect(deployEvent?.eventSignature).to.be.eq("LogDeploy(address,bytes,address)");
+
+        const cauldronAddress = deployEvent?.args?.cloneAddress;
+        MagicCRV.addCauldron(cauldronAddress);
+        return await ethers.getContractAt<CauldronV2CheckpointV2>("CauldronV2CheckpointV2", cauldronAddress);
+      };
+
+      const cauldron1 = Cauldron;
+      const cauldron2 = await deployMagicCRVCauldron();
+      const cauldron3 = await deployMagicCRVCauldron();
+
+      // == bob ==
+      // wallet: 58_000
+      // == carol ==
+      // wallet: 155_000
+      // --
+      // total supply: 213_000
+      await setup(bob, getBigNumber(58_000));
+      await setup(carol, getBigNumber(155_000));
+
+      // == bob ==
+      // wallet: 40_000
+      // cauldron1: 5_000
+      // cauldron2: 6_000
+      // cauldron3: 7_000
+      // == carol ==
+      // wallet: 150_556
+      // cauldron1: 1_111
+      // cauldron2: 0
+      // cauldron3: 3_333
+      await addCollateral(bob, 5_000, cauldron1);
+      await addCollateral(bob, 6_000, cauldron2);
+      await addCollateral(bob, 7_000, cauldron3);
+      await addCollateral(carol, 1_111, cauldron1);
+      await addCollateral(carol, 3_333, cauldron3);
+
+      await addRewards(getBigNumber(345_543));
+
+      // bob: 345_543 * (40_000 in wallet + 5_000 in cauldron1 + 6_000 in cauldron2 + 7_000 in caulron3 / 213_000)
+      await expectRewards(bob, getBigNumber(58_000).mul(getBigNumber(345_543)).div(getBigNumber(213_000)), 6e4);
+
+      // carol: 345_543 * (150_556 in wallet + 1_111 in cauldron1 + 3_333 in caulron3 / 213_000)
+      await expectRewards(carol, getBigNumber(155000).mul(getBigNumber(345_543)).div(getBigNumber(213_000)), 14e4);
     });
   });
 });
