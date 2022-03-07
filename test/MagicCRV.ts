@@ -290,7 +290,7 @@ describe("MagicCRV", async () => {
       await expectRewards(carol, getBigNumber(0));
     });
 
-    it.only("should allow the previous account to claim its due after a transfer and new recipient only on the previous amount", async () => {
+    it("should allow the previous account to claim its due after a transfer and new recipient only on the previous amount", async () => {
       const [, , bob, carol] = await ethers.getSigners();
       await setup(bob, getBigNumber(10_000));
       await setup(carol, getBigNumber(1_000));
@@ -333,13 +333,57 @@ describe("MagicCRV", async () => {
       await expectRewards(carol, getBigNumber(1_000).mul(getBigNumber(500)).div(getBigNumber(11_000)));
     });
 
-    it("should claim the rewards when the reward index moved multiple times", async () => {});
+    it("should not be possible to claim more than allowed if you transfer to yourself", async () => {
+      const [, , bob, carol] = await ethers.getSigners();
+      await setup(bob, getBigNumber(10_000));
+      await setup(carol, getBigNumber(1_000));
+      await addRewards(getBigNumber(500));
+      await MagicCRV.connect(bob).transfer(bob.address, getBigNumber(5_000));
+      await MagicCRV.connect(bob).transfer(bob.address, getBigNumber(10_000));
+      await expectRewards(bob, getBigNumber(10_000).mul(getBigNumber(500)).div(getBigNumber(11_000)));
+      await expectRewards(bob, getBigNumber(0));
+      await expectRewards(carol, getBigNumber(1_000).mul(getBigNumber(500)).div(getBigNumber(11_000)));
+    });
+
+    it("should claim the whole rewards when the reward index moved multiple times", async () => {
+      const [, , bob, carol] = await ethers.getSigners();
+      await setup(bob, getBigNumber(10_000));
+      await setup(carol, getBigNumber(1_000));
+
+      const carolBalance3crvBefore = await CRV3.balanceOf(carol.address);
+      const bobBalance3crvBefore = await CRV3.balanceOf(bob.address);
+
+      // total rewards: 1_123
+      await addRewards(getBigNumber(500));
+      await MagicCRV.connect(carol).claim();
+      await MagicCRV.connect(carol).claim();
+      await addRewards(getBigNumber(250));
+      await MagicCRV.connect(carol).claim();
+      await addRewards(getBigNumber(250));
+      await MagicCRV.connect(carol).claim();
+      await addRewards(getBigNumber(123));
+      await MagicCRV.connect(carol).claim();
+      await MagicCRV.connect(carol).claim();
+
+      // carol: 1_123 * (1_000 in wallet / 11_000)
+      const carolBalance3crvAfter = await CRV3.balanceOf(carol.address);
+      expect(carolBalance3crvAfter.sub(carolBalance3crvBefore)).to.be.closeTo(
+        getBigNumber(1_000).mul(getBigNumber(1_123)).div(getBigNumber(11_000)),
+        1e4
+      );
+
+      // bob: 1_123 * (10_000 in wallet / 11_000)
+      await MagicCRV.connect(bob).claim();
+      const bobBalance3crvAfter = await CRV3.balanceOf(bob.address);
+      expect(bobBalance3crvAfter.sub(bobBalance3crvBefore)).to.be.closeTo(
+        getBigNumber(10_000).mul(getBigNumber(1_123)).div(getBigNumber(11_000)),
+        1e5
+      );
+    });
 
     it("should claim rewards when adding collateral from bentobox amount deposited on behalf of a user", async () => {});
 
     it("should not be farming with liquidated amounts", async () => {});
-
-    it("should not be farming with disposed amounts", async () => {});
 
     it("should work with multiple cauldrons accross different degenBoxes", async () => {
       const [, , bob, carol] = await ethers.getSigners();
