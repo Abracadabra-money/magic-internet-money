@@ -3,7 +3,6 @@
 
 pragma solidity 0.8.10;
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../libraries/BoringOwnable.sol";
 
 /**
@@ -48,7 +47,7 @@ contract mSpellStaking is BoringOwnable {
     /// @notice Accumulated `token` rewards per share, scaled to `ACC_REWARD_PER_SHARE_PRECISION`
     uint256 public accRewardPerShare;
     /// @notice The precision of `accRewardPerShare`
-    uint256 public ACC_REWARD_PER_SHARE_PRECISION = 1e24;
+    uint256 public constant ACC_REWARD_PER_SHARE_PRECISION = 1e24;
 
     /// @dev Info of each user that stakes SPELL
     mapping(address => UserInfo) public userInfo;
@@ -102,20 +101,18 @@ contract mSpellStaking is BoringOwnable {
     function deposit(uint256 _amount) external {
         UserInfo storage user = userInfo[msg.sender];
 
-        uint256 _fee = _amount.mul(depositFeePercent).div(DEPOSIT_FEE_PERCENT_PRECISION);
-        uint256 _amountMinusFee = _amount.sub(_fee);
-
         uint256 _previousAmount = user.amount;
-        uint256 _newAmount = user.amount.add(_amountMinusFee);
-        user.amount = _newAmount;
+        uint256 _newAmount = user.amount + _amount;
+        user.amount = uint128(_newAmount);
+        user.lastAdded = uint128(block.timestamp);
 
         updateReward();
 
         uint256 _previousRewardDebt = user.rewardDebt;
-        user.rewardDebt = _newAmount.mul(accRewardPerShare).div(ACC_REWARD_PER_SHARE_PRECISION);
+        user.rewardDebt = uint128(_newAmount * accRewardPerShare / ACC_REWARD_PER_SHARE_PRECISION);
 
         if (_previousAmount != 0) {
-            uint256 _pending = _previousAmount.mul(accRewardPerShare).div(ACC_REWARD_PER_SHARE_PRECISION).sub(_previousRewardDebt);
+            uint256 _pending = _previousAmount * accRewardPerShare / ACC_REWARD_PER_SHARE_PRECISION - _previousRewardDebt;
             if (_pending != 0) {
                 safeTokenTransfer(mim, msg.sender, _pending);
                 emit ClaimReward(msg.sender, _pending);
@@ -140,10 +137,10 @@ contract mSpellStaking is BoringOwnable {
         uint256 _rewardBalance = mim.balanceOf(address(this));
 
         if (_rewardBalance != lastRewardBalance && _totalSpell != 0) {
-            uint256 _accruedReward = _rewardBalance.sub(lastRewardBalance);
-            _accRewardTokenPerShare = _accRewardTokenPerShare.add(_accruedReward.mul(ACC_REWARD_PER_SHARE_PRECISION).div(_totalSpell));
+            uint256 _accruedReward = _rewardBalance - lastRewardBalance;
+            _accRewardTokenPerShare = _accRewardTokenPerShare + _accruedReward * ACC_REWARD_PER_SHARE_PRECISION / _totalSpell;
         }
-        return user.amount.mul(_accRewardTokenPerShare).div(ACC_REWARD_PER_SHARE_PRECISION).sub(user.rewardDebt);
+        return user.amount * _accRewardTokenPerShare / ACC_REWARD_PER_SHARE_PRECISION - user.rewardDebt;
     }
 
     /**
@@ -153,13 +150,13 @@ contract mSpellStaking is BoringOwnable {
     function withdraw(uint256 _amount) external {
         UserInfo storage user = userInfo[msg.sender];
         uint256 _previousAmount = user.amount;
-        uint256 _newAmount = user.amount.sub(_amount);
-        user.amount = _newAmount;
+        uint256 _newAmount = user.amount - _amount;
+        user.amount = uint128(_newAmount);
 
         updateReward();
 
-        uint256 _pending = _previousAmount.mul(accRewardPerShare).div(ACC_REWARD_PER_SHARE_PRECISION).sub(user.rewardDebt);
-        user.rewardDebt = _newAmount.mul(accRewardPerShare).div(ACC_REWARD_PER_SHARE_PRECISION);
+        uint256 _pending = _previousAmount * accRewardPerShare / ACC_REWARD_PER_SHARE_PRECISION - user.rewardDebt;
+        user.rewardDebt = uint128(_newAmount * accRewardPerShare / ACC_REWARD_PER_SHARE_PRECISION);
 
         if (_pending != 0) {
             safeTokenTransfer(mim, msg.sender, _pending);
@@ -198,9 +195,9 @@ contract mSpellStaking is BoringOwnable {
             return;
         }
 
-        uint256 _accruedReward = _rewardBalance.sub(lastRewardBalance);
+        uint256 _accruedReward = _rewardBalance - lastRewardBalance;
 
-        accRewardPerShare = accRewardPerShare.add(_accruedReward.mul(ACC_REWARD_PER_SHARE_PRECISION).div(_totalSpell));
+        accRewardPerShare = accRewardPerShare + _accruedReward * ACC_REWARD_PER_SHARE_PRECISION / _totalSpell;
         lastRewardBalance = _rewardBalance;
     }
 
@@ -219,10 +216,10 @@ contract mSpellStaking is BoringOwnable {
         uint256 _rewardBalance = _token.balanceOf(address(this));
 
         if (_amount > _rewardBalance) {
-            lastRewardBalance = lastRewardBalance.sub(_rewardBalance);
+            lastRewardBalance = lastRewardBalance - _rewardBalance;
             _token.safeTransfer(_to, _rewardBalance);
         } else {
-            lastRewardBalance = lastRewardBalance.sub(_amount);
+            lastRewardBalance = lastRewardBalance - _amount;
             _token.safeTransfer(_to, _amount);
         }
     }
