@@ -33,8 +33,8 @@ contract MagicCRV is ERC20, Ownable, ICheckpointTokenV2 {
     address[] public cauldrons;
 
     /// @dev global reward states
-    uint256 public rewardIndex = 0;
-    uint256 public crv3Balance = 0;
+    uint256 public rewardIndex;
+    uint256 public crv3Balance;
 
     bool public shutdown;
 
@@ -67,18 +67,6 @@ contract MagicCRV is ERC20, Ownable, ICheckpointTokenV2 {
 
         cauldrons.push(cauldron);
         knownCauldrons[cauldron] = true;
-    }
-
-    function _getTotalBalance(address account) internal view returns (uint256) {
-        uint256 total = balanceOf[account];
-
-        for (uint256 i = 0; i < cauldrons.length; i++) {
-            try ICollateralAmountAware(cauldrons[i]).userCollateralAmount(account) returns (uint256 amount) {
-                total += amount;
-            } catch {}
-        }
-
-        return total;
     }
 
     /// @notice emergency shutdown
@@ -153,7 +141,7 @@ contract MagicCRV is ERC20, Ownable, ICheckpointTokenV2 {
         return true;
     }
 
-    function onCheckpoint(address account) external onlyCauldrons {
+    function onCheckpoint(address account) external override onlyCauldrons {
         _update();
         _updateFor(account);
     }
@@ -206,13 +194,20 @@ contract MagicCRV is ERC20, Ownable, ICheckpointTokenV2 {
 
         uint256 claimable = claimables[recipient];
         claimables[recipient] = 0;
-
-        /// @dev crv3Balance is updated by _updateFor
-        /// and claimable should never be greater than
-        /// crv3Balance.
         crv3Balance -= claimable;
-
         CRV3.transfer(recipient, claimable);
+    }
+
+    function _getTotalBalance(address account) internal view returns (uint256) {
+        uint256 total = balanceOf[account];
+
+        for (uint256 i = 0; i < cauldrons.length; i++) {
+            try ICollateralAmountAware(cauldrons[i]).userCollateralAmount(account) returns (uint256 amount) {
+                total += amount;
+            } catch {}
+        }
+
+        return total;
     }
 
     /// @notice emergency withdraw in case the contract is shutdown

@@ -1,7 +1,7 @@
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { expect } from "chai";
 import { advanceTime, ChainId, duration, getBigNumber, impersonate } from "../utilities";
-import { CauldronV2CheckpointV2, CurveVoter, DegenBox, ERC20Mock, IBentoBoxV1, IFeeDistributor, MagicCRV } from "../typechain";
+import { CauldronV2CheckpointV2, CurveVoter, DegenBox, ERC20Mock, IBentoBoxV1, IFeeDistributor, MagicCRV, MagicCRVOracle } from "../typechain";
 import { ISmartWalletWhitelist } from "../typechain/ISmartWalletWhitelist";
 import { BigNumber } from "ethers";
 
@@ -26,7 +26,7 @@ describe("MagicCRV", async () => {
   let curveDaoSigner;
   let crvWhaleSigner;
   let crv3WhaleSigner;
-  
+
   const setup = async (signer, initialAmount) => {
     // transfer crv from 3crv whale
     await CRV.connect(crvWhaleSigner).transfer(signer.address, initialAmount);
@@ -380,9 +380,88 @@ describe("MagicCRV", async () => {
     );
   });
 
-  it("should claim rewards when adding collateral from bentobox amount deposited on behalf of a user", async () => {});
+  it("should claim rewards when adding collateral from bentobox amount deposited on behalf of a user", async () => {
+    const [, , bob, carol] = await ethers.getSigners();
+    await setup(bob, getBigNumber(10_000));
+    await setup(carol, getBigNumber(0));
 
-  it("should not be farming with liquidated amounts", async () => {});
+    const share = await DegenBox.toShare(MagicCRV.address, getBigNumber(5_000), false);
+
+    // Deposit 5_000 magicCRV for carol
+    await DegenBox.connect(bob).deposit(MagicCRV.address, bob.address, carol.address, 0, share);
+    await Cauldron.connect(carol).addCollateral(carol.address, false, share);
+
+    await addCollateral(bob, getBigNumber(5_000));
+    await addRewards(getBigNumber(100));
+    await expectRewards(carol, getBigNumber(5_000).mul(getBigNumber(100)).div(getBigNumber(10_000)), 1e4);
+    await expectRewards(bob, getBigNumber(5_000).mul(getBigNumber(100)).div(getBigNumber(10_000)), 1e4);
+  });
+
+  it("should not be farming with liquidated amounts", async () => {
+    const [, , bob] = await ethers.getSigners();
+
+    await Cauldron.updateExchangeRate();
+
+    // Cauldron Parameters: 80% LTV 1% borrow fee 1% Interest
+    await setup(bob, getBigNumber(2_000_000));
+    await addCollateral(bob, getBigNumber(1_000_000));
+
+    const mimWhale = "0xbbc4A8d076F4B1888fec42581B6fc58d242CF2D5";
+    await impersonate(mimWhale);
+
+    const mimWhaleSigner = await ethers.getSigner(mimWhale);
+    
+    await DegenBox.connect(mimWhaleSigner).setMasterContractApproval(
+      mimWhaleSigner.address,
+      CauldronMC.address,
+      true,
+      0,
+      ethers.constants.HashZero,
+      ethers.constants.HashZero
+    );
+
+    const MIM = await ethers.getContractAt<ERC20Mock>("ERC20Mock", "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3");
+    const Oracle = await ethers.getContract<MagicCRVOracle>("MagicCRVOracle");
+
+    const [, magicCRVPrice] = await Oracle.get(ethers.constants.HashZero);
+    await MIM.connect(mimWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
+    await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, mimWhale, mimWhale, getBigNumber(10_000_000), 0);
+    await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, mimWhale, Cauldron.address, getBigNumber(10_000_000), 0);
+
+    // borrow an amount that's near liquidation level LTV 80% of 1_000_000 - 1% borrow fee
+    let mimBorrowAmount = getBigNumber(792_000);
+    mimBorrowAmount = mimBorrowAmount.mul(magicCRVPrice).div(getBigNumber(1, 18));
+    await Cauldron.connect(bob).borrow(bob.address, mimBorrowAmount);
+
+    const userBorrowPartBefore = await Cauldron.userBorrowPart(bob.address);
+    await expect(
+      Cauldron.connect(mimWhaleSigner).liquidate([bob.address], [userBorrowPartBefore], bob.address, ethers.constants.AddressZero)
+    ).to.be.revertedWith("Cauldron: all are solvent");
+
+    // advance 1 week
+    await advanceTime(60 * 60 * 24 * 7);
+
+    // add 500 rewards
+    // liquidate
+    // should claim for 500
+    // add new reward
+    // should claim 0
+    await addRewards(getBigNumber(500));
+    await Cauldron.connect(mimWhaleSigner).liquidate([bob.address], [userBorrowPartBefore], bob.address, ethers.constants.AddressZero);
+    const userBorrowPartAfter = await Cauldron.userBorrowPart(bob.address);
+    const remainingCollateralAmount = await Cauldron.userCollateralAmount(bob.address);
+    expect(userBorrowPartAfter).to.be.eq("0");
+      
+    // bob has 1M in wallet and 1M in cauldron, he got
+    // liquidated but his claimable should have been updated during the liquidation.
+    // before the balance change
+    await expectRewards(bob, getBigNumber(500));
+    
+    // bob has `remainingCollateralAmount` left in the cauldron + 250 in his wallet.
+    await addRewards(getBigNumber(500));
+    await expectRewards(bob, getBigNumber(1_000_000).add(remainingCollateralAmount).mul(getBigNumber(500)).div(getBigNumber(2_000_000)), 1e4);
+    await expectRewards(bob, getBigNumber(0));
+  });
 
   it("should work with multiple cauldrons accross different degenBoxes", async () => {
     const [, , bob, carol] = await ethers.getSigners();
