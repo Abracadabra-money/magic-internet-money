@@ -11,12 +11,13 @@ import "../libraries/BoringOwnable.sol";
  */
 contract mSpellStaking is BoringOwnable {
     using SafeTransferLib for ERC20;
-    using SafeMath for uint256;
 
     /// @notice Info of each user
     struct UserInfo {
-        uint256 amount;
-        uint256 rewardDebt;
+        uint128 amount;
+
+        uint128 rewardDebt;
+        uint128 lastAdded;
         /**
          * @notice We do some fancy math here. Basically, any point in time, the amount of JOEs
          * entitled to a user but is pending to be distributed is:
@@ -37,12 +38,9 @@ contract mSpellStaking is BoringOwnable {
     /// @notice Last reward balance of `token`
     uint256 public lastRewardBalance;
 
-    address public feeCollector;
-
-    /// @notice The deposit fee, scaled to `DEPOSIT_FEE_PERCENT_PRECISION`
-    uint256 public immutable depositFeePercent;
-    /// @notice The precision of `depositFeePercent`
-    uint256 public constant DEPOSIT_FEE_PERCENT_PRECISION = 1e18;
+    /// @notice amount of time that the position is locked for.
+    uint256 private constant LOCK_TIME = 24 hours;
+    bool public toggleLockup;
 
     /// @notice Accumulated `token` rewards per share, scaled to `ACC_REWARD_PER_SHARE_PRECISION`
     uint256 public accRewardPerShare;
@@ -53,10 +51,7 @@ contract mSpellStaking is BoringOwnable {
     mapping(address => UserInfo) public userInfo;
 
     /// @notice Emitted when a user deposits SPELL
-    event Deposit(address indexed user, uint256 amount, uint256 fee);
-
-    /// @notice Emitted when owner changes the deposit fee percentage
-    event DepositFeeChanged(uint256 newFee, uint256 oldFee);
+    event Deposit(address indexed user, uint256 amount);
 
     /// @notice Emitted when a user withdraws SPELL
     event Withdraw(address indexed user, uint256 amount);
@@ -73,23 +68,16 @@ contract mSpellStaking is BoringOwnable {
      * (with MoneyMaker in our case)
      * @param _mim The address of the MIM token
      * @param _spell The address of the SPELL token
-     * @param _feeCollector The address where deposit fees will be sent
-     * @param _depositFeePercent The deposit fee percent, scalled to 1e18, e.g. 3% is 3e16
      */
     constructor(
         ERC20 _mim,
-        ERC20 _spell,
-        address _feeCollector,
-        uint256 _depositFeePercent
+        ERC20 _spell
     ) {
         require(address(_mim) != address(0), "mSpellStaking: reward token can't be address(0)");
         require(address(_spell) != address(0), "mSpellStaking: spell can't be address(0)");
-        require(_feeCollector != address(0), "mSpellStaking: fee collector can't be address(0)");
-        require(_depositFeePercent <= 5e17, "mSpellStaking: max deposit fee can't be greater than 50%");
 
         spell = _spell;
-        depositFeePercent = _depositFeePercent;
-        feeCollector = _feeCollector;
+        toggleLockup = true;
 
         mim = _mim;
     }
@@ -119,9 +107,8 @@ contract mSpellStaking is BoringOwnable {
             }
         }
 
-        spell.safeTransferFrom(msg.sender, feeCollector, _fee);
-        spell.safeTransferFrom(msg.sender, address(this), _amountMinusFee);
-        emit Deposit(msg.sender, _amountMinusFee, _fee);
+        spell.safeTransferFrom(msg.sender, address(this), _amount);
+        emit Deposit(msg.sender, _amount);
     }
 
     /**
@@ -149,6 +136,9 @@ contract mSpellStaking is BoringOwnable {
      */
     function withdraw(uint256 _amount) external {
         UserInfo storage user = userInfo[msg.sender];
+
+        require(!toggleLockup || user.lastAdded + LOCK_TIME < block.timestamp, "mSpell: Wait for LockUp");
+
         uint256 _previousAmount = user.amount;
         uint256 _newAmount = user.amount - _amount;
         user.amount = uint128(_newAmount);
@@ -223,4 +213,13 @@ contract mSpellStaking is BoringOwnable {
             _token.safeTransfer(_to, _amount);
         }
     }
+
+    /**
+     * @notice Allows to enable and disable the lockup
+     * @param status The new lockup status
+     */
+
+     function toggleLockUp(bool status) external onlyOwner {
+        toggleLockup = status;
+     }
 }
