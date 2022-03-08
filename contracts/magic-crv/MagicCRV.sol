@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// Inspired by Yearn yveCRV-DAO
+
 // solhint-disable func-name-mixedcase
 pragma solidity ^0.8.10;
 
