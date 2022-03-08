@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Inspired from Yearn CurveYCRVVoter and StrategyProxy
+// Inspired by Yearn CurveYCRVVoter and StrategyProxy
 pragma solidity ^0.8.10;
 
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
