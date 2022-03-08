@@ -3,7 +3,7 @@
 
 pragma solidity 0.8.10;
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../libraries/BoringOwnable.sol";
 
 /**
@@ -32,9 +32,9 @@ contract mSpellStaking is BoringOwnable {
          */
     }
 
-    IERC20 public immutable spell;
+    ERC20 public immutable spell;
     /// @notice Array of tokens that users can claim
-    IERC20 public immutable mim;
+    ERC20 public immutable mim;
     /// @notice Last reward balance of `token`
     uint256 public lastRewardBalance;
 
@@ -77,12 +77,12 @@ contract mSpellStaking is BoringOwnable {
      * @param _feeCollector The address where deposit fees will be sent
      * @param _depositFeePercent The deposit fee percent, scalled to 1e18, e.g. 3% is 3e16
      */
-    constructor (
-        IERC20 _mim,
-        IERC20 _spell,
+    constructor(
+        ERC20 _mim,
+        ERC20 _spell,
         address _feeCollector,
         uint256 _depositFeePercent
-    ) external initializer {
+    ) {
         require(address(_mim) != address(0), "mSpellStaking: reward token can't be address(0)");
         require(address(_spell) != address(0), "mSpellStaking: spell can't be address(0)");
         require(_feeCollector != address(0), "mSpellStaking: fee collector can't be address(0)");
@@ -115,10 +115,7 @@ contract mSpellStaking is BoringOwnable {
         user.rewardDebt = _newAmount.mul(accRewardPerShare).div(ACC_REWARD_PER_SHARE_PRECISION);
 
         if (_previousAmount != 0) {
-            uint256 _pending = _previousAmount
-                .mul(accRewardPerShare)
-                .div(ACC_REWARD_PER_SHARE_PRECISION)
-                .sub(_previousRewardDebt);
+            uint256 _pending = _previousAmount.mul(accRewardPerShare).div(ACC_REWARD_PER_SHARE_PRECISION).sub(_previousRewardDebt);
             if (_pending != 0) {
                 safeTokenTransfer(mim, msg.sender, _pending);
                 emit ClaimReward(msg.sender, _pending);
@@ -144,12 +141,9 @@ contract mSpellStaking is BoringOwnable {
 
         if (_rewardBalance != lastRewardBalance && _totalSpell != 0) {
             uint256 _accruedReward = _rewardBalance.sub(lastRewardBalance);
-            _accRewardTokenPerShare = _accRewardTokenPerShare.add(
-                _accruedReward.mul(ACC_REWARD_PER_SHARE_PRECISION).div(_totalSpell)
-            );
+            _accRewardTokenPerShare = _accRewardTokenPerShare.add(_accruedReward.mul(ACC_REWARD_PER_SHARE_PRECISION).div(_totalSpell));
         }
-        return
-            user.amount.mul(_accRewardTokenPerShare).div(ACC_REWARD_PER_SHARE_PRECISION).sub(user.rewardDebt);
+        return user.amount.mul(_accRewardTokenPerShare).div(ACC_REWARD_PER_SHARE_PRECISION).sub(user.rewardDebt);
     }
 
     /**
@@ -164,10 +158,7 @@ contract mSpellStaking is BoringOwnable {
 
         updateReward();
 
-        uint256 _pending = _previousAmount
-            .mul(accRewardPerShare)
-            .div(ACC_REWARD_PER_SHARE_PRECISION)
-            .sub(user.rewardDebt);
+        uint256 _pending = _previousAmount.mul(accRewardPerShare).div(ACC_REWARD_PER_SHARE_PRECISION).sub(user.rewardDebt);
         user.rewardDebt = _newAmount.mul(accRewardPerShare).div(ACC_REWARD_PER_SHARE_PRECISION);
 
         if (_pending != 0) {
@@ -209,9 +200,7 @@ contract mSpellStaking is BoringOwnable {
 
         uint256 _accruedReward = _rewardBalance.sub(lastRewardBalance);
 
-        accRewardPerShare = accRewardPerShare.add(
-            _accruedReward.mul(ACC_REWARD_PER_SHARE_PRECISION).div(_totalSpell)
-        );
+        accRewardPerShare = accRewardPerShare.add(_accruedReward.mul(ACC_REWARD_PER_SHARE_PRECISION).div(_totalSpell));
         lastRewardBalance = _rewardBalance;
     }
 
@@ -223,7 +212,7 @@ contract mSpellStaking is BoringOwnable {
      * @param _amount The amount to send to `_to`
      */
     function safeTokenTransfer(
-        IERC20 _token,
+        ERC20 _token,
         address _to,
         uint256 _amount
     ) internal {
