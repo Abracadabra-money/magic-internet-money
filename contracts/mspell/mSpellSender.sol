@@ -26,8 +26,6 @@ contract MSpellSender is BoringOwnable {
     address private constant ANY_MIM = 0xbbc4A8d076F4B1888fec42581B6fc58d242CF2D5;
     AnyswapRouter private constant ANYSWAP_ROUTER = AnyswapRouter(0x6b7a87899490EcE95443e979cA9485CBE7E71522);
 
-    uint256 private constant BPS = 10_000;
-
     struct MSpellRecipients {
         address recipient;
         uint256 chainId;
@@ -53,19 +51,12 @@ contract MSpellSender is BoringOwnable {
         uint256 summedRatio;
         uint256 totalAmount = MIM.balanceOf(address(this));
 
-        // fail fast if the ratio sums doesn't sum 100%
-        // TODO: Do we really want this or allow certain ratio to be 0 and leave some MIM in the contract?
-        // For example, sending 50% to avalanche, 20% to BSC, 0% to FTM, 0% to Arbitrum, and leave 30% MIM here
         for (uint256 i = 0; i < ratios.length; i++) {
             summedRatio += ratios[i];
         }
-        require(summedRatio <= BPS, "ratios sum not 10000");
 
         for (uint256 i = 0; i < ratios.length; i++) {
-            uint256 amount = (totalAmount * ratios[i]) / BPS;
-
-            /// TODO: If we always want to bridge 100%, should we send the remaining amount when i == ratios.length - 1?
-            /// To be sure there's no dust remaining, OCD style.
+            uint256 amount = (totalAmount * ratios[i]) / summedRatio;
             if (amount > 0) {
                 ANYSWAP_ROUTER.anySwapOutUnderlying(ANY_MIM, recipients[i].recipient, amount, recipients[i].chainId);
                 emit LogBridgeToRecipient(recipients[i].recipient, amount, recipients[i].chainId);
