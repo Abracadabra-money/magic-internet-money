@@ -33,11 +33,11 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
     //let oracle = "0x2Be431EE7E74b1CB7CfA16Fc90578EF42eF361B0"
   let INTEREST_CONVERSION = 1e18/(365.25*3600*24)/100
-  let interest = parseInt(String(0.5 * INTEREST_CONVERSION))
+  let interest = parseInt(String(3 * INTEREST_CONVERSION))
   const OPENING_CONVERSION = 1e5/100
-  const opening = 0.5 * OPENING_CONVERSION
-  const liquidation = 7.5 * 1e3+1e5
-  const collateralization = 85 * 1e3
+  const opening = 1 * OPENING_CONVERSION
+  const liquidation = 12.5 * 1e3+1e5
+  const collateralization = 70 * 1e3
 
   let initData = ethers.utils.defaultAbiCoder.encode(
     ["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"],
