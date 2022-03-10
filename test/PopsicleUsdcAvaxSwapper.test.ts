@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { ChainId, getBigNumber, impersonate } from "../utilities";
-import { BentoBoxV1, IERC20, UsdcAvaxLevSwapper, UsdcAvaxSwapper } from "../typechain";
+import { DegenBox, ERC20Mock, UsdcAvaxLevSwapper, UsdcAvaxSwapper } from "../typechain";
 import { expect } from "chai";
 
 // Top holders at the given fork block
@@ -10,11 +10,11 @@ const USDCAVAX_LP_WHALE = "0xd6a4f121ca35509af06a0be99093d08462f53052";
 
 describe("Lev/Liquidation UsdcAvax Swappers", async () => {
   let snapshotId;
-  let MIM: IERC20;
-  let USDCAVAX: IERC20;
+  let MIM: ERC20Mock;
+  let USDCAVAX: ERC20Mock;
   let UsdcAvaxSwapper: UsdcAvaxSwapper;
   let UsdcAvaxLevSwapper: UsdcAvaxLevSwapper;
-  let DegenBox: BentoBoxV1;
+  let DegenBox: DegenBox;
   let mimShare;
   let usdcAvaxShare;
   let deployerSigner;
@@ -40,9 +40,9 @@ describe("Lev/Liquidation UsdcAvax Swappers", async () => {
 
     UsdcAvaxSwapper = await ethers.getContract<UsdcAvaxSwapper>("PopsicleUsdcAvaxSwapper");
     UsdcAvaxLevSwapper = await ethers.getContract<UsdcAvaxLevSwapper>("PopsicleUsdcAvaxLevSwapper");
-    DegenBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", "0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4");
-    MIM = await ethers.getContractAt<IERC20>("ERC20", "0x130966628846BFd36ff31a822705796e8cb8C18D");
-    USDCAVAX = await ethers.getContractAt<IERC20>("ERC20", "0xA389f9430876455C36478DeEa9769B7Ca4E3DDB1");
+    DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", "0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4");
+    MIM = await ethers.getContractAt<ERC20Mock>("ERC20Mock", "0x130966628846BFd36ff31a822705796e8cb8C18D");
+    USDCAVAX = await ethers.getContractAt<ERC20Mock>("ERC20Mock", "0xA389f9430876455C36478DeEa9769B7Ca4E3DDB1");
 
     await impersonate(MIM_WHALE);
     await impersonate(USDCAVAX_LP_WHALE);
