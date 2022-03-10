@@ -85,6 +85,13 @@
 | -------- | ------------------------------------------ | ---- |
 | DegenBox | 0xB734c264F83E39Ef6EC200F99550779998cC812d |      |
 
+# Oracles
+
+| Chain | Token                 | Address                                    |
+| ----- | --------------------- | ------------------------------------------ |
+| Avax  | Joe USDC.e/WAVAX LP   | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 |
+| Avax  | Pangolin USDC.e/WAVAX | 0x1e21573cfc456f8aDd4C27ff16B50112e3adC7aC |
+
 # Popsicle
 
 | Contract                     | Address                                    | Note |
