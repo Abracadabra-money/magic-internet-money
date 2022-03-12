@@ -377,7 +377,7 @@ describe("NFT Pair", async () => {
     });
 
     it("Should allow borrowers any update to loan requests", async () => {
-      const data = [params1];
+      const data: ILoanParams[] = [params1];
       const recordUpdate = (k, f) => {
         const params = data[data.length - 1];
         data.push({ ...params, [k]: f(params[k]) });
@@ -443,7 +443,7 @@ describe("NFT Pair", async () => {
     });
 
     it("Should refuse worse conditions from lender", async () => {
-      const data = [];
+      const data: ILoanParams[] = [];
       const recordUpdate = (k, f) => {
         data.push({ ...params1, [k]: f(params1[k]) });
       };
@@ -456,6 +456,68 @@ describe("NFT Pair", async () => {
       for (const params of data) {
         await expect(pair.connect(carol).updateLoanParams(apeIds.aliceOne, params)).to.be.revertedWith("NFTPair: worse params");
       }
+    });
+  });
+
+  describeSnapshot("Remove Collateral", () => {
+    let pair: NFTPair;
+    const params: ILoanParams = {
+      valuation: getBigNumber(123),
+      annualInterestBPS: 10_000,
+      expiration: Math.floor(new Date().getTime() / 1000) + 86400,
+    };
+    const valuationShare = params.valuation.mul(9).div(20);
+
+    before(async () => {
+      pair = await deployPair();
+
+      for (const signer of [deployer, alice, bob, carol]) {
+        await apes.connect(signer).setApprovalForAll(pair.address, true);
+      }
+
+      for (const id of [apeIds.aliceOne, apeIds.aliceTwo]) {
+        await pair.connect(alice).requestLoan(id, params, alice.address, false);
+      }
+      await pair.connect(bob).lend(apeIds.aliceOne, params, false);
+    });
+
+    it("Should allow borrowers to remove unused collateral", async () => {
+      await expect(pair.connect(alice).removeCollateral(apeIds.aliceTwo, alice.address))
+        .to.emit(pair, "LogRemoveCollateral")
+        .withArgs(apeIds.aliceTwo, alice.address)
+        .to.emit(apes, "Transfer")
+        .withArgs(pair.address, alice.address, apeIds.aliceTwo);
+    });
+
+    it("Should not allow others to remove unused collateral", async () => {
+      await expect(pair.connect(bob).removeCollateral(apeIds.aliceTwo, alice.address)).to.be.revertedWith("NFTPair: not the borrower");
+    });
+
+    it("Should not allow borrowers to remove used collateral", async () => {
+      await expect(pair.connect(alice).removeCollateral(apeIds.aliceOne, alice.address)).to.be.revertedWith("NFTPair: not the lender");
+    });
+
+    it("Should allow lenders to seize collateral upon expiry", async () => {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [params.expiration]);
+      // Send it to someone else for a change:
+      await expect(pair.connect(bob).removeCollateral(apeIds.aliceOne, carol.address))
+        .to.emit(pair, "LogRemoveCollateral")
+        .withArgs(apeIds.aliceOne, carol.address)
+        .to.emit(apes, "Transfer")
+        .withArgs(pair.address, carol.address, apeIds.aliceOne);
+    });
+
+    it("Should not allow lenders to seize collateral otherwise", async () => {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [params.expiration - 1]);
+      await expect(pair.connect(bob).removeCollateral(apeIds.aliceOne, carol.address)).to.be.revertedWith("NFTPair: not expired");
+    });
+
+    it("Should not allow others to seize collateral ever", async () => {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [params.expiration - 1]);
+      await expect(pair.connect(carol).removeCollateral(apeIds.aliceOne, carol.address)).to.be.revertedWith("NFTPair: not the lender");
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [params.expiration + 1_000_000]);
+      await expect(pair.connect(carol).removeCollateral(apeIds.aliceOne, carol.address)).to.be.revertedWith("NFTPair: not the lender");
     });
   });
 
