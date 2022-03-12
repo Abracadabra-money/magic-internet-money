@@ -63,7 +63,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     // "Shares" are BentoBox shares.
 
     // Track assets we own. Used to allow skimming the excesss.
-    uint256 feesEarnedShare;
+    uint256 public feesEarnedShare;
 
     // Per token settings.
     struct TokenLoanParams {
