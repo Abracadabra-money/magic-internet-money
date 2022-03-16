@@ -158,7 +158,6 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         require(address(collateral) != address(0), "NFTPair: bad pair");
     }
 
-    // TODO: Somehow merge this with `updateLoanParams`
     function updateLoanParams(uint256 tokenId, TokenLoanParams memory params) public {
         TokenLoan memory loan = tokenLoan[tokenId];
         if (loan.status == LOAN_OUTSTANDING) {
@@ -178,7 +177,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
             require(msg.sender == loan.borrower, "NFTPair: not the borrower");
         } else {
             // The loan has not been taken out yet; the borrower needs to
-            // provide collateral. (TODO: Do that here?)
+            // provide collateral.
             revert("NFTPair: no collateral");
         }
         tokenLoanParams[tokenId] = params;
