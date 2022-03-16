@@ -18,6 +18,12 @@
 | YVCVXETHOracle           | 0x991536BF23fa40B578Fc3e1e3725E51D1bF889F3 |                                            |
 | YVCVXETHSwapper          | 0xF80a7b98b59e7F71BAa149990bAA6044728321bb | Liquidation Swapper                        |
 | YVCVXETHLevSwapper       | 0xE345156cDEc151D9F843F94ADE7770EFA9d56417 | Leverage Swapper                           |
+| **yvMIM3CRV**            |                                            |                                            |
+| yvMIM3CRVCauldron        | 0xaf487ab3b81B3E6370B5D4C69A8daEf7Cc65676F | 75% LTV .5% initial 1% Interest, 12.5% fee |
+| YVMIM3CRVOracleProxy     | 0x7d76568d84de8A0F34BBf315F53d7772c1fABcD8 | Using YVCVXETHOracle                       |
+| YVMIM3CRVOracle          | 0x547fD22A2d2A9e109A78eB88Fc640D166a64d45F |                                            |
+| YVMIM3CRVSwapper         | 0x05e46FFD98F94F62cC2817d54D5F0B1FD065B76d | Liquidation Swapper                        |
+| YVMIM3CRVLevSwapper      | 0x9b2794Aeff2E6Bd2b3e32e095E878bF17EB6BdCC | Leverage Swapper                           |
 
 ### Utilities
 

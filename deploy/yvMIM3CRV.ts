@@ -34,10 +34,10 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const INTEREST_CONVERSION = 1e18 / (365.25 * 3600 * 24) / 100;
   const OPENING_CONVERSION = 1e5 / 100;
 
-  const collateralization = 85 * 1e3; // 85% LTV
+  const collateralization = 75 * 1e3; // 75% LTV
   const opening = 0.5 * OPENING_CONVERSION; // .5% borrow initial fee
-  const interest = parseInt(String(3 * INTEREST_CONVERSION)); // 3% Interest
-  const liquidation = 8 * 1e3 + 1e5; // 8% liquidation fee
+  const interest = parseInt(String(1 * INTEREST_CONVERSION)); // 1% Interest
+  const liquidation = 12.5 * 1e3 + 1e5; // 12.5% liquidation fee
 
   // Proxy Oracle
   await deploy(parameters.proxyOracleDeploymentName, {
