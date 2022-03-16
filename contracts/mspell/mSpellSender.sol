@@ -13,7 +13,7 @@ interface AnyswapRouter {
     ) external;
 }
 
-contract MSpellSender is BoringOwnable {
+contract mSpellSender is BoringOwnable {
     using SafeTransferLib for ERC20;
 
     /// EVENTS
