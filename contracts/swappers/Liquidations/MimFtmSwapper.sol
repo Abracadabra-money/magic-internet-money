@@ -61,7 +61,7 @@ contract MimFtmSwapper is ISwapperGeneric {
 
         // swap AVAX to MIM
         (uint256 reserve0, uint256 reserve1, ) = MIMFTM.getReserves();
-        uint256 mimFromAvax = _getAmountOut(mimAmount, reserve0, reserve1);
+        uint256 mimFromAvax = _getAmountOut(mimAmount, reserve1, reserve0);
         WFTM.transfer(address(MIMFTM), ftmAmount);
         MIMFTM.swap(0, mimFromAvax, address(this), new bytes(0));
         mimAmount += mimFromAvax;
