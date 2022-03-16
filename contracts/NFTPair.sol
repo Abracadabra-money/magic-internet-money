@@ -43,7 +43,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     event LogRemoveCollateral(uint256 indexed tokenId, address recipient);
     // Details are in the loan request
     event LogLend(address indexed lender, uint256 indexed tokenId);
-    event LogRepay(address indexed from, uint256 tokenId);
+    event LogRepay(address indexed from, uint256 indexed tokenId);
     event LogFeeTo(address indexed newFeeTo);
     event LogWithdrawFees(address indexed feeTo, uint256 feeShare);
 
