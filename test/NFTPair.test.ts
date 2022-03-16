@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { BigNumber, BigNumberish, Contract } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
-import { advanceNextTime, duration, encodeParameters, getBigNumber, impersonate } from "../utilities";
+import { BigRational, advanceNextTime, duration, encodeParameters, expApprox, getBigNumber, impersonate } from "../utilities";
 import { BentoBoxMock, ERC20Mock, ERC721Mock, WETH9Mock, NFTPair } from "../typechain";
 import { describeSnapshot } from "./helpers";
 import { Cook, encodeLoanParamsNFT } from "./PrivatePool";
@@ -36,6 +36,8 @@ interface IPartialLoanParams {
 
 const { formatUnits } = ethers.utils;
 const { MaxUint256, AddressZero, HashZero } = ethers.constants;
+// This one was not defined..
+const MaxUint128 = BigNumber.from(2).pow(128).sub(1);
 
 const nextYear = Math.floor(new Date().getTime() / 1000) + 86400 * 365;
 const nextDecade = Math.floor(new Date().getTime() / 1000) + 86400 * 365 * 10;
@@ -101,7 +103,7 @@ describe("NFT Pair", async () => {
     masterContract = await deployContract("NFTPair", bentoBox.address);
     await bentoBox.whitelistMasterContract(masterContract.address, true);
     apes = await deployContract("ERC721Mock");
-    guineas = await deployContract("ERC20Mock", getBigNumber(1_000_000));
+    guineas = await deployContract("ERC20Mock", MaxUint256);
 
     const addresses = await getNamedAccounts();
     deployer = await ethers.getSigner(addresses.deployer);
@@ -466,7 +468,6 @@ describe("NFT Pair", async () => {
       annualInterestBPS: 10_000,
       expiration: Math.floor(new Date().getTime() / 1000) + 86400,
     };
-    const valuationShare = params.valuation.mul(9).div(20);
 
     before(async () => {
       pair = await deployPair();
@@ -521,147 +522,276 @@ describe("NFT Pair", async () => {
     });
   });
 
-  // describeSnapshot("Remove Collateral", () => {
-  //   let pool: NFTPair;
+  describeSnapshot("Repay", () => {
+    let pair: NFTPair;
 
-  //   before(async () => {
-  //     pool = await deployPair();
-  //     for (const signer of [bob, carol]) {
-  //       await apes.connect(signer).setApprovalForAll(pool.address, true);
-  //     }
-  //     const share = getBigNumber(450); // 1000 guineas
-  //     await pool.connect(alice).addAsset(false, share);
+    const DAY = 24 * 3600;
+    const YEAR = 365 * DAY;
+    const params: ILoanParams = {
+      valuation: getBigNumber(1),
+      annualInterestBPS: 10_000,
+      expiration: Math.floor(new Date().getTime() / 1000) + YEAR,
+    };
+    const valuationShare = params.valuation.mul(9).div(20);
+    const borrowerShare = valuationShare.mul(99).div(100);
 
-  //     await addToken(pool, apeIds.bobOne, {
-  //       valuation: getBigNumber(1, 8),
-  //       expiration: nextYear,
-  //       annualInterestBPS: 10000,
-  //     });
-  //     await pool.connect(bob).addCollateral(apeIds.bobOne, bob.address, false);
+    // Theoretically this could fail to actually bound the repay share because
+    // of the FP math used. Double check using a more exact method if that
+    // happens:
+    const YEAR_BPS = YEAR * 10_000;
+    const COMPOUND_TERMS = 6;
+    const getMaxRepayShare = (time, params_) => {
+      // We mimic what the contract does, but without rounding errors in the
+      // approximation, so the upper bound should be strict.
+      // 1. Calculate exact amount owed; round it down, like the contract does.
+      // 2. Convert that to Bento shares (still hardcoded at 9/20); rounding up
+      const x = BigRational.from(time * params_.annualInterestBPS).div(YEAR_BPS);
+      return expApprox(x, COMPOUND_TERMS).mul(params_.valuation).floor().mul(9).add(19).div(20);
+    };
 
-  //     await addToken(pool, apeIds.carolOne, {
-  //       valuation: getBigNumber(1, 8),
-  //       expiration: nextYear,
-  //       annualInterestBPS: 10000,
-  //     });
-  //     await pool
-  //       .connect(carol)
-  //       .addCollateral(apeIds.carolOne, carol.address, false);
-  //   });
+    before(async () => {
+      pair = await deployPair();
 
-  //   it("Should let depositors withdraw their unused collateral", async () => {
-  //     await expect(
-  //       pool.connect(bob).removeCollateral(apeIds.bobOne, carol.address)
-  //     )
-  //       .to.emit(pool, "LogRemoveCollateral")
-  //       .withArgs(bob.address, carol.address, apeIds.bobOne)
-  //       .to.emit(apes, "Transfer")
-  //       .withArgs(pool.address, carol.address, apeIds.bobOne);
+      for (const signer of [deployer, alice, bob, carol]) {
+        await apes.connect(signer).setApprovalForAll(pair.address, true);
+      }
 
-  //     const loanStatus = await pool.tokenLoan(apeIds.bobOne);
-  //     expect(loanStatus.borrower).to.equal(AddressZero);
-  //     expect(loanStatus.startTime).to.equal(0);
-  //     expect(loanStatus.status).to.equal(LoanStatus.INITIAL);
-  //   });
+      for (const id of [apeIds.aliceOne, apeIds.aliceTwo]) {
+        await pair.connect(alice).requestLoan(id, params, alice.address, false);
+      }
+      await pair.connect(bob).lend(apeIds.aliceOne, params, false);
+    });
 
-  //   it("Should not allow withdrawals if the collateral is in use", async () => {
-  //     // The only legitimate reason to take used collateral is a "liquidation"
-  //     // where the loan has expired. This is only available to the lender:
-  //     const terms = await pool.tokenLoanParams(apeIds.bobOne);
-  //     await pool.connect(carol).borrow(apeIds.carolOne, carol.address, terms);
-  //     await expect(
-  //       pool.connect(carol).removeCollateral(apeIds.carolOne, carol.address)
-  //     ).to.be.revertedWith("NFTPair: not the lender");
-  //   });
+    it("Should allow borrowers to pay off loans before expiry", async () => {
+      const getBalances = async () => ({
+        alice: await bentoBox.balanceOf(guineas.address, alice.address),
+        bob: await bentoBox.balanceOf(guineas.address, bob.address),
+        pair: await bentoBox.balanceOf(guineas.address, pair.address),
+        feeTracker: await pair.feesEarnedShare(),
+      });
+      const t0 = await getBalances();
 
-  //   it("Should not give out someone else's unused collateral", async () => {
-  //     await expect(
-  //       pool.connect(bob).removeCollateral(apeIds.carolOne, carol.address)
-  //     ).to.be.revertedWith("NFTPair: not the borrower");
-  //   });
+      // Two Bento transfers: payment to the lender, fee to the contract
+      await advanceNextTime(DAY);
+      await expect(pair.connect(alice).repay(apeIds.aliceOne, false))
+        .to.emit(pair, "LogRepay")
+        .withArgs(alice.address, apeIds.aliceOne)
+        .to.emit(apes, "Transfer")
+        .withArgs(pair.address, alice.address, apeIds.aliceOne)
+        .to.emit(bentoBox, "LogTransfer")
+        .to.emit(bentoBox, "LogTransfer");
 
-  //   it("Should let only the lender seize expired collateral", async () => {
-  //     const terms = await pool.tokenLoanParams(apeIds.bobOne);
-  //     await pool.connect(carol).borrow(apeIds.carolOne, carol.address, terms);
-  //     await ethers.provider.send("evm_setNextBlockTimestamp", [nextYear]);
+      const t1 = await getBalances();
+      const maxRepayShare = getMaxRepayShare(DAY, params);
+      const linearInterest = valuationShare.mul(params.annualInterestBPS).mul(DAY).div(YEAR_BPS);
 
-  //     await expect(
-  //       pool.connect(bob).removeCollateral(apeIds.carolOne, bob.address)
-  //     ).to.be.revertedWith("NFTPair: not the lender");
+      const paid = t0.alice.sub(t1.alice);
+      expect(paid).to.be.gte(valuationShare.add(linearInterest));
+      expect(paid).to.be.lte(maxRepayShare);
 
-  //     // You cannot "seize" your own collateral either:
-  //     await expect(
-  //       pool.connect(carol).removeCollateral(apeIds.carolOne, carol.address)
-  //     ).to.be.revertedWith("NFTPair: not the lender");
+      // The difference is rounding errors only, so should be very small:
+      const paidError = maxRepayShare.sub(paid);
+      expect(paidError.mul(1_000_000_000)).to.be.lt(paid);
 
-  //     await expect(
-  //       pool.connect(alice).removeCollateral(apeIds.carolOne, alice.address)
-  //     )
-  //       .to.emit(pool, "LogRemoveCollateral")
-  //       .withArgs(carol.address, alice.address, apeIds.carolOne)
-  //       .to.emit(apes, "Transfer")
-  //       .withArgs(pool.address, alice.address, apeIds.carolOne);
-  //   });
+      // The fee is hardcoded at 10% of the interest
+      const fee = t1.feeTracker.sub(t0.feeTracker);
+      expect(fee.mul(10)).to.be.gte(linearInterest);
+      expect(fee.mul(10)).to.be.lte(paid.sub(valuationShare));
+      expect(t1.pair.sub(t0.pair)).to.equal(fee);
 
-  //   it("Should only allow seizing expired collateral", async () => {
-  //     const terms = await pool.tokenLoanParams(apeIds.bobOne);
-  //     await pool.connect(carol).borrow(apeIds.carolOne, carol.address, terms);
-  //     await ethers.provider.send("evm_setNextBlockTimestamp", [nextYear - 1]);
+      const received = t1.bob.sub(t0.bob);
+      expect(received.add(fee)).to.equal(paid);
+    });
 
-  //     await expect(
-  //       pool.connect(alice).removeCollateral(apeIds.carolOne, alice.address)
-  //     ).to.be.revertedWith("NFTPair: not expired");
-  //   });
+    it("Should allow paying off loans for someone else", async () => {
+      // ..and take from the correct person:
+      const getBalances = async () => ({
+        alice: await bentoBox.balanceOf(guineas.address, alice.address),
+        bob: await bentoBox.balanceOf(guineas.address, bob.address),
+        carol: await bentoBox.balanceOf(guineas.address, carol.address),
+        pair: await bentoBox.balanceOf(guineas.address, pair.address),
+        feeTracker: await pair.feesEarnedShare(),
+      });
+      const t0 = await getBalances();
 
-  //   it("Should only allow seizing collateral used for a loan", async () => {
-  //     await ethers.provider.send("evm_setNextBlockTimestamp", [nextYear]);
+      await advanceNextTime(DAY);
+      await expect(pair.connect(carol).repay(apeIds.aliceOne, false))
+        .to.emit(pair, "LogRepay")
+        .withArgs(carol.address, apeIds.aliceOne)
+        .to.emit(apes, "Transfer")
+        .withArgs(pair.address, alice.address, apeIds.aliceOne)
+        .to.emit(bentoBox, "LogTransfer")
+        .to.emit(bentoBox, "LogTransfer");
 
-  //     await expect(
-  //       pool.connect(alice).removeCollateral(apeIds.carolOne, alice.address)
-  //     ).to.be.revertedWith("NFTPair: not the borrower");
-  //   });
-  // });
+      const t1 = await getBalances();
+      const maxRepayShare = getMaxRepayShare(DAY, params);
 
-  // describeSnapshot("Repay", () => {
-  //   let pool: NFTPair;
-  //   let bobBorrowedAt: number;
-  //   let carolBorrowedAt: number;
+      // Alice paid or received nothing:
+      expect(t0.alice).to.equal(t1.alice);
 
-  //   before(async () => {
-  //     pool = await deployPair();
-  //     for (const signer of [bob, carol]) {
-  //       await apes.connect(signer).setApprovalForAll(pool.address, true);
-  //     }
-  //     const share = getBigNumber(450); // 1000 guineas
-  //     await pool.connect(alice).addAsset(false, share);
+      const paid = t0.carol.sub(t1.carol);
 
-  //     // 30% interest
-  //     await addToken(pool, apeIds.bobOne, {
-  //       valuation: getBigNumber(1, 8),
-  //       expiration: nextYear,
-  //       annualInterestBPS: 3_000,
-  //     });
-  //     await pool.connect(bob).addCollateral(apeIds.bobOne, bob.address, false);
-  //     const terms1 = await pool.tokenLoanParams(apeIds.bobOne);
-  //     await pool.connect(bob).borrow(apeIds.bobOne, bob.address, terms1);
-  //     bobBorrowedAt = (await ethers.provider.getBlock("latest")).timestamp;
+      // The difference is rounding errors only, so should be very small:
+      const paidError = maxRepayShare.sub(paid);
+      expect(paidError.mul(1_000_000_000)).to.be.lt(paid);
 
-  //     // 100% interest
-  //     await addToken(pool, apeIds.carolOne, {
-  //       valuation: getBigNumber(1, 18),
-  //       expiration: nextDecade,
-  //       annualInterestBPS: 10_000,
-  //     });
-  //     await pool
-  //       .connect(carol)
-  //       .addCollateral(apeIds.carolOne, carol.address, false);
-  //     const terms2 = await pool.tokenLoanParams(apeIds.carolOne);
-  //     await pool.connect(carol).borrow(apeIds.carolOne, carol.address, terms2);
-  //     carolBorrowedAt = (await ethers.provider.getBlock("latest")).timestamp;
-  //   });
+      const fee = t1.feeTracker.sub(t0.feeTracker);
+      expect(fee.mul(10)).to.be.lte(paid.sub(valuationShare));
+      expect(t1.pair.sub(t0.pair)).to.equal(fee);
 
-  //   it("Should let borrowers repay debt", async () => {
-  //     await advanceNextTime(123456);
-  //   });
-  // });
+      const received = t1.bob.sub(t0.bob);
+      expect(received.add(fee)).to.equal(paid);
+    });
+
+    it("Should allow paying off loans for someone else (skim)", async () => {
+      const interval = 234 * DAY + 5678;
+      // Does not matter who supplies the payment. Note that there will be
+      // an excess left; skimming is really only suitable for contracts that
+      // can calculate the exact repayment needed:
+      const exactAmount = params.valuation.add(await pair.calculateInterest(params.valuation, interval, params.annualInterestBPS));
+      // The contract rounds down; we round up and add a little:
+      const closeToShare = exactAmount.mul(9).add(19).div(20);
+      const enoughShare = closeToShare.add(getBigNumber(1337, 8));
+
+      // This would normally be done in the same transaction...
+      await bentoBox.connect(bob).transfer(guineas.address, bob.address, pair.address, enoughShare);
+
+      const getBalances = async () => ({
+        alice: await bentoBox.balanceOf(guineas.address, alice.address),
+        bob: await bentoBox.balanceOf(guineas.address, bob.address),
+        carol: await bentoBox.balanceOf(guineas.address, carol.address),
+        pair: await bentoBox.balanceOf(guineas.address, pair.address),
+        feeTracker: await pair.feesEarnedShare(),
+      });
+      const t0 = await getBalances();
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [(await pair.tokenLoan(apeIds.aliceOne)).startTime.toNumber() + interval]);
+      await expect(pair.connect(carol).repay(apeIds.aliceOne, true))
+        .to.emit(pair, "LogRepay")
+        .withArgs(pair.address, apeIds.aliceOne)
+        .to.emit(apes, "Transfer")
+        .withArgs(pair.address, alice.address, apeIds.aliceOne)
+        .to.emit(bentoBox, "LogTransfer")
+        .to.emit(bentoBox, "LogTransfer");
+
+      const t1 = await getBalances();
+      const maxRepayShare = getMaxRepayShare(interval, params);
+
+      // Alice paid or received nothing:
+      expect(t0.alice).to.equal(t1.alice);
+
+      // Neither did Carol, who skimmed the preexisting excess balance:
+      expect(t0.carol).to.equal(t1.carol);
+
+      // The pair kept the fee and the excess, but sent the repayment to Bob:
+      const fee = t1.feeTracker.sub(t0.feeTracker);
+      expect(t1.pair).to.be.gte(t1.feeTracker);
+
+      // The skimmable amount covers the entire payment:
+      const received = t1.bob.sub(t0.bob);
+
+      const paid = received.add(fee);
+      expect(paid).to.be.lte(enoughShare);
+
+      // Funds either went to Bob or stayed with the pair:
+      expect(t0.pair.sub(t1.pair)).to.equal(received);
+
+      const leftover = t1.pair.sub(t1.feeTracker);
+      expect(leftover).to.equal(enoughShare.sub(paid));
+
+      expect(fee.mul(10)).to.be.lte(paid.sub(valuationShare));
+    });
+
+    it("Should work for a large, but repayable, number", async () => {
+      const fiveYears = 5 * YEAR;
+      const large: ILoanParams = {
+        valuation: getBigNumber(1_000_000_000),
+        annualInterestBPS: 65_535,
+        expiration: Math.floor(new Date().getTime() / 1000) + 2 * fiveYears,
+      };
+
+      await pair.connect(alice).updateLoanParams(apeIds.aliceTwo, large);
+
+      await guineas.transfer(bob.address, large.valuation);
+      await guineas.transfer(alice.address, MaxUint128);
+
+      // Alice and Bob already had something deposited; this will ensure they
+      // can pay. Alice's total must not overflow the max BB balance..
+      await bentoBox.connect(bob).deposit(guineas.address, bob.address, bob.address, large.valuation, 0);
+      // (Don't overflow the BentoBox..)
+      await bentoBox.connect(alice).deposit(guineas.address, alice.address, alice.address, MaxUint128.div(2), 0);
+
+      await pair.connect(bob).lend(apeIds.aliceTwo, large, false);
+
+      const getBalances = async () => ({
+        alice: await bentoBox.balanceOf(guineas.address, alice.address),
+        bob: await bentoBox.balanceOf(guineas.address, bob.address),
+        pair: await bentoBox.balanceOf(guineas.address, pair.address),
+        feeTracker: await pair.feesEarnedShare(),
+      });
+      const t0 = await getBalances();
+
+      const inFive = await advanceNextTime(fiveYears);
+
+      await expect(pair.connect(alice).repay(apeIds.aliceTwo, false))
+        .to.emit(pair, "LogRepay")
+        .withArgs(alice.address, apeIds.aliceTwo)
+        .to.emit(apes, "Transfer")
+        .withArgs(pair.address, alice.address, apeIds.aliceTwo)
+        .to.emit(bentoBox, "LogTransfer")
+        .to.emit(bentoBox, "LogTransfer");
+
+      const t1 = await getBalances();
+      const maxRepayShare = getMaxRepayShare(fiveYears, large);
+      const linearInterest = valuationShare.mul(large.annualInterestBPS).mul(fiveYears).div(YEAR_BPS);
+
+      const paid = t0.alice.sub(t1.alice);
+      expect(paid).to.be.gte(valuationShare.add(linearInterest));
+      expect(paid).to.be.lte(maxRepayShare);
+
+      // The interest really is ridiculous:
+      expect(paid).to.be.gte(valuationShare.mul(170_000_000_000_000n));
+
+      // The difference is rounding errors only, so should be very small:
+      const difference = maxRepayShare.sub(paid);
+      expect(difference.mul(1_000_000_000)).to.be.lt(paid);
+
+      // The difference is rounding errors only, so should be very small:
+      const paidError = maxRepayShare.sub(paid);
+      expect(paidError.mul(1_000_000_000)).to.be.lt(paid);
+
+      // Lower bound makes little sense here..
+      const fee = t1.feeTracker.sub(t0.feeTracker);
+      expect(fee.mul(10)).to.be.lte(paid.sub(valuationShare));
+      expect(t1.pair.sub(t0.pair)).to.equal(fee);
+
+      const received = t1.bob.sub(t0.bob);
+      expect(received.add(fee)).to.equal(paid);
+    });
+
+    it("Should refuse repayments on expired loans", async () => {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [params.expiration]);
+      await expect(pair.connect(alice).repay(apeIds.aliceOne, false)).to.be.revertedWith("NFTPair: loan expired");
+    });
+
+    it("Should refuse repayments on nonexistent loans", async () => {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [params.expiration]);
+      await expect(pair.connect(carol).repay(apeIds.carolOne, false)).to.be.revertedWith("NFTPair: no loan");
+    });
+
+    it("Should refuse to skim too much", async () => {
+      const interval = 234 * DAY + 5678;
+      // Does not matter who supplies the payment. Note that there will be
+      // an excess left; skimming is really only suitable for contracts that
+      // can calculate the exact repayment needed:
+      const exactAmount = params.valuation.add(await pair.calculateInterest(params.valuation, interval, params.annualInterestBPS));
+      // Round down and subtract some more to be sure, but close:
+      const notEnoughShare = exactAmount.mul(9).div(20).sub(1337);
+
+      await bentoBox.connect(bob).transfer(guineas.address, bob.address, pair.address, notEnoughShare);
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [(await pair.tokenLoan(apeIds.aliceOne)).startTime.toNumber() + interval]);
+      await expect(pair.connect(carol).repay(apeIds.aliceOne, true)).to.be.revertedWith("NFTPair: skim too much");
+    });
+  });
 });

@@ -62,3 +62,4 @@ export const setDeploymentSupportedChains = (supportedChains: string[], deployFu
 }
 
 export * from "./time"
+export * from "./math"
