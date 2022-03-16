@@ -305,11 +305,15 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         return _domainSeparator();
     }
 
-    // keccak256("Lend(uint256 tokenId,uint128 valuation,uint64 expiration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
-    bytes32 private constant LEND_SIGNATURE_HASH = 0x86c5b2291647820714f2a8238e26e034e2529cf064e0e025f91b989105b586b1;
+    // NOTE on signature hashes: the domain separator only guarantees that the
+    // chain ID and master contract are a match, so we explicitly include the
+    // clone address (and the asset/collateral addresses):
 
-    // keccak256("Borrow(uint256 tokenId,uint128 valuation,uint64 expiration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
-    bytes32 private constant BORROW_SIGNATURE_HASH = 0x697411e8541f6948a270862fd6b9dfd84c5d5cf563031f2962d2572f8163b155;
+    // keccak256("Lend(address contract,address collateral,address asset,uint256 tokenId,uint128 valuation,uint64 expiration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
+    bytes32 private constant LEND_SIGNATURE_HASH = 0x44f4000de30f585f1aaa8bfe6d64c9ecd4b2dba96ea2dc018842bebb898f633e;
+
+    // keccak256("Borrow(address contract,address collateral,address asset,uint256 tokenId,uint128 valuation,uint64 expiration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
+    bytes32 private constant BORROW_SIGNATURE_HASH = 0x17de252aedd1494927a1b1ce02621620b3303ea5cfa6ed5fd9739342154b9e0d;
 
     /// @notice Request and immediately borrow from a pre-committed lender
 
@@ -331,14 +335,18 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         bytes32 s
     ) public {
         require(block.timestamp <= deadline, "NFTPair: signature expired");
+        uint256 nonce = nonces[lender]++;
         bytes32 dataHash = keccak256(
             abi.encode(
                 LEND_SIGNATURE_HASH,
+                address(this),
+                address(collateral),
+                address(asset),
                 tokenId,
                 params.valuation,
                 params.expiration,
                 params.annualInterestBPS,
-                nonces[lender]++,
+                nonce,
                 deadline
             )
         );
@@ -364,14 +372,18 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         bytes32 s
     ) public {
         require(block.timestamp <= deadline, "NFTPair: signature expired");
+        uint256 nonce = nonces[borrower]++;
         bytes32 dataHash = keccak256(
             abi.encode(
                 BORROW_SIGNATURE_HASH,
+                address(this),
+                address(collateral),
+                address(asset),
                 tokenId,
                 params.valuation,
                 params.expiration,
                 params.annualInterestBPS,
-                nonces[borrower]++,
+                nonce,
                 deadline
             )
         );
