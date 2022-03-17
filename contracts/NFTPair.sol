@@ -313,7 +313,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     bytes32 private constant LEND_SIGNATURE_HASH = 0x44f4000de30f585f1aaa8bfe6d64c9ecd4b2dba96ea2dc018842bebb898f633e;
 
     // keccak256("Borrow(address contract,address collateral,address asset,uint256 tokenId,uint128 valuation,uint64 expiration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
-    bytes32 private constant BORROW_SIGNATURE_HASH = 0x17de252aedd1494927a1b1ce02621620b3303ea5cfa6ed5fd9739342154b9e0d;
+    bytes32 private constant BORROW_SIGNATURE_HASH = 0x2b94e9fcff6aa909e2fc3a768cb30b34e00cdca4a6f2d1a5487bb667b77e7c2f;
 
     /// @notice Request and immediately borrow from a pre-committed lender
 
