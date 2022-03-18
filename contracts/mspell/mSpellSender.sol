@@ -58,7 +58,11 @@ contract mSpellSender is BoringOwnable {
         for (uint256 i = 0; i < ratios.length; i++) {
             uint256 amount = (totalAmount * ratios[i]) / summedRatio;
             if (amount > 0) {
-                ANYSWAP_ROUTER.anySwapOutUnderlying(ANY_MIM, recipients[i].recipient, amount, recipients[i].chainId);
+                if(recipients[i].chainId != 1) {
+                    ANYSWAP_ROUTER.anySwapOutUnderlying(ANY_MIM, recipients[i].recipient, amount, recipients[i].chainId);
+                } else {
+                    MIM.transfer(recipients[i].recipient, amount);
+                }
                 emit LogBridgeToRecipient(recipients[i].recipient, amount, recipients[i].chainId);
             }
         }
