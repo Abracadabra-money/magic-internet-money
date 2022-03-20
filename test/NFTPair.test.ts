@@ -3,6 +3,11 @@ import { expect } from "chai";
 import { BigNumber, BigNumberish, Contract } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
+const { keccak256, defaultAbiCoder, toUtf8Bytes, solidityPack, formatUnits, splitSignature } = ethers.utils;
+const { MaxUint256, AddressZero, HashZero } = ethers.constants;
+// This one was not defined..
+const MaxUint128 = BigNumber.from(2).pow(128).sub(1);
+
 import { BigRational, advanceNextTime, duration, encodeParameters, expApprox, getBigNumber, impersonate } from "../utilities";
 import { BentoBoxMock, ERC20Mock, ERC721Mock, WETH9Mock, NFTPair } from "../typechain";
 import { describeSnapshot } from "./helpers";
@@ -34,10 +39,7 @@ interface IPartialLoanParams {
   annualInterestBPS?: number;
 }
 
-const { formatUnits } = ethers.utils;
-const { MaxUint256, AddressZero, HashZero } = ethers.constants;
-// This one was not defined..
-const MaxUint128 = BigNumber.from(2).pow(128).sub(1);
+const DOMAIN_SEPARATOR_HASH = keccak256(toUtf8Bytes("EIP712Domain(uint256 chainId,address verifyingContract)"));
 
 const nextYear = Math.floor(new Date().getTime() / 1000) + 86400 * 365;
 const nextDecade = Math.floor(new Date().getTime() / 1000) + 86400 * 365 * 10;
@@ -793,5 +795,386 @@ describe("NFT Pair", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [(await pair.tokenLoan(apeIds.aliceOne)).startTime.toNumber() + interval]);
       await expect(pair.connect(carol).repay(apeIds.aliceOne, true)).to.be.revertedWith("NFTPair: skim too much");
     });
+  });
+
+  describeSnapshot("Signed Lend/Borrow", async () => {
+    let pair: NFTPair;
+    let chainId: BigNumberish;
+    let DOMAIN_SEPARATOR: string;
+    let BORROW_SIGNATURE_HASH: string;
+    let LEND_SIGNATURE_HASH: string;
+
+    before(async () => {
+      pair = await deployPair();
+
+      chainId = (await ethers.provider.getNetwork()).chainId;
+
+      // TODO: Verify that after a fork this becomes part of the clone
+      // TODO: Does that matter though? Just use whatever it is?
+      // TODO: Yes! Need correct asset/coll addresses in the sig also!
+      DOMAIN_SEPARATOR = keccak256(
+        defaultAbiCoder.encode(["bytes32", "uint256", "address"], [DOMAIN_SEPARATOR_HASH, chainId, masterContract.address])
+      );
+
+      for (const signer of [deployer, alice, bob, carol]) {
+        await apes.connect(signer).setApprovalForAll(pair.address, true);
+      }
+
+      // TODO: Check whether this interferes?
+      // for (const id of [apeIds.aliceOne, apeIds.aliceTwo]) {
+      //   await pair.connect(alice).requestLoan(id, params, alice.address, false);
+      // }
+      // await pair.connect(bob).lend(apeIds.aliceOne, params, false);
+    });
+
+    // Ops happen to have the same method signature other than their name:
+    const signRequest = async (wallet, op: "Lend" | "Borrow", { tokenId, valuation, expiration, annualInterestBPS, deadline }) => {
+      const sigTypes = [
+        { name: "contract", type: "address" },
+        { name: "collateral", type: "address" },
+        { name: "asset", type: "address" },
+        { name: "tokenId", type: "uint256" },
+        { name: "valuation", type: "uint128" },
+        { name: "expiration", type: "uint64" },
+        { name: "annualInterestBPS", type: "uint16" },
+        { name: "nonce", type: "uint256" },
+        { name: "deadline", type: "uint256" },
+      ];
+      // const sigArgs = sigTypes.map((t) => t.type + " " + t.name);
+      // const sigHash = keccak256(
+      //   toUtf8Bytes(op + "(" + sigArgs.join(",") + ")")
+      // );
+
+      const sigValues = {
+        contract: pair.address,
+        collateral: apes.address,
+        asset: guineas.address,
+        tokenId,
+        valuation,
+        expiration,
+        annualInterestBPS,
+        nonce: 0,
+        deadline,
+      };
+      // const dataHash = keccak256(defaultAbiCoder.encode(
+      //   ["bytes32 sigHash", ...sigArgs],
+      //   Object.values({ sigHash, ...sigValues })
+      // ));
+      // const digest = keccak256(
+      //   solidityPack(
+      //     ["string", "bytes32", "bytes32"],
+      //     ["\x19\x01", DOMAIN_SEPARATOR, dataHash]
+      //   )
+      // );
+
+      // At this point we'd like to sign this digest, but signing arbitrary
+      // data is made difficult in ethers.js to prevent abuse. So for now we
+      // use a helper method that basically does everything we just did again:
+      const sig = await wallet._signTypedData(
+        // The stuff going into DOMAIN_SEPARATOR:
+        { chainId, verifyingContract: masterContract.address },
+
+        // sigHash
+        { [op]: sigTypes },
+        sigValues
+      );
+      return splitSignature(sig);
+    };
+
+    it("Should have the expected DOMAIN_SEPARATOR", async () => {
+      expect(DOMAIN_SEPARATOR).to.equal(await pair.DOMAIN_SEPARATOR());
+    });
+
+    describe("Lend", () => {
+      // The borrower somehow obtains the signature, then requests and gets the
+      // loan in one step:
+      it("Should support pre-approving a loan request", async () => {
+        // Bob agrees to lend 100 guineas agaist token "carolOne", to be repaid
+        // no later one year from now. This offer is good for one hour, and can
+        // be taken up by anyone who can provide the token (and the signature).
+        const { timestamp } = await ethers.provider.getBlock("latest");
+        const valuation = getBigNumber(100);
+        const expiration = timestamp + 365 * 24 * 3600;
+        const annualInterestBPS = 15000;
+        const deadline = timestamp + 3600;
+
+        const { r, s, v } = await signRequest(bob, "Lend", {
+          tokenId: apeIds.carolOne,
+          valuation,
+          expiration,
+          annualInterestBPS,
+          deadline,
+        });
+
+        // Carol takes the loan:
+        await expect(
+          pair
+            .connect(carol)
+            .requestAndBorrow(
+              apeIds.carolOne,
+              bob.address,
+              carol.address,
+              { valuation, expiration, annualInterestBPS },
+              false,
+              deadline,
+              v,
+              r,
+              s
+            )
+        )
+          .to.emit(pair, "LogRequestLoan")
+          .to.emit(pair, "LogLend");
+      });
+
+      it("Should require an exact match on all conditions", async () => {
+        const { timestamp } = await ethers.provider.getBlock("latest");
+        const valuation = getBigNumber(100);
+        const expiration = timestamp + 365 * 24 * 3600;
+        const annualInterestBPS = 15000;
+        const deadline = timestamp + 3600;
+
+        const { r, s, v } = await signRequest(bob, "Lend", {
+          tokenId: apeIds.carolOne,
+          valuation,
+          expiration,
+          annualInterestBPS,
+          deadline,
+        });
+
+        const loanParams = { valuation, expiration, annualInterestBPS };
+        // Carol tries to take the loan, but fails because oneo of the
+        // parameters is different. This pretty much only tests that we do the
+        // signature check at all, and it feels a bit silly to check every
+        // variable: if the "success" case passes and any one of these fails,
+        // then the hash is being checked.
+        // (Similarly, we could check the token ID, contract, token contracts,
+        // etc, but we don't, because we know we are hashing those.)
+        for (const [key, value] of Object.entries(loanParams)) {
+          const altered = BigNumber.from(value).add(1);
+          const badLoanParams = { ...loanParams, [key]: altered };
+          await expect(
+            pair.connect(carol).requestAndBorrow(apeIds.carolOne, bob.address, carol.address, badLoanParams, false, deadline, v, r, s)
+          ).to.be.revertedWith("NFTPair: signature invalid");
+        }
+      });
+
+      it("Should require the lender to be the signer", async () => {
+        const { timestamp } = await ethers.provider.getBlock("latest");
+        const valuation = getBigNumber(100);
+        const expiration = timestamp + 365 * 24 * 3600;
+        const annualInterestBPS = 15000;
+        const deadline = timestamp + 3600;
+
+        const { r, s, v } = await signRequest(bob, "Lend", {
+          tokenId: apeIds.carolOne,
+          valuation,
+          expiration,
+          annualInterestBPS,
+          deadline,
+        });
+
+        const loanParams = { valuation, expiration, annualInterestBPS };
+        // Carol tries to take the loan from Alice instead and fails:
+        await expect(
+          pair.connect(carol).requestAndBorrow(apeIds.carolOne, alice.address, carol.address, loanParams, false, deadline, v, r, s)
+        ).to.be.revertedWith("NFTPair: signature invalid");
+      });
+
+      it("Should enforce the deadline", async () => {
+        const { timestamp } = await ethers.provider.getBlock("latest");
+        const valuation = getBigNumber(100);
+        const expiration = timestamp + 365 * 24 * 3600;
+        const annualInterestBPS = 15000;
+        const deadline = timestamp + 3600;
+
+        const { r, s, v } = await signRequest(bob, "Lend", {
+          tokenId: apeIds.carolOne,
+          valuation,
+          expiration,
+          annualInterestBPS,
+          deadline,
+        });
+
+        const loanParams = { valuation, expiration, annualInterestBPS };
+        const successParams = [apeIds.carolOne, bob.address, carol.address, loanParams, false, deadline, v, r, s] as const;
+
+        // Request fails because the deadline has expired:
+        await advanceNextTime(3601);
+        await expect(pair.connect(carol).requestAndBorrow(...successParams)).to.be.revertedWith("NFTPair: signature expired");
+      });
+
+      it("Should not accept the same signature twice", async () => {
+        const { timestamp } = await ethers.provider.getBlock("latest");
+        const valuation = getBigNumber(100);
+        const expiration = timestamp + 365 * 24 * 3600;
+        const annualInterestBPS = 15000;
+        const deadline = timestamp + 3600;
+
+        const { r, s, v } = await signRequest(bob, "Lend", {
+          tokenId: apeIds.carolOne,
+          valuation,
+          expiration,
+          annualInterestBPS,
+          deadline,
+        });
+
+        const loanParams = { valuation, expiration, annualInterestBPS };
+        const successParams = [apeIds.carolOne, bob.address, carol.address, loanParams, false, deadline, v, r, s] as const;
+
+        // It works the first time:
+        await expect(pair.connect(carol).requestAndBorrow(...successParams)).to.emit(pair, "LogLend");
+
+        // Carol repays the loan to get the token back:
+        await expect(pair.connect(carol).repay(apeIds.carolOne, false)).to.emit(pair, "LogRepay");
+        expect(await apes.ownerOf(apeIds.carolOne)).to.equal(carol.address);
+
+        // It fails now (because the nonce is no longer a match):
+        await expect(pair.connect(carol).requestAndBorrow(...successParams)).to.be.revertedWith("NFTPair: signature invalid");
+      });
+    });
+
+    describe("Borrow", () => {
+      // Signing a commitment to borrow mainly differs in that:
+      // - It is not put on chain  until the loan is actually made
+      // - Only the recipient (of the signed message, for now) can lend
+      // - The borrower can pull out by failing to satisfy the conditions for
+      //   `requestLoan`.
+      it("Should let borrowers sign a private loan request", async () => {
+        // Bob commits to borrow 100 guineas and supply token "bobTwo" as
+        // collateral, to be repaid no later than a year from now. The offer is
+        // good for one hour, and anyone willing to lend at these terms can
+        // take it up - if they have the signature.
+        const { timestamp } = await ethers.provider.getBlock("latest");
+        const valuation = getBigNumber(100);
+        const expiration = timestamp + 365 * 24 * 3600;
+        const annualInterestBPS = 15000;
+        const deadline = timestamp + 3600;
+
+        const { r, s, v } = await signRequest(bob, "Borrow", {
+          tokenId: apeIds.bobTwo,
+          valuation,
+          expiration,
+          annualInterestBPS,
+          deadline,
+        });
+
+        // Alice takes the loan:
+        await expect(
+          pair
+            .connect(alice)
+            .takeCollateralAndLend(apeIds.bobTwo, bob.address, { valuation, expiration, annualInterestBPS }, false, deadline, v, r, s)
+        )
+          .to.emit(pair, "LogRequestLoan")
+          .to.emit(pair, "LogLend");
+      });
+
+      it("Should require an exact match on all conditions", async () => {
+        const { timestamp } = await ethers.provider.getBlock("latest");
+        const valuation = getBigNumber(100);
+        const expiration = timestamp + 365 * 24 * 3600;
+        const annualInterestBPS = 15000;
+        const deadline = timestamp + 3600;
+
+        const { r, s, v } = await signRequest(bob, "Borrow", {
+          tokenId: apeIds.bobTwo,
+          valuation,
+          expiration,
+          annualInterestBPS,
+          deadline,
+        });
+
+        const loanParams = { valuation, expiration, annualInterestBPS };
+        for (const [key, value] of Object.entries(loanParams)) {
+          const altered = BigNumber.from(value).add(1);
+          const badLoanParams = { ...loanParams, [key]: altered };
+          await expect(
+            pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, badLoanParams, false, deadline, v, r, s)
+          ).to.be.revertedWith("NFTPair: signature invalid");
+        }
+      });
+
+      it("Should require the borrower to be the signer", async () => {
+        const { timestamp } = await ethers.provider.getBlock("latest");
+        const valuation = getBigNumber(100);
+        const expiration = timestamp + 365 * 24 * 3600;
+        const annualInterestBPS = 15000;
+        const deadline = timestamp + 3600;
+
+        const { r, s, v } = await signRequest(bob, "Borrow", {
+          tokenId: apeIds.bobTwo,
+          valuation,
+          expiration,
+          annualInterestBPS,
+          deadline,
+        });
+
+        const loanParams = { valuation, expiration, annualInterestBPS };
+        // Alice tries to lend to Carol instead and fails:
+        await expect(
+          pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, carol.address, loanParams, false, deadline, v, r, s)
+        ).to.be.revertedWith("NFTPair: signature invalid");
+      });
+
+      it("Should enforce the deadline", async () => {
+        const { timestamp } = await ethers.provider.getBlock("latest");
+        const valuation = getBigNumber(100);
+        const expiration = timestamp + 365 * 24 * 3600;
+        const annualInterestBPS = 15000;
+        const deadline = timestamp + 3600;
+
+        const { r, s, v } = await signRequest(bob, "Borrow", {
+          tokenId: apeIds.bobTwo,
+          valuation,
+          expiration,
+          annualInterestBPS,
+          deadline,
+        });
+
+        const loanParams = { valuation, expiration, annualInterestBPS };
+
+        await advanceNextTime(3601);
+        await expect(
+          pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, loanParams, false, deadline, v, r, s)
+        ).to.be.revertedWith("NFTPair: signature expired");
+      });
+
+      it("Should not accept the same signature twice", async () => {
+        const { timestamp } = await ethers.provider.getBlock("latest");
+        const valuation = getBigNumber(100);
+        const expiration = timestamp + 365 * 24 * 3600;
+        const annualInterestBPS = 15000;
+        const deadline = timestamp + 3600;
+
+        const { r, s, v } = await signRequest(bob, "Borrow", {
+          tokenId: apeIds.bobTwo,
+          valuation,
+          expiration,
+          annualInterestBPS,
+          deadline,
+        });
+
+        const loanParams = { valuation, expiration, annualInterestBPS };
+
+        await expect(pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, loanParams, false, deadline, v, r, s)).to.emit(
+          pair,
+          "LogLend"
+        );
+
+        // Bob repays the loan to get the token back:
+        await expect(pair.connect(bob).repay(apeIds.bobTwo, false)).to.emit(pair, "LogRepay");
+        expect(await apes.ownerOf(apeIds.bobTwo)).to.equal(bob.address);
+
+        // It fails now (because the nonce is no longer a match):
+        await expect(
+          pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, loanParams, false, deadline, v, r, s)
+        ).to.be.revertedWith("NFTPair: signature invalid");
+      });
+    });
+
+    // Not tested, in either case: the loan is set up correctly, both
+    // collateral and assets change hands, etc. This happens to hold currently,
+    // but that is only because the implementation is exactly "call
+    // requestLoan() on behalf of the borrower, then lend() on behalf of the
+    // lender".
   });
 });
