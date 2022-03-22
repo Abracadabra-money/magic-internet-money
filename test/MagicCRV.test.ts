@@ -1,7 +1,7 @@
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { expect } from "chai";
 import { advanceTime, ChainId, duration, getBigNumber, impersonate } from "../utilities";
-import { CurveVoter, DegenBox, ERC20Mock, IFeeDistributor, MagicCRV, ISmartWalletWhitelist } from "../typechain";
+import { CurveVoter, DegenBox, ERC20Mock, IFeeDistributor, MagicCRV, ISmartWalletWhitelist, RewardHarvester } from "../typechain";
 
 const CrvWhale = "0x7a16ff8270133f063aab6c9977183d9e72835428";
 const Crv3Whale = "0xCEAF7747579696A2F0bb206a14210e3c9e6fB269";
@@ -14,7 +14,8 @@ describe("MagicCRV", async () => {
   let MagicCRV: MagicCRV;
   let CRV: ERC20Mock;
   let CRV3: ERC20Mock;
-  let FeeDistibutor: IFeeDistributor;
+  let FeeDistributor: IFeeDistributor;
+  let RewardHarvester: RewardHarvester;
   let DegenBox: DegenBox;
   let deployerSigner;
   let curveDaoSigner;
@@ -36,7 +37,7 @@ describe("MagicCRV", async () => {
 
     hre.getChainId = () => Promise.resolve(ChainId.Mainnet.toString());
     await deployments.fixture(["MagicCRV"]);
-    const { deployer, alice } = await getNamedAccounts();
+    const { deployer, alice, bob } = await getNamedAccounts();
     deployerSigner = await ethers.getSigner(deployer);
 
     crvWhaleSigner = await ethers.getSigner(CrvWhale);
@@ -44,17 +45,22 @@ describe("MagicCRV", async () => {
 
     CRV = await ethers.getContractAt<ERC20Mock>("ERC20Mock", "0xD533a949740bb3306d119CC777fa900bA034cd52");
     CRV3 = await ethers.getContractAt<ERC20Mock>("ERC20Mock", "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490");
-    FeeDistibutor = await ethers.getContractAt<IFeeDistributor>("IFeeDistributor", "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc");
+    FeeDistributor = await ethers.getContractAt<IFeeDistributor>("IFeeDistributor", "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc");
 
     await impersonate(CrvWhale);
     await impersonate(Crv3Whale);
     await CRV.connect(crvWhaleSigner).transfer(alice, (await CRV.balanceOf(CrvWhale)).div(2));
+    await CRV.connect(crvWhaleSigner).transfer(bob, getBigNumber(1_000));
 
     CurveVoter = await ethers.getContract<CurveVoter>("CurveVoter");
     MagicCRV = await ethers.getContract<MagicCRV>("MagicCRV");
+    RewardHarvester = await ethers.getContract<RewardHarvester>("RewardHarvester");
 
     const aliceSigner = await ethers.getSigner(alice);
+    const bobSigner = await ethers.getSigner(bob);
+
     await CRV.connect(aliceSigner).approve(MagicCRV.address, ethers.constants.MaxUint256);
+    await CRV.connect(bobSigner).approve(MagicCRV.address, ethers.constants.MaxUint256);
 
     // Authorize voter smart contract
     await impersonate(CurveDao);
@@ -69,8 +75,8 @@ describe("MagicCRV", async () => {
     await CRV.connect(crvWhaleSigner).transfer(CurveVoter.address, 1);
     await expect(CurveVoter.connect(aliceSigner).createMaxLock(1)).to.be.revertedWith("Ownable: caller is not the owner");
 
-    // Create initial lock
     await CurveVoter.createMaxLock(1);
+    await RewardHarvester.setAllowedHarvester(deployer, true);
 
     DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce");
     snapshotId = await ethers.provider.send("evm_snapshot", []);
@@ -85,4 +91,84 @@ describe("MagicCRV", async () => {
     await expect(CurveVoter.connect(deployerSigner).createMaxLock(1)).to.be.revertedWith("Withdraw old tokens first");
   });
 
+  it("should deposit CRV and receive the 1:1 ratio in magicCRV tokens", async () => {
+    const [, alice] = await ethers.getSigners();
+
+    const totalSupplyBefore = await MagicCRV.totalSupply();
+    const crvBefore = await CRV.balanceOf(alice.address);
+    const mCRVBefore = await MagicCRV.balanceOf(alice.address);
+
+    await MagicCRV.connect(alice).mint(crvBefore);
+    const crvAfter = await CRV.balanceOf(alice.address);
+    const mCRVAfter = await MagicCRV.balanceOf(alice.address);
+    const totalSupplyAfter = await MagicCRV.totalSupply();
+
+    expect(crvAfter).to.be.eq(0);
+    expect(mCRVAfter.sub(mCRVBefore)).to.be.eq(crvBefore);
+    expect(totalSupplyAfter.sub(totalSupplyBefore)).to.be.eq(crvBefore);
+  });
+
+  it("should changing the share ratio when harvesting", async () => {
+    const [, alice, bob] = await ethers.getSigners();
+    let totalCrvBeforeMinting = await CurveVoter.totalCRVTokens();
+
+    let crvBalance = await CRV.balanceOf(alice.address);
+    await MagicCRV.connect(alice).mint(crvBalance);
+    let magicCrvBalance = await MagicCRV.balanceOf(alice.address);
+    await RewardHarvester.harvest(0);
+
+    let totalSupply = await MagicCRV.totalSupply();
+    const totalCrv = await CurveVoter.totalCRVTokens();
+    let ratio = totalCrv.div(totalSupply);
+    expect(ratio).to.be.eq(1);
+    expect(totalCrv.sub(totalCrvBeforeMinting)).to.be.eq(crvBalance);
+
+    for (let i = 0; i < 3; i++) {
+      await advanceTime(duration.weeks(1));
+      await CRV3.connect(crv3WhaleSigner).transfer(FeeDistributor.address, getBigNumber(100_000));
+      await FeeDistributor.connect(curveDaoSigner).checkpoint_token();
+    }
+
+    await expect(RewardHarvester.harvest(getBigNumber(99_999))).to.be.revertedWith("InsufficientOutput()");
+
+    // at this block with the locked amount, should swap to a minimum of 8_000 crv
+    await RewardHarvester.harvest(getBigNumber(8_000));
+    totalSupply = await MagicCRV.totalSupply();
+    expect(totalSupply).to.be.eq(magicCrvBalance);
+
+    const totalCrvAfter = await CurveVoter.totalCRVTokens();
+    expect(totalCrvAfter).to.be.gt(totalCrv);
+
+    crvBalance = await CRV.balanceOf(bob.address);
+    await MagicCRV.connect(bob).mint(crvBalance);
+    magicCrvBalance = await MagicCRV.balanceOf(bob.address);
+
+    // Bob shouldn't receive 1:1 share
+    expect(magicCrvBalance).to.be.eq(crvBalance.mul(totalSupply).div(totalCrvAfter));
+  });
+
+  it("should not be able to vote on gauge controller when not an allowed voter", async () => {
+    const [, alice] = await ethers.getSigners();
+
+    await expect(CurveVoter.connect(alice).voteForMaxMIMGaugeWeights()).to.be.revertedWith("NotAllowedVoter()");
+  });
+
+  it("should be able to vote on gauge controller", async () => {
+    const [, alice, bob] = await ethers.getSigners();
+
+    await CurveVoter.setAllowedVoter(alice.address, true);
+    await CurveVoter.connect(alice).voteForMaxMIMGaugeWeights();
+    await advanceTime(10 * 24 * 60 * 60); // 1 vote per 10 days
+
+    await CurveVoter.connect(alice).voteForMaxMIMGaugeWeights();
+
+    await expect(CurveVoter.connect(bob).voteForMaxMIMGaugeWeights()).to.be.revertedWith("NotAllowedVoter()");
+    await CurveVoter.setAllowedVoter(bob.address, true);
+    await expect(CurveVoter.connect(bob).voteForGaugeWeights("0xb0f5d00e5916c8b8981e99191A1458704B587b2b", 420)).to.be.revertedWith(
+      "Used too much power"
+    );
+
+    await CurveVoter.setAllowedVoter(alice.address, false);
+    await expect(CurveVoter.connect(alice).voteForMaxMIMGaugeWeights()).to.be.revertedWith("NotAllowedVoter()");
+  });
 });

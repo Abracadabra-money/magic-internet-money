@@ -74,10 +74,10 @@ contract CurveVoter is Ownable {
         IGaugeController(GAUGE_CONTROLLER).vote_for_gauge_weights(MIM_GAUGE, MAX_VOTE_WEIGHT);
     }
 
-    function claim(address recipient) external onlyHarvester {
+    function claim(address recipient) external onlyHarvester returns (uint256 amount) {
         // solhint-disable-next-line not-rely-on-time
         if (block.timestamp < lastClaimTimestamp + 7 days) {
-            return;
+            return 0;
         }
 
         address p = address(this);
@@ -86,7 +86,7 @@ contract CurveVoter is Ownable {
         IFeeDistributor(FEE_DISTRIBUTOR).claim_many([p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p]);
         lastClaimTimestamp = IFeeDistributor(FEE_DISTRIBUTOR).time_cursor_of(p);
 
-        uint256 amount = ERC20(CRV3).balanceOf(address(this));
+        amount = ERC20(CRV3).balanceOf(address(this));
         if (amount > 0) {
             ERC20(CRV3).transfer(recipient, amount);
         }

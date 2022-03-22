@@ -41,11 +41,13 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   await CurveVoter.setHarvester(RewardHarvester.address);
 
   if (network.name !== "hardhat") {
+    await (await RewardHarvester.setAllowedHarvester(xMerlin, true)).wait();
+
     if ((await CurveVoter.owner()) != xMerlin) {
-      await CurveVoter.transferOwnership(xMerlin);
+      await (await CurveVoter.transferOwnership(xMerlin)).wait();
     }
     if ((await RewardHarvester.owner()) != xMerlin) {
-      await RewardHarvester.transferOwnership(xMerlin);
+      await (await RewardHarvester.transferOwnership(xMerlin)).wait();
     }
   }
 };
