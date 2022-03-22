@@ -18,6 +18,13 @@ interface CurvePool {
         address receiver
     ) external returns (uint256);
 
+    function exchange(
+        uint256 i,
+        uint256 j,
+        uint256 dx,
+        uint256 min_dy
+    ) external returns (uint256);
+
     function get_dy_underlying(
         int128 i,
         int128 j,
@@ -33,4 +40,10 @@ interface CurvePool {
     function approve(address _spender, uint256 _value) external returns (bool);
 
     function add_liquidity(uint256[3] memory amounts, uint256 _min_mint_amount) external;
+
+    function remove_liquidity_one_coin(
+        uint256 amount,
+        int128 i,
+        uint256 minAmount
+    ) external;
 }

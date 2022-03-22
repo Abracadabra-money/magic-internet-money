@@ -1,41 +1,53 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import { MagicCRV } from "../typechain";
-import { ChainId, setDeploymentSupportedChains } from "../utilities";
+import { ChainId, setDeploymentSupportedChains, wrappedDeploy } from "../utilities";
 import { CurveVoter } from "../typechain/CurveVoter";
+import { xMerlin } from "../test/constants";
 
 const ParametersPerChain = {
   [ChainId.Mainnet]: {},
 };
 
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-
+  const { getNamedAccounts } = hre;
   const { deployer } = await getNamedAccounts();
   const chainId = await hre.getChainId();
   const parameters = ParametersPerChain[parseInt(chainId)];
 
-  await deploy("CurveVoter", {
+  const CurveVoter = await wrappedDeploy<CurveVoter>("CurveVoter", {
     from: deployer,
     args: [],
     log: true,
     deterministicDeployment: false,
   });
-  const CurveVoter = await ethers.getContract<CurveVoter>("CurveVoter");
 
-  await deploy("MagicCRV", {
+  const MagicCRV = await wrappedDeploy("MagicCRV", {
     from: deployer,
-    args: [
-      CurveVoter.address
-    ],
+    args: [CurveVoter.address],
     log: true,
     deterministicDeployment: false,
   });
 
-  const MagicCRV = await ethers.getContract<MagicCRV>("MagicCRV");
+  const RewardHarvester = await wrappedDeploy("RewardHarvester", {
+    from: deployer,
+    args: [CurveVoter.address],
+    log: true,
+    deterministicDeployment: false,
+  });
+
   await CurveVoter.setMagicCRV(MagicCRV.address);
+  await CurveVoter.setHarvester(RewardHarvester.address);
+
+  if (network.name !== "hardhat") {
+    if ((await CurveVoter.owner()) != xMerlin) {
+      await CurveVoter.transferOwnership(xMerlin);
+    }
+    if ((await RewardHarvester.owner()) != xMerlin) {
+      await RewardHarvester.transferOwnership(xMerlin);
+    }
+  }
 };
 
 export default deployFunction;

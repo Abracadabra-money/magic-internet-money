@@ -28,7 +28,9 @@ contract CurveVoter is Ownable {
     mapping(address => bool) public voters;
 
     uint256 public lastClaimTimestamp;
+    uint256 public totalCRVTokens;
     address public magicCRV;
+    address public harvester;
 
     modifier onlyAllowedVoters() {
         if (!voters[msg.sender] && msg.sender != owner()) {
@@ -37,21 +39,19 @@ contract CurveVoter is Ownable {
         _;
     }
 
-    modifier onlyMagicCRV() {
-        if (msg.sender != magicCRV) {
+    modifier onlyHarvester() {
+        if (msg.sender != harvester) {
             revert NotMagicCRV();
         }
         _;
     }
 
-    modifier onlyMagicCRVOrOwner() {
-        if (msg.sender != magicCRV && msg.sender != owner()) {
+    modifier onlyAllowedLockers() {
+        if (msg.sender != magicCRV && msg.sender != owner() && msg.sender != harvester) {
             revert NotAuthorized();
         }
         _;
     }
-
-    constructor() {}
 
     function setAllowedVoter(address voter, bool allowed) external onlyOwner {
         voters[voter] = allowed;
@@ -59,6 +59,10 @@ contract CurveVoter is Ownable {
 
     function setMagicCRV(address _magicCRV) external onlyOwner {
         magicCRV = _magicCRV;
+    }
+
+    function setHarvester(address _harvester) external onlyOwner {
+        harvester = _harvester;
     }
 
     /// @notice amount 10000 = 100%
@@ -70,7 +74,7 @@ contract CurveVoter is Ownable {
         IGaugeController(GAUGE_CONTROLLER).vote_for_gauge_weights(MIM_GAUGE, MAX_VOTE_WEIGHT);
     }
 
-    function claim(address recipient) external onlyMagicCRV {
+    function claim(address recipient) external onlyHarvester {
         // solhint-disable-next-line not-rely-on-time
         if (block.timestamp < lastClaimTimestamp + 7 days) {
             return;
@@ -89,26 +93,26 @@ contract CurveVoter is Ownable {
     }
 
     /// @notice add amount to the current lock created with `createLock` or `createMaxLock`
-    function lock() external onlyMagicCRVOrOwner {
+    function lock() external onlyAllowedLockers {
         uint256 amount = ERC20(CRV).balanceOf(address(this));
         if (amount > 0) {
             CRV.safeApprove(ESCROW, 0);
             CRV.safeApprove(ESCROW, amount);
             IVoteEscrow(ESCROW).increase_amount(amount);
+            totalCRVTokens += amount;
         }
     }
 
     /// @notice creates a 4 years lock
     function createMaxLock(uint256 value) external onlyOwner {
-        CRV.safeApprove(ESCROW, 0);
-        CRV.safeApprove(ESCROW, value);
-
-        // solhint-disable-next-line not-rely-on-time
-        IVoteEscrow(ESCROW).create_lock(value, block.timestamp + MAX_LOCKTIME);
+        _createLock(value, block.timestamp + MAX_LOCKTIME);
     }
 
-    /// @notice creates an arbitrary lock
     function createLock(uint256 value, uint256 unlockTime) external onlyOwner {
+        _createLock(value, unlockTime);
+    }
+
+    function _createLock(uint256 value, uint256 unlockTime) internal onlyOwner {
         CRV.safeApprove(ESCROW, 0);
         CRV.safeApprove(ESCROW, value);
         IVoteEscrow(ESCROW).create_lock(value, unlockTime);
