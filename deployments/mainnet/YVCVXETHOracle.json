@@ -1,0 +1,243 @@
+{
+  "address": "0x991536BF23fa40B578Fc3e1e3725E51D1bF889F3",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "CVXETH",
+      "outputs": [
+        {
+          "internalType": "contract ICurvePool",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "ETH",
+      "outputs": [
+        {
+          "internalType": "contract IAggregator",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "YVCVXETH",
+      "outputs": [
+        {
+          "internalType": "contract IYearnVault",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "get",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "peek",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "peekSpot",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "rate",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "symbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x6e69820efdb722a190afd7934707b151c86b07af5a5b225f3d532f6d2cc0326f",
+  "receipt": {
+    "to": null,
+    "from": "0xfB3485c2e209A5cfBDC1447674256578f1A80eE3",
+    "contractAddress": "0x991536BF23fa40B578Fc3e1e3725E51D1bF889F3",
+    "transactionIndex": 62,
+    "gasUsed": "577704",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x3369e0d88ac7e1e3bd651e20fa739a40c238819af4b26e36245a3b073ffb8e13",
+    "transactionHash": "0x6e69820efdb722a190afd7934707b151c86b07af5a5b225f3d532f6d2cc0326f",
+    "logs": [],
+    "blockNumber": 14262368,
+    "cumulativeGasUsed": "7458315",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "solcInputHash": "2071b81cf51151da919f735c40f7d9f9",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.4+commit.c7e474f2\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"CVXETH\",\"outputs\":[{\"internalType\":\"contract ICurvePool\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"ETH\",\"outputs\":[{\"internalType\":\"contract IAggregator\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"YVCVXETH\",\"outputs\":[{\"internalType\":\"contract IYearnVault\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"get\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"name\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"peek\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"peekSpot\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"rate\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"symbol\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"get(bytes)\":{\"params\":{\"data\":\"Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\"},\"returns\":{\"_0\":\"if no valid (recent) rate is available, return false else true.\",\"_1\":\"The rate of the requested asset / pair / pool.\"}},\"name(bytes)\":{\"params\":{\"data\":\"Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\"},\"returns\":{\"_0\":\"(string) A human readable name about this oracle.\"}},\"peek(bytes)\":{\"params\":{\"data\":\"Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\"},\"returns\":{\"_0\":\"if no valid (recent) rate is available, return false else true.\",\"_1\":\"The rate of the requested asset / pair / pool.\"}},\"peekSpot(bytes)\":{\"params\":{\"data\":\"Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\"},\"returns\":{\"rate\":\"The rate of the requested asset / pair / pool.\"}},\"symbol(bytes)\":{\"params\":{\"data\":\"Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\"},\"returns\":{\"_0\":\"(string) A human readable symbol name about this oracle.\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"get(bytes)\":{\"notice\":\"Get the latest exchange rate.\"},\"name(bytes)\":{\"notice\":\"Returns a human readable name about this oracle.\"},\"peek(bytes)\":{\"notice\":\"Check the last exchange rate without any state changes.\"},\"peekSpot(bytes)\":{\"notice\":\"Check the current spot exchange rate without any state changes. For oracles like TWAP this will be different from peek().\"},\"symbol(bytes)\":{\"notice\":\"Returns a human readable (short) name about this oracle.\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/oracles/YVCVXETHOracle.sol\":\"YVCVXETHOracle\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/interfaces/IOracle.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface IOracle {\\r\\n    /// @notice Get the latest exchange rate.\\r\\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\\r\\n    /// For example:\\r\\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\\r\\n    /// @return success if no valid (recent) rate is available, return false else true.\\r\\n    /// @return rate The rate of the requested asset / pair / pool.\\r\\n    function get(bytes calldata data) external returns (bool success, uint256 rate);\\r\\n\\r\\n    /// @notice Check the last exchange rate without any state changes.\\r\\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\\r\\n    /// For example:\\r\\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\\r\\n    /// @return success if no valid (recent) rate is available, return false else true.\\r\\n    /// @return rate The rate of the requested asset / pair / pool.\\r\\n    function peek(bytes calldata data) external view returns (bool success, uint256 rate);\\r\\n\\r\\n    /// @notice Check the current spot exchange rate without any state changes. For oracles like TWAP this will be different from peek().\\r\\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\\r\\n    /// For example:\\r\\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\\r\\n    /// @return rate The rate of the requested asset / pair / pool.\\r\\n    function peekSpot(bytes calldata data) external view returns (uint256 rate);\\r\\n\\r\\n    /// @notice Returns a human readable (short) name about this oracle.\\r\\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\\r\\n    /// For example:\\r\\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\\r\\n    /// @return (string) A human readable symbol name about this oracle.\\r\\n    function symbol(bytes calldata data) external view returns (string memory);\\r\\n\\r\\n    /// @notice Returns a human readable name about this oracle.\\r\\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\\r\\n    /// For example:\\r\\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\\r\\n    /// @return (string) A human readable name about this oracle.\\r\\n    function name(bytes calldata data) external view returns (string memory);\\r\\n}\\r\\n\",\"keccak256\":\"0x724e4079842c80db8202bbd75fd9ccee057012cf82f5615898f76ce550ff7f46\",\"license\":\"MIT\"},\"contracts/oracles/YVCVXETHOracle.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity 0.8.4;\\r\\nimport \\\"../interfaces/IOracle.sol\\\";\\r\\n\\r\\n// Chainlink Aggregator\\r\\n\\r\\ninterface IAggregator {\\r\\n    function latestAnswer() external view returns (int256 answer);\\r\\n}\\r\\n\\r\\ninterface IYearnVault {\\r\\n    function pricePerShare() external view returns (uint256 price);\\r\\n}\\r\\n\\r\\ninterface ICurvePool {\\r\\n    function get_virtual_price() external view returns (uint256 price);\\r\\n    function lp_price() external view returns (uint256 price);\\r\\n}\\r\\n\\r\\ncontract YVCVXETHOracle is IOracle {\\r\\n    ICurvePool public constant CVXETH = ICurvePool(0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4);\\r\\n    IYearnVault public constant YVCVXETH = IYearnVault(0x1635b506a88fBF428465Ad65d00e8d6B6E5846C3);\\r\\n    IAggregator public constant ETH = IAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);\\r\\n\\r\\n    // Calculates the lastest exchange rate\\r\\n    // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD\\r\\n    function _get() internal view returns (uint256) {\\r\\n        uint256 yVCurvePrice = CVXETH.lp_price() * uint256(ETH.latestAnswer()) * YVCVXETH.pricePerShare();\\r\\n\\r\\n        return 1e62 / yVCurvePrice;\\r\\n    }\\r\\n\\r\\n    // Get the latest exchange rate\\r\\n    /// @inheritdoc IOracle\\r\\n    function get(bytes calldata) public view override returns (bool, uint256) {\\r\\n        return (true, _get());\\r\\n    }\\r\\n\\r\\n    // Check the last exchange rate without any state changes\\r\\n    /// @inheritdoc IOracle\\r\\n    function peek(bytes calldata) public view override returns (bool, uint256) {\\r\\n        return (true, _get());\\r\\n    }\\r\\n\\r\\n    // Check the current spot exchange rate without any state changes\\r\\n    /// @inheritdoc IOracle\\r\\n    function peekSpot(bytes calldata data) external view override returns (uint256 rate) {\\r\\n        (, rate) = peek(data);\\r\\n    }\\r\\n\\r\\n    /// @inheritdoc IOracle\\r\\n    function name(bytes calldata) public pure override returns (string memory) {\\r\\n        return \\\"Chainlink CVXETH\\\";\\r\\n    }\\r\\n\\r\\n    /// @inheritdoc IOracle\\r\\n    function symbol(bytes calldata) public pure override returns (string memory) {\\r\\n        return \\\"LINK/CVXETH\\\";\\r\\n    }\\r\\n}\\r\\n\",\"keccak256\":\"0xd4f1cd68b82a2248fcafa475186697be87e90aa4634499c5348deaff7cb68b33\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610983806100206000396000f3fe608060405234801561001057600080fd5b50600436106100885760003560e01c8063d39bbef01161005b578063d39bbef014610117578063d568866c14610147578063d6d7d52514610177578063eeb8a8d3146101a857610088565b80630acc00c01461008d5780630c084d70146100ab5780638322fff2146100c9578063c699c4d6146100e7575b600080fd5b6100956101d9565b6040516100a291906106d2565b60405180910390f35b6100b36101f1565b6040516100c091906106b7565b60405180910390f35b6100d1610209565b6040516100de919061069c565b60405180910390f35b61010160048036038101906100fc9190610558565b610221565b60405161010e91906106ed565b60405180910390f35b610131600480360381019061012c9190610558565b610261565b60405161013e919061070f565b60405180910390f35b610161600480360381019061015c9190610558565b610279565b60405161016e91906106ed565b60405180910390f35b610191600480360381019061018c9190610558565b6102b9565b60405161019f929190610673565b60405180910390f35b6101c260048036038101906101bd9190610558565b6102d1565b6040516101d0929190610673565b60405180910390f35b731635b506a88fbf428465ad65d00e8d6b6e5846c381565b73b576491f1e6e5e62f1d8f26062ee822b40b0e0d481565b735f4ec3df9cbd43714fe2740f5e3616155c5b841981565b60606040518060400160405280600b81526020017f4c494e4b2f435658455448000000000000000000000000000000000000000000815250905092915050565b600061026d83836102d1565b90508091505092915050565b60606040518060400160405280601081526020017f436861696e6c696e6b2043565845544800000000000000000000000000000000815250905092915050565b60008060016102c66102e9565b915091509250929050565b60008060016102de6102e9565b915091509250929050565b600080731635b506a88fbf428465ad65d00e8d6b6e5846c373ffffffffffffffffffffffffffffffffffffffff166399530b066040518163ffffffff1660e01b815260040160206040518083038186803b15801561034657600080fd5b505afa15801561035a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061037e91906105c6565b735f4ec3df9cbd43714fe2740f5e3616155c5b841973ffffffffffffffffffffffffffffffffffffffff166350d25bcd6040518163ffffffff1660e01b815260040160206040518083038186803b1580156103d857600080fd5b505afa1580156103ec573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610410919061059d565b73b576491f1e6e5e62f1d8f26062ee822b40b0e0d473ffffffffffffffffffffffffffffffffffffffff166354f0f7d56040518163ffffffff1660e01b815260040160206040518083038186803b15801561046a57600080fd5b505afa15801561047e573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104a291906105c6565b6104ac9190610777565b6104b69190610777565b905080793e3aeb4ae1383562f4b82261d969f7ac94ca40000000000000006104de9190610746565b91505090565b60008083601f8401126104f657600080fd5b8235905067ffffffffffffffff81111561050f57600080fd5b60208301915083600182028301111561052757600080fd5b9250929050565b60008151905061053d8161091f565b92915050565b60008151905061055281610936565b92915050565b6000806020838503121561056b57600080fd5b600083013567ffffffffffffffff81111561058557600080fd5b610591858286016104e4565b92509250509250929050565b6000602082840312156105af57600080fd5b60006105bd8482850161052e565b91505092915050565b6000602082840312156105d857600080fd5b60006105e684828501610543565b91505092915050565b6105f8816107d1565b82525050565b61060781610811565b82525050565b61061681610835565b82525050565b61062581610859565b82525050565b60006106368261072a565b6106408185610735565b935061065081856020860161087d565b6106598161090e565b840191505092915050565b61066d81610807565b82525050565b600060408201905061068860008301856105ef565b6106956020830184610664565b9392505050565b60006020820190506106b160008301846105fe565b92915050565b60006020820190506106cc600083018461060d565b92915050565b60006020820190506106e7600083018461061c565b92915050565b60006020820190508181036000830152610707818461062b565b905092915050565b60006020820190506107246000830184610664565b92915050565b600081519050919050565b600082825260208201905092915050565b600061075182610807565b915061075c83610807565b92508261076c5761076b6108df565b5b828204905092915050565b600061078282610807565b915061078d83610807565b9250817fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff04831182151516156107c6576107c56108b0565b5b828202905092915050565b60008115159050919050565b6000819050919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000819050919050565b600061081c82610823565b9050919050565b600061082e826107e7565b9050919050565b600061084082610847565b9050919050565b6000610852826107e7565b9050919050565b60006108648261086b565b9050919050565b6000610876826107e7565b9050919050565b60005b8381101561089b578082015181840152602081019050610880565b838111156108aa576000848401525b50505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601260045260246000fd5b6000601f19601f8301169050919050565b610928816107dd565b811461093357600080fd5b50565b61093f81610807565b811461094a57600080fd5b5056fea2646970667358221220683a323b333c191647da2768d622449b7964db9a25330193a83275ccab6d7c6364736f6c63430008040033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100885760003560e01c8063d39bbef01161005b578063d39bbef014610117578063d568866c14610147578063d6d7d52514610177578063eeb8a8d3146101a857610088565b80630acc00c01461008d5780630c084d70146100ab5780638322fff2146100c9578063c699c4d6146100e7575b600080fd5b6100956101d9565b6040516100a291906106d2565b60405180910390f35b6100b36101f1565b6040516100c091906106b7565b60405180910390f35b6100d1610209565b6040516100de919061069c565b60405180910390f35b61010160048036038101906100fc9190610558565b610221565b60405161010e91906106ed565b60405180910390f35b610131600480360381019061012c9190610558565b610261565b60405161013e919061070f565b60405180910390f35b610161600480360381019061015c9190610558565b610279565b60405161016e91906106ed565b60405180910390f35b610191600480360381019061018c9190610558565b6102b9565b60405161019f929190610673565b60405180910390f35b6101c260048036038101906101bd9190610558565b6102d1565b6040516101d0929190610673565b60405180910390f35b731635b506a88fbf428465ad65d00e8d6b6e5846c381565b73b576491f1e6e5e62f1d8f26062ee822b40b0e0d481565b735f4ec3df9cbd43714fe2740f5e3616155c5b841981565b60606040518060400160405280600b81526020017f4c494e4b2f435658455448000000000000000000000000000000000000000000815250905092915050565b600061026d83836102d1565b90508091505092915050565b60606040518060400160405280601081526020017f436861696e6c696e6b2043565845544800000000000000000000000000000000815250905092915050565b60008060016102c66102e9565b915091509250929050565b60008060016102de6102e9565b915091509250929050565b600080731635b506a88fbf428465ad65d00e8d6b6e5846c373ffffffffffffffffffffffffffffffffffffffff166399530b066040518163ffffffff1660e01b815260040160206040518083038186803b15801561034657600080fd5b505afa15801561035a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061037e91906105c6565b735f4ec3df9cbd43714fe2740f5e3616155c5b841973ffffffffffffffffffffffffffffffffffffffff166350d25bcd6040518163ffffffff1660e01b815260040160206040518083038186803b1580156103d857600080fd5b505afa1580156103ec573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610410919061059d565b73b576491f1e6e5e62f1d8f26062ee822b40b0e0d473ffffffffffffffffffffffffffffffffffffffff166354f0f7d56040518163ffffffff1660e01b815260040160206040518083038186803b15801561046a57600080fd5b505afa15801561047e573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104a291906105c6565b6104ac9190610777565b6104b69190610777565b905080793e3aeb4ae1383562f4b82261d969f7ac94ca40000000000000006104de9190610746565b91505090565b60008083601f8401126104f657600080fd5b8235905067ffffffffffffffff81111561050f57600080fd5b60208301915083600182028301111561052757600080fd5b9250929050565b60008151905061053d8161091f565b92915050565b60008151905061055281610936565b92915050565b6000806020838503121561056b57600080fd5b600083013567ffffffffffffffff81111561058557600080fd5b610591858286016104e4565b92509250509250929050565b6000602082840312156105af57600080fd5b60006105bd8482850161052e565b91505092915050565b6000602082840312156105d857600080fd5b60006105e684828501610543565b91505092915050565b6105f8816107d1565b82525050565b61060781610811565b82525050565b61061681610835565b82525050565b61062581610859565b82525050565b60006106368261072a565b6106408185610735565b935061065081856020860161087d565b6106598161090e565b840191505092915050565b61066d81610807565b82525050565b600060408201905061068860008301856105ef565b6106956020830184610664565b9392505050565b60006020820190506106b160008301846105fe565b92915050565b60006020820190506106cc600083018461060d565b92915050565b60006020820190506106e7600083018461061c565b92915050565b60006020820190508181036000830152610707818461062b565b905092915050565b60006020820190506107246000830184610664565b92915050565b600081519050919050565b600082825260208201905092915050565b600061075182610807565b915061075c83610807565b92508261076c5761076b6108df565b5b828204905092915050565b600061078282610807565b915061078d83610807565b9250817fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff04831182151516156107c6576107c56108b0565b5b828202905092915050565b60008115159050919050565b6000819050919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000819050919050565b600061081c82610823565b9050919050565b600061082e826107e7565b9050919050565b600061084082610847565b9050919050565b6000610852826107e7565b9050919050565b60006108648261086b565b9050919050565b6000610876826107e7565b9050919050565b60005b8381101561089b578082015181840152602081019050610880565b838111156108aa576000848401525b50505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601260045260246000fd5b6000601f19601f8301169050919050565b610928816107dd565b811461093357600080fd5b50565b61093f81610807565b811461094a57600080fd5b5056fea2646970667358221220683a323b333c191647da2768d622449b7964db9a25330193a83275ccab6d7c6364736f6c63430008040033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "get(bytes)": {
+        "params": {
+          "data": "Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));"
+        },
+        "returns": {
+          "_0": "if no valid (recent) rate is available, return false else true.",
+          "_1": "The rate of the requested asset / pair / pool."
+        }
+      },
+      "name(bytes)": {
+        "params": {
+          "data": "Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));"
+        },
+        "returns": {
+          "_0": "(string) A human readable name about this oracle."
+        }
+      },
+      "peek(bytes)": {
+        "params": {
+          "data": "Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));"
+        },
+        "returns": {
+          "_0": "if no valid (recent) rate is available, return false else true.",
+          "_1": "The rate of the requested asset / pair / pool."
+        }
+      },
+      "peekSpot(bytes)": {
+        "params": {
+          "data": "Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));"
+        },
+        "returns": {
+          "rate": "The rate of the requested asset / pair / pool."
+        }
+      },
+      "symbol(bytes)": {
+        "params": {
+          "data": "Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));"
+        },
+        "returns": {
+          "_0": "(string) A human readable symbol name about this oracle."
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "get(bytes)": {
+        "notice": "Get the latest exchange rate."
+      },
+      "name(bytes)": {
+        "notice": "Returns a human readable name about this oracle."
+      },
+      "peek(bytes)": {
+        "notice": "Check the last exchange rate without any state changes."
+      },
+      "peekSpot(bytes)": {
+        "notice": "Check the current spot exchange rate without any state changes. For oracles like TWAP this will be different from peek()."
+      },
+      "symbol(bytes)": {
+        "notice": "Returns a human readable (short) name about this oracle."
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
