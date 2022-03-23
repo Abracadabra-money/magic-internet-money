@@ -105,6 +105,7 @@ contract CurveVoter is Ownable {
 
     /// @notice creates a 4 years lock
     function createMaxLock(uint256 value) external onlyOwner {
+        // solhint-disable-next-line not-rely-on-time
         _createLock(value, block.timestamp + MAX_LOCKTIME);
     }
 
@@ -114,6 +115,7 @@ contract CurveVoter is Ownable {
 
     /// @notice extend to 4 years lock
     function increaseMaxLock() external onlyOwner {
+        // solhint-disable-next-line not-rely-on-time
         _increaseLock(block.timestamp + MAX_LOCKTIME);
     }
 
