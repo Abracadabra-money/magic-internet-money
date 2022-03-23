@@ -8,5 +8,7 @@ interface IVoteEscrow {
 
     function increase_amount(uint256) external;
 
+    function increase_unlock_time(uint256) external;
+
     function withdraw() external;
 }

@@ -112,10 +112,23 @@ contract CurveVoter is Ownable {
         _createLock(value, unlockTime);
     }
 
-    function _createLock(uint256 value, uint256 unlockTime) internal onlyOwner {
+    /// @notice extend to 4 years lock
+    function increaseMaxLock() external onlyOwner {
+        _increaseLock(block.timestamp + MAX_LOCKTIME);
+    }
+
+    function increaseLock(uint256 unlockTime) external onlyOwner {
+        _increaseLock(unlockTime);
+    }
+
+    function _createLock(uint256 value, uint256 unlockTime) internal {
         CRV.safeApprove(ESCROW, 0);
         CRV.safeApprove(ESCROW, value);
         IVoteEscrow(ESCROW).create_lock(value, unlockTime);
+    }
+
+    function _increaseLock(uint256 unlockTime) internal {
+        IVoteEscrow(ESCROW).increase_unlock_time(unlockTime);
     }
 
     function release() external onlyOwner {

@@ -171,4 +171,13 @@ describe("MagicCRV", async () => {
     await CurveVoter.setAllowedVoter(alice.address, false);
     await expect(CurveVoter.connect(alice).voteForMaxMIMGaugeWeights()).to.be.revertedWith("NotAllowedVoter()");
   });
+
+  it("should extend the max lock", async() => {
+    await expect(CurveVoter.increaseMaxLock()).to.be.revertedWith("Can only increase lock duration");
+    await advanceTime(7 * 24 * 60 * 60); // 1 week
+    await CurveVoter.increaseMaxLock();
+    await expect(CurveVoter.increaseMaxLock()).to.be.revertedWith("Can only increase lock duration");
+    await advanceTime(7 * 24 * 60 * 60); // 1 week
+    await CurveVoter.increaseMaxLock();
+  })
 });
