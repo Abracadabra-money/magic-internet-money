@@ -76,7 +76,6 @@ describe("MagicCRV", async () => {
     await expect(CurveVoter.connect(aliceSigner).createMaxLock(1)).to.be.revertedWith("Ownable: caller is not the owner");
 
     await CurveVoter.createMaxLock(1);
-    await RewardHarvester.setAllowedHarvester(deployer, true);
 
     DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce");
     snapshotId = await ethers.provider.send("evm_snapshot", []);

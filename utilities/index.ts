@@ -1,7 +1,7 @@
 import { ParamType } from "@ethersproject/abi";
 import { BigNumber, Contract } from "ethers";
-import { DeployFunction } from "hardhat-deploy/types";
-import hre, { ethers, network } from "hardhat"
+import { DeployFunction, DeployOptions } from "hardhat-deploy/types";
+import hre, { ethers, network } from "hardhat";
 
 export const BASE_TEN = 10;
 
@@ -43,7 +43,7 @@ export enum ChainId {
   Fantom = 250,
   Arbitrum = 42161,
   Avalanche = 43114,
-  Boba = 288
+  Boba = 288,
 }
 
 export const setDeploymentSupportedChains = (supportedChains: string[], deployFunction: DeployFunction) => {
@@ -59,11 +59,10 @@ export const setDeploymentSupportedChains = (supportedChains: string[], deployFu
         }
       });
   }
-}
+};
 
 export async function wrappedDeploy<T extends Contract>(name: string, options: DeployOptions): Promise<T> {
   await hre.deployments.deploy(name, options);
-
   const contract = await ethers.getContract<T>(name);
   await verifyContract(name, contract.address, options.args || []);
 
@@ -84,6 +83,5 @@ export async function verifyContract(name: string, address: string, constructorA
     }
   }
 }
-
 
 export * from "./time";

@@ -6,7 +6,8 @@ import "@rari-capital/solmate/src/tokens/ERC20.sol";
 
 interface ICurveVoter {
     function lock() external;
-    function totalCRVTokens() external returns(uint256);
+
+    function totalCRVTokens() external view returns (uint256);
 }
 
 contract MagicCRV is ERC20 {
@@ -24,5 +25,9 @@ contract MagicCRV is ERC20 {
 
         _mint(msg.sender, share);
         curveVoter.lock();
+    }
+
+    function totalCRVTokens() external view returns (uint256) {
+        return curveVoter.totalCRVTokens();
     }
 }

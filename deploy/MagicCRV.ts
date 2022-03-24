@@ -1,10 +1,9 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { ethers, network } from "hardhat";
-import { MagicCRV } from "../typechain";
+import { network } from "hardhat";
 import { ChainId, setDeploymentSupportedChains, wrappedDeploy } from "../utilities";
-import { CurveVoter } from "../typechain/CurveVoter";
 import { xMerlin } from "../test/constants";
+import { CurveVoter, MagicCRV, RewardHarvester } from "../typechain";
 
 const ParametersPerChain = {
   [ChainId.Mainnet]: {},
@@ -23,14 +22,14 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     deterministicDeployment: false,
   });
 
-  const MagicCRV = await wrappedDeploy("MagicCRV", {
+  const MagicCRV = await wrappedDeploy<MagicCRV>("MagicCRV", {
     from: deployer,
     args: [CurveVoter.address],
     log: true,
     deterministicDeployment: false,
   });
 
-  const RewardHarvester = await wrappedDeploy("RewardHarvester", {
+  const RewardHarvester = await wrappedDeploy<RewardHarvester>("RewardHarvester", {
     from: deployer,
     args: [CurveVoter.address],
     log: true,
@@ -49,6 +48,8 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     if ((await RewardHarvester.owner()) != xMerlin) {
       await (await RewardHarvester.transferOwnership(xMerlin)).wait();
     }
+  } else {
+    await (await RewardHarvester.setAllowedHarvester(deployer, true)).wait();
   }
 };
 
