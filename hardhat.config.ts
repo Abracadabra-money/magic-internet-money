@@ -35,16 +35,7 @@ const config: HardhatUserConfig = {
     tests: "test",
   },
   etherscan: {
-    apiKey: {
-      mainnet: process.env.ETHERSCAN_TOKEN,
-      ropsten: process.env.ETHERSCAN_TOKEN,
-      kovan: process.env.ETHERSCAN_TOKEN,
-      optimisticEthereum: process.env.ETHERSCAN_TOKEN,
-      arbitrumOne: process.env.ETHERSCAN_TOKEN,
-      avalanche: process.env.SNOWTRACE_TOKEN,
-      opera: process.env.FTMSCAN_TOKEN,
-      bsc: process.env.BSCSCAN_TOKEN,
-    },
+    apiKey: process.env.ETHERSCAN_API_KEY
   },
   gasReporter: {
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
@@ -252,6 +243,15 @@ const config: HardhatUserConfig = {
           optimizer: {
             enabled: true,
             runs: 9000,
+          },
+        },
+      },
+      "contracts/CauldronV2Multichain.sol": {
+        version: "0.6.12",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 999999,
           },
         },
       },

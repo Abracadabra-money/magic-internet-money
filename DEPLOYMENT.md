@@ -95,3 +95,27 @@
 | Contract | Address                                    | Note |
 | -------- | ------------------------------------------ | ---- |
 | DegenBox | 0xB734c264F83E39Ef6EC200F99550779998cC812d |      |
+
+# Oracles
+
+| Chain | Token                 | Address                                    |
+| ----- | --------------------- | ------------------------------------------ |
+| Avax  | Joe USDC.e/WAVAX LP   | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 |
+| Avax  | Pangolin USDC.e/WAVAX | 0x1e21573cfc456f8aDd4C27ff16B50112e3adC7aC |
+
+# Popsicle
+
+| Contract                     | Address                                    | Note |
+| ---------------------------- | ------------------------------------------ | ---- |
+| Popsicle Degenbox            | 0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4 |      |
+| PopsicleCauldronV2MultiChain | 0xfe0f13fD5f928539C5bc377c8200a699FC95Ca02 |      |
+
+### Popsicle Cauldrons
+
+| Contract                   | Address                                    | Note                                                      |
+| -------------------------- | ------------------------------------------ | --------------------------------------------------------- |
+| **USDC.e/WAVAX**           |                                            |                                                           |
+| PopsicleUsdcAvaxCauldron   | 0x02130dE2d2E1CB33cB23ACbB9c48e94a610AFA56 | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest |
+| Oracle                     | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 | reusing existing Joe USDC/WAVAX jLP oracle                |
+| PopsicleUsdcAvaxSwapper    | 0x4Ec0000Da67399AfCf4Ad04dA6089AFD63bEf901 | Liquidation Swapper                                       |
+| PopsicleUsdcAvaxLevSwapper | 0xc845C5bAf57f61eB925D400AeBff0501C0e9d2Ba | Leverage Swapper                                          |
