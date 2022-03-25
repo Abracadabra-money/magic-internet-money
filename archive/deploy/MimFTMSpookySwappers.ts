@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, network } from "hardhat";
+import {MimFtmLevSwapper, MimFtmSwapper} from "../typechain";
 
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
@@ -23,6 +24,26 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     contract: "MimFtmLevSwapper",
     deterministicDeployment: false,
   });
+
+  const levSwapper = await ethers.getContract<MimFtmLevSwapper>("MimFtmSpookyLevSwapper");
+  const swapper = await ethers.getContract<MimFtmSwapper>("MimFTMSpookySwapper");
+
+  try{
+    await hre.run("verify:verify", {
+      address: levSwapper.address,
+      constructorArguments: []
+    });
+  } catch {
+
+  }
+  try {
+    await hre.run("verify:verify", {
+      address: swapper.address,
+      constructorArguments: []
+    });
+  } catch {
+
+  }
 };
 
 export default deployFunction;

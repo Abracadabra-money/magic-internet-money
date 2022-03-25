@@ -24,7 +24,7 @@ interface IBentoBoxV1 {
 
 contract MimFtmSwapper is ISwapperGeneric {
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0x74A0BcA2eeEdf8883cb91E37e9ff49430f20a616);
-    IUniswapV2Pair public constant MIMFTM = IUniswapV2Pair(0xB32b31DfAfbD53E310390F641C7119b5B9Ea0488);
+    IUniswapV2Pair public constant MIMFTM = IUniswapV2Pair(0x6f86e65b255c9111109d2D2325ca2dFc82456efc);
 
     IERC20 public constant MIM = IERC20(0x82f0B8B456c1A451378467398982d4834b6829c1);
     IERC20 public constant WFTM = IERC20(0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83);
@@ -61,10 +61,10 @@ contract MimFtmSwapper is ISwapperGeneric {
 
         // swap AVAX to MIM
         (uint256 reserve0, uint256 reserve1, ) = MIMFTM.getReserves();
-        uint256 mimFromAvax = _getAmountOut(mimAmount, reserve1, reserve0);
+        uint256 mimFromFtm = _getAmountOut(ftmAmount, reserve0, reserve1);
         WFTM.transfer(address(MIMFTM), ftmAmount);
-        MIMFTM.swap(0, mimFromAvax, address(this), new bytes(0));
-        mimAmount += mimFromAvax;
+        MIMFTM.swap(0, mimFromFtm, address(this), new bytes(0));
+        mimAmount += mimFromFtm;
 
         (, shareReturned) = DEGENBOX.deposit(MIM, address(this), recipient, mimAmount, 0);
         extraShare = shareReturned - shareToMin;
