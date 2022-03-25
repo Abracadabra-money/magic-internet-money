@@ -4,15 +4,26 @@
 
 ### Cauldrons
 
-| Contract                 | Address                                    | Note                                     |
-| ------------------------ | ------------------------------------------ | ---------------------------------------- |
-| **Frax3Crv**             |                                            |                                          |
-| Frax3CrvCauldron         | 0x81446B23e28377e1a15b6d0b67f7A2ACe3A8E5bB | 80% LTV 1% initial 1% Interest, 1.5% fee |
-| ConvexStakingWrapperAbra | 0x873221f8651bC14aa58b79489a4A927130259844 | Frax3Crv to Convex stkFrax3Crv Wrapper   |
-| Frax3CrvProxyOracle      | 0x66a809a31E6909C835219cC09eA0f52135fF0a11 | Using Frax3CrvOracle                     |
-| Frax3CrvOracle           | 0xD9bA8821e9EeFC89cBc80DA1EB5e3518BE383E63 |                                          |
-| StkFrax3CrvSwapper       | 0xD69E75C1c2a0f2838A6bbA8BDFf9d08C8f137cD9 | Liquidation Swapper                      |
-| StkFrax3CrvLevSwapper    | 0xFd2281453d970964c46B58CD4eBF50B45E820D58 | Leverage Swapper                         |
+| Contract                 | Address                                    | Note                                       |
+| ------------------------ | ------------------------------------------ | ------------------------------------------ |
+| **Frax3Crv**             |                                            |                                            |
+| Frax3CrvCauldron         | 0x81446B23e28377e1a15b6d0b67f7A2ACe3A8E5bB | 80% LTV 1% initial 1% Interest, 1.5% fee   |
+| ConvexStakingWrapperAbra | 0x873221f8651bC14aa58b79489a4A927130259844 | Frax3Crv to Convex stkFrax3Crv Wrapper     |
+| Frax3CrvProxyOracle      | 0x66a809a31E6909C835219cC09eA0f52135fF0a11 | Using Frax3CrvOracle                       |
+| Frax3CrvOracle           | 0xD9bA8821e9EeFC89cBc80DA1EB5e3518BE383E63 |                                            |
+| StkFrax3CrvSwapper       | 0xD69E75C1c2a0f2838A6bbA8BDFf9d08C8f137cD9 | Liquidation Swapper                        |
+| **yvCVXETH**             |                                            |                                            |
+| yvCVXETHCauldron         | 0xf179fe36a36B32a4644587B8cdee7A23af98ed37 | 75% LTV .5% initial 1% Interest, 12.5% fee |
+| YVCVXETHOracleProxy      | 0xa32D03497FF5C32bcfeebE6A677Dbe4A496fD918 | Using YVCVXETHOracle                       |
+| YVCVXETHOracle           | 0x991536BF23fa40B578Fc3e1e3725E51D1bF889F3 |                                            |
+| YVCVXETHSwapper          | 0xF80a7b98b59e7F71BAa149990bAA6044728321bb | Liquidation Swapper                        |
+| YVCVXETHLevSwapper       | 0xE345156cDEc151D9F843F94ADE7770EFA9d56417 | Leverage Swapper                           |
+| **yvMIM3CRV**            |                                            |                                            |
+| yvMIM3CRVCauldron        | 0xaf487ab3b81B3E6370B5D4C69A8daEf7Cc65676F | 75% LTV .5% initial 1% Interest, 12.5% fee |
+| YVMIM3CRVOracleProxy     | 0x7d76568d84de8A0F34BBf315F53d7772c1fABcD8 | Using YVCVXETHOracle                       |
+| YVMIM3CRVOracle          | 0x547fD22A2d2A9e109A78eB88Fc640D166a64d45F |                                            |
+| YVMIM3CRVSwapper         | 0x05e46FFD98F94F62cC2817d54D5F0B1FD065B76d | Liquidation Swapper                        |
+| YVMIM3CRVLevSwapper      | 0x9b2794Aeff2E6Bd2b3e32e095E878bF17EB6BdCC | Leverage Swapper                           |
 
 ### Utilities
 
@@ -84,3 +95,27 @@
 | Contract | Address                                    | Note |
 | -------- | ------------------------------------------ | ---- |
 | DegenBox | 0xB734c264F83E39Ef6EC200F99550779998cC812d |      |
+
+# Oracles
+
+| Chain | Token                 | Address                                    |
+| ----- | --------------------- | ------------------------------------------ |
+| Avax  | Joe USDC.e/WAVAX LP   | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 |
+| Avax  | Pangolin USDC.e/WAVAX | 0x1e21573cfc456f8aDd4C27ff16B50112e3adC7aC |
+
+# Popsicle
+
+| Contract                     | Address                                    | Note |
+| ---------------------------- | ------------------------------------------ | ---- |
+| Popsicle Degenbox            | 0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4 |      |
+| PopsicleCauldronV2MultiChain | 0xfe0f13fD5f928539C5bc377c8200a699FC95Ca02 |      |
+
+### Popsicle Cauldrons
+
+| Contract                   | Address                                    | Note                                                      |
+| -------------------------- | ------------------------------------------ | --------------------------------------------------------- |
+| **USDC.e/WAVAX**           |                                            |                                                           |
+| PopsicleUsdcAvaxCauldron   | 0x02130dE2d2E1CB33cB23ACbB9c48e94a610AFA56 | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest |
+| Oracle                     | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 | reusing existing Joe USDC/WAVAX jLP oracle                |
+| PopsicleUsdcAvaxSwapper    | 0x4Ec0000Da67399AfCf4Ad04dA6089AFD63bEf901 | Liquidation Swapper                                       |
+| PopsicleUsdcAvaxLevSwapper | 0xc845C5bAf57f61eB925D400AeBff0501C0e9d2Ba | Leverage Swapper                                          |

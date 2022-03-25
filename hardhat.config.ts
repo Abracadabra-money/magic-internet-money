@@ -255,6 +255,15 @@ const config: HardhatUserConfig = {
           },
         },
       },
+      "contracts/CauldronV2Multichain.sol": {
+        version: "0.6.12",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 999999,
+          },
+        },
+      },
       "@uniswap/v3-core/contracts/libraries/FullMath.sol": {
         version: "0.7.6",
         settings: {
