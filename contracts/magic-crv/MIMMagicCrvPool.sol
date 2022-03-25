@@ -37,9 +37,11 @@ contract MIMMagicCrvPool is Ownable {
     }
 
     function exchangeToMim(uint256 amountIn, address recipient) public onlyAllowedSwappers returns (uint256 amountOut) {
+        magicCRV.transferFrom(msg.sender, address(this), amountIn);
+        
         uint256 magicCrvToMim = (1e36 / oracle.peekSpot("0x")) * uint256(MIM_ORACLE.latestAnswer()); // 26 decimals
         amountOut = (amountIn * magicCrvToMim) / 1e26;
-        
+
         MIM.transfer(recipient, amountOut);
     }
 
