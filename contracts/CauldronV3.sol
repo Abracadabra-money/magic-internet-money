@@ -166,7 +166,8 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
     /// @dev Checks if the user is solvent in the closed liquidation case at the end of the function body.
     modifier solvent() {
         _;
-        require(_isSolvent(msg.sender, exchangeRate), "Cauldron: user insolvent");
+        (, uint256 _exchangeRate) = updateExchangeRate();
+        require(_isSolvent(msg.sender, _exchangeRate), "Cauldron: user insolvent");
     }
 
     /// @notice Gets the exchange rate. I.e how much collateral to buy 1e18 asset.
@@ -448,7 +449,8 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
         }
 
         if (status.needsSolvencyCheck) {
-            require(_isSolvent(msg.sender, exchangeRate), "Cauldron: user insolvent");
+            (, uint256 _exchangeRate) = updateExchangeRate();
+            require(_isSolvent(msg.sender, _exchangeRate), "Cauldron: user insolvent");
         }
     }
 
@@ -520,7 +522,7 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
         if (swapper != ISwapper(0)) {
             swapper.swap(collateral, magicInternetMoney, msg.sender, allBorrowShare, allCollateralShare);
         }
-        
+
         allBorrowShare = bentoBox.toShare(magicInternetMoney, allBorrowAmount, true);
         bentoBox.transfer(magicInternetMoney, msg.sender, address(this), allBorrowShare);
     }
