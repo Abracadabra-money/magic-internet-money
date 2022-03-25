@@ -18,12 +18,20 @@ contract MagicCRV is ERC20 {
         curveVoter = _curveVoter;
     }
 
-    function mint(uint256 amount) external {
+    function mint(uint256 amount) external returns (uint256) {
+        return _mintFor(amount, msg.sender);
+    }
+
+    function mintFor(uint256 amount, address recipient) external returns (uint256) {
+        return _mintFor(amount, recipient);
+    }
+
+    function _mintFor(uint256 amount, address recipient) internal returns (uint256 share) {
         CRV.transferFrom(msg.sender, address(curveVoter), amount);
 
-        uint256 share = totalSupply == 0 ? amount : (amount * totalSupply) / curveVoter.totalCRVTokens();
+        share = totalSupply == 0 ? amount : (amount * totalSupply) / curveVoter.totalCRVTokens();
 
-        _mint(msg.sender, share);
+        _mint(recipient, share);
         curveVoter.lock();
     }
 
