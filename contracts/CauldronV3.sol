@@ -50,10 +50,12 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
     event LogRepay(address indexed from, address indexed to, uint256 amount, uint256 part);
     event LogFeeTo(address indexed newFeeTo);
     event LogWithdrawFees(address indexed feeTo, uint256 feesEarnedFraction);
+    event LogInterestChange(uint64 oldInterestRate, uint64 newInterestRate);
+    event LogChangeBorrowLimit(uint256 newLimit);
 
     // Immutables (for MasterContract and all clones)
     IBentoBoxV1 public immutable bentoBox;
-    CauldronV2MultiChain public immutable masterContract;
+    CauldronV3 public immutable masterContract;
     IERC20 public immutable magicInternetMoney;
 
     // MasterContract variables
@@ -64,6 +66,7 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
     IERC20 public collateral;
     IOracle public oracle;
     bytes public oracleData;
+    uint256 public borrowLimit;
 
     // Total amounts
     uint256 public totalCollateralShare; // Total collateral supplied
@@ -84,6 +87,9 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
     }
 
     AccrueInfo public accrueInfo;
+
+    /// @notice tracking of last interest update
+    uint256 private lastInterestUpdate;
 
     // Settings
     uint256 public COLLATERIZATION_RATE;
@@ -112,6 +118,7 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
     function init(bytes calldata data) public payable override {
         require(address(collateral) == address(0), "Cauldron: already initialized");
         (collateral, oracle, oracleData, accrueInfo.INTEREST_PER_SECOND, LIQUIDATION_MULTIPLIER, COLLATERIZATION_RATE, BORROW_OPENING_FEE) = abi.decode(data, (IERC20, IOracle, bytes, uint64, uint256, uint256, uint256));
+        borrowLimit = type(uint256).max;
         require(address(collateral) != address(0), "Cauldron: bad pair");
     }
 
@@ -244,6 +251,9 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
     function _borrow(address to, uint256 amount) internal returns (uint256 part, uint256 share) {
         uint256 feeAmount = amount.mul(BORROW_OPENING_FEE) / BORROW_OPENING_FEE_PRECISION; // A flat % fee is charged for any borrow
         (totalBorrow, part) = totalBorrow.add(amount.add(feeAmount), true);
+
+        require(totalBorrow.elastic <= borrowLimit, "Borrow Limit reached");
+
         accrueInfo.feesEarned = accrueInfo.feesEarned.add(uint128(feeAmount));
         userBorrowPart[msg.sender] = userBorrowPart[msg.sender].add(part);
 
@@ -552,5 +562,27 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
     function reduceSupply(uint256 amount) public {
         require(msg.sender == masterContract.owner(), "Caller is not the owner");
         bentoBox.withdraw(magicInternetMoney, address(this), masterContract.owner(), amount, 0);
+    }
+
+    /// @notice allows to change the interest rate
+    /// @param newInterestRate new interest rate
+    function changeInterestRate(uint64 newInterestRate) public {
+        require(msg.sender == masterContract.owner(), "Caller is not the owner");
+        uint64 oldInterestRate = accrueInfo.INTEREST_PER_SECOND;
+
+        require(newInterestRate < oldInterestRate + oldInterestRate * 3 / 4 , "Interest rate increase > 75%");
+        require(lastInterestUpdate + 3 days < block.timestamp, "Update only every 3 days");
+
+        lastInterestUpdate = block.timestamp;
+        accrueInfo.INTEREST_PER_SECOND = newInterestRate;
+        emit LogInterestChange(oldInterestRate, newInterestRate);
+    }
+
+    /// @notice allows to change the borrow limit
+    /// @param newBorrowLimit new borrow limit
+    function changeBorrowLimit(uint256 newBorrowLimit) public {
+        require(msg.sender == masterContract.owner(), "Caller is not the owner");
+        borrowLimit = newBorrowLimit;
+        emit LogChangeBorrowLimit(newBorrowLimit);
     }
 }
