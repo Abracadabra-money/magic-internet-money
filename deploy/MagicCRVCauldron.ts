@@ -70,8 +70,8 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     address: deployEvent?.args?.cloneAddress,
   });
 
-  /*// Liquidation Swapper
-  await deploy("MagicCRVSwapper", {
+  // Liquidation Swapper
+  await wrappedDeploy("MagicCRVSwapper", {
     from: deployer,
     args: [MagicCRV.address],
     log: true,
@@ -79,12 +79,12 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   });
 
   // Leverage Swapper
-  await deploy("MagicCRVLevSwapper", {
+  await wrappedDeploy("MagicCRVLevSwapper", {
     from: deployer,
     args: [MagicCRV.address],
     log: true,
     deterministicDeployment: false,
-  });*/
+  });
 
   if ((await ProxyOracle.oracleImplementation()) !== MagicCRVOracle.address) {
     await (await ProxyOracle.changeOracleImplementation(MagicCRVOracle.address)).wait();

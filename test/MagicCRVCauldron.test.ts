@@ -70,8 +70,8 @@ describe("MagicCRV Cauldron", async () => {
     // 2.34$ per CRV since magicCRV ratio is 1:1 at this point
     expect(spot).to.be.eq("425792492651588003");
 
-    //Swapper = await ethers.getContract<ISwapperGeneric>(parameters.swapperName);
-    //LevSwapper = await ethers.getContract<ILevSwapperGeneric>(parameters.levSwapperName);
+    Swapper = await ethers.getContract<ISwapperGeneric>(parameters.swapperName);
+    LevSwapper = await ethers.getContract<ILevSwapperGeneric>(parameters.levSwapperName);
 
     await impersonate(MIM_WHALE);
     await impersonate(CRV_WHALE);
