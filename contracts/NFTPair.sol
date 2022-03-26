@@ -528,6 +528,10 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     // Any external call (except to BentoBox)
     uint8 internal constant ACTION_CALL = 30;
 
+    // Signed requests
+    uint8 internal constant ACTION_REQUEST_AND_BORROW = 40;
+    uint8 internal constant ACTION_TAKE_COLLATERAL_AND_LEND = 41;
+
     int256 internal constant USE_VALUE1 = -1;
     int256 internal constant USE_VALUE2 = -2;
 
@@ -642,6 +646,31 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
                 } else if (returnValues == 2) {
                     (value1, value2) = abi.decode(returnData, (uint256, uint256));
                 }
+            } else if (action == ACTION_REQUEST_AND_BORROW) {
+                (
+                    uint256 tokenId,
+                    address lender,
+                    address recipient,
+                    TokenLoanParams memory params,
+                    bool skimCollateral,
+                    uint256 deadline,
+                    uint8 v,
+                    bytes32 r,
+                    bytes32 s
+                ) = abi.decode(datas[i], (uint256, address, address, TokenLoanParams, bool, uint256, uint8, bytes32, bytes32));
+                requestAndBorrow(tokenId, lender, recipient, params, skimCollateral, deadline, v, r, s);
+            } else if (action == ACTION_TAKE_COLLATERAL_AND_LEND) {
+                (
+                    uint256 tokenId,
+                    address borrower,
+                    TokenLoanParams memory params,
+                    bool skimFunds,
+                    uint256 deadline,
+                    uint8 v,
+                    bytes32 r,
+                    bytes32 s
+                ) = abi.decode(datas[i], (uint256, address, TokenLoanParams, bool, uint256, uint8, bytes32, bytes32));
+                takeCollateralAndLend(tokenId, borrower, params, skimFunds, deadline, v, r, s);
             }
         }
     }
