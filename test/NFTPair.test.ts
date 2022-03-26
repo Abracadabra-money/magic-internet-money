@@ -261,18 +261,36 @@ describe("NFT Pair", async () => {
       await pair.connect(bob).requestLoan(apeIds.bobTwo, params1, carol.address, false);
     });
 
+    const getShares = ({ valuation }: ILoanParams) => {
+      const total = valuation.mul(9).div(20);
+
+      // The lender:
+      // - Lends out the total
+      // - Receives the open fee
+      // - Pays the protocol fee (part of the open fee)
+      // The borrower
+      // - Receives the total
+      // - Pays the open fee
+      // The contract
+      // - Keeps the protocol fee
+      const openFee = total.div(100);
+      const protocolFee = openFee.div(10);
+
+      const borrowerIn = total.sub(openFee);
+      const lenderOut = total.sub(openFee).add(protocolFee);
+      return { openFee, protocolFee, borrowerIn, lenderOut };
+    };
+
     it("Should allow anyone to lend", async () => {
-      const totalShare = params1.valuation.mul(9).div(20);
-      const openFeeShare = totalShare.div(100);
-      const borrowShare = totalShare.sub(openFeeShare);
+      const { lenderOut, borrowerIn } = getShares(params1);
 
       await expect(pair.connect(carol).lend(apeIds.aliceOne, params1, false))
         .to.emit(pair, "LogLend")
         .withArgs(carol.address, apeIds.aliceOne)
         .to.emit(bentoBox, "LogTransfer")
-        .withArgs(guineas.address, carol.address, pair.address, totalShare)
+        .withArgs(guineas.address, carol.address, pair.address, lenderOut)
         .to.emit(bentoBox, "LogTransfer")
-        .withArgs(guineas.address, pair.address, alice.address, borrowShare);
+        .withArgs(guineas.address, pair.address, alice.address, borrowerIn);
 
       const loan = await pair.tokenLoan(apeIds.aliceOne);
       expect(loan.lender).to.equal(carol.address);
@@ -281,33 +299,31 @@ describe("NFT Pair", async () => {
     });
 
     it("Should allow anyone to lend (skim)", async () => {
-      const totalShare = params1.valuation.mul(9).div(20);
+      const { lenderOut } = getShares(params1);
 
-      await bentoBox.connect(carol).transfer(guineas.address, carol.address, pair.address, totalShare);
+      await bentoBox.connect(carol).transfer(guineas.address, carol.address, pair.address, lenderOut);
       await expect(pair.connect(carol).lend(apeIds.aliceOne, params1, true)).to.emit(pair, "LogLend");
     });
 
     it("Should revert if skim amount is too low", async () => {
-      const totalShare = params1.valuation.mul(9).div(20);
-      const totalShareM1 = totalShare.sub(1);
+      const { lenderOut } = getShares(params1);
+      const oneLess = lenderOut.sub(1);
 
-      await bentoBox.connect(carol).transfer(guineas.address, carol.address, pair.address, totalShareM1);
+      await bentoBox.connect(carol).transfer(guineas.address, carol.address, pair.address, oneLess);
       await expect(pair.connect(carol).lend(apeIds.aliceOne, params1, true)).to.be.revertedWith("NFTPair: skim too much");
     });
 
     it("Should allow collateralizing a loan for someone else", async () => {
-      const totalShare = params1.valuation.mul(9).div(20);
-      const openFeeShare = totalShare.div(100);
-      const borrowShare = totalShare.sub(openFeeShare);
+      const { lenderOut, borrowerIn } = getShares(params1);
 
       // Loan was requested by Bob, but money and option to repay go to Carol:
       await expect(pair.connect(alice).lend(apeIds.bobTwo, params1, false))
         .to.emit(pair, "LogLend")
         .withArgs(alice.address, apeIds.bobTwo)
         .to.emit(bentoBox, "LogTransfer")
-        .withArgs(guineas.address, alice.address, pair.address, totalShare)
+        .withArgs(guineas.address, alice.address, pair.address, lenderOut)
         .to.emit(bentoBox, "LogTransfer")
-        .withArgs(guineas.address, pair.address, carol.address, borrowShare);
+        .withArgs(guineas.address, pair.address, carol.address, borrowerIn);
 
       const loan = await pair.tokenLoan(apeIds.bobTwo);
       expect(loan.lender).to.equal(alice.address);
