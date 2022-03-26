@@ -271,7 +271,10 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         uint256 protocolFeeShare = (openFeeShare * PROTOCOL_FEE_BPS) / BPS;
 
         if (skim) {
-            require(bentoBox.balanceOf(asset, address(this)) >= (totalShare - openFeeShare + protocolFeeShare + feesEarnedShare), "NFTPair: skim too much");
+            require(
+                bentoBox.balanceOf(asset, address(this)) >= (totalShare - openFeeShare + protocolFeeShare + feesEarnedShare),
+                "NFTPair: skim too much"
+            );
         } else {
             bentoBox.transfer(asset, lender, address(this), totalShare - openFeeShare + protocolFeeShare);
         }
