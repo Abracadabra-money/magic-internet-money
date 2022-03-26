@@ -8,16 +8,40 @@ const { MaxUint256, AddressZero, HashZero } = ethers.constants;
 // This one was not defined..
 const MaxUint128 = BigNumber.from(2).pow(128).sub(1);
 
+const hashUtf8String = (s: string) => keccak256(toUtf8Bytes(s));
+
 import { BigRational, advanceNextTime, duration, encodeParameters, expApprox, getBigNumber, impersonate } from "../utilities";
 import { BentoBoxMock, ERC20Mock, ERC721Mock, WETH9Mock, NFTPair } from "../typechain";
 import { describeSnapshot } from "./helpers";
-import { Cook, encodeLoanParamsNFT } from "./PrivatePool";
 
 const LoanStatus = {
   INITIAL: 0,
   REQUESTED: 1,
   OUTSTANDING: 2,
 };
+
+// Cook actions
+const ACTION_REPAY = 2;
+const ACTION_REMOVE_COLLATERAL = 4;
+
+const ACTION_REQUEST_LOAN = 12;
+
+// Function on BentoBox
+const ACTION_BENTO_DEPOSIT = 20;
+const ACTION_BENTO_WITHDRAW = 21;
+const ACTION_BENTO_TRANSFER = 22;
+const ACTION_BENTO_TRANSFER_MULTIPLE = 23;
+const ACTION_BENTO_SETAPPROVAL = 24;
+
+// Any external call (except to BentoBox)
+const ACTION_CALL = 30;
+
+// Signed requests
+const ACTION_REQUEST_AND_BORROW = 40;
+const ACTION_TAKE_COLLATERAL_AND_LEND = 41;
+
+const USE_VALUE1 = -1;
+const USE_VALUE2 = -2;
 
 interface IDeployParams {
   collateral: string;
@@ -39,10 +63,12 @@ interface IPartialLoanParams {
   annualInterestBPS?: number;
 }
 
-const DOMAIN_SEPARATOR_HASH = keccak256(toUtf8Bytes("EIP712Domain(uint256 chainId,address verifyingContract)"));
+const DOMAIN_SEPARATOR_HASH = hashUtf8String("EIP712Domain(uint256 chainId,address verifyingContract)");
 
-const nextYear = Math.floor(new Date().getTime() / 1000) + 86400 * 365;
-const nextDecade = Math.floor(new Date().getTime() / 1000) + 86400 * 365 * 10;
+const DAY = 24 * 3600;
+const YEAR = 365 * DAY;
+const nextYear = Math.floor(new Date().getTime() / 1000) + YEAR;
+const nextDecade = Math.floor(new Date().getTime() / 1000) + YEAR * 10;
 
 describe("NFT Pair", async () => {
   let apes: ERC721Mock;
@@ -538,13 +564,18 @@ describe("NFT Pair", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [params.expiration + 1_000_000]);
       await expect(pair.connect(carol).removeCollateral(apeIds.aliceOne, carol.address)).to.be.revertedWith("NFTPair: not the lender");
     });
+
+    it("Should let anyone withdraw stray NFT tokens", async () => {
+      await apes.connect(bob).transferFrom(bob.address, pair.address, apeIds.bobOne);
+      await expect(pair.connect(bob).removeCollateral(apeIds.bobOne, bob.address))
+        .to.emit(pair, "LogRemoveCollateral")
+        .withArgs(apeIds.bobOne, bob.address);
+    });
   });
 
   describeSnapshot("Repay", () => {
     let pair: NFTPair;
 
-    const DAY = 24 * 3600;
-    const YEAR = 365 * DAY;
     const params: ILoanParams = {
       valuation: getBigNumber(1),
       annualInterestBPS: 10_000,
@@ -813,7 +844,7 @@ describe("NFT Pair", async () => {
     });
   });
 
-  describeSnapshot("Signed Lend/Borrow", async () => {
+  describeSnapshot("Signed Lend/Borrow", () => {
     let pair: NFTPair;
     let chainId: BigNumberish;
     let DOMAIN_SEPARATOR: string;
@@ -825,9 +856,6 @@ describe("NFT Pair", async () => {
 
       chainId = (await ethers.provider.getNetwork()).chainId;
 
-      // TODO: Verify that after a fork this becomes part of the clone
-      // TODO: Does that matter though? Just use whatever it is?
-      // TODO: Yes! Need correct asset/coll addresses in the sig also!
       DOMAIN_SEPARATOR = keccak256(
         defaultAbiCoder.encode(["bytes32", "uint256", "address"], [DOMAIN_SEPARATOR_HASH, chainId, masterContract.address])
       );
@@ -835,12 +863,6 @@ describe("NFT Pair", async () => {
       for (const signer of [deployer, alice, bob, carol]) {
         await apes.connect(signer).setApprovalForAll(pair.address, true);
       }
-
-      // TODO: Check whether this interferes?
-      // for (const id of [apeIds.aliceOne, apeIds.aliceTwo]) {
-      //   await pair.connect(alice).requestLoan(id, params, alice.address, false);
-      // }
-      // await pair.connect(bob).lend(apeIds.aliceOne, params, false);
     });
 
     // Ops happen to have the same method signature other than their name:
@@ -914,7 +936,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signRequest(bob, "Lend", {
+        const { v, r, s } = await signRequest(bob, "Lend", {
           tokenId: apeIds.carolOne,
           valuation,
           expiration,
@@ -1192,5 +1214,259 @@ describe("NFT Pair", async () => {
     // but that is only because the implementation is exactly "call
     // requestLoan() on behalf of the borrower, then lend() on behalf of the
     // lender".
+  });
+
+  describeSnapshot("Withdraw Fees", () => {
+    let pair: NFTPair;
+
+    const params: ILoanParams = {
+      valuation: getBigNumber(3),
+      annualInterestBPS: 5_000,
+      expiration: Math.floor(new Date().getTime() / 1000) + YEAR,
+    };
+    const valuationShare = params.valuation.mul(9).div(20);
+    const borrowerShare = valuationShare.mul(99).div(100);
+
+    // Theoretically this could fail to actually bound the repay share because
+    // of the FP math used. Double check using a more exact method if that
+    // happens:
+    const YEAR_BPS = YEAR * 10_000;
+    const COMPOUND_TERMS = 6;
+    const getMaxRepayShare = (time, params_) => {
+      // We mimic what the contract does, but without rounding errors in the
+      // approximation, so the upper bound should be strict.
+      // 1. Calculate exact amount owed; round it down, like the contract does.
+      // 2. Convert that to Bento shares (still hardcoded at 9/20); rounding up
+      const x = BigRational.from(time * params_.annualInterestBPS).div(YEAR_BPS);
+      return expApprox(x, COMPOUND_TERMS).mul(params_.valuation).floor().mul(9).add(19).div(20);
+    };
+
+    before(async () => {
+      pair = await deployPair();
+
+      for (const signer of [deployer, alice, bob, carol]) {
+        await apes.connect(signer).setApprovalForAll(pair.address, true);
+      }
+
+      await pair.connect(alice).requestLoan(apeIds.aliceOne, params, alice.address, false);
+      await pair.connect(bob).lend(apeIds.aliceOne, params, false);
+
+      expect(await pair.feeTo()).to.equal(AddressZero);
+      expect(await masterContract.feeTo()).to.equal(AddressZero);
+      expect(await pair.owner()).to.equal(AddressZero);
+      expect(await masterContract.owner()).to.equal(deployer.address);
+    });
+
+    // Scenario covered by BentoBox (refuses to send to zero address)
+    it("Should not burn funds if feeTo not set", async () => {
+      await expect(pair.connect(alice).withdrawFees()).to.be.revertedWith("BentoBox: to not set");
+    });
+
+    it("Should let only the deployer change the fee recipient", async () => {
+      await expect(masterContract.connect(bob).setFeeTo(alice.address)).to.be.revertedWith("Ownable: caller is not the owner");
+
+      await expect(masterContract.connect(deployer).setFeeTo(alice.address)).to.emit(masterContract, "LogFeeTo").withArgs(alice.address);
+
+      expect(await masterContract.feeTo()).to.equal(alice.address);
+      expect(await pair.feeTo()).to.equal(AddressZero);
+    });
+
+    it("Should let anyone request a withdrawal - to the operator", async () => {
+      await masterContract.connect(deployer).setFeeTo(carol.address);
+      // 10% of the 1% open fee on the loan:
+      const feeShare = params.valuation.div(1000).mul(9).div(20);
+      expect(feeShare).to.be.gt(0);
+      expect(await pair.feesEarnedShare()).to.equal(feeShare);
+      await expect(pair.connect(bob).withdrawFees())
+        .to.emit(bentoBox, "LogTransfer")
+        .withArgs(guineas.address, pair.address, carol.address, feeShare)
+        .to.emit(pair, "LogWithdrawFees")
+        .withArgs(carol.address, feeShare);
+
+      expect(await pair.feesEarnedShare()).to.equal(0);
+
+      await expect(pair.connect(bob).withdrawFees()).to.emit(pair, "LogWithdrawFees").withArgs(carol.address, 0);
+    });
+  });
+
+  describeSnapshot("Edge Cases", () => {
+    // For coverage mostly - entire scenario not really necessary:
+    let pair: NFTPair;
+
+    before(async () => {
+      pair = await deployPair();
+
+      for (const signer of [deployer, alice, bob, carol]) {
+        await apes.connect(signer).setApprovalForAll(pair.address, true);
+      }
+    });
+
+    it("Should revert if payable interest exceeds 2^128", async () => {
+      await expect(pair.calculateInterest(MaxUint128, YEAR, 10_000)).to.be.reverted;
+    });
+  });
+
+  describeSnapshot("Cook Scenarios", () => {
+    // Uses its own
+    let pair: NFTPair;
+    let chainId: BigNumberish;
+    let DOMAIN_SEPARATOR: string;
+    let BORROW_SIGNATURE_HASH: string;
+    let LEND_SIGNATURE_HASH: string;
+
+    const tokenIds: BigNumber[] = [];
+
+    const approveHash = hashUtf8String("Give FULL access to funds in (and approved to) BentoBox?");
+    const revokeHash = hashUtf8String("Revoke access to BentoBox?");
+    const signBentoApprovalRequest = async (wallet, approved: boolean, nonce?: number) => {
+      const sigTypes = [
+        { name: "warning", type: "string" },
+        { name: "user", type: "address" },
+        { name: "contract", type: "address" },
+        { name: "approved", type: "bool" },
+        { name: "nonce", type: "uint256" },
+      ];
+
+      const sigValues = {
+        warning: approved ? approveHash : revokeHash,
+        user: wallet.address,
+        contract: bentoBox.address,
+        approved,
+        nonce: nonce ?? 0,
+      };
+
+      // At this point we'd like to sign this digest, but signing arbitrary
+      // data is made difficult in ethers.js to prevent abuse. So for now we
+      // use a helper method that basically does everything we just did again:
+      const sig = await wallet._signTypedData(
+        // The stuff going into DOMAIN_SEPARATOR:
+        { name: hashUtf8String("BentoBox V1"), chainId, verifyingContract: bentoBox.address },
+
+        // sigHash
+        { SetMasterContractApproval: sigTypes },
+        sigValues
+      );
+      return splitSignature(sig);
+    };
+
+    before(async () => {
+      chainId = (await ethers.provider.getNetwork()).chainId;
+      pair = await deployPair();
+      // Undo some of the setup, so we start from scratch:
+      const mc = masterContract.address;
+      const hz = HashZero;
+      for (const signer of [alice, bob, carol]) {
+        const addr = signer.address;
+        const bb = bentoBox.connect(signer);
+        await bb.setMasterContractApproval(addr, mc, false, 0, hz, hz);
+
+        await guineas.transfer(addr, getBigNumber(10_000));
+        await guineas.connect(signer).approve(bentoBox.address, MaxUint256);
+
+        // We added profit in the setup; 3000 guineas became 3000 shares
+        await bb.withdraw(guineas.address, addr, addr, 0, getBigNumber(3000));
+      }
+      expect(await bentoBox.balanceOf(guineas.address, alice.address)).to.equal(0);
+
+      // (No permit equivalent that we could do via a cook..)
+      for (const signer of [deployer, alice, bob, carol]) {
+        await apes.connect(signer).setApprovalForAll(pair.address, true);
+      }
+
+      for (let i = 0; i < 10; i++) {
+        tokenIds.push(await mintApe(bob.address));
+      }
+    });
+
+    const requestLoans = (getArgs: (i: number) => [ILoanParams, string, boolean]) => {
+      const actions: number[] = [];
+      const values: any[] = [];
+      const datas: any[] = [];
+      for (let i = 0; i < tokenIds.length; i++) {
+        const tokenId = tokenIds[i];
+        const [params, recipient, skim] = getArgs(i);
+        actions.push(ACTION_REQUEST_LOAN);
+        values.push(0);
+        datas.push(
+          encodeParameters(
+            ["uint256", "tuple(uint128 valuation, uint64 expiration, uint16 annualInterestBPS)", "address", "bool"],
+            [tokenId, params, recipient, skim]
+          )
+        );
+      }
+      return pair.connect(bob).cook(actions, values, datas);
+    };
+
+    // Suppose this is one use case..
+    it("Should allow requesting multiple loans", async () => {
+      // All apes come from Bob:
+      await expect(
+        requestLoans((i) => [
+          {
+            valuation: getBigNumber((i + 1) * 12),
+            expiration: nextYear,
+            annualInterestBPS: i * 500,
+          },
+          [alice.address, bob.address, carol.address][i % 3],
+          false,
+        ])
+      )
+        .to.emit(apes, "Transfer")
+        .withArgs(bob.address, pair.address, tokenIds[0])
+        .to.emit(apes, "Transfer")
+        .withArgs(bob.address, pair.address, tokenIds[1])
+        .to.emit(apes, "Transfer")
+        .withArgs(bob.address, pair.address, tokenIds[9])
+        .to.emit(pair, "LogRequestLoan")
+        .withArgs(alice.address, tokenIds[6], getBigNumber(7 * 12), nextYear, 6 * 500)
+        .to.emit(pair, "LogRequestLoan")
+        .withArgs(bob.address, tokenIds[7], getBigNumber(8 * 12), nextYear, 7 * 500)
+        .to.emit(pair, "LogRequestLoan")
+        .withArgs(carol.address, tokenIds[8], getBigNumber(9 * 12), nextYear, 8 * 500);
+    });
+
+    it("Should have the expected domain separator", async () => {
+      // Note the string type for "name", while in reality we hash it,
+      // resulting in a "bytes32". This type of thing causes problems if we use
+      // the ethers library for signing structured messages.
+      const hash = hashUtf8String("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
+      const domainSeparator = keccak256(
+        defaultAbiCoder.encode(["bytes32", "bytes32", "uint256", "address"], [hash, hashUtf8String("BentoBox V1"), chainId, bentoBox.address])
+      );
+      expect(domainSeparator).to.equal(await bentoBox.DOMAIN_SEPARATOR());
+    });
+
+    // Failing the approval request; types in sig not an exact match, so have to
+    // sign the message without help from ethers' abstractions. See also the
+    // DOMAIN_SEPARATOR test; suspect a similar issue.
+    // it("Should handle depositing and lending with minimal setup", async () => {
+    //   await requestLoans((i) => [
+    //     {
+    //       valuation: getBigNumber((i + 1) * 12),
+    //       expiration: nextYear,
+    //       annualInterestBPS: i * 500,
+    //     },
+    //     [alice.address, bob.address, carol.address][i % 3],
+    //     false,
+    //   ]);
+
+    //   const actions: number[] = [];
+    //   const values: any[] = [];
+    //   const datas: any[] = [];
+
+    //   // 1. Set contract approval (can check if needed)
+    //   const { v, r, s } = await signBentoApprovalRequest(alice, true);
+    //   actions.push(ACTION_BENTO_SETAPPROVAL);
+    //   values.push(0);
+    //   datas.push(encodeParameters(
+    //     ["address", "address", "bool", "uint8", "bytes32", "bytes32"],
+    //     [alice.address, masterContract.address, true, v, r, s]
+    //   ));
+
+    //   // 2. Bento permit
+    //   // 3. Bento deposit
+    //   // 4. Lend
+    //   await pair.connect(alice).cook(actions, values, datas);
+    // });
   });
 });
