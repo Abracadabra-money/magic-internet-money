@@ -52,6 +52,14 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
     event LogWithdrawFees(address indexed feeTo, uint256 feesEarnedFraction);
     event LogInterestChange(uint64 oldInterestRate, uint64 newInterestRate);
     event LogChangeBorrowLimit(uint256 newLimit);
+    event LogLiquidation(
+        address indexed from,
+        address indexed user,
+        address indexed to,
+        uint256 collateralShare,
+        uint256 borrowAmount,
+        uint256 borrowPart
+    );
 
     // Immutables (for MasterContract and all clones)
     IBentoBoxV1 public immutable bentoBox;
@@ -503,6 +511,7 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
                 userCollateralShare[user] = userCollateralShare[user].sub(collateralShare);
                 emit LogRemoveCollateral(user, to, collateralShare);
                 emit LogRepay(msg.sender, user, borrowAmount, borrowPart);
+                emit LogLiquidation(msg.sender, user, to, collateralShare, borrowAmount, borrowPart);
 
                 // Keep totals
                 allCollateralShare = allCollateralShare.add(collateralShare);
