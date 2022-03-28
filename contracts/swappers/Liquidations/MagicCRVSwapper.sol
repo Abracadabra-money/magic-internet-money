@@ -16,29 +16,14 @@ interface IMIMMagicCrvPool {
 }
 
 contract MagicCRVSwapper is ISwapperGeneric {
-    error NotAuthorized();
-
     IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce);
     IERC20 public constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);
     IERC20 public immutable magicCRV;
-    IMIMMagicCrvPool public immutable pool;
-    address public immutable cauldron;
-
-    modifier onlyCauldron() {
-        if (msg.sender != cauldron) {
-            revert NotAuthorized();
-        }
-        _;
-    }
 
     constructor(
-        IERC20 _magicCRV,
-        IMIMMagicCrvPool _pool,
-        address _cauldron
+        IERC20 _magicCRV
     ) {
         magicCRV = _magicCRV;
-        pool = _pool;
-        cauldron = _cauldron;
 
         MIM.approve(address(DEGENBOX), type(uint256).max);
     }
@@ -50,10 +35,10 @@ contract MagicCRVSwapper is ISwapperGeneric {
         address recipient,
         uint256 shareToMin,
         uint256 shareFrom
-    ) public override onlyCauldron returns (uint256 extraShare, uint256 shareReturned) {
+    ) public override returns (uint256 extraShare, uint256 shareReturned) {
         (uint256 amount, ) = DEGENBOX.withdraw(magicCRV, address(this), address(this), 0, shareFrom);
         
-        amount = pool.exchangeToMim(amount, address(DEGENBOX));
+        // TODO
 
         (, shareReturned) = DEGENBOX.deposit(MIM, address(DEGENBOX), recipient, amount, 0);
         extraShare = shareReturned - shareToMin;

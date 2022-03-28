@@ -2,6 +2,14 @@
 
 ## Ethereum
 
+## MagicCRV
+
+| Contract        | Address                                    |
+| --------------- | ------------------------------------------ |
+| MagicCRV        | 0x98BF3E7da6f5A81630730d538715E35d8c0D3eDE |
+| CurveVoter      | 0xAC6C439253987Be9aFF6AaC047EC8501eA13d512 |
+| RewardHarvester | 0x79533F85479e04d2214305638B6586b724beC951 |
+
 ### Cauldrons
 
 | Contract                 | Address                                    | Note                                       |
