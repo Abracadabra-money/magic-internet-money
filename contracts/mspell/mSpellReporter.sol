@@ -52,7 +52,10 @@ contract mSpellReporter {
     }
 
     function sendAmount () external onlyNoon {
-        require(BokkyPooBahsDateTimeLibrary.getDay(lastUpdated) < BokkyPooBahsDateTimeLibrary.getDay(block.timestamp) || BokkyPooBahsDateTimeLibrary.getYear(lastUpdated) < BokkyPooBahsDateTimeLibrary.getYear(block.timestamp));
+        require(BokkyPooBahsDateTimeLibrary.getDay(lastUpdated) < BokkyPooBahsDateTimeLibrary.getDay(block.timestamp) 
+        || BokkyPooBahsDateTimeLibrary.getMonth(lastUpdated) < BokkyPooBahsDateTimeLibrary.getMonth(block.timestamp) 
+        || BokkyPooBahsDateTimeLibrary.getYear(lastUpdated) < BokkyPooBahsDateTimeLibrary.getYear(block.timestamp)
+        );
         uint256 weekDay = BokkyPooBahsDateTimeLibrary.getDayOfWeek(block.timestamp);
         require(weekDay == 1 || weekDay == 3 || weekDay == 5);
         uint128 amount = uint128(SPELL.balanceOf(mSpell));
