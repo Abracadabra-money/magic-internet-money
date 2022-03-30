@@ -13,10 +13,12 @@ yarn test
 The Kashi code is licensed from BoringCrypto and is licensed only to Abracadabra.
 
 # Troubleshooting
+
 ## CauldronV2MultiChain Master Contract Deployment
+
 Deploying `contracts\CauldronV2MultiChain.sol` seems to cause problem once it's time to verify the source code on etherscan-alike with solc-input. Sending solc-input has the advantage of not requiring sending the whole source code for verification.
 
-But it fails at the verification process, `etherscan-verify` mention older solidity version might cause the issue: https://github.com/ethereum/solidity/issues/9573 
+But it fails at the verification process, `etherscan-verify` mention older solidity version might cause the issue: https://github.com/ethereum/solidity/issues/9573
 
 At this stage, `etherscan-verify` then tries to submit the whole source but also fails as the source code is too large to be sent for verification.
 

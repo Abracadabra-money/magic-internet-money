@@ -22,4 +22,10 @@ interface CurveThreePool {
     ) external view returns (uint256);
 
     function add_liquidity(uint256[3] memory amounts, uint256 _min_mint_amount) external;
+
+    function remove_liquidity_one_coin(
+        uint256 amount,
+        int128 i,
+        uint256 minAmount
+    ) external;
 }
