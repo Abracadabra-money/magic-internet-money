@@ -222,27 +222,63 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200,
+            runs: 6969,
           },
         },
       },
       {
         version: "0.8.4",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 6969,
+          },
+        },
       },
       {
         version: "0.8.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 6969,
+          },
+        },
       },
       {
         version: "0.8.7",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 6969,
+          },
+        },
       },
       {
         version: "0.8.9",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 6969,
+          },
+        },
       },
       {
         version: "0.8.10",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 6969,
+          },
+        },
       },
       {
         version: "0.7.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 6969,
+          },
+        },
       },
     ],
     overrides: {

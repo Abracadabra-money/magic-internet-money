@@ -6,9 +6,9 @@ import { MSpellSender, MSpellStaking } from "../typechain";
 import { xMerlin } from "../test/constants";
 
 const allowedChainArray = [ "1", "43114", "250", "42161"]
-const mspellAddress = {"1": "0x94635B2034cCEc3293b81D411Cd77C36c353f41d", "43114": "0xC1f1862dE85374378173566a8F3BE28DA3c3EC70", "250": "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce", "42161": "0x694808221d4F31d5849F2aBA08584E2C8f4b99ff"}
+const mspellAddress = {"1": "0xcDB71Cbf4F6B8dB8d13d1Be655988CBc523Bc8b1", "43114": "0xA3C8931Ec0fef9BF05386D154C4CD1e93AA92A12", "250": "0x15a2a96608b48ebfd80c31DA8a9bE340A354CD46", "42161": "0x6cc0cd7D25E291029B55C767B9A2D1d9A18Ae668"}
 const lz = {"1": "1", "43114": "6", "250": "12", "42161": "10"}
-const reporterAddress = {"250": "0xC1f1862dE85374378173566a8F3BE28DA3c3EC70", "43114": "0x15a2a96608b48ebfd80c31DA8a9bE340A354CD46","42161": "0x35F78eBb33B69d0006910913480F483271638053"}
+const reporterAddress = {"250": "0x1085Fa0770a88a132E3b8aae21C84755d70081ce", "43114": "0x476b1E35DDE474cB9Aa1f6B85c9Cc589BFa85c1F","42161": "0x7386946A2e2A8412c09a63AfA6EC047CecC0423F"}
 
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   
@@ -29,7 +29,8 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const mspellSender = await ethers.getContract<MSpellSender>("mSpellSender");
 
   for(let i in allowedChainArray) {
-    if((await mspellSender.isActiveChain(lz[allowedChainArray[i]]))[0] != 1) {
+    const activeStatus = await mspellSender.isActiveChain(lz[allowedChainArray[i]])
+    if(Array.isArray(activeStatus) && activeStatus[0] != 1) {
       //const mspell = await ethers.getContract<MSpellStaking>(ChainName[allowedChainArray[i]] + "mSpellStaking");
       const address = mspellAddress[allowedChainArray[i]]
       await mspellSender.addMSpellRecipient(address, allowedChainArray[i], lz[allowedChainArray[i]])
@@ -50,7 +51,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     });
   } catch (error) {
     console.error(error)
-  }
+  } 
   
 };
 

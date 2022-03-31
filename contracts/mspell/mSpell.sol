@@ -163,6 +163,8 @@ contract mSpellStaking is BoringOwnable {
     function emergencyWithdraw() external {
         UserInfo storage user = userInfo[msg.sender];
 
+        require(!toggleLockup || user.lastAdded + LOCK_TIME < block.timestamp, "mSpell: Wait for LockUp");
+
         uint256 _amount = user.amount;
 
         user.amount = 0;
