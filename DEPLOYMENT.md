@@ -119,3 +119,4 @@
 | Oracle                     | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 | reusing existing Joe USDC/WAVAX jLP oracle                |
 | PopsicleUsdcAvaxSwapper    | 0x4Ec0000Da67399AfCf4Ad04dA6089AFD63bEf901 | Liquidation Swapper                                       |
 | PopsicleUsdcAvaxLevSwapper | 0xc845C5bAf57f61eB925D400AeBff0501C0e9d2Ba | Leverage Swapper                                          |
+
