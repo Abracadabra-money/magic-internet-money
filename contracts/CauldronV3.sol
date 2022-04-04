@@ -52,6 +52,7 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
     event LogWithdrawFees(address indexed feeTo, uint256 feesEarnedFraction);
     event LogInterestChange(uint64 oldInterestRate, uint64 newInterestRate);
     event LogChangeBorrowLimit(uint256 newLimit);
+    event LogChangeTotalBorrow(uint256 newTotalBorrow);
     event LogLiquidation(
         address indexed from,
         address indexed user,
@@ -113,6 +114,11 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
 
     uint256 private constant DISTRIBUTION_PART = 10;
     uint256 private constant DISTRIBUTION_PRECISION = 100;
+
+    modifier onlyMasterContractOwner() {
+        require(msg.sender == masterContract.owner(), "Caller is not the owner");
+        _;
+    }
 
     /// @notice The constructor is only used for the initial master contract. Subsequent clones are initialised via `init`.
     constructor(IBentoBoxV1 bentoBox_, IERC20 magicInternetMoney_) public {
@@ -568,15 +574,13 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
 
     /// @notice reduces the supply of MIM
     /// @param amount amount to reduce supply by
-    function reduceSupply(uint256 amount) public {
-        require(msg.sender == masterContract.owner(), "Caller is not the owner");
+    function reduceSupply(uint256 amount) public onlyMasterContractOwner {
         bentoBox.withdraw(magicInternetMoney, address(this), masterContract.owner(), amount, 0);
     }
 
     /// @notice allows to change the interest rate
     /// @param newInterestRate new interest rate
-    function changeInterestRate(uint64 newInterestRate) public {
-        require(msg.sender == masterContract.owner(), "Caller is not the owner");
+    function changeInterestRate(uint64 newInterestRate) public onlyMasterContractOwner {
         uint64 oldInterestRate = accrueInfo.INTEREST_PER_SECOND;
 
         require(newInterestRate < oldInterestRate + oldInterestRate * 3 / 4 , "Interest rate increase > 75%");
@@ -589,9 +593,15 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
 
     /// @notice allows to change the borrow limit
     /// @param newBorrowLimit new borrow limit
-    function changeBorrowLimit(uint256 newBorrowLimit) public {
-        require(msg.sender == masterContract.owner(), "Caller is not the owner");
+    function changeBorrowLimit(uint256 newBorrowLimit) public onlyMasterContractOwner {
         borrowLimit = newBorrowLimit;
         emit LogChangeBorrowLimit(newBorrowLimit);
+    }
+
+    /// @notice allows to reduce the totalBorrow elastic amount
+    /// @param amount elastic amount to reduce
+    function reduceTotalBorrow(uint256 amount) public onlyMasterContractOwner {
+        uint256 newTotalBorrow = totalBorrow.subElastic(amount);
+        emit LogChangeTotalBorrow(newTotalBorrow);
     }
 }
