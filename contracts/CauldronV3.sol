@@ -52,7 +52,6 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
     event LogWithdrawFees(address indexed feeTo, uint256 feesEarnedFraction);
     event LogInterestChange(uint64 oldInterestRate, uint64 newInterestRate);
     event LogChangeBorrowLimit(uint256 newLimit);
-    event LogChangeTotalBorrow(uint256 newTotalBorrow);
     event LogLiquidation(
         address indexed from,
         address indexed user,
@@ -596,12 +595,5 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
     function changeBorrowLimit(uint256 newBorrowLimit) public onlyMasterContractOwner {
         borrowLimit = newBorrowLimit;
         emit LogChangeBorrowLimit(newBorrowLimit);
-    }
-
-    /// @notice allows to reduce the totalBorrow elastic amount
-    /// @param amount elastic amount to reduce
-    function reduceTotalBorrow(uint256 amount) public onlyMasterContractOwner {
-        uint256 newTotalBorrow = totalBorrow.subElastic(amount);
-        emit LogChangeTotalBorrow(newTotalBorrow);
     }
 }
