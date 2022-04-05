@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Inspired by Yearn CurveYCRVVoter and StrategyProxy
+// solhint-disable not-rely-on-time
 pragma solidity ^0.8.10;
 
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
@@ -75,7 +76,19 @@ contract CurveVoter is Ownable {
     }
 
     function claim(address recipient) external onlyHarvester returns (uint256 amount) {
-        // solhint-disable-next-line not-rely-on-time
+        if (block.timestamp < lastClaimTimestamp + 7 days) {
+            return 0;
+        }
+
+        amount = IFeeDistributor(FEE_DISTRIBUTOR).claim(address(this));
+        lastClaimTimestamp = IFeeDistributor(FEE_DISTRIBUTOR).time_cursor_of(address(this));
+
+        if (amount > 0) {
+            ERC20(CRV3).transfer(recipient, amount);
+        }
+    }
+
+    function claimAll(address recipient) external onlyHarvester returns (uint256 amount) {
         if (block.timestamp < lastClaimTimestamp + 7 days) {
             return 0;
         }

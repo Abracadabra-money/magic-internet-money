@@ -94,7 +94,7 @@ export async function wrappedDeploy<T extends Contract>(name: string, options: D
 
 export async function verifyContract(name: string, address: string, constructorArguments: string[]) {
   if (network.name !== "hardhat") {
-    process.stdout.write(`Verifying ${name}...`);
+    console.log(`Verifying ${name}...`);
     try {
       await hre.run("verify:verify", {
         address,
