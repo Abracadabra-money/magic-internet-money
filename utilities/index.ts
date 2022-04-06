@@ -1,7 +1,7 @@
 import { ParamType } from "@ethersproject/abi";
-import { BigNumber } from "ethers";
-import { DeployFunction } from "hardhat-deploy/types";
-import hre, { ethers, network } from "hardhat"
+import { BigNumber, Contract } from "ethers";
+import { DeployFunction, DeployOptions } from "hardhat-deploy/types";
+import hre, { ethers, network } from "hardhat";
 
 export const BASE_TEN = 10;
 
@@ -66,7 +66,7 @@ export enum ChainId {
   Fantom = 250,
   Arbitrum = 42161,
   Avalanche = 43114,
-  Boba = 288
+  Boba = 288,
 }
 
 export const setDeploymentSupportedChains = (supportedChains: string[], deployFunction: DeployFunction) => {
@@ -81,6 +81,29 @@ export const setDeploymentSupportedChains = (supportedChains: string[], deployFu
           reject(error);
         }
       });
+  }
+};
+
+export async function wrappedDeploy<T extends Contract>(name: string, options: DeployOptions): Promise<T> {
+  await hre.deployments.deploy(name, options);
+  const contract = await ethers.getContract<T>(name);
+  await verifyContract(name, contract.address, options.args || []);
+
+  return contract;
+}
+
+export async function verifyContract(name: string, address: string, constructorArguments: string[]) {
+  if (network.name !== "hardhat") {
+    process.stdout.write(`Verifying ${name}...`);
+    try {
+      await hre.run("verify:verify", {
+        address,
+        constructorArguments,
+      });
+      console.log("[OK]");
+    } catch (e: any) {
+      console.log(`[FAILED] ${e.message}`);
+    }
   }
 }
 
