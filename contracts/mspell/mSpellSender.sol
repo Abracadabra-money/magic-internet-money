@@ -109,7 +109,7 @@ contract mSpellSender is BoringOwnable, ILayerZeroReceiver {
     }
 
     constructor() {
-        MIM.approve(ANY_MIM, type(uint256).max);
+        MIM.approve(address(ANYSWAP_ROUTER), type(uint256).max);
     }
 
     function bridgeMim() external onlyPastNoon {

@@ -42,6 +42,7 @@ contract mSpellReporter {
     }
 
     function withdraw() external {
+        require(msg.sender == refund);
         // get the amount of Ether stored in this contract
         uint amount = address(this).balance;
 
