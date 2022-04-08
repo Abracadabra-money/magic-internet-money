@@ -51,7 +51,7 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
     event LogFeeTo(address indexed newFeeTo);
     event LogWithdrawFees(address indexed feeTo, uint256 feesEarnedFraction);
     event LogInterestChange(uint64 oldInterestRate, uint64 newInterestRate);
-    event LogChangeBorrowLimit(uint256 newLimit);
+    event LogChangeBorrowLimit(uint128 newLimit, uint128 perAddressPart);
     event LogLiquidation(
         address indexed from,
         address indexed user,
@@ -74,7 +74,13 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
     IERC20 public collateral;
     IOracle public oracle;
     bytes public oracleData;
-    uint256 public borrowLimit;
+
+    struct BorrowCap {
+        uint128 total;
+        uint128 borrowPartPerAddress;
+    }
+
+    BorrowCap public borrowLimit;
 
     // Total amounts
     uint256 public totalCollateralShare; // Total collateral supplied
@@ -131,7 +137,7 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
     function init(bytes calldata data) public payable override {
         require(address(collateral) == address(0), "Cauldron: already initialized");
         (collateral, oracle, oracleData, accrueInfo.INTEREST_PER_SECOND, LIQUIDATION_MULTIPLIER, COLLATERIZATION_RATE, BORROW_OPENING_FEE) = abi.decode(data, (IERC20, IOracle, bytes, uint64, uint256, uint256, uint256));
-        borrowLimit = type(uint256).max;
+        borrowLimit = BorrowCap(type(uint128).max, type(uint128).max);
         require(address(collateral) != address(0), "Cauldron: bad pair");
     }
 
@@ -265,10 +271,16 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
         uint256 feeAmount = amount.mul(BORROW_OPENING_FEE) / BORROW_OPENING_FEE_PRECISION; // A flat % fee is charged for any borrow
         (totalBorrow, part) = totalBorrow.add(amount.add(feeAmount), true);
 
-        require(totalBorrow.elastic <= borrowLimit, "Borrow Limit reached");
+        BorrowCap memory cap =  borrowLimit;
+
+        require(totalBorrow.elastic <= cap.total, "Borrow Limit reached");
 
         accrueInfo.feesEarned = accrueInfo.feesEarned.add(uint128(feeAmount));
-        userBorrowPart[msg.sender] = userBorrowPart[msg.sender].add(part);
+        
+        uint256 newBorrowPart = userBorrowPart[msg.sender].add(part);
+        require(newBorrowPart <= cap.borrowPartPerAddress, "Borrow Limit reached");
+
+        userBorrowPart[msg.sender] = newBorrowPart;
 
         // As long as there are tokens on this contract you can 'mint'... this enables limiting borrows
         share = bentoBox.toShare(magicInternetMoney, amount, false);
@@ -592,8 +604,9 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
 
     /// @notice allows to change the borrow limit
     /// @param newBorrowLimit new borrow limit
-    function changeBorrowLimit(uint256 newBorrowLimit) public onlyMasterContractOwner {
-        borrowLimit = newBorrowLimit;
-        emit LogChangeBorrowLimit(newBorrowLimit);
+    /// @param perAddressPart new borrow limit per address
+    function changeBorrowLimit(uint128 newBorrowLimit, uint128 perAddressPart) public onlyMasterContractOwner {
+        borrowLimit = BorrowCap(newBorrowLimit, perAddressPart);
+        emit LogChangeBorrowLimit(newBorrowLimit, perAddressPart);
     }
 }
