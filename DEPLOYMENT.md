@@ -100,6 +100,12 @@
 | ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | EthereumWithdrawer | 0xB2c3A9c577068479B1E5119f6B7da98d25Ba48f4 | Withdraw MIM fees from cauldron and swap for SPELL. Also used as recipient for swapping MIM fees received from other chains. |
 
+### Oracles
+
+| Contract               | Address                                    | Note |
+| ---------------------- | ------------------------------------------ | ---- |
+| YearnChainlinkOracleV3 | 0xA0fA150F11ca5D63353d3460cbF5E15304d4BD57 |      |
+
 ## BSC
 
 ### Utilities

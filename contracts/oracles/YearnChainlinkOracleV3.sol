@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
-import "@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol";
+pragma solidity 0.8.4;
 import "../interfaces/IOracle.sol";
 
 // Chainlink Aggregator
@@ -13,9 +12,7 @@ interface IYearnVault {
     function pricePerShare() external view returns (uint256 price);
 }
 
-contract YearnChainlinkOracle is IOracle {
-    using BoringMath for uint256; // Keep everything in uint256
-
+contract YearnChainlinkOracleV3 is IOracle {
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get(
@@ -26,9 +23,9 @@ contract YearnChainlinkOracle is IOracle {
     ) internal view returns (uint256) {
         uint256 price = uint256(1e36);
         if (multiply != address(0)) {
-            price = price.mul(uint256(IAggregator(multiply).latestAnswer()));
+            price = price * uint256(IAggregator(multiply).latestAnswer());
         } else {
-            price = price.mul(1e18);
+            price = price * 1e18;
         }
 
         if (divide != address(0)) {
@@ -36,7 +33,7 @@ contract YearnChainlinkOracle is IOracle {
         }
 
         // @note decimals have to take into account the decimals of the vault asset
-        return price / decimals.mul(IYearnVault(yearnVault).pricePerShare());
+        return price / (decimals * IYearnVault(yearnVault).pricePerShare());
     }
 
     function getDataParameter(
@@ -50,11 +47,11 @@ contract YearnChainlinkOracle is IOracle {
 
     // Get the latest exchange rate
     /// @inheritdoc IOracle
-    function get(bytes calldata data) public override returns (bool, uint256) {
+    function get(bytes calldata data) public view override returns (bool, uint256) {
         (address multiply, address divide, uint256 decimals, address yearnVault) = abi.decode(data, (address, address, uint256, address));
         return (true, _get(multiply, divide, decimals, yearnVault));
     }
-
+    
     // Check the last exchange rate without any state changes
     /// @inheritdoc IOracle
     function peek(bytes calldata data) public view override returns (bool, uint256) {

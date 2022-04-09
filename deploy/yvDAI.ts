@@ -1,0 +1,116 @@
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { DeployFunction } from "hardhat-deploy/types";
+import { ethers, network } from "hardhat";
+import { ChainId, wrappedDeploy } from "../utilities";
+import { DegenBox, ProxyOracle, YearnChainlinkOracleV3 } from "../typechain";
+import { expect } from "chai";
+import { xMerlin } from "../test/constants";
+
+// List of supported chains to deploy on
+const supportedChains = [ChainId.Mainnet];
+
+export const ParametersPerChain = {
+  [ChainId.Mainnet]: {
+    cauldronDeploymentName: "yvDAICauldron",
+    degenBox: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
+    cauldronV2MasterContract: "0x476b1E35DDE474cB9Aa1f6B85c9Cc589BFa85c1F",
+    oracle: "0xA0fA150F11ca5D63353d3460cbF5E15304d4BD57", // YearnChainlinkV3
+
+    // multiply: 0x0000000000000000000000000000000000000000
+    // divide: 0x0000000000000000000000000000000000000000
+    // decimals: 1000000000000000000
+    // yearnVault: 0xdA816459F1AB5631232FE5e97a05BBBb94970c95
+    oracleData: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a7640000000000000000000000000000da816459f1ab5631232fe5e97a05bbbb94970c95",
+    collateral: "0xdA816459F1AB5631232FE5e97a05BBBb94970c95", // yvDAI
+    proxyOracleDeploymentName: "YVDAIOracleProxy",
+    swapperName: "YVDAISwapper",
+    levSwapperName: "YVDAILevSwapper",
+  },
+};
+
+const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  const { deployments, getNamedAccounts } = hre;
+  const { deploy } = deployments;
+
+  const { deployer } = await getNamedAccounts();
+  const chainId = await hre.getChainId();
+  const parameters = ParametersPerChain[parseInt(chainId)];
+
+  const INTEREST_CONVERSION = 1e18 / (365.25 * 3600 * 24) / 100;
+  const OPENING_CONVERSION = 1e5 / 100;
+
+  const collateralization = 98 * 1e3; // 98% LTV
+  const opening = 0.0 * OPENING_CONVERSION; // 0% borrow initial fee
+  const interest = parseInt(String(0 * INTEREST_CONVERSION)); // 0% Interest
+  const liquidation = 0.5 * 1e3 + 1e5; // .5% liquidation fee
+
+  // Proxy Oracle
+  await wrappedDeploy(parameters.proxyOracleDeploymentName, {
+    from: deployer,
+    args: [],
+    log: true,
+    contract: "ProxyOracle",
+    deterministicDeployment: false,
+  });
+
+  // Cauldron
+  const DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", parameters.degenBox);
+  const ProxyOracle = await ethers.getContract<ProxyOracle>(parameters.proxyOracleDeploymentName);
+
+  let initData = ethers.utils.defaultAbiCoder.encode(
+    ["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"],
+    [parameters.collateral, ProxyOracle.address, parameters.oracleData, interest, liquidation, collateralization, opening]
+  );
+
+  const tx = await (await DegenBox.deploy(parameters.cauldronV2MasterContract, initData, true)).wait();
+
+  const deployEvent = tx?.events?.[0];
+  expect(deployEvent?.eventSignature).to.be.eq("LogDeploy(address,bytes,address)");
+
+  // Register the deployment so it's available within the test using `getContract`
+  deployments.save(parameters.cauldronDeploymentName, {
+    abi: [],
+    address: deployEvent?.args?.cloneAddress,
+  });
+
+  // Liquidation Swapper
+  await wrappedDeploy(parameters.swapperName, {
+    from: deployer,
+    args: [],
+    log: true,
+    deterministicDeployment: false,
+  });
+
+  // Leverage Swapper
+  await wrappedDeploy(parameters.levSwapperName, {
+    from: deployer,
+    args: [],
+    log: true,
+    deterministicDeployment: false,
+  });
+
+  if ((await ProxyOracle.oracleImplementation()) !== parameters.oracle) {
+    await (await ProxyOracle.changeOracleImplementation(parameters.oracle)).wait();
+  }
+  if ((await ProxyOracle.owner()) !== xMerlin) {
+    await (await ProxyOracle.transferOwnership(xMerlin, true, false)).wait();
+  }
+};
+
+export default deployFunction;
+
+if (network.name !== "hardhat") {
+  deployFunction.skip = ({ getChainId }) =>
+    new Promise(async (resolve, reject) => {
+      try {
+        getChainId().then((chainId) => {
+          resolve(supportedChains.indexOf(parseInt(chainId)) === -1);
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+}
+
+deployFunction.tags = ["yvDAI"];
+deployFunction.dependencies = [];
