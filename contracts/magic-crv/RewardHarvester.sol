@@ -12,6 +12,8 @@ import "../interfaces/curve/ICurvePool.sol";
 interface ICurveVoter {
     function lock() external;
 
+    function claimAll(address recipient) external returns (uint256 amount);
+
     function claim(address recipient) external returns (uint256 amount);
 }
 
@@ -48,14 +50,24 @@ contract RewardHarvester is Ownable {
     }
 
     function harvest(uint256 minAmountOut) external onlyAllowedHarvesters returns (uint256 amountOut) {
-        uint256 crv3Balance = curveVoter.claim(address(this));
+        uint256 crvAmount = curveVoter.claim(address(this));
 
-        if (crv3Balance == 0) {
-            return 0;
+        if (crvAmount != 0) {
+            amountOut = _harvest(crvAmount, minAmountOut);
         }
+    }
 
+    function harvestAll(uint256 minAmountOut) external onlyAllowedHarvesters returns (uint256 amountOut) {
+        uint256 crvAmount = curveVoter.claimAll(address(this));
+
+        if (crvAmount != 0) {
+            amountOut = _harvest(crvAmount, minAmountOut);
+        }
+    }
+
+    function _harvest(uint256 crvAmount, uint256 minAmountOut) private returns (uint256 amountOut) {
         // 3CRV -> USDT
-        CRV3POOL.remove_liquidity_one_coin(crv3Balance, 2, 0);
+        CRV3POOL.remove_liquidity_one_coin(crvAmount, 2, 0);
 
         // USDT -> WETH
         TRICRYPTO.exchange(0, 2, USDT.balanceOf(address(this)), 0);

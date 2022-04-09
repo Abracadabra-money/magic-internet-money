@@ -6,9 +6,9 @@
 
 | Contract        | Address                                    |
 | --------------- | ------------------------------------------ |
-| MagicCRV        | 0x98BF3E7da6f5A81630730d538715E35d8c0D3eDE |
-| CurveVoter      | 0xAC6C439253987Be9aFF6AaC047EC8501eA13d512 |
-| RewardHarvester | 0x79533F85479e04d2214305638B6586b724beC951 |
+| MagicCRV        | 0x79317218de52Dfa2a233a3AeED098161889418c7 |
+| CurveVoter      | 0x0b5E135FfBCd93F1323bdEF45c1bEa5887588dfD |
+| RewardHarvester | 0x71c7267D4C5A4b54F6F995f66AD51F13dc688D6b |
 
 ### Cauldrons
 
