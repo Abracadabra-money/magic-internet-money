@@ -1,22 +1,27 @@
 /* eslint-disable prefer-const */
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
-import { ChainId, impersonate } from "../utilities";
-import { DegenBox, ERC20Mock, ProxyOracle } from "../typechain";
+import { advanceTime, ChainId, duration, getBigNumber, impersonate } from "../utilities";
+import { DegenBox, ERC20Mock, ISwapperGeneric, ProxyOracle } from "../typechain";
 import { expect } from "chai";
 import { CauldronV3 } from "../typechain/CauldronV3";
 import { Constants } from "./constants";
+import { Signer } from "ethers";
 
-// stkFrax3Crv
-const collateral = "0xb24BE15aB68DC8bC5CC62183Af1eBE9Ecd043250";
+const ustWhale = "0xf977814e90da44bfa03b6295a0616a897441acec";
+const mimWhale = "0xbbc4A8d076F4B1888fec42581B6fc58d242CF2D5";
 
 describe("CauldronV3", async () => {
   let snapshotId;
   let MIM: ERC20Mock;
-  let Cauldron: CauldronV3;
+  let UST: ERC20Mock;
   let DegenBox: DegenBox;
   let CauldronV3MasterContract: CauldronV3;
+  let Cauldron: CauldronV3;
+  let OracleMock: OracleMock;
+  let degenBoxOwnerSigner: Signer;
+  let USTSwapperMock: USTSwapperMock;
 
-  const deployCauldronProxy = async (): Promise<CauldronV3> => {
+  const deployCauldronProxy = async () => {
     const INTEREST_CONVERSION = 1e18 / (365.25 * 3600 * 24) / 100;
     const OPENING_CONVERSION = 1e5 / 100;
 
@@ -28,19 +33,44 @@ describe("CauldronV3", async () => {
 
     const DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", Constants.mainnet.degenBox);
 
-    // get a random proxy oracle for testing (Frax3Crv)
-    const ProxyOracle = await ethers.getContractAt<ProxyOracle>("ProxyOracle", "0x66a809a31E6909C835219cC09eA0f52135fF0a11");
+    OracleMock = await (await ethers.getContractFactory("OracleMock")).deploy();
+    await OracleMock.set(getBigNumber(1));
 
     let initData = ethers.utils.defaultAbiCoder.encode(
       ["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"],
-      [collateral, ProxyOracle.address, ethers.constants.AddressZero, interest, liquidation, collateralization, opening]
+      [Constants.mainnet.ust, OracleMock.address, ethers.constants.AddressZero, interest, liquidation, collateralization, opening]
     );
 
     const tx = await (await DegenBox.deploy(CauldronV3MasterContract.address, initData, true)).wait();
     const deployEvent = tx?.events?.[0];
     expect(deployEvent?.eventSignature).to.be.eq("LogDeploy(address,bytes,address)");
 
-    return ethers.getContractAt<CauldronV3>("CauldronV3", deployEvent?.args?.cloneAddress);
+    Cauldron = await ethers.getContractAt<CauldronV3>("CauldronV3", deployEvent?.args?.cloneAddress);
+  };
+
+  const addCollateral = async (cauldron, signer, amount) => {
+    await DegenBox.connect(signer).setMasterContractApproval(
+      signer.address,
+      CauldronV3MasterContract.address,
+      true,
+      0,
+      ethers.constants.HashZero,
+      ethers.constants.HashZero
+    );
+
+    const share = await DegenBox.toShare(UST.address, amount, false);
+    await UST.connect(signer).approve(DegenBox.address, ethers.constants.MaxUint256);
+    await DegenBox.connect(signer).deposit(UST.address, signer.address, signer.address, 0, share);
+    await cauldron.connect(signer).addCollateral(signer.address, false, share);
+  };
+
+  const borrow = async (cauldron, signer, amount) => {
+    await cauldron.connect(signer).borrow(signer.address, amount);
+  };
+
+  const removeCollateral = async (cauldron, signer, amount) => {
+    const share = await DegenBox.toShare(UST.address, amount, false);
+    await cauldron.connect(signer).removeCollateral(signer.address, share);
   };
 
   before(async () => {
@@ -59,19 +89,34 @@ describe("CauldronV3", async () => {
     hre.getChainId = () => Promise.resolve(ChainId.Mainnet.toString());
     await deployments.fixture(["CauldronV3MasterContractMainnet"]);
 
+    const [, alice] = await ethers.getSigners();
     DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", Constants.mainnet.degenBox);
+    UST = await ethers.getContractAt<ERC20Mock>("ERC20Mock", Constants.mainnet.ust);
+    MIM = await ethers.getContractAt<ERC20Mock>("ERC20Mock", Constants.mainnet.mim);
+
     CauldronV3MasterContract = await ethers.getContract<CauldronV3>("CauldronV3MasterContractMainnet");
 
     // whitelist to degenbox
     const degenBoxOwner = await DegenBox.owner();
     await impersonate(degenBoxOwner);
-    const degenBoxOwnerSigner = await ethers.getSigner(degenBoxOwner);
-
-    // deploy dummy cauldronv3 proxy contract
-    Cauldron = await deployCauldronProxy();
-
+    degenBoxOwnerSigner = await ethers.getSigner(degenBoxOwner);
     await DegenBox.connect(degenBoxOwnerSigner).whitelistMasterContract(CauldronV3MasterContract.address, true);
 
+    await impersonate(ustWhale);
+    const spellWhaleSigner = await ethers.getSigner(ustWhale);
+    await UST.connect(spellWhaleSigner).transfer(alice.address, await UST.balanceOf(ustWhale));
+
+    await deployCauldronProxy();
+    const exchangeRate = await Cauldron.exchangeRate();
+    expect(exchangeRate).to.be.gt(0);
+
+    await impersonate(mimWhale);
+    const mimWhaleSigner = await ethers.getSigner(mimWhale);
+    await MIM.connect(mimWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
+    await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, mimWhale, mimWhale, getBigNumber(10_000_000), 0);
+    await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, mimWhale, Cauldron.address, getBigNumber(10_000_000), 0);
+
+    USTSwapperMock = await (await ethers.getContractFactory("USTSwapperMock")).deploy();
     snapshotId = await ethers.provider.send("evm_snapshot", []);
   });
 
@@ -80,5 +125,43 @@ describe("CauldronV3", async () => {
     snapshotId = await ethers.provider.send("evm_snapshot", []);
   });
 
-  it("should", async () => {});
+  it("should not allow more than borrow limit", async () => {
+    const [deployer, alice] = await ethers.getSigners();
+
+    await addCollateral(Cauldron, alice, getBigNumber(20_000_000));
+    await borrow(Cauldron, alice, getBigNumber(50_000));
+    await Cauldron.connect(deployer).changeBorrowLimit(getBigNumber(100));
+    await expect(borrow(Cauldron, alice, getBigNumber(101))).to.be.revertedWith("Borrow Limit reached");
+    await Cauldron.connect(deployer).changeBorrowLimit(getBigNumber(99));
+    await Cauldron.connect(alice).repay(alice.address, false, getBigNumber(99));
+    await Cauldron.connect(deployer).changeBorrowLimit(getBigNumber(99));
+    await expect(borrow(Cauldron, alice, getBigNumber(2))).to.be.revertedWith("Borrow Limit reached");
+  });
+
+  it("should not allow increasing interest rate more that 75%", async () => {
+    const { INTEREST_PER_SECOND } = await Cauldron.accrueInfo();
+    await expect(Cauldron.changeInterestRate(INTEREST_PER_SECOND.add(INTEREST_PER_SECOND.mul(75).div(100)))).to.be.revertedWith(
+      "Interest rate increase > 75%"
+    );
+    const newInterestRate = INTEREST_PER_SECOND.add(INTEREST_PER_SECOND.mul(74).div(100));
+    await Cauldron.changeInterestRate(newInterestRate);
+    expect((await Cauldron.accrueInfo()).INTEREST_PER_SECOND).to.be.eq(newInterestRate);
+  });
+
+  it("should allow decreasomg interest rate more that 75%", async () => {
+    const { INTEREST_PER_SECOND } = await Cauldron.accrueInfo();
+    const newInterestRate = INTEREST_PER_SECOND.sub(INTEREST_PER_SECOND.mul(90).div(100));
+    await Cauldron.changeInterestRate(newInterestRate);
+    expect((await Cauldron.accrueInfo()).INTEREST_PER_SECOND).to.be.eq(newInterestRate);
+  });
+
+  it("should only allow changing the interest reate every 3 days", async () => {
+    const { INTEREST_PER_SECOND } = await Cauldron.accrueInfo();
+    await Cauldron.changeInterestRate(INTEREST_PER_SECOND.add(INTEREST_PER_SECOND.mul(1).div(100)));
+    await expect(Cauldron.changeInterestRate(INTEREST_PER_SECOND.add(INTEREST_PER_SECOND.mul(1).div(100)))).to.be.revertedWith(
+      "Update only every 3 days"
+    );
+    await advanceTime(duration.days(3));
+    await Cauldron.changeInterestRate(INTEREST_PER_SECOND.add(INTEREST_PER_SECOND.mul(1).div(100)));
+  });
 });
