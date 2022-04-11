@@ -27,7 +27,7 @@ describe("CauldronV3", async () => {
 
     // 85% LTV .5% initial 3% Interest, 8% fee
     const collateralization = 85 * 1e3; // 85% LTV
-    const opening = 0.5 * OPENING_CONVERSION; // .5% initial
+    const opening = 0 * OPENING_CONVERSION; // 0% initial
     const interest = parseInt(String(3 * INTEREST_CONVERSION)); // 3% Interest
     const liquidation = 8 * 1e3 + 1e5; // 8% fee
 
@@ -89,7 +89,7 @@ describe("CauldronV3", async () => {
     hre.getChainId = () => Promise.resolve(ChainId.Mainnet.toString());
     await deployments.fixture(["CauldronV3MasterContractMainnet"]);
 
-    const [, alice] = await ethers.getSigners();
+    const [, alice, bob] = await ethers.getSigners();
     DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", Constants.mainnet.degenBox);
     UST = await ethers.getContractAt<ERC20Mock>("ERC20Mock", Constants.mainnet.ust);
     MIM = await ethers.getContractAt<ERC20Mock>("ERC20Mock", Constants.mainnet.mim);
@@ -104,7 +104,8 @@ describe("CauldronV3", async () => {
 
     await impersonate(ustWhale);
     const spellWhaleSigner = await ethers.getSigner(ustWhale);
-    await UST.connect(spellWhaleSigner).transfer(alice.address, await UST.balanceOf(ustWhale));
+    await UST.connect(spellWhaleSigner).transfer(alice.address, (await UST.balanceOf(ustWhale)).div(2));
+    await UST.connect(spellWhaleSigner).transfer(bob.address, await UST.balanceOf(ustWhale));
 
     await deployCauldronProxy();
     const exchangeRate = await Cauldron.exchangeRate();
@@ -126,15 +127,30 @@ describe("CauldronV3", async () => {
   });
 
   it("should not allow more than borrow limit", async () => {
-    const [deployer, alice] = await ethers.getSigners();
+    const [deployer, alice, bob] = await ethers.getSigners();
 
-    await addCollateral(Cauldron, alice, getBigNumber(20_000_000));
-    await borrow(Cauldron, alice, getBigNumber(50_000));
-    await Cauldron.connect(deployer).changeBorrowLimit(getBigNumber(100));
-    await expect(borrow(Cauldron, alice, getBigNumber(101))).to.be.revertedWith("Borrow Limit reached");
-    await Cauldron.connect(deployer).changeBorrowLimit(getBigNumber(99));
+    await addCollateral(Cauldron, alice, getBigNumber(5_000_000));
+    await addCollateral(Cauldron, bob, getBigNumber(5_000_000));
+
+    await borrow(Cauldron, alice, getBigNumber(100));
+    await Cauldron.connect(deployer).changeBorrowLimit(getBigNumber(60), getBigNumber(50));
+    await expect(borrow(Cauldron, alice, getBigNumber(51))).to.be.revertedWith("Borrow Limit reached");
+
+    // alice already borrowed 50_000 before the new limit was applied.
+    await expect(borrow(Cauldron, alice, getBigNumber(50))).to.be.revertedWith("Borrow Limit reached");
+
+    await Cauldron.connect(deployer).changeBorrowLimit(getBigNumber(30_000), getBigNumber(20_000));
+
+    await borrow(Cauldron, alice, getBigNumber(19_900));
+    await expect(borrow(Cauldron, bob, getBigNumber(20_000))).to.be.revertedWith("Borrow Limit reached");
+    await expect(borrow(Cauldron, bob, getBigNumber(10_001))).to.be.revertedWith("Borrow Limit reached");
+    await borrow(Cauldron, bob, getBigNumber(9_999)); // 30k - 20k = ~10k
+
+    await expect(borrow(Cauldron, bob, getBigNumber(40))).to.be.revertedWith("Borrow Limit reached");
+
+    await Cauldron.connect(deployer).changeBorrowLimit(getBigNumber(99), getBigNumber(9999999));
     await Cauldron.connect(alice).repay(alice.address, false, getBigNumber(99));
-    await Cauldron.connect(deployer).changeBorrowLimit(getBigNumber(99));
+    await Cauldron.connect(deployer).changeBorrowLimit(getBigNumber(99), getBigNumber(9999999));
     await expect(borrow(Cauldron, alice, getBigNumber(2))).to.be.revertedWith("Borrow Limit reached");
   });
 
@@ -148,7 +164,7 @@ describe("CauldronV3", async () => {
     expect((await Cauldron.accrueInfo()).INTEREST_PER_SECOND).to.be.eq(newInterestRate);
   });
 
-  it("should allow decreasomg interest rate more that 75%", async () => {
+  it("should'nt allow decreasing interest rate more that 75%", async () => {
     const { INTEREST_PER_SECOND } = await Cauldron.accrueInfo();
     const newInterestRate = INTEREST_PER_SECOND.sub(INTEREST_PER_SECOND.mul(90).div(100));
     await Cauldron.changeInterestRate(newInterestRate);
