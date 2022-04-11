@@ -568,7 +568,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     }
 
     /// @dev Helper function to perform a contract call and eventually extracting revert messages on failure.
-    /// Calls to `bentoBox` are not allowed for obvious security reasons.
+    /// Calls to `bentoBox` or `collateral` are not allowed for security reasons.
     /// This also means that calls made from this contract shall *not* be trusted.
     function _call(
         uint256 value,
@@ -589,7 +589,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
             callData = abi.encodePacked(callData, value1, value2);
         }
 
-        require(callee != address(bentoBox) && callee != address(this), "NFTPair: can't call");
+        require(callee != address(bentoBox) && callee != address(collateral) && callee != address(this), "NFTPair: can't call");
 
         (bool success, bytes memory returnData) = callee.call{value: value}(callData);
         require(success, "NFTPair: call failed");

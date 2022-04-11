@@ -119,11 +119,13 @@ describe("NFT Pair", async () => {
     });
 
   // Specific to the mock implementation..
-  const mintApe = async (ownerAddress) => {
-    const id = await apes.totalSupply();
-    await apes.mint(ownerAddress);
+  // TODO: Upgrade BoringSolidity to version that returns the ID:
+  const mintToken = async (mockContract, ownerAddress) => {
+    const id = await mockContract.totalSupply();
+    await mockContract.mint(ownerAddress);
     return id;
   };
+  const mintApe = (ownerAddress) => mintToken(apes, ownerAddress);
 
   before(async () => {
     const weth = await deployContract("WETH9Mock");
@@ -1340,7 +1342,11 @@ describe("NFT Pair", async () => {
       // use a helper method that basically does everything we just did again:
       const sig = await wallet._signTypedData(
         // The stuff going into DOMAIN_SEPARATOR:
-        { name: hashUtf8String("BentoBox V1"), chainId, verifyingContract: bentoBox.address },
+        {
+          name: hashUtf8String("BentoBox V1"),
+          chainId,
+          verifyingContract: bentoBox.address,
+        },
 
         // sigHash
         { SetMasterContractApproval: sigTypes },
@@ -1434,6 +1440,31 @@ describe("NFT Pair", async () => {
         defaultAbiCoder.encode(["bytes32", "bytes32", "uint256", "address"], [hash, hashUtf8String("BentoBox V1"), chainId, bentoBox.address])
       );
       expect(domainSeparator).to.equal(await bentoBox.DOMAIN_SEPARATOR());
+    });
+
+    it("Should disallow taking collateral NFTs via ACTION_CALL", async () => {
+      // To supply collateral, we have to approve the NFT pair to spend our
+      // tokens. If we also allow arbitrary calls to the collateral token, then
+      // this can be used to steal NFTs:
+      const takeNftFrom = (contract, owner, tokenId) => {
+        const params = encodeParameters(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [contract.address, contract.interface.encodeFunctionData("transferFrom", [owner.address, bob.address, tokenId]), false, false, 0]
+        );
+        return pair.connect(bob).cook([ACTION_CALL], [0], [params]);
+      };
+      await expect(takeNftFrom(apes, alice, apeIds.aliceOne)).to.be.revertedWith("NFTPair: can't call");
+
+      // As an extra check, the same call for some other token works - if an
+      // owner has ill-advisedly allowed the pair to spend that other token:
+      const bears = await deployContract("ERC721Mock");
+      const carolBearId = await mintToken(bears, carol.address);
+      // WIthout approval:
+      await expect(takeNftFrom(bears, carol, carolBearId)).to.be.revertedWith("NFTPair: call failed");
+
+      // With approval:
+      await bears.connect(carol).setApprovalForAll(pair.address, true);
+      await expect(takeNftFrom(bears, carol, carolBearId)).to.emit(bears, "Transfer").withArgs(carol.address, bob.address, carolBearId);
     });
 
     // Failing the approval request; types in sig not an exact match, so have to
