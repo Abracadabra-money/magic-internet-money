@@ -867,12 +867,9 @@ describe("NFT Pair", async () => {
       }
     });
 
-    // Ops happen to have the same method signature other than their name:
-    const signRequest = async (wallet, op: "Lend" | "Borrow", { tokenId, valuation, expiration, annualInterestBPS, deadline }) => {
+    const signBorrowRequest = async (wallet, { tokenId, valuation, expiration, annualInterestBPS, deadline }) => {
       const sigTypes = [
         { name: "contract", type: "address" },
-        { name: "collateral", type: "address" },
-        { name: "asset", type: "address" },
         { name: "tokenId", type: "uint256" },
         { name: "valuation", type: "uint128" },
         { name: "expiration", type: "uint64" },
@@ -882,13 +879,11 @@ describe("NFT Pair", async () => {
       ];
       // const sigArgs = sigTypes.map((t) => t.type + " " + t.name);
       // const sigHash = keccak256(
-      //   toUtf8Bytes(op + "(" + sigArgs.join(",") + ")")
+      //   toUtf8Bytes("Borrow(" + sigArgs.join(",") + ")")
       // );
 
       const sigValues = {
         contract: pair.address,
-        collateral: apes.address,
-        asset: guineas.address,
         tokenId,
         valuation,
         expiration,
@@ -915,7 +910,39 @@ describe("NFT Pair", async () => {
         { chainId, verifyingContract: masterContract.address },
 
         // sigHash
-        { [op]: sigTypes },
+        { Borrow: sigTypes },
+        sigValues
+      );
+      return splitSignature(sig);
+    };
+
+    const signLendRequest = async (wallet, { tokenId, anyTokenId, valuation, expiration, annualInterestBPS, deadline }) => {
+      const sigTypes = [
+        { name: "contract", type: "address" },
+        { name: "tokenId", type: "uint256" },
+        { name: "anyTokenId", type: "bool" },
+        { name: "valuation", type: "uint128" },
+        { name: "expiration", type: "uint64" },
+        { name: "annualInterestBPS", type: "uint16" },
+        { name: "nonce", type: "uint256" },
+        { name: "deadline", type: "uint256" },
+      ];
+      const sigValues = {
+        contract: pair.address,
+        tokenId,
+        anyTokenId,
+        valuation,
+        expiration,
+        annualInterestBPS,
+        nonce: 0,
+        deadline,
+      };
+      const sig = await wallet._signTypedData(
+        // The stuff going into DOMAIN_SEPARATOR:
+        { chainId, verifyingContract: masterContract.address },
+
+        // sigHash
+        { Lend: sigTypes },
         sigValues
       );
       return splitSignature(sig);
@@ -938,8 +965,9 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { v, r, s } = await signRequest(bob, "Lend", {
+        const { v, r, s } = await signLendRequest(bob, {
           tokenId: apeIds.carolOne,
+          anyTokenId: false,
           valuation,
           expiration,
           annualInterestBPS,
@@ -956,6 +984,47 @@ describe("NFT Pair", async () => {
               carol.address,
               { valuation, expiration, annualInterestBPS },
               false,
+              false,
+              deadline,
+              v,
+              r,
+              s
+            )
+        )
+          .to.emit(pair, "LogRequestLoan")
+          .to.emit(pair, "LogLend");
+      });
+
+      it("Should support pre-approving a loan request for any token", async () => {
+        // Bob agrees to lend 100 guineas agaist any ape, to be repaid
+        // no later one year from now. This offer is good for one hour, and can
+        // be taken up by anyone who can provide the token (and the signature).
+        const { timestamp } = await ethers.provider.getBlock("latest");
+        const valuation = getBigNumber(100);
+        const expiration = timestamp + 365 * 24 * 3600;
+        const annualInterestBPS = 15000;
+        const deadline = timestamp + 3600;
+
+        const { v, r, s } = await signLendRequest(bob, {
+          tokenId: 0,
+          anyTokenId: true,
+          valuation,
+          expiration,
+          annualInterestBPS,
+          deadline,
+        });
+
+        // Carol takes the loan:
+        await expect(
+          pair
+            .connect(carol)
+            .requestAndBorrow(
+              apeIds.carolOne,
+              bob.address,
+              carol.address,
+              { valuation, expiration, annualInterestBPS },
+              false,
+              true,
               deadline,
               v,
               r,
@@ -973,8 +1042,9 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signRequest(bob, "Lend", {
+        const { r, s, v } = await signLendRequest(bob, {
           tokenId: apeIds.carolOne,
+          anyTokenId: false,
           valuation,
           expiration,
           annualInterestBPS,
@@ -993,7 +1063,7 @@ describe("NFT Pair", async () => {
           const altered = BigNumber.from(value).add(1);
           const badLoanParams = { ...loanParams, [key]: altered };
           await expect(
-            pair.connect(carol).requestAndBorrow(apeIds.carolOne, bob.address, carol.address, badLoanParams, false, deadline, v, r, s)
+            pair.connect(carol).requestAndBorrow(apeIds.carolOne, bob.address, carol.address, badLoanParams, false, false, deadline, v, r, s)
           ).to.be.revertedWith("NFTPair: signature invalid");
         }
       });
@@ -1005,8 +1075,9 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signRequest(bob, "Lend", {
+        const { r, s, v } = await signLendRequest(bob, {
           tokenId: apeIds.carolOne,
+          anyTokenId: false,
           valuation,
           expiration,
           annualInterestBPS,
@@ -1016,7 +1087,7 @@ describe("NFT Pair", async () => {
         const loanParams = { valuation, expiration, annualInterestBPS };
         // Carol tries to take the loan from Alice instead and fails:
         await expect(
-          pair.connect(carol).requestAndBorrow(apeIds.carolOne, alice.address, carol.address, loanParams, false, deadline, v, r, s)
+          pair.connect(carol).requestAndBorrow(apeIds.carolOne, alice.address, carol.address, loanParams, false, false, deadline, v, r, s)
         ).to.be.revertedWith("NFTPair: signature invalid");
       });
 
@@ -1027,8 +1098,9 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signRequest(bob, "Lend", {
+        const { r, s, v } = await signLendRequest(bob, {
           tokenId: apeIds.carolOne,
+          anyTokenId: false,
           valuation,
           expiration,
           annualInterestBPS,
@@ -1036,7 +1108,7 @@ describe("NFT Pair", async () => {
         });
 
         const loanParams = { valuation, expiration, annualInterestBPS };
-        const successParams = [apeIds.carolOne, bob.address, carol.address, loanParams, false, deadline, v, r, s] as const;
+        const successParams = [apeIds.carolOne, bob.address, carol.address, loanParams, false, false, deadline, v, r, s] as const;
 
         // Request fails because the deadline has expired:
         await advanceNextTime(3601);
@@ -1050,8 +1122,9 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signRequest(bob, "Lend", {
+        const { r, s, v } = await signLendRequest(bob, {
           tokenId: apeIds.carolOne,
+          anyTokenId: false,
           valuation,
           expiration,
           annualInterestBPS,
@@ -1059,7 +1132,7 @@ describe("NFT Pair", async () => {
         });
 
         const loanParams = { valuation, expiration, annualInterestBPS };
-        const successParams = [apeIds.carolOne, bob.address, carol.address, loanParams, false, deadline, v, r, s] as const;
+        const successParams = [apeIds.carolOne, bob.address, carol.address, loanParams, false, false, deadline, v, r, s] as const;
 
         // It works the first time:
         await expect(pair.connect(carol).requestAndBorrow(...successParams)).to.emit(pair, "LogLend");
@@ -1090,7 +1163,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signRequest(bob, "Borrow", {
+        const { r, s, v } = await signBorrowRequest(bob, {
           tokenId: apeIds.bobTwo,
           valuation,
           expiration,
@@ -1115,7 +1188,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signRequest(bob, "Borrow", {
+        const { r, s, v } = await signBorrowRequest(bob, {
           tokenId: apeIds.bobTwo,
           valuation,
           expiration,
@@ -1140,7 +1213,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signRequest(bob, "Borrow", {
+        const { r, s, v } = await signBorrowRequest(bob, {
           tokenId: apeIds.bobTwo,
           valuation,
           expiration,
@@ -1162,7 +1235,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signRequest(bob, "Borrow", {
+        const { r, s, v } = await signBorrowRequest(bob, {
           tokenId: apeIds.bobTwo,
           valuation,
           expiration,
@@ -1185,7 +1258,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signRequest(bob, "Borrow", {
+        const { r, s, v } = await signBorrowRequest(bob, {
           tokenId: apeIds.bobTwo,
           valuation,
           expiration,

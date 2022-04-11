@@ -313,11 +313,11 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     // chain ID and master contract are a match, so we explicitly include the
     // clone address (and the asset/collateral addresses):
 
-    // keccak256("Lend(address contract,address collateral,address asset,uint256 tokenId,uint128 valuation,uint64 expiration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
-    bytes32 private constant LEND_SIGNATURE_HASH = 0x44f4000de30f585f1aaa8bfe6d64c9ecd4b2dba96ea2dc018842bebb898f633e;
+    // keccak256("Lend(address contract,uint256 tokenId,bool anyTokenId,uint128 valuation,uint64 expiration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
+    bytes32 private constant LEND_SIGNATURE_HASH = 0x9bcf99059e3c2bf4522b1950b84c7777535a4a54075afadd793dc5f00a5e7aa9;
 
-    // keccak256("Borrow(address contract,address collateral,address asset,uint256 tokenId,uint128 valuation,uint64 expiration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
-    bytes32 private constant BORROW_SIGNATURE_HASH = 0x2b94e9fcff6aa909e2fc3a768cb30b34e00cdca4a6f2d1a5487bb667b77e7c2f;
+    // keccak256("Borrow(address contract,uint256 tokenId,uint128 valuation,uint64 expiration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
+    bytes32 private constant BORROW_SIGNATURE_HASH = 0x2a060161383de688deddeac5b5c10a5ded88b7f78db776edf545b1e427997c09;
 
     /// @notice Request and immediately borrow from a pre-committed lender
 
@@ -327,12 +327,14 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     /// @param recipient Address to receive the loan.
     /// @param params Loan parameters requested, and signed by the lender
     /// @param skimCollateral True if the collateral has already been transfered
+    /// @param anyTokenId Set if lender agreed to any token. Must have tokenId 0 in signature.
     function requestAndBorrow(
         uint256 tokenId,
         address lender,
         address recipient,
         TokenLoanParams memory params,
         bool skimCollateral,
+        bool anyTokenId,
         uint256 deadline,
         uint8 v,
         bytes32 r,
@@ -344,9 +346,8 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
             abi.encode(
                 LEND_SIGNATURE_HASH,
                 address(this),
-                address(collateral),
-                address(asset),
-                tokenId,
+                anyTokenId ? 0 : tokenId,
+                anyTokenId,
                 params.valuation,
                 params.expiration,
                 params.annualInterestBPS,
@@ -381,8 +382,6 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
             abi.encode(
                 BORROW_SIGNATURE_HASH,
                 address(this),
-                address(collateral),
-                address(asset),
                 tokenId,
                 params.valuation,
                 params.expiration,
@@ -653,12 +652,13 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
                     address recipient,
                     TokenLoanParams memory params,
                     bool skimCollateral,
+                    bool anyTokenId,
                     uint256 deadline,
                     uint8 v,
                     bytes32 r,
                     bytes32 s
-                ) = abi.decode(datas[i], (uint256, address, address, TokenLoanParams, bool, uint256, uint8, bytes32, bytes32));
-                requestAndBorrow(tokenId, lender, recipient, params, skimCollateral, deadline, v, r, s);
+                ) = abi.decode(datas[i], (uint256, address, address, TokenLoanParams, bool, bool, uint256, uint8, bytes32, bytes32));
+                requestAndBorrow(tokenId, lender, recipient, params, skimCollateral, anyTokenId, deadline, v, r, s);
             } else if (action == ACTION_TAKE_COLLATERAL_AND_LEND) {
                 (
                     uint256 tokenId,
