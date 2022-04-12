@@ -38,6 +38,12 @@
 | YVMIM3CRVOracle          | 0x547fD22A2d2A9e109A78eB88Fc640D166a64d45F |                                            |
 | YVMIM3CRVSwapper         | 0x05e46FFD98F94F62cC2817d54D5F0B1FD065B76d | Liquidation Swapper                        |
 | YVMIM3CRVLevSwapper      | 0x9b2794Aeff2E6Bd2b3e32e095E878bF17EB6BdCC | Leverage Swapper                           |
+| **yvDAI**                |                                            |                                            |
+| yvDAICauldron            | 0xB7DD8fa14b48e96437d3Ed5B6AF85f94D9705719 | 90% LTV 0% initial 0% Interest, .5% fee    |
+| YVDAIOracleProxy         | 0x39DBa7955cEE12578B7548dF7eBf88F835d51bE1 | YVDAIOracleV1                              |
+| YVDAIOracleV1            | 0xaB137bb12e93fEdB8B639771c4C4fE29aC138Ee6 |                                            |
+| YVDAISwapper             | 0xdb3A46896d2855e7932fC8Ea5A8465Fd07F7Fb57 | Liquidation Swapper                        |
+| YVDAILevSwapper          | 0xD8AF1558A2ca227607b49a3293e278c6875F9a40 | Leverage Swapper                           |
 
 ### Popsicle Cauldrons
 
@@ -105,6 +111,12 @@
 | Contract           | Address                                    | Note                                                                                                                         |
 | ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | EthereumWithdrawer | 0xB2c3A9c577068479B1E5119f6B7da98d25Ba48f4 | Withdraw MIM fees from cauldron and swap for SPELL. Also used as recipient for swapping MIM fees received from other chains. |
+
+### Oracles
+
+| Contract               | Address                                    | Note |
+| ---------------------- | ------------------------------------------ | ---- |
+| YearnChainlinkOracleV3 | 0xA0fA150F11ca5D63353d3460cbF5E15304d4BD57 |      |
 
 ## BSC
 
