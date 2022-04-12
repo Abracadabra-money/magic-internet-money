@@ -19,6 +19,7 @@ describe("CauldronV3", async () => {
   let Cauldron: CauldronV3;
   let OracleMock: OracleMock;
   let degenBoxOwnerSigner: Signer;
+  let mimWhaleSigner: Signer;
   let USTSwapperMock: USTSwapperMock;
 
   const deployCauldronProxy = async () => {
@@ -112,7 +113,7 @@ describe("CauldronV3", async () => {
     expect(exchangeRate).to.be.gt(0);
 
     await impersonate(mimWhale);
-    const mimWhaleSigner = await ethers.getSigner(mimWhale);
+    mimWhaleSigner = await ethers.getSigner(mimWhale);
     await MIM.connect(mimWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
     await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, mimWhale, mimWhale, getBigNumber(10_000_000), 0);
     await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, mimWhale, Cauldron.address, getBigNumber(10_000_000), 0);
@@ -179,5 +180,59 @@ describe("CauldronV3", async () => {
     );
     await advanceTime(duration.days(3));
     await Cauldron.changeInterestRate(INTEREST_PER_SECOND.add(INTEREST_PER_SECOND.mul(1).div(100)));
+  });
+
+  // To enable these 2 tests, copy back `archive/contracts/cauldrons/CauldronV2.sol` and immunefi folder from `archives/` to `contracts/`
+  xit("should reproduce the immunefi issue", async () => {
+    const [deployer] = await ethers.getSigners();
+    const Exploit = await (await ethers.getContractFactory("ExploitCauldronStealMIM")).deploy();
+
+    const FreshBentoBox = await (await ethers.getContractFactory("DegenBox")).deploy("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2");
+    const MasterContract = await (await ethers.getContractFactory("CauldronV2")).deploy(FreshBentoBox.address, Constants.mainnet.mim);
+    await MasterContract.setFeeTo(deployer.address);
+    await FreshBentoBox.whitelistMasterContract(MasterContract.address, true);
+
+    await MIM.connect(mimWhaleSigner).transfer(Exploit.address, getBigNumber(1_000_000));
+    await Exploit.setup(FreshBentoBox.address, MasterContract.address);
+
+    await MIM.connect(mimWhaleSigner).transfer(Exploit.address, getBigNumber(100_000));
+    await Exploit.start();
+  });
+
+  xit("should fix the immunefi issue", async () => {
+    const [deployer] = await ethers.getSigners();
+    const Exploit = await (await ethers.getContractFactory("ExploitCauldronStealMIM")).deploy();
+
+    const FreshBentoBox = await (await ethers.getContractFactory("DegenBox")).deploy("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2");
+    const MasterContract = await (await ethers.getContractFactory("CauldronV3")).deploy(FreshBentoBox.address, Constants.mainnet.mim);
+    await MasterContract.setFeeTo(deployer.address);
+    await FreshBentoBox.whitelistMasterContract(MasterContract.address, true);
+
+    await MIM.connect(mimWhaleSigner).transfer(Exploit.address, getBigNumber(1_000_000));
+    await Exploit.setup(FreshBentoBox.address, MasterContract.address);
+
+    await MIM.connect(mimWhaleSigner).transfer(Exploit.address, getBigNumber(100_000));
+
+    // The attacker doesn't get back enough MIM from the liquidation to execute/continue the attack.
+    /*
+      Stack trace:
+
+      Error: VM Exception while processing transaction: reverted with reason string 'BoringMath: Underflow'
+        at DegenBox.allowed (contracts/DegenBox.sol:759)
+        at DegenBox.sub (contracts/DegenBox.sol:183)
+        at DegenBox.transfer (contracts/DegenBox.sol:937)
+        at CauldronV3._addTokens (contracts/CauldronV3.sol:233)
+        at CauldronV3.addCollateral (contracts/CauldronV3.sol:250)
+        at <UnrecognizedContract>.<unknown> (0x9cc32e0d7a320eefc25a1fae015a800d5a8c8125)
+        at ExploitCauldronStealMIM.continueAttack (contracts/immunefi/ExploitCauldronStealMIM.sol:221)
+        at ExploitCauldronStealMIM.uniswapV2Call (contracts/immunefi/ExploitCauldronStealMIM.sol:144)
+        at SushiSwapPairMock.swap (@sushiswap/core/contracts/uniswapv2/UniswapV2Pair.sol:185)
+        at ExploitCauldronStealMIM.obtainFlashLoan (contracts/immunefi/ExploitCauldronStealMIM.sol:125)
+        at ExploitCauldronStealMIM.uniswapV2Call (contracts/immunefi/ExploitCauldronStealMIM.sol:141)
+        at SushiSwapPairMock.swap (@sushiswap/core/contracts/uniswapv2/UniswapV2Pair.sol:185)
+        at ExploitCauldronStealMIM.obtainFlashLoan (contracts/immunefi/ExploitCauldronStealMIM.sol:125)
+        at ExploitCauldronStealMIM.start (contracts/immunefi/ExploitCauldronStealMIM.sol:90)
+    */
+    await expect(Exploit.start()).to.be.revertedWith("BoringMath: Underflow");
   });
 });
