@@ -2,14 +2,14 @@
 import forEach from "mocha-each";
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { ChainId, getBigNumber, impersonate } from "../utilities";
-import { CauldronV2, DegenBox, ERC20Mock, ILevSwapperGeneric, IOracle, ISwapperGeneric, YearnVaultMock } from "../typechain";
+import { CauldronV3, DegenBox, ERC20Mock, ILevSwapperGeneric, IOracle, ISwapperGeneric, ProxyOracle, YearnVaultMock } from "../typechain";
 import { expect } from "chai";
 import { BigNumber } from "@ethersproject/bignumber";
 import { ParametersPerChain as yvDAIParameters } from "../deploy/yvDAI";
 
 // Top holders at the given fork block
 const MIM_WHALE = "0xbbc4A8d076F4B1888fec42581B6fc58d242CF2D5";
-const FORKBLOCK = 14548850;
+const FORKBLOCK = 14571461;
 
 // In order:
 // 0: name
@@ -18,7 +18,7 @@ const FORKBLOCK = 14548850;
 // 2: underlying token whale 
 // 3: oracle price - Beware that its value is based on the value at FORKBLOCK
 const cases = [
-  ["yvDAI", "yvDAI", "0x6B175474E89094C44Da98b954EedeAC495271d0F", "0x918cf3abf9cdecfe78168c5b4f7793821f18c43a", "973317475078525236", yvDAIParameters[ChainId.Mainnet]]
+  ["yvDAI", "yvDAI", "0x6B175474E89094C44Da98b954EedeAC495271d0F", "0x918cf3abf9cdecfe78168c5b4f7793821f18c43a", "972518355574135649", yvDAIParameters[ChainId.Mainnet]]
 ];
 
 forEach(cases).describe(
@@ -36,7 +36,7 @@ forEach(cases).describe(
     let YearnVault: YearnVaultMock;
     let YearnVaultAsErc20: ERC20Mock;
     let UnderlyingToken: ERC20Mock;
-    let Cauldron: CauldronV2;
+    let Cauldron: CauldronV3;
     let ProxyOracle: IOracle;
     let Swapper: ISwapperGeneric;
     let LevSwapper: ILevSwapperGeneric;
@@ -44,7 +44,7 @@ forEach(cases).describe(
     let mimShare: BigNumber;
     let collateralShare: BigNumber;
     let deployerSigner;
-    let yvTokenPrice;
+    let yvTokenPriceInMim;
 
     before(async () => {
       await network.provider.request({
@@ -64,8 +64,8 @@ forEach(cases).describe(
       const { deployer } = await getNamedAccounts();
       deployerSigner = await ethers.getSigner(deployer);
 
-      Cauldron = await ethers.getContractAt<CauldronV2>("CauldronV2", (await ethers.getContract(parameters.cauldronDeploymentName)).address);
-      ProxyOracle = await ethers.getContract<IOracle>(parameters.proxyOracleDeploymentName);
+      Cauldron = await ethers.getContractAt<CauldronV3>("CauldronV3", (await ethers.getContract(parameters.cauldronDeploymentName)).address);
+      ProxyOracle = await ethers.getContractAt<IOracle>("IOracle", "0x39DBa7955cEE12578B7548dF7eBf88F835d51bE1");
       DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", parameters.degenBox);
       MIM = await ethers.getContractAt<ERC20Mock>("ERC20Mock", "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3");
       YearnVault = await ethers.getContractAt<YearnVaultMock>("YearnVaultMock", parameters.collateral);
@@ -101,8 +101,8 @@ forEach(cases).describe(
       await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, MIM_WHALE, LevSwapper.address, 0, mimShare);
 
       const spot = await ProxyOracle.peekSpot(parameters.oracleData);
-      yvTokenPrice = 1 / parseFloat(ethers.utils.formatEther(spot));
-      console.log(`1 yvToken = $${yvTokenPrice} usd`);
+      yvTokenPriceInMim = 1 / parseFloat(ethers.utils.formatEther(spot));
+      console.log(`1 yvToken = ${yvTokenPriceInMim} MIM`);
       console.log("spot: ", spot.toString());
       expect(spot).to.be.eq(oracleExpectedPrice);
 
@@ -118,7 +118,7 @@ forEach(cases).describe(
       const { alice } = await getNamedAccounts();
 
       const yvTokenAmount = await DegenBox.toAmount(YearnVault.address, collateralShare, false);
-      const totalLiquidationPrice = yvTokenPrice * parseFloat(ethers.utils.formatEther(yvTokenAmount));
+      const totalLiquidationPrice = yvTokenPriceInMim * parseFloat(ethers.utils.formatEther(yvTokenAmount));
 
       console.log(`Liquidating for $${totalLiquidationPrice.toLocaleString()} worth of yvToken...`);
       const amountCollateralBefore = (await DegenBox.totals(YearnVault.address)).elastic;
@@ -135,7 +135,7 @@ forEach(cases).describe(
       expect(amountCollateralAfter).to.be.lt(amountCollateralBefore);
     });
 
-    it.only("should swap MIM for collateral and deposit back to degenbox", async () => {
+    it("should swap MIM for collateral and deposit back to degenbox", async () => {
       const mimShares = [
         mimShare,
         mimShare.div(5),
@@ -161,7 +161,7 @@ forEach(cases).describe(
         const amountMimAfter = (await DegenBox.totals(MIM.address)).elastic;
 
         const amountOut = parseFloat(ethers.utils.formatEther(amountCollateralAfter.sub(amountCollateralBefore)));
-        console.log(`Got ${amountOut.toLocaleString()} YearnVault Token from Leverage Swapper ($${(yvTokenPrice * amountOut).toLocaleString()})`);
+        console.log(`Got ${amountOut.toLocaleString()} YearnVault Token from Leverage Swapper ($${(yvTokenPriceInMim * amountOut).toLocaleString()})`);
         console.log("Gas Cost", parseFloat(estimateGas.toString()).toLocaleString());
 
         expect(amountMimAfter).to.be.lt(amountMimBefore);
