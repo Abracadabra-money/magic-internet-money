@@ -25,4 +25,37 @@ interface IBentoBoxV1 {
         uint256 amount,
         uint256 share
     ) external returns (uint256, uint256);
+
+    function deploy(
+        address masterContract,
+        bytes calldata data,
+        bool useCreate2
+    ) external payable returns (address cloneAddress);
+
+    function setMasterContractApproval(
+        address user,
+        address masterContract,
+        bool approved,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external;
+
+    function balanceOf(IERC20, address) external view returns (uint256);
+
+    function totals(IERC20) external view returns (uint256 elastic, uint256 base);
+
+    function flashLoan(
+        address borrower,
+        address receiver,
+        IERC20 token,
+        uint256 amount,
+        bytes calldata data
+    ) external;
+
+    function toShare(
+        address token,
+        uint256 amount,
+        bool roundUp
+    ) external view returns (uint256 share);
 }
