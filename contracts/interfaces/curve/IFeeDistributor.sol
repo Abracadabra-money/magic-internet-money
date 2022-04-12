@@ -4,6 +4,8 @@
 pragma solidity >=0.6.12;
 
 interface IFeeDistributor {
+    function claim(address account) external returns (uint256);
+
     function claim_many(address[20] calldata) external returns (bool);
 
     function last_token_time() external view returns (uint256);
