@@ -2,6 +2,12 @@
 
 ## Ethereum
 
+## Cauldron MasterContracts
+
+| Contract   | Address                                    |
+| ---------- | ------------------------------------------ |
+| CauldronV3 | 0xc33d23aA4b8a3dD2A3c539276Ab57363cC927202 |
+
 ## MagicCRV
 
 | Contract        | Address                                    |
