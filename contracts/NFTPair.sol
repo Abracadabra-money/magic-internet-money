@@ -28,6 +28,19 @@ import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
 import "@sushiswap/bentobox-sdk/contracts/IBentoBoxV1.sol";
 import "./interfaces/IERC721.sol";
 
+struct TokenLoanParams {
+    uint128 valuation; // How much will you get? OK to owe until expiration.
+    uint64 expiration; // Pay before this or get liquidated
+    uint16 annualInterestBPS; // Variable cost of taking out the loan
+}
+
+interface ILendingClub {
+    // Per token settings.
+    function willLend(uint256 tokenId, TokenLoanParams memory params) external returns (bool);
+
+    function lendingCondition(address nftPair, uint256 tokenId) external view returns (TokenLoanParams memory);
+}
+
 /// @title NFTPair
 /// @dev This contract allows contract calls to any contract (except BentoBox)
 /// from arbitrary callers thus, don't trust calls from this contract in any circumstances.
@@ -66,11 +79,6 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     uint256 public feesEarnedShare;
 
     // Per token settings.
-    struct TokenLoanParams {
-        uint128 valuation; // How much will you get? OK to owe until expiration.
-        uint64 expiration; // Pay before this or get liquidated
-        uint16 annualInterestBPS; // Variable cost of taking out the loan
-    }
     mapping(uint256 => TokenLoanParams) public tokenLoanParams;
 
     uint8 private constant LOAN_INITIAL = 0;
@@ -340,22 +348,26 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         bytes32 r,
         bytes32 s
     ) public {
-        require(block.timestamp <= deadline, "NFTPair: signature expired");
-        uint256 nonce = nonces[lender]++;
-        bytes32 dataHash = keccak256(
-            abi.encode(
-                LEND_SIGNATURE_HASH,
-                address(this),
-                anyTokenId ? 0 : tokenId,
-                anyTokenId,
-                params.valuation,
-                params.expiration,
-                params.annualInterestBPS,
-                nonce,
-                deadline
-            )
-        );
-        require(ecrecover(_getDigest(dataHash), v, r, s) == lender, "NFTPair: signature invalid");
+        if (v == 0 && r == bytes32(0) && s == bytes32(0)) {
+            require(ILendingClub(lender).willLend(tokenId, params), "NFTPair: LendingClub does not like you.");
+        } else {
+            require(block.timestamp <= deadline, "NFTPair: signature expired");
+            uint256 nonce = nonces[lender]++;
+            bytes32 dataHash = keccak256(
+                abi.encode(
+                    LEND_SIGNATURE_HASH,
+                    address(this),
+                    anyTokenId ? 0 : tokenId,
+                    anyTokenId,
+                    params.valuation,
+                    params.expiration,
+                    params.annualInterestBPS,
+                    nonce,
+                    deadline
+                )
+            );
+            require(ecrecover(_getDigest(dataHash), v, r, s) == lender, "NFTPair: signature invalid");
+        }
         _requestLoan(msg.sender, tokenId, params, recipient, skimCollateral);
         _lend(lender, tokenId, params, false);
     }
