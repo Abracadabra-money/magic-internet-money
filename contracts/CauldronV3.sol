@@ -102,6 +102,8 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
 
     AccrueInfo public accrueInfo;
 
+    uint64 private constant ONE_PERCENT_RATE = 317097920;
+
     /// @notice tracking of last interest update
     uint256 private lastInterestUpdate;
 
@@ -596,7 +598,7 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
     function changeInterestRate(uint64 newInterestRate) public onlyMasterContractOwner {
         uint64 oldInterestRate = accrueInfo.INTEREST_PER_SECOND;
 
-        require(newInterestRate < oldInterestRate + oldInterestRate * 3 / 4 , "Interest rate increase > 75%");
+        require(newInterestRate < oldInterestRate + oldInterestRate * 3 / 4 || newInterestRate <= ONE_PERCENT_RATE, "Interest rate increase > 75%");
         require(lastInterestUpdate + 3 days < block.timestamp, "Update only every 3 days");
 
         lastInterestUpdate = block.timestamp;
