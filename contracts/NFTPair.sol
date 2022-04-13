@@ -36,9 +36,21 @@ struct TokenLoanParams {
 
 interface ILendingClub {
     // Per token settings.
-    function willLend(uint256 tokenId, TokenLoanParams memory params) external returns (bool);
+    function willLend(uint256 tokenId, TokenLoanParams memory params) external view returns (bool);
 
-    function lendingCondition(address nftPair, uint256 tokenId) external view returns (TokenLoanParams memory);
+    function lendingConditions(address nftPair, uint256 tokenId) external view returns (TokenLoanParams memory);
+}
+
+interface INFTPair {
+    function collateral() external view returns (IERC721);
+
+    function asset() external view returns (IERC20);
+
+    function masterContract() external view returns (address);
+
+    function bentoBox() external view returns (IBentoBoxV1);
+
+    function removeCollateral(uint256 tokenId, address to) external;
 }
 
 /// @title NFTPair
@@ -349,7 +361,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         bytes32 s
     ) public {
         if (v == 0 && r == bytes32(0) && s == bytes32(0)) {
-            require(ILendingClub(lender).willLend(tokenId, params), "NFTPair: LendingClub does not like you.");
+            require(ILendingClub(lender).willLend(tokenId, params), "NFTPair: LendingClub does not like you");
         } else {
             require(block.timestamp <= deadline, "NFTPair: signature expired");
             uint256 nonce = nonces[lender]++;

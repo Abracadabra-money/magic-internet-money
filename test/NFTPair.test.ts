@@ -11,7 +11,7 @@ const MaxUint128 = BigNumber.from(2).pow(128).sub(1);
 const hashUtf8String = (s: string) => keccak256(toUtf8Bytes(s));
 
 import { BigRational, advanceNextTime, duration, encodeParameters, expApprox, getBigNumber, impersonate } from "../utilities";
-import { BentoBoxMock, ERC20Mock, ERC721Mock, WETH9Mock, NFTPair } from "../typechain";
+import { BentoBoxMock, ERC20Mock, ERC721Mock, LendingClubMock, WETH9Mock, NFTPair } from "../typechain";
 import { describeSnapshot } from "./helpers";
 
 const LoanStatus = {
@@ -1572,5 +1572,67 @@ describe("NFT Pair", async () => {
     //   // 4. Lend
     //   await pair.connect(alice).cook(actions, values, datas);
     // });
+  });
+
+  describeSnapshot("Lending Club", () => {
+    let pair: NFTPair;
+    let lendingClub: LendingClubMock;
+    let emptyLendingClub: LendingClubMock;
+
+    const nextWeek = Math.floor(new Date().getTime() / 1000) + 86400 * 7;
+
+    before(async () => {
+      pair = await deployPair();
+      lendingClub = await deployContract("LendingClubMock", pair.address, bob.address);
+      await lendingClub.init();
+      emptyLendingClub = await deployContract("LendingClubMock", AddressZero, AddressZero);
+
+      for (const signer of [alice, bob, carol]) {
+        await apes.connect(signer).setApprovalForAll(pair.address, true);
+      }
+
+      // Bob deposits 10 guineas into the lending "club" that he is the sole
+      // investor of.
+      await bentoBox.connect(bob).deposit(guineas.address, bob.address, lendingClub.address, getBigNumber(10), 0);
+    });
+
+    const borrow = (borrower: SignerWithAddress, club: LendingClubMock, tokenId: BigNumberish, params: ILoanParams) =>
+      pair.connect(borrower).requestAndBorrow(tokenId, club.address, borrower.address, params, false, false, 0, 0, HashZero, HashZero);
+
+    it("Should allow LendingClubs to approve or reject loans", async () => {
+      // Mock implementation detail: tokenId has to be even
+      expect(getBigNumber(apeIds.aliceOne, 0).mod(2)).to.equal(0);
+
+      const valuation = getBigNumber(1).add(apeIds.aliceOne);
+      const expiration = nextWeek;
+      const annualInterestBPS = 20_000;
+
+      await expect(
+        borrow(alice, emptyLendingClub, apeIds.aliceOne, {
+          valuation,
+          expiration,
+          annualInterestBPS,
+        })
+      ).to.be.revertedWith("NFTPair: LendingClub does not like you");
+
+      await expect(
+        borrow(alice, lendingClub, apeIds.aliceOne, {
+          valuation,
+          expiration,
+          annualInterestBPS,
+        })
+      )
+        .to.emit(pair, "LogRequestLoan")
+        .to.emit(pair, "LogLend");
+
+      expect(getBigNumber(apeIds.aliceTwo, 0).mod(2)).to.equal(1);
+      await expect(
+        borrow(alice, lendingClub, apeIds.aliceTwo, {
+          valuation,
+          expiration,
+          annualInterestBPS,
+        })
+      ).to.be.revertedWith("NFTPair: LendingClub does not like you");
+    });
   });
 });
