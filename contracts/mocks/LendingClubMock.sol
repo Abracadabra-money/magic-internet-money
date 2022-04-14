@@ -16,21 +16,10 @@ contract LendingClubMock {
     }
 
     function init() public {
-        nftPair.bentoBox().setMasterContractApproval(
-            address(this),
-            address(nftPair.masterContract()),
-            true,
-            0,
-            bytes32(0),
-            bytes32(0)
-        );
+        nftPair.bentoBox().setMasterContractApproval(address(this), address(nftPair.masterContract()), true, 0, bytes32(0), bytes32(0));
     }
 
-    function willLend(uint256 tokenId, TokenLoanParams memory requested)
-        external
-        view
-        returns (bool)
-    {
+    function willLend(uint256 tokenId, TokenLoanParams memory requested) external view returns (bool) {
         if (msg.sender != address(nftPair)) {
             return false;
         }
@@ -44,11 +33,7 @@ contract LendingClubMock {
             requested.annualInterestBPS >= accepted.annualInterestBPS;
     }
 
-    function _lendingConditions(uint256 tokenId)
-        private
-        pure
-        returns (TokenLoanParams memory)
-    {
+    function _lendingConditions(uint256 tokenId) private pure returns (TokenLoanParams memory) {
         TokenLoanParams memory conditions;
         // No specific conditions given, but we'll take all even-numbered
         // ones at 100% APY:
@@ -65,11 +50,7 @@ contract LendingClubMock {
         return conditions;
     }
 
-    function lendingConditions(address _nftPair, uint256 tokenId)
-        external
-        view
-        returns (TokenLoanParams memory)
-    {
+    function lendingConditions(address _nftPair, uint256 tokenId) external view returns (TokenLoanParams memory) {
         if (_nftPair != address(nftPair)) {
             TokenLoanParams memory empty;
             return empty;
@@ -83,11 +64,6 @@ contract LendingClubMock {
     }
 
     function withdrawFunds(uint256 bentoShares) external {
-        nftPair.bentoBox().transfer(
-            nftPair.asset(),
-            address(this),
-            investor,
-            bentoShares
-        );
+        nftPair.bentoBox().transfer(nftPair.asset(), address(this), investor, bentoShares);
     }
 }
