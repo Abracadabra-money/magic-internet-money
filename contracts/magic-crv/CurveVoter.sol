@@ -12,6 +12,10 @@ import "../interfaces/curve/IGaugeController.sol";
 contract CurveVoter is Ownable {
     using SafeTransferLib for ERC20;
 
+    event LogAllowedVoterChanged(address voter, bool allowed);
+    event LogMagicCRVChanged(address magicCRV);
+    event LogHarvesterChangeed(address harvester);
+
     error NotAllowedVoter();
     error NotMagicCRV();
     error NotAuthorized();
@@ -56,14 +60,20 @@ contract CurveVoter is Ownable {
 
     function setAllowedVoter(address voter, bool allowed) external onlyOwner {
         voters[voter] = allowed;
+
+        emit LogAllowedVoterChanged(voter, allowed);
     }
 
     function setMagicCRV(address _magicCRV) external onlyOwner {
         magicCRV = _magicCRV;
+
+        emit LogMagicCRVChanged(_magicCRV);
     }
 
     function setHarvester(address _harvester) external onlyOwner {
         harvester = _harvester;
+
+        emit LogHarvesterChangeed(_harvester);
     }
 
     /// @notice amount 10000 = 100%
@@ -137,6 +147,7 @@ contract CurveVoter is Ownable {
     }
 
     function _createLock(uint256 value, uint256 unlockTime) internal {
+        CRV.transferFrom(msg.sender, address(this), value);
         CRV.safeApprove(ESCROW, 0);
         CRV.safeApprove(ESCROW, value);
         IVoteEscrow(ESCROW).create_lock(value, unlockTime);
