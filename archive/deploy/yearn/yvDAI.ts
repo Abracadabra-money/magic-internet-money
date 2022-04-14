@@ -13,7 +13,7 @@ export const ParametersPerChain = {
   [ChainId.Mainnet]: {
     cauldronDeploymentName: "yvDAICauldron",
     degenBox: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
-    cauldronV3MasterContract: "0xc33d23aA4b8a3dD2A3c539276Ab57363cC927202",
+    cauldronV3MasterContract: "0x3E2a2BC69E5C22A8DA4056B413621D1820Eb493E",
     oracle: "0xA0fA150F11ca5D63353d3460cbF5E15304d4BD57", // YearnChainlinkV3
 
     // multiply: 0x7a364e8770418566e3eb2001a96116e6138eb32f // MIM/USD chainlink

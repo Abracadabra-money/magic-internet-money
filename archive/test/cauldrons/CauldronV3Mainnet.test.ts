@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { advanceTime, ChainId, duration, getBigNumber, impersonate } from "../utilities";
-import { DegenBox, ERC20Mock, ISwapperGeneric, ProxyOracle } from "../typechain";
+import { DegenBox, ERC20Mock, ISwapperGeneric, OracleMock, ProxyOracle, USTSwapperMock } from "../typechain";
 import { expect } from "chai";
 import { CauldronV3 } from "../typechain/CauldronV3";
 import { Constants } from "./constants";
@@ -17,19 +17,19 @@ describe("CauldronV3", async () => {
   let DegenBox: DegenBox;
   let CauldronV3MasterContract: CauldronV3;
   let Cauldron: CauldronV3;
-  let OracleMock: OracleMock;
+  let OracleMock;
   let degenBoxOwnerSigner: Signer;
   let mimWhaleSigner: Signer;
-  let USTSwapperMock: USTSwapperMock;
+  let USTSwapperMock;
 
-  const deployCauldronProxy = async () => {
+  const deployCauldronProxy = async (interestRate = 3) => {
     const INTEREST_CONVERSION = 1e18 / (365.25 * 3600 * 24) / 100;
     const OPENING_CONVERSION = 1e5 / 100;
 
     // 85% LTV .5% initial 3% Interest, 8% fee
     const collateralization = 85 * 1e3; // 85% LTV
     const opening = 0 * OPENING_CONVERSION; // 0% initial
-    const interest = parseInt(String(3 * INTEREST_CONVERSION)); // 3% Interest
+    const interest = parseInt(String(interestRate * INTEREST_CONVERSION)); // 3% Interest
     const liquidation = 8 * 1e3 + 1e5; // 8% fee
 
     const DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", Constants.mainnet.degenBox);
@@ -153,6 +153,16 @@ describe("CauldronV3", async () => {
     await Cauldron.connect(alice).repay(alice.address, false, getBigNumber(99));
     await Cauldron.connect(deployer).changeBorrowLimit(getBigNumber(99), getBigNumber(9999999));
     await expect(borrow(Cauldron, alice, getBigNumber(2))).to.be.revertedWith("Borrow Limit reached");
+  });
+
+  it("should be able to increase interests from 0%", async () => {
+    await deployCauldronProxy(0);
+
+    for (let i = 0; i < 10; i++) {
+      const { INTEREST_PER_SECOND } = await Cauldron.accrueInfo();
+      await Cauldron.changeInterestRate(INTEREST_PER_SECOND.add(INTEREST_PER_SECOND.mul(1).div(100)));
+      await advanceTime(duration.days(3));
+    }
   });
 
   it("should not allow increasing interest rate more that 75%", async () => {
