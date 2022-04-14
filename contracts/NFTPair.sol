@@ -546,6 +546,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     uint8 internal constant ACTION_REMOVE_COLLATERAL = 4;
 
     uint8 internal constant ACTION_REQUEST_LOAN = 12;
+    uint8 internal constant ACTION_LEND = 13;
 
     // Function on BentoBox
     uint8 internal constant ACTION_BENTO_DEPOSIT = 20;
@@ -651,6 +652,9 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
                     (uint256, TokenLoanParams, address, bool)
                 );
                 requestLoan(tokenId, params, to, skim);
+            } else if (action == ACTION_LEND) {
+                (uint256 tokenId, TokenLoanParams memory params, bool skim) = abi.decode(datas[i], (uint256, TokenLoanParams, bool));
+                lend(tokenId, params, skim);
             } else if (action == ACTION_BENTO_SETAPPROVAL) {
                 (address user, address _masterContract, bool approved, uint8 v, bytes32 r, bytes32 s) = abi.decode(
                     datas[i],

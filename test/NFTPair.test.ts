@@ -25,6 +25,7 @@ const ACTION_REPAY = 2;
 const ACTION_REMOVE_COLLATERAL = 4;
 
 const ACTION_REQUEST_LOAN = 12;
+const ACTION_LEND = 13;
 
 // Function on BentoBox
 const ACTION_BENTO_DEPOSIT = 20;
@@ -1394,6 +1395,38 @@ describe("NFT Pair", async () => {
     let LEND_SIGNATURE_HASH: string;
 
     const tokenIds: BigNumber[] = [];
+    before(async () => {
+      chainId = (await ethers.provider.getNetwork()).chainId;
+      pair = await deployPair();
+      // Undo some of the setup, so we start from scratch:
+      const mc = masterContract.address;
+      const hz = HashZero;
+      for (const signer of [alice, bob, carol]) {
+        const addr = signer.address;
+        const bb = bentoBox.connect(signer);
+        // In theory this can be done via a cook. In practice we're having some
+        // trouble with the EIP-712 (structured data) signature due to BentoBox
+        // using a slightly different encoding scheme than ethers.io expects.
+        // So, contract approval is assumed in our tests.
+        // await bb.setMasterContractApproval(addr, mc, false, 0, hz, hz);
+
+        await guineas.transfer(addr, getBigNumber(10_000));
+        //
+        await guineas.connect(signer).approve(bentoBox.address, MaxUint256);
+
+        // We added profit in the setup; 3000 guineas became 3000 shares
+        await bb.withdraw(guineas.address, addr, addr, 0, getBigNumber(3000));
+      }
+      expect(await bentoBox.balanceOf(guineas.address, alice.address)).to.equal(0);
+
+      for (const signer of [deployer, alice, bob, carol]) {
+        await apes.connect(signer).setApprovalForAll(pair.address, true);
+      }
+
+      for (let i = 0; i < 10; i++) {
+        tokenIds.push(await mintApe(bob.address));
+      }
+    });
 
     const approveHash = hashUtf8String("Give FULL access to funds in (and approved to) BentoBox?");
     const revokeHash = hashUtf8String("Revoke access to BentoBox?");
@@ -1432,35 +1465,7 @@ describe("NFT Pair", async () => {
       return splitSignature(sig);
     };
 
-    before(async () => {
-      chainId = (await ethers.provider.getNetwork()).chainId;
-      pair = await deployPair();
-      // Undo some of the setup, so we start from scratch:
-      const mc = masterContract.address;
-      const hz = HashZero;
-      for (const signer of [alice, bob, carol]) {
-        const addr = signer.address;
-        const bb = bentoBox.connect(signer);
-        await bb.setMasterContractApproval(addr, mc, false, 0, hz, hz);
-
-        await guineas.transfer(addr, getBigNumber(10_000));
-        await guineas.connect(signer).approve(bentoBox.address, MaxUint256);
-
-        // We added profit in the setup; 3000 guineas became 3000 shares
-        await bb.withdraw(guineas.address, addr, addr, 0, getBigNumber(3000));
-      }
-      expect(await bentoBox.balanceOf(guineas.address, alice.address)).to.equal(0);
-
-      // (No permit equivalent that we could do via a cook..)
-      for (const signer of [deployer, alice, bob, carol]) {
-        await apes.connect(signer).setApprovalForAll(pair.address, true);
-      }
-
-      for (let i = 0; i < 10; i++) {
-        tokenIds.push(await mintApe(bob.address));
-      }
-    });
-
+    // Bob is hardcoded as the borrower
     const requestLoans = (getArgs: (i: number) => [ILoanParams, string, boolean]) => {
       const actions: number[] = [];
       const values: any[] = [];
@@ -1478,6 +1483,45 @@ describe("NFT Pair", async () => {
         );
       }
       return pair.connect(bob).cook(actions, values, datas);
+    };
+
+    // Alice is hardcoded as the lender
+    const issueLoans = (getArgs: (i: number) => [ILoanParams, boolean]) => {
+      const actions: number[] = [];
+      const values: any[] = [];
+      const datas: any[] = [];
+
+      // 1. Set contract approval. SKIPPING involuntarily:
+      // const { v, r, s } = await signBentoApprovalRequest(alice, true);
+      // actions.push(ACTION_BENTO_SETAPPROVAL);
+      // values.push(0);
+      // datas.push(encodeParameters(
+      //   ["address", "address", "bool", "uint8", "bytes32", "bytes32"],
+      //   [alice.address, masterContract.address, true, v, r, s]
+      // ));
+
+      // 2. Deposit funds into BentoBox
+      const n = tokenIds.length;
+      expect(n).to.be.gte(2);
+      const amountNeeded = getBigNumber(n * (n + 1) * 6);
+      actions.push(ACTION_BENTO_DEPOSIT);
+      values.push(0); // TODO: Test with ETH as the token
+      datas.push(encodeParameters(["address", "address", "int256", "int256"], [guineas.address, alice.address, amountNeeded, 0]));
+
+      // 3. Lend
+      for (let i = 0; i < n; i++) {
+        actions.push(ACTION_LEND);
+        values.push(0);
+        const [params, skim] = getArgs(i);
+        datas.push(
+          encodeParameters(
+            ["uint256", "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS)", "bool"],
+            [tokenIds[i], params, skim]
+          )
+        );
+      }
+
+      return pair.connect(alice).cook(actions, values, datas);
     };
 
     // Suppose this is one use case..
@@ -1547,35 +1591,55 @@ describe("NFT Pair", async () => {
     // Failing the approval request; types in sig not an exact match, so have to
     // sign the message without help from ethers' abstractions. See also the
     // DOMAIN_SEPARATOR test; suspect a similar issue.
-    // it("Should handle depositing and lending with minimal setup", async () => {
-    //   await requestLoans((i) => [
-    //     {
-    //       valuation: getBigNumber((i + 1) * 12),
-    //       duration: YEAR,
-    //       annualInterestBPS: i * 500,
-    //     },
-    //     [alice.address, bob.address, carol.address][i % 3],
-    //     false,
-    //   ]);
+    it("Should handle depositing and lending with minimal setup", async () => {
+      // Bob requests loans for himself:
+      await requestLoans((i) => [
+        {
+          valuation: getBigNumber((i + 1) * 12),
+          duration: YEAR,
+          annualInterestBPS: i * 500,
+        },
+        bob.address,
+        false,
+      ]);
+      await expect(
+        issueLoans((i) => [
+          {
+            valuation: getBigNumber((i + 1) * 12),
+            duration: YEAR,
+            annualInterestBPS: i * 500,
+          },
+          false,
+        ])
+      )
+        .to.emit(pair, "LogLend")
+        .withArgs(alice.address, tokenIds[0]);
+    });
 
-    //   const actions: number[] = [];
-    //   const values: any[] = [];
-    //   const datas: any[] = [];
+    it("Should revert the entire cook if one transaction fails", async () => {
+      await requestLoans((i) => [
+        {
+          valuation: getBigNumber((i + 1) * 12),
+          duration: YEAR,
+          annualInterestBPS: i * 500,
+        },
+        bob.address,
+        false,
+      ]);
 
-    //   // 1. Set contract approval (can check if needed)
-    //   const { v, r, s } = await signBentoApprovalRequest(alice, true);
-    //   actions.push(ACTION_BENTO_SETAPPROVAL);
-    //   values.push(0);
-    //   datas.push(encodeParameters(
-    //     ["address", "address", "bool", "uint8", "bytes32", "bytes32"],
-    //     [alice.address, masterContract.address, true, v, r, s]
-    //   ));
-
-    //   // 2. Bento permit
-    //   // 3. Bento deposit
-    //   // 4. Lend
-    //   await pair.connect(alice).cook(actions, values, datas);
-    // });
+      await expect(
+        issueLoans((i) => [
+          {
+            valuation: getBigNumber((i + 1) * 12),
+            duration: YEAR,
+            // Last request is bad in that the lender now wants more interest
+            // than the borrower is willing to pay:
+            annualInterestBPS: i * 500 + (i == tokenIds.length - 1 ? 1 : 0),
+          },
+          false,
+        ])
+      ).to.be.revertedWith("NFTPair: bad params");
+    });
   });
 
   describeSnapshot("Lending Club", () => {
