@@ -46,7 +46,7 @@ contract LendingClubMock {
 
     function _lendingConditions(uint256 tokenId)
         private
-        view
+        pure
         returns (TokenLoanParams memory)
     {
         TokenLoanParams memory conditions;
