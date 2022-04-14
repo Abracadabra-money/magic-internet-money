@@ -30,7 +30,7 @@ import "./interfaces/IERC721.sol";
 
 struct TokenLoanParams {
     uint128 valuation; // How much will you get? OK to owe until expiration.
-    uint64 expiration; // Pay before this or get liquidated
+    uint64 duration; // Length of loan in seconds
     uint16 annualInterestBPS; // Variable cost of taking out the loan
 }
 
@@ -62,8 +62,8 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     using RebaseLibrary for Rebase;
     using BoringERC20 for IERC20;
 
-    event LogRequestLoan(address indexed borrower, uint256 indexed tokenId, uint128 valuation, uint64 expiration, uint16 annualInterestBPS);
-    event LogUpdateLoanParams(uint256 indexed tokenId, uint128 valuation, uint64 expiration, uint16 annualInterestBPS);
+    event LogRequestLoan(address indexed borrower, uint256 indexed tokenId, uint128 valuation, uint64 duration, uint16 annualInterestBPS);
+    event LogUpdateLoanParams(uint256 indexed tokenId, uint128 valuation, uint64 duration, uint16 annualInterestBPS);
     // This automatically clears the associated loan, if any
     event LogRemoveCollateral(uint256 indexed tokenId, address recipient);
     // Details are in the loan request
@@ -186,9 +186,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
             require(msg.sender == loan.lender, "NFTPair: not the lender");
             TokenLoanParams memory cur = tokenLoanParams[tokenId];
             require(
-                params.expiration >= cur.expiration &&
-                    params.valuation <= cur.valuation &&
-                    params.annualInterestBPS <= cur.annualInterestBPS,
+                params.duration >= cur.duration && params.valuation <= cur.valuation && params.annualInterestBPS <= cur.annualInterestBPS,
                 "NFTPair: worse params"
             );
         } else if (loan.status == LOAN_REQUESTED) {
@@ -201,7 +199,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
             revert("NFTPair: no collateral");
         }
         tokenLoanParams[tokenId] = params;
-        emit LogUpdateLoanParams(tokenId, params.valuation, params.expiration, params.annualInterestBPS);
+        emit LogUpdateLoanParams(tokenId, params.valuation, params.duration, params.annualInterestBPS);
     }
 
     function _requestLoan(
@@ -225,7 +223,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         tokenLoan[tokenId] = loan;
         tokenLoanParams[tokenId] = params;
 
-        emit LogRequestLoan(to, tokenId, params.valuation, params.expiration, params.annualInterestBPS);
+        emit LogRequestLoan(to, tokenId, params.valuation, params.duration, params.annualInterestBPS);
     }
 
     /// @notice Deposit an NFT as collateral and request a loan against it
@@ -255,7 +253,11 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
             // We are seizing collateral as the lender. The loan has to be
             // expired and not paid off:
             require(msg.sender == loan.lender, "NFTPair: not the lender");
-            require(tokenLoanParams[tokenId].expiration <= block.timestamp, "NFTPair: not expired");
+            require(
+                // Addition is safe: both summands are smaller than 256 bits
+                uint256(loan.startTime) + tokenLoanParams[tokenId].duration <= block.timestamp,
+                "NFTPair: not expired"
+            );
         }
         // If there somehow is collateral but no accompanying loan, then anyone
         // can claim it by first requesting a loan with `skim` set to true, and
@@ -280,7 +282,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         // as good for the lender as `accepted`.
         require(
             params.valuation == accepted.valuation &&
-                params.expiration <= accepted.expiration &&
+                params.duration <= accepted.duration &&
                 params.annualInterestBPS >= accepted.annualInterestBPS,
             "NFTPair: bad params"
         );
@@ -333,11 +335,11 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     // chain ID and master contract are a match, so we explicitly include the
     // clone address (and the asset/collateral addresses):
 
-    // keccak256("Lend(address contract,uint256 tokenId,bool anyTokenId,uint128 valuation,uint64 expiration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
-    bytes32 private constant LEND_SIGNATURE_HASH = 0x9bcf99059e3c2bf4522b1950b84c7777535a4a54075afadd793dc5f00a5e7aa9;
+    // keccak256("Lend(address contract,uint256 tokenId,bool anyTokenId,uint128 valuation,uint64 duration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
+    bytes32 private constant LEND_SIGNATURE_HASH = 0x06bcca6f35b7c1b98f11abbb10957d273a681069ba90358de25404f49e2430f8;
 
-    // keccak256("Borrow(address contract,uint256 tokenId,uint128 valuation,uint64 expiration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
-    bytes32 private constant BORROW_SIGNATURE_HASH = 0x2a060161383de688deddeac5b5c10a5ded88b7f78db776edf545b1e427997c09;
+    // keccak256("Borrow(address contract,uint256 tokenId,uint128 valuation,uint64 duration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
+    bytes32 private constant BORROW_SIGNATURE_HASH = 0xf2c9128b0fb8406af3168320897e5ff08f3bb536dd5f804c29ed276e93ec4336;
 
     /// @notice Request and immediately borrow from a pre-committed lender
 
@@ -372,7 +374,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
                     anyTokenId ? 0 : tokenId,
                     anyTokenId,
                     params.valuation,
-                    params.expiration,
+                    params.duration,
                     params.annualInterestBPS,
                     nonce,
                     deadline
@@ -408,7 +410,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
                 address(this),
                 tokenId,
                 params.valuation,
-                params.expiration,
+                params.duration,
                 params.annualInterestBPS,
                 nonce,
                 deadline
@@ -504,7 +506,11 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         TokenLoan memory loan = tokenLoan[tokenId];
         require(loan.status == LOAN_OUTSTANDING, "NFTPair: no loan");
         TokenLoanParams memory loanParams = tokenLoanParams[tokenId];
-        require(loanParams.expiration > block.timestamp, "NFTPair: loan expired");
+        require(
+            // Addition is safe: both summands are smaller than 256 bits
+            uint256(loan.startTime) + loanParams.duration > block.timestamp,
+            "NFTPair: loan expired"
+        );
 
         uint128 principal = loanParams.valuation;
 

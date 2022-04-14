@@ -40,7 +40,7 @@ contract LendingClubMock {
 
         return
             requested.valuation == accepted.valuation &&
-            requested.expiration <= accepted.expiration &&
+            requested.duration <= accepted.duration &&
             requested.annualInterestBPS >= accepted.annualInterestBPS;
     }
 
@@ -59,8 +59,7 @@ contract LendingClubMock {
             // loans, and manipulating the token ID can only break the logic by
             // making the loan "safer" for the lender.
             conditions.valuation = uint128((tokenId + 1) * 10**18);
-            // Addition and cast are safe for the foreseeable future.
-            conditions.expiration = uint64(block.timestamp + 365 days);
+            conditions.duration = 365 days;
             conditions.annualInterestBPS = 10_000;
         }
         return conditions;
