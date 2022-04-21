@@ -30,7 +30,7 @@ contract Whitelister is IWhitelister {
     function setMaxBorrow(address user, uint256 maxBorrow, bytes32[] calldata merkleProof) external returns (bool success) {
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(user, maxBorrow));
-        require(MerkleProof.verify(merkleProof, merkleRoot, node), 'Whitelister: Invalid proof.');
+        require(MerkleProof.verify(merkleProof, merkleRoot, node), "Whitelister: Invalid proof.");
 
         amountAllowed[user] = maxBorrow;
 

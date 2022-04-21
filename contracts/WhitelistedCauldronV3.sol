@@ -288,7 +288,7 @@ contract WhitelistedCauldronV3 is BoringOwnable, IMasterContract {
         
         uint256 newBorrowPart = userBorrowPart[msg.sender].add(part);
         require(newBorrowPart <= cap.borrowPartPerAddress, "Borrow Limit reached");
-        require(whitelister == IWhitelister(0) || whitelister.getBorrowStatus(msg.sender, newBorrowPart));
+        require(whitelister == IWhitelister(0) || whitelister.getBorrowStatus(msg.sender, newBorrowPart), "Whitelisted borrow exceeded");
 
         userBorrowPart[msg.sender] = newBorrowPart;
 

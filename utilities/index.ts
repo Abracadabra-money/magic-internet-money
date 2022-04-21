@@ -108,3 +108,4 @@ export async function verifyContract(name: string, address: string, constructorA
 }
 
 export * from "./time";
+export * from "./whitelistedMerkle";
