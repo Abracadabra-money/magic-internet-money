@@ -36,11 +36,11 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     deterministicDeployment: false,
   });*/
 
-  await CauldronV3MasterContract.setFeeTo(parameters.owner);
+  await (await CauldronV3MasterContract.setFeeTo(parameters.owner)).wait();
 
   if (network.name !== "hardhat") {
     if ((await CauldronV3MasterContract.owner()) != parameters.owner) {
-      await CauldronV3MasterContract.transferOwnership(parameters.owner, true, false);
+      await (await CauldronV3MasterContract.transferOwnership(parameters.owner, true, false)).wait();
     }
   }
 };
