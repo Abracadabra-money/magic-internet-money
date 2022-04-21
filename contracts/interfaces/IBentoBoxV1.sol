@@ -43,7 +43,7 @@ interface IBentoBoxV1 {
 
     function balanceOf(IERC20, address) external view returns (uint256);
 
-    function totals(IERC20) external view returns (uint256 elastic, uint256 base);
+    function totals(IERC20) external view returns (uint128 elastic, uint128 base);
 
     function flashLoan(
         address borrower,

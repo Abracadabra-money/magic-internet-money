@@ -1,28 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.10;
 
 import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol";
 import "../../interfaces/ISwapperGeneric.sol";
+import "../../interfaces/IBentoBoxV1.sol";
 
-interface IBentoBoxV1 {
-    function withdraw(
-        IERC20 token,
-        address from,
-        address to,
-        uint256 amount,
-        uint256 share
-    ) external returns (uint256, uint256);
-
-    function deposit(
-        IERC20 token,
-        address from,
-        address to,
-        uint256 amount,
-        uint256 share
-    ) external returns (uint256, uint256);
-}
-
-contract UsdcAvaxSwapper is ISwapperGeneric {
+/// @notice Joe USDC.e/WAVAX swapper using Platypus for swapping USDC.e to MIM
+contract UsdceAvaxSwapperV2 is ISwapperGeneric {
     IBentoBoxV1 public immutable DEGENBOX;
     
     IUniswapV2Pair public constant USDCAVAX = IUniswapV2Pair(0xA389f9430876455C36478DeEa9769B7Ca4E3DDB1);
@@ -58,7 +42,6 @@ contract UsdcAvaxSwapper is ISwapperGeneric {
         uint256 shareFrom
     ) public override returns (uint256 extraShare, uint256 shareReturned) {
         (uint256 amountFrom, ) = DEGENBOX.withdraw(IERC20(address(USDCAVAX)), address(this), address(this), 0, shareFrom);
-
         USDCAVAX.transfer(address(USDCAVAX), amountFrom);
         (uint256 usdcAmount, uint256 avaxAmount) = USDCAVAX.burn(address(this));
         

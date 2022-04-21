@@ -1,37 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.10;
 
 import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol";
 import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Router01.sol";
 import "../../libraries/Babylonian.sol";
+import "../../interfaces/ILevSwapperGeneric.sol";
+import "../../interfaces/IBentoBoxV1.sol";
 
-interface IERC20 {
-    function balanceOf(address account) external view returns (uint256);
+import "hardhat/console.sol";
 
-    function approve(address spender, uint256 amount) external returns (bool);
-
-    function transfer(address recipient, uint256 amount) external returns (bool);
-}
-
-interface IBentoBoxV1 {
-    function withdraw(
-        IERC20 token,
-        address from,
-        address to,
-        uint256 amount,
-        uint256 share
-    ) external returns (uint256, uint256);
-
-    function deposit(
-        IERC20 token,
-        address from,
-        address to,
-        uint256 amount,
-        uint256 share
-    ) external returns (uint256, uint256);
-}
-
-contract UsdcAvaxLevSwapper {
+contract UsdceAvaxLevSwapperV2 is ILevSwapperGeneric {
     IBentoBoxV1 public immutable DEGENBOX;
     IUniswapV2Pair public constant USDCAVAX = IUniswapV2Pair(0xA389f9430876455C36478DeEa9769B7Ca4E3DDB1);
     IUniswapV2Pair public constant MIMAVAX = IUniswapV2Pair(0x781655d802670bbA3c89aeBaaEa59D3182fD755D);
@@ -70,9 +48,9 @@ contract UsdcAvaxLevSwapper {
         address recipient,
         uint256 shareToMin,
         uint256 shareFrom
-    ) public returns (uint256 extraShare, uint256 shareReturned) {
+    ) public override returns (uint256 extraShare, uint256 shareReturned) {
         (uint256 amountFrom, ) = DEGENBOX.withdraw(MIM, address(this), address(this), 0, shareFrom);
-
+        
         // Swap MIM to AVAX
         (uint256 reserve0, uint256 reserve1, ) = MIMAVAX.getReserves();
         uint256 avaxFromMim = _getAmountOut(amountFrom, reserve0, reserve1);
