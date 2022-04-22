@@ -44,7 +44,7 @@ describe("Lev/Liquidation UsdcAvax Swappers V2", async () => {
     hre.getChainId = () => Promise.resolve(ChainId.Avalanche.toString());
 
     await deployments.fixture(["PopsicleUsdceWavaxV2"]);
-    
+
     UsdceAvaxSwapperV1 = await ethers.getContractAt<ISwapperGeneric>("ISwapperGeneric", "0x4Ec0000Da67399AfCf4Ad04dA6089AFD63bEf901");
     UsdceAvaxLevSwapperV1 = await ethers.getContractAt<ILevSwapperGeneric>("ILevSwapperGeneric", "0xc845C5bAf57f61eB925D400AeBff0501C0e9d2Ba");
     UsdceAvaxSwapperV2 = await ethers.getContract<ISwapperGeneric>("PopsicleUsdcAvaxSwapperV2");
@@ -135,7 +135,7 @@ describe("Lev/Liquidation UsdcAvax Swappers V2", async () => {
     await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, MIM_WHALE, levSwapper.address, 0, mimShare);
   };
 
-  xdescribe("Using V1", () => {
+  describe("Using V1", () => {
     before(async () => {
       await setup(UsdceAvaxSwapperV1, UsdceAvaxLevSwapperV1);
       snapshotId = await ethers.provider.send("evm_snapshot", []);
@@ -159,7 +159,7 @@ describe("Lev/Liquidation UsdcAvax Swappers V2", async () => {
     V1 Results:
     Liquidating for $2,171,035.702 worth of collateral tokens...
       Got 1,611,009.403 MIM from Liquidation Swapper
-            √ should liquidate the USDC.e/AVAX collateral and deposit MIM back to degenbox (4427ms)
+    Leverage:
       > From 2,000,000 MIM shares
       Got 0.07 Token from Leverage Swapper ($1,508,469.54)
       Gas Cost 405,367
@@ -172,6 +172,23 @@ describe("Lev/Liquidation UsdcAvax Swappers V2", async () => {
       > From 200,000 MIM shares
       Got 0.006 Token from Leverage Swapper ($136,546.616)
       Gas Cost 370,916
+
+    V2 Results:
+    Liquidating for $2,171,035.702 worth of collateral tokens...
+      Got 2,015,003.529 MIM from Liquidation Swapper
+    Leverage:
+     > From 2,000,000 MIM shares
+      Got 0.091 Token from Leverage Swapper ($1,970,845.946)
+      Gas Cost 802,539
+      > From 800,000 MIM shares
+      Got 0.037 Token from Leverage Swapper ($794,512.43)
+      Gas Cost 802,525
+      > From 400,000 MIM shares
+      Got 0.018 Token from Leverage Swapper ($394,239.317)
+      Gas Cost 767,557
+      > From 200,000 MIM shares
+      Got 0.009 Token from Leverage Swapper ($196,340.862)
+      Gas Cost 767,568
    */
   describe("Using V2", () => {
     before(async () => {
@@ -184,7 +201,7 @@ describe("Lev/Liquidation UsdcAvax Swappers V2", async () => {
       snapshotId = await ethers.provider.send("evm_snapshot", []);
     });
 
-    it.only("should liquidate the USDC.e/AVAX collateral and deposit MIM back to degenbox", async () => {
+    it("should liquidate the USDC.e/AVAX collateral and deposit MIM back to degenbox", async () => {
       await liquidationSwap(USDCAVAX, UsdceAvaxSwapperV2);
     });
 
