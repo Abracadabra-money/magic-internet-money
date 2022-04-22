@@ -44,9 +44,7 @@ describe("Lev/Liquidation UsdcAvax Swappers V2", async () => {
     hre.getChainId = () => Promise.resolve(ChainId.Avalanche.toString());
 
     await deployments.fixture(["PopsicleUsdceWavaxV2"]);
-    const { deployer } = await getNamedAccounts();
-    deployerSigner = await ethers.getSigner(deployer);
-
+    
     UsdceAvaxSwapperV1 = await ethers.getContractAt<ISwapperGeneric>("ISwapperGeneric", "0x4Ec0000Da67399AfCf4Ad04dA6089AFD63bEf901");
     UsdceAvaxLevSwapperV1 = await ethers.getContractAt<ILevSwapperGeneric>("ILevSwapperGeneric", "0xc845C5bAf57f61eB925D400AeBff0501C0e9d2Ba");
     UsdceAvaxSwapperV2 = await ethers.getContract<ISwapperGeneric>("PopsicleUsdcAvaxSwapperV2");
@@ -186,7 +184,7 @@ describe("Lev/Liquidation UsdcAvax Swappers V2", async () => {
       snapshotId = await ethers.provider.send("evm_snapshot", []);
     });
 
-    it("should liquidate the USDC.e/AVAX collateral and deposit MIM back to degenbox", async () => {
+    it.only("should liquidate the USDC.e/AVAX collateral and deposit MIM back to degenbox", async () => {
       await liquidationSwap(USDCAVAX, UsdceAvaxSwapperV2);
     });
 
