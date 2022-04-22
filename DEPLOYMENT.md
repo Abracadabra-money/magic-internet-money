@@ -148,6 +148,7 @@
 
 | Contract                    | Address                                    |
 | --------------------------- | ------------------------------------------ |
+| CauldronV3                  | 0x177a24B427876F61983CCe0dD37608611e7de3f7 |
 | CauldronV3 With Whitelistng | 0xE8681a8C8d8E24b65526C2f94Fd5eF9D3ec18726 |
 
 ### Cauldrons
