@@ -3,6 +3,7 @@ export const xCalibur = "0xfB3485c2e209A5cfBDC1447674256578f1A80eE3";
 
 export const Constants = {
   mainnet: {
+    cauldronV3: "0x3E2a2BC69E5C22A8DA4056B413621D1820Eb493E",
     degenBox: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
     mim: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
     spell: "0x090185f2135308BaD17527004364eBcC2D37e5F6",
@@ -10,6 +11,8 @@ export const Constants = {
   },
 
   avalanche: {
+    cauldronV3: "0x177a24B427876F61983CCe0dD37608611e7de3f7",
+    whitelistedCauldronV3: "0xE8681a8C8d8E24b65526C2f94Fd5eF9D3ec18726",
     degenBox: "0x1fC83f75499b7620d53757f0b01E2ae626aAE530",
     mim: "0x130966628846BFd36ff31a822705796e8cb8C18D",
     spell: "0xCE1bFFBD5374Dac86a2893119683F4911a2F7814",
