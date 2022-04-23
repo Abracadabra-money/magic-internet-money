@@ -5,9 +5,7 @@ import { BentoBoxMock } from "../typechain";
 import { DeploymentSubmission } from "hardhat-deploy/dist/types";
 import { expect } from "chai";
 
-const deployFunction: DeployFunction = async function (
-  hre: HardhatRuntimeEnvironment
-) {
+const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
 
@@ -27,7 +25,6 @@ const deployFunction: DeployFunction = async function (
 export default deployFunction;
 
 if (network.name !== "hardhat" || process.env.HARDHAT_LOCAL_NODE) {
-  console.log("SKI-AP!");
   deployFunction.skip = ({ getChainId }) =>
     new Promise((resolve, reject) => {
       try {
