@@ -67,6 +67,8 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     deterministicDeployment: false,
   });
 
+  await bentoBox.whitelistMasterContract(nftPairMock.address, true);
+
   // Pairs - deployed by BentoBox:
   const bentoDeploy = async (name, masterAddress, initData) => {
     try {
