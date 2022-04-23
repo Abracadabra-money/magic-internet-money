@@ -59,6 +59,14 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     deterministicDeployment: false,
   });
 
+  const freeMoneyMock = await deploy("FreeMoneyMock", {
+    contract: "FreelyMintableERC20Mock",
+    from: deployer,
+    args: [MaxUint128],
+    log: true,
+    deterministicDeployment: false,
+  });
+
   // Pairs - deployed by BentoBox:
   const bentoDeploy = async (name, masterAddress, initData) => {
     try {
@@ -83,6 +91,9 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   await deployPair("ApesGuineasNFTPairMock", apesMock, guineasMock);
   await deployPair("ApesWethNFTPairMock", apesMock, wethMock);
   await deployPair("BearsGuineasNFTPairMock", bearsMock, guineasMock);
+
+  await deployPair("ApesFreeMoneyNFTPairMock", apesMock, freeMoneyMock);
+  await deployPair("BearsFreeMoneyNFTPairMock", bearsMock, freeMoneyMock);
 };
 
 export default deployFunction;
