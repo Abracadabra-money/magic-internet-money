@@ -8,7 +8,16 @@ import { Constants, xMerlin } from "../test/constants";
 
 const oracleData = "0x0000000000000000000000000000000000000000";
 
-const ParametersPerChain = {
+/*
+            address[] memory tokenPath = new address[](3);
+            tokenPath[0] = address(MIM);
+            tokenPath[1] = address(USDC);
+            tokenPath[2] = address(USDCE);
+            address[] memory poolPath = new address[](2);
+            poolPath[0] = address(0x30C30d826be87Cd0A4b90855C2F38f7FcfE4eaA7); // MIM -> USDC
+            poolPath[1] = address(0x66357dCaCe80431aee0A7507e2E361B7e2402370); // USDC -> USDC.e
+*/
+export const ParametersPerChain = {
   [ChainId.Mainnet]: {
     cauldronV3MC: Constants.mainnet.cauldronV3,
     degenBox: Constants.mainnet.degenBox,
