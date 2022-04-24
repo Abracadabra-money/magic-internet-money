@@ -31,7 +31,7 @@ interface IBentoBoxV1 {
     ) external returns (uint256, uint256);
 }
 
-contract UsdcAvaxLevSwapper {
+contract UsdceAvaxLevSwapperV1 {
     IBentoBoxV1 public immutable DEGENBOX;
     IUniswapV2Pair public constant USDCAVAX = IUniswapV2Pair(0xA389f9430876455C36478DeEa9769B7Ca4E3DDB1);
     IUniswapV2Pair public constant MIMAVAX = IUniswapV2Pair(0x781655d802670bbA3c89aeBaaEa59D3182fD755D);
