@@ -35,10 +35,10 @@ contract StargateLevSwapper is ILevSwapperGeneric {
         platypusRouter = _platypusRouter;
 
         for (uint256 i = 0; i < _tokenPath.length; i++) {
-            tokenPath[i] = _tokenPath[i];
+            tokenPath.push(_tokenPath[i]);
         }
         for (uint256 i = 0; i < _poolPath.length; i++) {
-            poolPath[i] = _poolPath[i];
+            poolPath.push(_poolPath[i]);
         }
 
         IERC20(_tokenPath[0]).approve(address(_platypusRouter), type(uint256).max);

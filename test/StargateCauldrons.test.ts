@@ -7,45 +7,45 @@ import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ParametersPerChain } from "../deploy/StargateCauldron";
 
-const testParametersPerChain = {
-  [ChainId.Mainnet]: {
-    enabled: false,
-    jsonRpcUrl: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-    blockNumber: 123,
-  },
+const globalParametersPerChain = {
   [ChainId.Avalanche]: {
     enabled: true,
     jsonRpcUrl: "https://api.avax.network/ext/bc/C/rpc",
-    blockNumber: 123,
+    blockNumber: 13761504,
+    mimWhale: "0x78a9e536EBdA08b5b9EDbE5785C9D1D50fA3278C",
   },
+  [ChainId.Mainnet]: {
+    enabled: false,
+    jsonRpcUrl: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+    blockNumber: 14650555,
+    mimWhale: "0x355D72Fb52AD4591B2066E43e89A7A38CF5cb341",
+  }
 };
 // In order:
 // 0: name
 // 1: collateral whale address
-// 2: the maximum amount to leverage
-// 3: oracle price - Beware that its value is based on the value of the plp at FORKBLOCK
+// 2: the maximum collateral token amount to liquidate for MIM
+// 3: the maximum MIM amount to leverage for collateral token amount
+// 4: oracle price - Beware that its value is based on the value of the plp at FORKBLOCK
 const cauldronsPerChain = {
-  [ChainId.Mainnet]: [
-    ["USDC/WETH 0.3%", "0xc1c3d73e3f7be5549198cb275c7ba45f637a299a", 5_000_000, "117961428762440234"],
-    ["WETH/USDT 0.3%", "0xd09729321471210e4c75b902f36c89f71c934a9c", 2_000_000, "115370773062134310"],
-  ],
   [ChainId.Avalanche]: [
-    ["USDC/WETH 0.3%", "0xc1c3d73e3f7be5549198cb275c7ba45f637a299a", 5_000_000, "117961428762440234"],
-    ["WETH/USDT 0.3%", "0xd09729321471210e4c75b902f36c89f71c934a9c", 2_000_000, "115370773062134310"],
+    ["USDC Pool", "0x8731d54E9D02c286767d56ac03e8037C07e01e98", getBigNumber(5_000_000, 6), getBigNumber(5_000_000, 6), "123"],
+    ["USDT Pool", "0x8731d54E9D02c286767d56ac03e8037C07e01e98", getBigNumber(5_000_000, 6), getBigNumber(5_000_000, 6), "123"],
   ],
+  [ChainId.Mainnet]: [],
 };
 
-forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldron", async (_chainId: ChainId) => {
-  const testParameters = testParametersPerChain[_chainId];
+forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldrons", async (_chainId: ChainId) => {
+  const globalParameters = globalParametersPerChain[_chainId];
   const cases = ParametersPerChain[_chainId].cauldrons.map((c, index) => [
     ...cauldronsPerChain[_chainId][index],
     c,
     ParametersPerChain[_chainId],
   ]);
 
-  const describeFn = testParameters.enabled ? "describe" : "xdescribe";
+  const describeFn = globalParameters.enabled ? "describe" : "xdescribe";
 
-  forEach(cases)[describeFn]("%s Cauldron", async (_name, param1, param2, param3, cauldronParams, globalCauldronParams) => {
+  forEach(cases)[describeFn]("%s Cauldron", async (_name, collateralWhale, collateralLiquidationAmount, leverageAmount, expectedOraclePrice, cauldronParams, globalCauldronParams) => {
     let snapshotId;
     let MIM: ERC20Mock;
     let CollateralToken: ERC20Mock;
@@ -58,7 +58,7 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldron",
     let mimShare: BigNumber;
     let collateralShare: BigNumber;
     let mimWhaleSigner;
-    let usdcAvaxWhaleSigner;
+    let collateralWhaleSigner;
     let collateralPrice;
 
     before(async () => {
@@ -68,8 +68,8 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldron",
           {
             forking: {
               enabled: true,
-              jsonRpcUrl: testParameters.jsonRpcUrl,
-              blockNumber: testParameters.blockNumber,
+              jsonRpcUrl: globalParameters.jsonRpcUrl,
+              blockNumber: globalParameters.blockNumber,
             },
           },
         ],
@@ -78,33 +78,33 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldron",
 
       await deployments.fixture(["StargateCauldrons"]);
 
-      Swapper = await ethers.getContract<ISwapperGeneric>(`Stargate${globalCauldronParams.deploymentNamePrefix}Swapper`);
-      LevSwapper = await ethers.getContract<ILevSwapperGeneric>(`Stargate${globalCauldronParams.deploymentNamePrefix}LevSwapper`);
-      ProxyOracle = await ethers.getContract<IOracle>(`Stargate${globalCauldronParams.deploymentNamePrefix}ProxyOracle`);
-
+      Swapper = await ethers.getContract<ISwapperGeneric>(`Stargate${cauldronParams.deploymentNamePrefix}Swapper`);
+      LevSwapper = await ethers.getContract<ILevSwapperGeneric>(`Stargate${cauldronParams.deploymentNamePrefix}LevSwapper`);
+      ProxyOracle = await ethers.getContract<IOracle>(`Stargate${cauldronParams.deploymentNamePrefix}ProxyOracle`);
+      CollateralToken = await ethers.getContractAt<ERC20Mock>("ERC20Mock", cauldronParams.collateral);
       DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", globalCauldronParams.degenBox);
       MIM = await ethers.getContractAt<ERC20Mock>("ERC20Mock", globalCauldronParams.mim);
-      CollateralToken = await ethers.getContractAt<ERC20Mock>("ERC20Mock", cauldronParams.collateral);
 
-      /*await impersonate(MIM_WHALE);
-      await impersonate(USDCAVAX_LP_WHALE);
+      await impersonate(globalParameters.mimWhale);
+      await impersonate(collateralWhale);
 
-      mimWhaleSigner = await ethers.getSigner(MIM_WHALE);
-      usdcAvaxWhaleSigner = await ethers.getSigner(USDCAVAX_LP_WHALE);
+      mimWhaleSigner = await ethers.getSigner(globalParameters.mimWhale);
+      collateralWhaleSigner = await ethers.getSigner(collateralWhale);
 
       const spot = await ProxyOracle.peekSpot("0x");
       collateralPrice = 1 / parseFloat(ethers.utils.formatEther(spot));
       console.log(`Collateral Price = $${collateralPrice} usd`);
+      expect(collateralPrice).to.be.eq(expectedOraclePrice);
 
       // Deposit collateral for liquidation swapper
-      collateralShare = await DegenBox.toShare(MIM.address, LIQUIDATION_LP_AMOUNT, true);
-      await CollateralToken.connect(usdcAvaxWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
-      await DegenBox.connect(usdcAvaxWhaleSigner).deposit(CollateralToken.address, USDCAVAX_LP_WHALE, swapper.address, 0, collateralShare);
+      collateralShare = await DegenBox.toShare(cauldronParams.collateral, collateralLiquidationAmount, true);
+      await CollateralToken.connect(collateralWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
+      await DegenBox.connect(collateralWhaleSigner).deposit(CollateralToken.address, collateralWhale, Swapper.address, 0, collateralShare);
 
       // Deposit MIM in DegenBox for leverage swapper
-      mimShare = await DegenBox.toShare(MIM.address, LEVERAGE_MIM_AMOUNT, true);
+      mimShare = await DegenBox.toShare(MIM.address, leverageAmount, true);
       await MIM.connect(mimWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
-      await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, MIM_WHALE, levSwapper.address, 0, mimShare);*/
+      await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, globalParameters.mimWhale, LevSwapper.address, 0, mimShare);
 
       snapshotId = await ethers.provider.send("evm_snapshot", []);
     });
@@ -114,11 +114,7 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldron",
       snapshotId = await ethers.provider.send("evm_snapshot", []);
     });
 
-    it("should work", async () => {
-      expect(true).to.be.true;
-    });
-
-    it.skip("should liquidate the USDC.e/AVAX collateral and deposit MIM back to degenbox", async () => {
+    it("should liquidate the collateral and deposit MIM back to degenbox", async () => {
       const { alice } = await getNamedAccounts();
 
       const collateralAmount = await DegenBox.toAmount(CollateralToken.address, collateralShare, false);
@@ -141,7 +137,7 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldron",
       expect(amountCollateralAfter).to.be.lt(amountCollateralBefore);
     });
 
-    it.skip("should swap MIM for USDC.e/AVAX and deposit back to degenbox", async () => {
+    it("should swap MIM for collateral and deposit back to degenbox", async () => {
       const mimShares = [
         // cannot use full mimShare as we are the only depositor on limone
         // mimShare

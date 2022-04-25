@@ -15,7 +15,7 @@ contract StargateSwapper is ISwapperGeneric {
     IStargateRouter public immutable stargateRouter;
     IPlatypusRouter01 public immutable platypusRouter;
     uint16 public immutable poolId;
-    
+
     address[] public tokenPath;
     address[] public poolPath;
 
@@ -36,10 +36,10 @@ contract StargateSwapper is ISwapperGeneric {
         platypusRouter = _platypusRouter;
 
         for (uint256 i = 0; i < _tokenPath.length; i++) {
-            tokenPath[i] = _tokenPath[i];
+            tokenPath.push(_tokenPath[i]);
         }
         for (uint256 i = 0; i < _poolPath.length; i++) {
-            poolPath[i] = _poolPath[i];
+            poolPath.push(_poolPath[i]);
         }
 
         IERC20(address(pool)).approve(address(_stargateRouter), type(uint256).max);

@@ -8,15 +8,6 @@ import { Constants, xMerlin } from "../test/constants";
 
 const oracleData = "0x0000000000000000000000000000000000000000";
 
-/*
-            address[] memory tokenPath = new address[](3);
-            tokenPath[0] = address(MIM);
-            tokenPath[1] = address(USDC);
-            tokenPath[2] = address(USDCE);
-            address[] memory poolPath = new address[](2);
-            poolPath[0] = address(0x30C30d826be87Cd0A4b90855C2F38f7FcfE4eaA7); // MIM -> USDC
-            poolPath[1] = address(0x66357dCaCe80431aee0A7507e2E361B7e2402370); // USDC -> USDC.e
-*/
 export const ParametersPerChain = {
   [ChainId.Mainnet]: {
     cauldronV3MC: Constants.mainnet.cauldronV3,
@@ -31,19 +22,26 @@ export const ParametersPerChain = {
     degenBox: Constants.avalanche.degenBox,
     mim: Constants.avalanche.mim,
     owner: xMerlin,
+    stargateRouter: Constants.avalanche.stargate.router,
+    platypusRouter: Constants.avalanche.platypus.router,
 
     cauldrons: [
       // USDC Pool
       {
         deploymentNamePrefix: "AvalancheUsdc",
         collateral: Constants.avalanche.stargate.usdcPool,
+        poolId: 1,
+        oracle: {
+          chainLinkTokenOracle: "0xF096872672F44d6EBA71458D74fe67F9a77a23B9",
+          desc: "LINK/USDC",
+        },
         swapper: {
-          tokenPath: [],
-          poolPath: [],
+          tokenPath: [Constants.avalanche.usdc, Constants.avalanche.mim],
+          poolPath: ["0x66357dCaCe80431aee0A7507e2E361B7e2402370"], // USDC -> MIM
         },
         levSwapper: {
-          tokenPath: [],
-          poolPath: [],
+          tokenPath: [Constants.avalanche.mim, Constants.avalanche.usdc],
+          poolPath: ["0x66357dCaCe80431aee0A7507e2E361B7e2402370"], // MIM -> USDC
         },
       },
 
@@ -51,6 +49,19 @@ export const ParametersPerChain = {
       {
         deploymentNamePrefix: "AvalancheUsdt",
         collateral: Constants.avalanche.stargate.usdtPool,
+        poolId: 2,
+        oracle: {
+          chainLinkTokenOracle: "0xEBE676ee90Fe1112671f19b6B7459bC678B67e8a",
+          desc: "LINK/USDT",
+        },
+        swapper: {
+          tokenPath: [Constants.avalanche.usdt, Constants.avalanche.usdc, Constants.avalanche.mim],
+          poolPath: ["0x66357dCaCe80431aee0A7507e2E361B7e2402370", "0x30C30d826be87Cd0A4b90855C2F38f7FcfE4eaA7"], // USDT -> MIM
+        },
+        levSwapper: {
+          tokenPath: [Constants.avalanche.mim, Constants.avalanche.usdc, Constants.avalanche.usdt],
+          poolPath: ["0x30C30d826be87Cd0A4b90855C2F38f7FcfE4eaA7", "0x66357dCaCe80431aee0A7507e2E361B7e2402370"], // MIM -> USDT
+        },
       },
     ],
   },
@@ -60,9 +71,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const { deployer } = await getNamedAccounts();
   const chainId = await hre.getChainId();
   const parameters = ParametersPerChain[parseInt(chainId)];
-
   const DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", parameters.degenBox);
-
   const cauldrons = parameters.cauldrons;
 
   for (let i = 0; i < cauldrons.length; i++) {
@@ -78,11 +87,18 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
     const Oracle = await wrappedDeploy<IOracle>(`Stargate${cauldron.deploymentNamePrefix}LPOracleV1`, {
       from: deployer,
-      args: [cauldron.collateral],
+      args: [cauldron.collateral, cauldron.oracle.chainLinkTokenOracle, cauldron.oracle.desc],
       log: true,
       contract: "StargateLPOracle",
       deterministicDeployment: false,
     });
+
+    if ((await ProxyOracle.oracleImplementation()) !== Oracle.address) {
+      await (await ProxyOracle.changeOracleImplementation(Oracle.address)).wait();
+    }
+    if ((await ProxyOracle.owner()) !== xMerlin) {
+      await (await ProxyOracle.transferOwnership(xMerlin, true, false)).wait();
+    }
 
     const INTEREST_CONVERSION = 1e18 / (365.25 * 3600 * 24) / 100;
     const OPENING_CONVERSION = 1e5 / 100;
@@ -111,7 +127,15 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     // Liquidation Swapper
     await wrappedDeploy(`Stargate${cauldron.deploymentNamePrefix}Swapper`, {
       from: deployer,
-      args: [cauldron.swapper.tokenPath, cauldron.swapper.poolPath],
+      args: [
+        parameters.degenBox,
+        cauldron.collateral,
+        cauldron.poolId,
+        parameters.stargateRouter,
+        parameters.platypusRouter,
+        cauldron.swapper.tokenPath,
+        cauldron.swapper.poolPath,
+      ],
       log: true,
       contract: "StargateSwapper",
       deterministicDeployment: false,
@@ -120,18 +144,19 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     // Leverage Swapper
     await wrappedDeploy(`Stargate${cauldron.deploymentNamePrefix}LevSwapper`, {
       from: deployer,
-      args: [cauldron.levSwapper.tokenPath, cauldron.levSwapper.poolPath],
+      args: [
+        parameters.degenBox,
+        cauldron.collateral,
+        cauldron.poolId,
+        parameters.stargateRouter,
+        parameters.platypusRouter,
+        cauldron.levSwapper.tokenPath,
+        cauldron.levSwapper.poolPath,
+      ],
       log: true,
       contract: "StargateLevSwapper",
       deterministicDeployment: false,
     });
-
-    if ((await ProxyOracle.oracleImplementation()) !== Oracle.address) {
-      await ProxyOracle.changeOracleImplementation(Oracle.address);
-    }
-    if ((await ProxyOracle.owner()) !== xMerlin) {
-      await ProxyOracle.transferOwnership(xMerlin, true, false);
-    }
   }
 };
 
