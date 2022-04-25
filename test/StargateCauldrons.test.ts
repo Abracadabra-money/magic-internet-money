@@ -2,7 +2,7 @@
 import forEach from "mocha-each";
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { ChainId, getBigNumber, impersonate } from "../utilities";
-import { DegenBox, ERC20Mock, ILevSwapperGeneric, IOracle, ISwapperGeneric } from "../typechain";
+import { DegenBox, ERC20Mock, ILevSwapperGeneric, IOracle, IStargatePool, ISwapperGeneric } from "../typechain";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ParametersPerChain } from "../deploy/StargateCauldron";
@@ -11,7 +11,7 @@ const globalParametersPerChain = {
   [ChainId.Avalanche]: {
     enabled: true,
     jsonRpcUrl: "https://api.avax.network/ext/bc/C/rpc",
-    blockNumber: 13761504,
+    blockNumber: 13882968,
     mimWhale: "0x78a9e536EBdA08b5b9EDbE5785C9D1D50fA3278C",
   },
   [ChainId.Mainnet]: {
@@ -29,8 +29,8 @@ const globalParametersPerChain = {
 // 4: oracle price - Beware that its value is based on the value of the plp at FORKBLOCK
 const cauldronsPerChain = {
   [ChainId.Avalanche]: [
-    ["USDC Pool", "0x8731d54E9D02c286767d56ac03e8037C07e01e98", getBigNumber(5_000_000, 6), getBigNumber(5_000_000, 6), "123"],
-    ["USDT Pool", "0x8731d54E9D02c286767d56ac03e8037C07e01e98", getBigNumber(5_000_000, 6), getBigNumber(5_000_000, 6), "123"],
+    ["USDC Pool", "0x8731d54E9D02c286767d56ac03e8037C07e01e98", getBigNumber(800_000, 6), getBigNumber(5_000_000), "1.00022102"],
+    ["USDT Pool", "0x8731d54E9D02c286767d56ac03e8037C07e01e98", getBigNumber(60_000, 6), getBigNumber(5_000_000), "1.00059304"],
   ],
   [ChainId.Mainnet]: [],
 };
@@ -48,7 +48,8 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldrons"
   forEach(cases)[describeFn]("%s Cauldron", async (_name, collateralWhale, collateralLiquidationAmount, leverageAmount, expectedOraclePrice, cauldronParams, globalCauldronParams) => {
     let snapshotId;
     let MIM: ERC20Mock;
-    let CollateralToken: ERC20Mock;
+    let CollateralToken: IStargatePool;
+    let CollateralTokenAsERC20: ERC20Mock;
 
     let Swapper: ISwapperGeneric;
     let LevSwapper: ILevSwapperGeneric;
@@ -81,7 +82,9 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldrons"
       Swapper = await ethers.getContract<ISwapperGeneric>(`Stargate${cauldronParams.deploymentNamePrefix}Swapper`);
       LevSwapper = await ethers.getContract<ILevSwapperGeneric>(`Stargate${cauldronParams.deploymentNamePrefix}LevSwapper`);
       ProxyOracle = await ethers.getContract<IOracle>(`Stargate${cauldronParams.deploymentNamePrefix}ProxyOracle`);
-      CollateralToken = await ethers.getContractAt<ERC20Mock>("ERC20Mock", cauldronParams.collateral);
+      CollateralToken = await ethers.getContractAt<IStargatePool>("IStargatePool", cauldronParams.collateral);
+      CollateralTokenAsERC20 = await ethers.getContractAt<ERC20Mock>("ERC20Mock", cauldronParams.collateral);
+
       DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", globalCauldronParams.degenBox);
       MIM = await ethers.getContractAt<ERC20Mock>("ERC20Mock", globalCauldronParams.mim);
 
@@ -94,11 +97,11 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldrons"
       const spot = await ProxyOracle.peekSpot("0x");
       collateralPrice = 1 / parseFloat(ethers.utils.formatEther(spot));
       console.log(`Collateral Price = $${collateralPrice} usd`);
-      expect(collateralPrice).to.be.eq(expectedOraclePrice);
+      expect(collateralPrice.toString()).to.be.eq(expectedOraclePrice);
 
       // Deposit collateral for liquidation swapper
       collateralShare = await DegenBox.toShare(cauldronParams.collateral, collateralLiquidationAmount, true);
-      await CollateralToken.connect(collateralWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
+      await CollateralTokenAsERC20.connect(collateralWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
       await DegenBox.connect(collateralWhaleSigner).deposit(CollateralToken.address, collateralWhale, Swapper.address, 0, collateralShare);
 
       // Deposit MIM in DegenBox for leverage swapper
@@ -118,7 +121,7 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldrons"
       const { alice } = await getNamedAccounts();
 
       const collateralAmount = await DegenBox.toAmount(CollateralToken.address, collateralShare, false);
-      const totalLiquidationPrice = collateralPrice * parseFloat(ethers.utils.formatEther(collateralAmount));
+      const totalLiquidationPrice = collateralPrice * parseFloat(ethers.utils.formatUnits(collateralAmount, parseInt((await CollateralToken.localDecimals()).toString())));
 
       console.log(`Liquidating for $${totalLiquidationPrice.toLocaleString()} worth of collateral tokens...`);
       const amountCollateralBefore = (await DegenBox.totals(CollateralToken.address)).elastic;
@@ -160,7 +163,7 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldrons"
         const amountCollateralAfter = (await DegenBox.totals(CollateralToken.address)).elastic;
         const amountMimAfter = (await DegenBox.totals(MIM.address)).elastic;
 
-        const amountOut = parseFloat(ethers.utils.formatEther(amountCollateralAfter.sub(amountCollateralBefore)));
+        const amountOut = parseFloat(ethers.utils.formatUnits(amountCollateralAfter.sub(amountCollateralBefore), parseInt((await CollateralToken.localDecimals()).toString())));
         console.log(`Got ${amountOut.toLocaleString()} Token from Leverage Swapper ($${(collateralPrice * amountOut).toLocaleString()})`);
         console.log("Gas Cost", parseFloat(estimateGas.toString()).toLocaleString());
 

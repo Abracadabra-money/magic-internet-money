@@ -31,7 +31,7 @@ contract StargateLPOracle is IOracle {
         uint256 normalizedTotalSupply = pool.totalSupply() * normalizeScale;
         uint256 lpPrice = (normalizedtotalLiquidity * uint256(tokenOracle.latestAnswer())) / normalizedTotalSupply;
 
-        return 1e44 / lpPrice;
+        return 1e26 / lpPrice;
     }
 
     /// @inheritdoc IOracle

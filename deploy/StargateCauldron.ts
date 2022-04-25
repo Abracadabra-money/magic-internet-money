@@ -10,6 +10,7 @@ const oracleData = "0x0000000000000000000000000000000000000000";
 
 export const ParametersPerChain = {
   [ChainId.Mainnet]: {
+    enabled: true,
     cauldronV3MC: Constants.mainnet.cauldronV3,
     degenBox: Constants.mainnet.degenBox,
     mim: Constants.mainnet.mim,
@@ -18,6 +19,7 @@ export const ParametersPerChain = {
     cauldrons: [],
   },
   [ChainId.Avalanche]: {
+    enabled: true,
     cauldronV3MC: Constants.avalanche.cauldronV3,
     degenBox: Constants.avalanche.degenBox,
     mim: Constants.avalanche.mim,
@@ -37,11 +39,11 @@ export const ParametersPerChain = {
         },
         swapper: {
           tokenPath: [Constants.avalanche.usdc, Constants.avalanche.mim],
-          poolPath: ["0x66357dCaCe80431aee0A7507e2E361B7e2402370"], // USDC -> MIM
+          poolPath: ["0x30C30d826be87Cd0A4b90855C2F38f7FcfE4eaA7"], // USDC -> MIM
         },
         levSwapper: {
           tokenPath: [Constants.avalanche.mim, Constants.avalanche.usdc],
-          poolPath: ["0x66357dCaCe80431aee0A7507e2E361B7e2402370"], // MIM -> USDC
+          poolPath: ["0x30C30d826be87Cd0A4b90855C2F38f7FcfE4eaA7"], // MIM -> USDC
         },
       },
 
@@ -71,6 +73,12 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const { deployer } = await getNamedAccounts();
   const chainId = await hre.getChainId();
   const parameters = ParametersPerChain[parseInt(chainId)];
+
+  if(!parameters.enabled) {
+    console.log(`Deployment disabled for chain id ${chainId}`);
+    return;
+  }
+  
   const DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", parameters.degenBox);
   const cauldrons = parameters.cauldrons;
 

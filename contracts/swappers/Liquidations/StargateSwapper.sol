@@ -42,7 +42,6 @@ contract StargateSwapper is ISwapperGeneric {
             poolPath.push(_poolPath[i]);
         }
 
-        IERC20(address(pool)).approve(address(_stargateRouter), type(uint256).max);
         IERC20(_tokenPath[0]).approve(address(_platypusRouter), type(uint256).max);
     }
 
@@ -54,11 +53,16 @@ contract StargateSwapper is ISwapperGeneric {
         uint256 shareToMin,
         uint256 shareFrom
     ) public override returns (uint256 extraShare, uint256 shareReturned) {
-        (uint256 amount, ) = degenBox.withdraw(IERC20(address(pool)), address(this), address(this), 0, shareFrom);
+        degenBox.withdraw(IERC20(address(pool)), address(this), address(this), 0, shareFrom);
+
+        // use the full balance so it's easier to check if everything has been redeemed.
+        uint256 amount = IERC20(address(pool)).balanceOf(address(this));
 
         // Stargate Pool LP -> Underlying Token
         stargateRouter.instantRedeemLocal(poolId, amount, address(this));
-        amount = IERC20(address(tokenPath[tokenPath.length - 1])).balanceOf(address(this));
+        require(IERC20(address(pool)).balanceOf(address(this)) == 0, "Cannot fully redeem");
+
+        amount = IERC20(address(tokenPath[0])).balanceOf(address(this));
 
         // Stargate Pool Underlying Token -> MIM
         (amount, ) = platypusRouter.swapTokensForTokens(tokenPath, poolPath, amount, 0, address(degenBox), type(uint256).max);
