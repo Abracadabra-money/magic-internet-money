@@ -8,6 +8,28 @@ export const Constants = {
     mim: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
     spell: "0x090185f2135308BaD17527004364eBcC2D37e5F6",
     ust: "0xa47c8bf37f92aBed4A126BDA807A7b7498661acD",
+    usdc: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    usdt: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+    stargate: {
+      stg: "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6",
+      router: "0x8731d54E9D02c286767d56ac03e8037C07e01e98",
+      usdcPool: "0xdf0770dF86a8034b3EFEf0A1Bb3c889B8332FF56",
+      usdtPool: "0x38EA452219524Bb87e18dE1C24D3bB59510BD783",
+    },
+  },
+
+  arbitrum: {
+    cauldronV3: "0x233332a01Ebf20f770883ebff68374b015AccB9C",
+    degenBox: "0x74c764D41B77DBbb4fe771daB1939B00b146894A",
+    mim: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
+    usdc: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+    usdt: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+    stargate: {
+      stg: "0x6694340fc020c5E6B96567843da2df01b2CE1eb6",
+      router: "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614",
+      usdcPool: "0x892785f33CdeE22A30AEF750F285E18c18040c3e",
+      usdtPool: "0xB6CfcF89a7B22988bfC96632aC2A9D6daB60d641",
+    },
   },
 
   avalanche: {
@@ -25,7 +47,7 @@ export const Constants = {
       router: "0x73256EC7575D999C360c1EeC118ECbEFd8DA7D12",
     },
     stargate: {
-      std: "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+      stg: "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
       router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd",
       usdcPool: "0x1205f31718499dBf1fCa446663B532Ef87481fe1",
       usdtPool: "0x29e38769f23701A2e4A8Ef0492e19dA4604Be62c",

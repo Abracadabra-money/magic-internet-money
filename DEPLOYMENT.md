@@ -197,6 +197,14 @@
 | DegenBox                            | 0xe56F37Ef2e54ECaA41a9675da1c3445736d60B42 |      |
 | CauldronV2MultiChain MasterContract | 0x9031c0Fd5bD1405132028A3e0eb277C705B3d8f7 |      |
 
+## Arbitrum
+
+## Cauldron MasterContracts
+
+| Contract                  | Address                                    |
+| ------------------------- | ------------------------------------------ |
+| CauldronV3 MasterContract | 0x233332a01Ebf20f770883ebff68374b015AccB9C |
+
 # Oracles
 
 | Chain | Token                 | Address                                    |

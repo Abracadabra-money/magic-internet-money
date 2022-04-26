@@ -15,8 +15,95 @@ export const ParametersPerChain = {
     degenBox: Constants.mainnet.degenBox,
     mim: Constants.mainnet.mim,
     owner: xMerlin,
+    stargateRouter: Constants.mainnet.stargate.router,
 
-    cauldrons: [],
+    cauldrons: [
+      // USDC Pool
+      {
+        deploymentNamePrefix: "EthereumUsdc",
+        collateral: Constants.mainnet.stargate.usdcPool,
+        poolId: 1,
+        oracle: {
+          chainLinkTokenOracle: "TODO",
+          desc: "LINK/USDC",
+        },
+        swapper: {
+          tokenPath: [Constants.mainnet.usdc, Constants.mainnet.mim],
+          poolPath: ["TODO"], // USDC -> MIM
+        },
+        levSwapper: {
+          tokenPath: [Constants.mainnet.mim, Constants.mainnet.usdc],
+          poolPath: ["TODO"], // MIM -> USDC
+        },
+      },
+
+      // USDT Pool
+      {
+        deploymentNamePrefix: "EthereumUsdt",
+        collateral: Constants.mainnet.stargate.usdtPool,
+        poolId: 2,
+        oracle: {
+          chainLinkTokenOracle: "TODO",
+          desc: "LINK/USDT",
+        },
+        swapper: {
+          tokenPath: [Constants.mainnet.usdt, Constants.mainnet.usdc, Constants.mainnet.mim],
+          poolPath: ["TODO", "TODO"], // USDT -> MIM
+        },
+        levSwapper: {
+          tokenPath: [Constants.mainnet.mim, Constants.mainnet.usdc, Constants.mainnet.usdt],
+          poolPath: ["TODO", "TODO"], // MIM -> USDT
+        },
+      },
+    ],
+  },
+  [ChainId.Arbitrum]: {
+    enabled: true,
+    cauldronV3MC: Constants.arbitrum.cauldronV3,
+    degenBox: Constants.arbitrum.degenBox,
+    mim: Constants.arbitrum.mim,
+    owner: xMerlin,
+    stargateRouter: Constants.arbitrum.stargate.router,
+
+    cauldrons: [
+      // USDC Pool
+      {
+        deploymentNamePrefix: "ArbitrumUsdc",
+        collateral: Constants.arbitrum.stargate.usdcPool,
+        poolId: 1,
+        oracle: {
+          chainLinkTokenOracle: "TODO",
+          desc: "LINK/USDC",
+        },
+        swapper: {
+          tokenPath: [Constants.arbitrum.usdc, Constants.arbitrum.mim],
+          poolPath: ["TODO"], // USDC -> MIM
+        },
+        levSwapper: {
+          tokenPath: [Constants.arbitrum.mim, Constants.arbitrum.usdc],
+          poolPath: ["TODO"], // MIM -> USDC
+        },
+      },
+
+      // USDT Pool
+      {
+        deploymentNamePrefix: "ArbitrumUsdt",
+        collateral: Constants.arbitrum.stargate.usdtPool,
+        poolId: 2,
+        oracle: {
+          chainLinkTokenOracle: "TODO",
+          desc: "LINK/USDT",
+        },
+        swapper: {
+          tokenPath: [Constants.arbitrum.usdt, Constants.arbitrum.usdc, Constants.arbitrum.mim],
+          poolPath: ["TODO", "TODO"], // USDT -> MIM
+        },
+        levSwapper: {
+          tokenPath: [Constants.arbitrum.mim, Constants.arbitrum.usdc, Constants.arbitrum.usdt],
+          poolPath: ["TODO", "TODO"], // MIM -> USDT
+        },
+      },
+    ],
   },
   [ChainId.Avalanche]: {
     enabled: true,
@@ -71,14 +158,14 @@ export const ParametersPerChain = {
 
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts();
-  const chainId = await hre.getChainId();
-  const parameters = ParametersPerChain[parseInt(chainId)];
+  const chainId = parseInt(await hre.getChainId());
+  const parameters = ParametersPerChain[chainId];
 
-  if(!parameters.enabled) {
+  if (!parameters.enabled) {
     console.log(`Deployment disabled for chain id ${chainId}`);
     return;
   }
-  
+
   const DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", parameters.degenBox);
   const cauldrons = parameters.cauldrons;
 
@@ -132,39 +219,47 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       address: deployEvent?.args?.cloneAddress,
     });
 
-    // Liquidation Swapper
-    await wrappedDeploy(`Stargate${cauldron.deploymentNamePrefix}Swapper`, {
-      from: deployer,
-      args: [
-        parameters.degenBox,
-        cauldron.collateral,
-        cauldron.poolId,
-        parameters.stargateRouter,
-        parameters.platypusRouter,
-        cauldron.swapper.tokenPath,
-        cauldron.swapper.poolPath,
-      ],
-      log: true,
-      contract: "StargateSwapper",
-      deterministicDeployment: false,
-    });
+    switch (chainId) {
+      case ChainId.Mainnet:
+        break;
+      case ChainId.Arbitrum:
+        break;
+      case ChainId.Avalanche:
+        // Liquidation Swapper
+        await wrappedDeploy(`Stargate${cauldron.deploymentNamePrefix}Swapper`, {
+          from: deployer,
+          args: [
+            parameters.degenBox,
+            cauldron.collateral,
+            cauldron.poolId,
+            parameters.stargateRouter,
+            parameters.platypusRouter,
+            cauldron.swapper.tokenPath,
+            cauldron.swapper.poolPath,
+          ],
+          log: true,
+          contract: "StargatePlatypusSwapper",
+          deterministicDeployment: false,
+        });
 
-    // Leverage Swapper
-    await wrappedDeploy(`Stargate${cauldron.deploymentNamePrefix}LevSwapper`, {
-      from: deployer,
-      args: [
-        parameters.degenBox,
-        cauldron.collateral,
-        cauldron.poolId,
-        parameters.stargateRouter,
-        parameters.platypusRouter,
-        cauldron.levSwapper.tokenPath,
-        cauldron.levSwapper.poolPath,
-      ],
-      log: true,
-      contract: "StargateLevSwapper",
-      deterministicDeployment: false,
-    });
+        // Leverage Swapper
+        await wrappedDeploy(`Stargate${cauldron.deploymentNamePrefix}LevSwapper`, {
+          from: deployer,
+          args: [
+            parameters.degenBox,
+            cauldron.collateral,
+            cauldron.poolId,
+            parameters.stargateRouter,
+            parameters.platypusRouter,
+            cauldron.levSwapper.tokenPath,
+            cauldron.levSwapper.poolPath,
+          ],
+          log: true,
+          contract: "StargatePlatypusLevSwapper",
+          deterministicDeployment: false,
+        });
+        break;
+    }
   }
 };
 
