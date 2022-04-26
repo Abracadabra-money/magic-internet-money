@@ -8,8 +8,6 @@ import "../../interfaces/ILevSwapperGeneric.sol";
 import "../../interfaces/IBentoBoxV1.sol";
 import "../../interfaces/platypus/IPlatypusRouter01.sol";
 
-import "hardhat/console.sol";
-
 contract UsdceAvaxLevSwapperV2 is ILevSwapperGeneric {
     IBentoBoxV1 public immutable DEGENBOX;
     IUniswapV2Pair public constant USDCEAVAX = IUniswapV2Pair(0xA389f9430876455C36478DeEa9769B7Ca4E3DDB1);
