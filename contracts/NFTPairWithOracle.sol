@@ -370,11 +370,11 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
     // chain ID and master contract are a match, so we explicitly include the
     // clone address (and the asset/collateral addresses):
 
-    // keccak256("Lend(address contract,uint256 tokenId,bool anyTokenId,uint128 valuation,uint64 duration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
-    bytes32 private constant LEND_SIGNATURE_HASH = 0x06bcca6f35b7c1b98f11abbb10957d273a681069ba90358de25404f49e2430f8;
+    // keccak256("Lend(address contract,uint256 tokenId,bool anyTokenId,uint128 valuation,uint64 duration,uint16 annualInterestBPS,uint16 ltvBPS,address oracle,uint256 nonce,uint256 deadline)")
+    bytes32 private constant LEND_SIGNATURE_HASH = 0x4bfd5d24664945f4bb81f6061bd624907d74ba338190bdd6aa37f65838a8a533;
 
-    // keccak256("Borrow(address contract,uint256 tokenId,uint128 valuation,uint64 duration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
-    bytes32 private constant BORROW_SIGNATURE_HASH = 0xf2c9128b0fb8406af3168320897e5ff08f3bb536dd5f804c29ed276e93ec4336;
+    // keccak256("Borrow(address contract,uint256 tokenId,uint128 valuation,uint64 duration,uint16 annualInterestBPS,uint16 ltvBPS,address oracle,uint256 nonce,uint256 deadline)")
+    bytes32 private constant BORROW_SIGNATURE_HASH = 0xfc58c7a8ea6a96e25d218e36759058a704bbf0bebb53a109a44ca82f025cb769;
 
     /// @notice Request and immediately borrow from a pre-committed lender
 
