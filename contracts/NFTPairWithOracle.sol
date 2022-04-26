@@ -72,7 +72,14 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
     using RebaseLibrary for Rebase;
     using BoringERC20 for IERC20;
 
-    event LogRequestLoan(address indexed borrower, uint256 indexed tokenId, uint128 valuation, uint64 duration, uint16 annualInterestBPS, uint16 ltvBPS);
+    event LogRequestLoan(
+        address indexed borrower,
+        uint256 indexed tokenId,
+        uint128 valuation,
+        uint64 duration,
+        uint16 annualInterestBPS,
+        uint16 ltvBPS
+    );
     event LogUpdateLoanParams(uint256 indexed tokenId, uint128 valuation, uint64 duration, uint16 annualInterestBPS, uint16 ltvBPS);
     // This automatically clears the associated loan, if any
     event LogRemoveCollateral(uint256 indexed tokenId, address recipient);
@@ -196,7 +203,10 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
             require(msg.sender == loan.lender, "NFTPair: not the lender");
             TokenLoanParams memory cur = tokenLoanParams[tokenId];
             require(
-                params.duration >= cur.duration && params.valuation <= cur.valuation && params.annualInterestBPS <= cur.annualInterestBPS && params.ltvBPS <= cur.ltvBPS,
+                params.duration >= cur.duration &&
+                    params.valuation <= cur.valuation &&
+                    params.annualInterestBPS <= cur.annualInterestBPS &&
+                    params.ltvBPS <= cur.ltvBPS,
                 "NFTPair: worse params"
             );
         } else if (loan.status == LOAN_REQUESTED) {
@@ -268,10 +278,14 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
                 TokenLoanParams memory loanParams = tokenLoanParams[tokenId];
                 // No underflow: loan.startTime is only ever set to a block timestamp
                 // Cast is safe: if this overflows, then all loans have expired anyway
-                uint256 interest = calculateInterest(loanParams.valuation, uint64(block.timestamp - loan.startTime), loanParams.annualInterestBPS).to128();
+                uint256 interest = calculateInterest(
+                    loanParams.valuation,
+                    uint64(block.timestamp - loan.startTime),
+                    loanParams.annualInterestBPS
+                ).to128();
                 uint256 amount = loanParams.valuation + interest;
                 (, uint256 rate) = loanParams.oracle.get(address(this), tokenId);
-                require (rate.mul(loanParams.ltvBPS) / BPS < amount, "NFT is still valued");
+                require(rate.mul(loanParams.ltvBPS) / BPS < amount, "NFT is still valued");
             }
         }
         // If there somehow is collateral but no accompanying loan, then anyone
@@ -710,13 +724,8 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
                 ) = abi.decode(datas[i], (uint256, address, address, TokenLoanParams, bool, bool, SignatureParams));
                 requestAndBorrow(tokenId, lender, recipient, params, skimCollateral, anyTokenId, signature);
             } else if (action == ACTION_TAKE_COLLATERAL_AND_LEND) {
-                (
-                    uint256 tokenId,
-                    address borrower,
-                    TokenLoanParams memory params,
-                    bool skimFunds,
-                    SignatureParams memory signature
-                ) = abi.decode(datas[i], (uint256, address, TokenLoanParams, bool, SignatureParams));
+                (uint256 tokenId, address borrower, TokenLoanParams memory params, bool skimFunds, SignatureParams memory signature) = abi
+                    .decode(datas[i], (uint256, address, TokenLoanParams, bool, SignatureParams));
                 takeCollateralAndLend(tokenId, borrower, params, skimFunds, signature);
             }
         }
