@@ -7,4 +7,6 @@ interface IStargatePool {
     function totalSupply() external view returns (uint256);
 
     function localDecimals() external view returns (uint256);
+
+    function token() external view returns (address);
 }

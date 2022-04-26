@@ -16,6 +16,9 @@ export const Constants = {
       usdcPool: "0xdf0770dF86a8034b3EFEf0A1Bb3c889B8332FF56",
       usdtPool: "0x38EA452219524Bb87e18dE1C24D3bB59510BD783",
     },
+    curve: {
+      mim3Crv: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B"
+    }
   },
 
   arbitrum: {
@@ -30,6 +33,9 @@ export const Constants = {
       usdcPool: "0x892785f33CdeE22A30AEF750F285E18c18040c3e",
       usdtPool: "0xB6CfcF89a7B22988bfC96632aC2A9D6daB60d641",
     },
+    curve: {
+      mim2crvPool: "0x30dF229cefa463e991e29D42DB0bae2e122B2AC7"
+    }
   },
 
   avalanche: {

@@ -24,16 +24,18 @@ export const ParametersPerChain = {
         collateral: Constants.mainnet.stargate.usdcPool,
         poolId: 1,
         oracle: {
-          chainLinkTokenOracle: "TODO",
+          chainLinkTokenOracle: "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6",
           desc: "LINK/USDC",
         },
         swapper: {
-          tokenPath: [Constants.mainnet.usdc, Constants.mainnet.mim],
-          poolPath: ["TODO"], // USDC -> MIM
+          curvePool: Constants.mainnet.curve.mim3Crv,
+          curvePoolI: 2,
+          curvePoolJ: 0,
         },
         levSwapper: {
-          tokenPath: [Constants.mainnet.mim, Constants.mainnet.usdc],
-          poolPath: ["TODO"], // MIM -> USDC
+          curvePool: Constants.mainnet.curve.mim3Crv,
+          curvePoolI: 0,
+          curvePoolJ: 2,
         },
       },
 
@@ -43,16 +45,18 @@ export const ParametersPerChain = {
         collateral: Constants.mainnet.stargate.usdtPool,
         poolId: 2,
         oracle: {
-          chainLinkTokenOracle: "TODO",
+          chainLinkTokenOracle: "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D",
           desc: "LINK/USDT",
         },
         swapper: {
-          tokenPath: [Constants.mainnet.usdt, Constants.mainnet.usdc, Constants.mainnet.mim],
-          poolPath: ["TODO", "TODO"], // USDT -> MIM
+          curvePool: Constants.mainnet.curve.mim3Crv,
+          curvePoolI: 3,
+          curvePoolJ: 0,
         },
         levSwapper: {
-          tokenPath: [Constants.mainnet.mim, Constants.mainnet.usdc, Constants.mainnet.usdt],
-          poolPath: ["TODO", "TODO"], // MIM -> USDT
+          curvePool: Constants.mainnet.curve.mim3Crv,
+          curvePoolI: 0,
+          curvePoolJ: 3,
         },
       },
     ],
@@ -72,16 +76,18 @@ export const ParametersPerChain = {
         collateral: Constants.arbitrum.stargate.usdcPool,
         poolId: 1,
         oracle: {
-          chainLinkTokenOracle: "TODO",
+          chainLinkTokenOracle: "0x50834F3163758fcC1Df9973b6e91f0F0F0434aD3",
           desc: "LINK/USDC",
         },
         swapper: {
-          tokenPath: [Constants.arbitrum.usdc, Constants.arbitrum.mim],
-          poolPath: ["TODO"], // USDC -> MIM
+          curvePool: Constants.arbitrum.curve.mim2crvPool,
+          curvePoolI: 1,
+          curvePoolJ: 0,
         },
         levSwapper: {
-          tokenPath: [Constants.arbitrum.mim, Constants.arbitrum.usdc],
-          poolPath: ["TODO"], // MIM -> USDC
+          curvePool: Constants.arbitrum.curve.mim2crvPool,
+          curvePoolI: 0,
+          curvePoolJ: 1,
         },
       },
 
@@ -91,16 +97,18 @@ export const ParametersPerChain = {
         collateral: Constants.arbitrum.stargate.usdtPool,
         poolId: 2,
         oracle: {
-          chainLinkTokenOracle: "TODO",
+          chainLinkTokenOracle: "0x3f3f5dF88dC9F13eac63DF89EC16ef6e7E25DdE7",
           desc: "LINK/USDT",
         },
         swapper: {
-          tokenPath: [Constants.arbitrum.usdt, Constants.arbitrum.usdc, Constants.arbitrum.mim],
-          poolPath: ["TODO", "TODO"], // USDT -> MIM
+          curvePool: Constants.arbitrum.curve.mim2crvPool,
+          curvePoolI: 2,
+          curvePoolJ: 0,
         },
         levSwapper: {
-          tokenPath: [Constants.arbitrum.mim, Constants.arbitrum.usdc, Constants.arbitrum.usdt],
-          poolPath: ["TODO", "TODO"], // MIM -> USDT
+          curvePool: Constants.arbitrum.curve.mim2crvPool,
+          curvePoolI: 0,
+          curvePoolJ: 2,
         },
       },
     ],
@@ -221,8 +229,40 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
     switch (chainId) {
       case ChainId.Mainnet:
-        break;
       case ChainId.Arbitrum:
+        // Liquidation Swapper
+        await wrappedDeploy(`Stargate${cauldron.deploymentNamePrefix}Swapper`, {
+          from: deployer,
+          args: [
+            parameters.degenBox,
+            cauldron.collateral,
+            cauldron.poolId,
+            parameters.stargateRouter,
+            cauldron.swapper.curvePool,
+            cauldron.swapper.curvePoolI,
+            cauldron.swapper.curvePoolJ,
+          ],
+          log: true,
+          contract: "StargateCurveSwapper",
+          deterministicDeployment: false,
+        });
+
+        // Leverage Swapper
+        await wrappedDeploy(`Stargate${cauldron.deploymentNamePrefix}LevSwapper`, {
+          from: deployer,
+          args: [
+            parameters.degenBox,
+            cauldron.collateral,
+            cauldron.poolId,
+            parameters.stargateRouter,
+            parameters.platypusRouter,
+            cauldron.levSwapper.tokenPath,
+            cauldron.levSwapper.poolPath,
+          ],
+          log: true,
+          contract: "StargateCurveLevSwapper",
+          deterministicDeployment: false,
+        });
         break;
       case ChainId.Avalanche:
         // Liquidation Swapper
