@@ -144,6 +144,12 @@
 
 ## Avalanche
 
+## Cauldron MasterContracts
+
+| Contract                    | Address                                    |
+| --------------------------- | ------------------------------------------ |
+| CauldronV3 With Whitelistng | 0xE8681a8C8d8E24b65526C2f94Fd5eF9D3ec18726 |
+
 ### Cauldrons
 
 | Contract                    | Address                                    | Note                                  |
