@@ -32,8 +32,8 @@ import "./interfaces/INFTOracle.sol";
 struct TokenLoanParams {
     uint128 valuation; // How much will you get? OK to owe until expiration.
     uint64 duration; // Length of loan in seconds
-    uint16 ltv; //
     uint16 annualInterestBPS; // Variable cost of taking out the loan
+    uint16 ltv; // Required to avoid liquidation
     INFTOracle oracle; // oracle used
 }
 
@@ -72,8 +72,8 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
     using RebaseLibrary for Rebase;
     using BoringERC20 for IERC20;
 
-    event LogRequestLoan(address indexed borrower, uint256 indexed tokenId, uint128 valuation, uint64 duration, uint16 annualInterestBPS);
-    event LogUpdateLoanParams(uint256 indexed tokenId, uint128 valuation, uint64 duration, uint16 annualInterestBPS);
+    event LogRequestLoan(address indexed borrower, uint256 indexed tokenId, uint128 valuation, uint64 duration, uint16 annualInterestBPS, uint16 ltv);
+    event LogUpdateLoanParams(uint256 indexed tokenId, uint128 valuation, uint64 duration, uint16 annualInterestBPS, uint16 ltv);
     // This automatically clears the associated loan, if any
     event LogRemoveCollateral(uint256 indexed tokenId, address recipient);
     // Details are in the loan request
@@ -196,7 +196,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
             require(msg.sender == loan.lender, "NFTPair: not the lender");
             TokenLoanParams memory cur = tokenLoanParams[tokenId];
             require(
-                params.duration >= cur.duration && params.valuation <= cur.valuation && params.annualInterestBPS <= cur.annualInterestBPS,
+                params.duration >= cur.duration && params.valuation <= cur.valuation && params.annualInterestBPS <= cur.annualInterestBPS && params.ltv <= cur.ltv,
                 "NFTPair: worse params"
             );
         } else if (loan.status == LOAN_REQUESTED) {
@@ -209,7 +209,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
             revert("NFTPair: no collateral");
         }
         tokenLoanParams[tokenId] = params;
-        emit LogUpdateLoanParams(tokenId, params.valuation, params.duration, params.annualInterestBPS);
+        emit LogUpdateLoanParams(tokenId, params.valuation, params.duration, params.annualInterestBPS, params.ltv);
     }
 
     function _requestLoan(
@@ -233,7 +233,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
         tokenLoan[tokenId] = loan;
         tokenLoanParams[tokenId] = params;
 
-        emit LogRequestLoan(to, tokenId, params.valuation, params.duration, params.annualInterestBPS);
+        emit LogRequestLoan(to, tokenId, params.valuation, params.duration, params.annualInterestBPS, params.ltv);
     }
 
     /// @notice Deposit an NFT as collateral and request a loan against it
@@ -298,7 +298,8 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
         require(
             params.valuation == accepted.valuation &&
                 params.duration <= accepted.duration &&
-                params.annualInterestBPS >= accepted.annualInterestBPS,
+                params.annualInterestBPS >= accepted.annualInterestBPS &&
+                params.ltv >= accepted.ltv,
             "NFTPair: bad params"
         );
 
