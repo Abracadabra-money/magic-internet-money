@@ -252,7 +252,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         } else if (loan.status == LOAN_OUTSTANDING) {
             // We are seizing collateral as the lender. The loan has to be
             // expired and not paid off:
-            require(msg.sender == loan.lender, "NFTPair: not the lender");
+            require(to == loan.lender, "NFTPair: not the lender");
             require(
                 // Addition is safe: both summands are smaller than 256 bits
                 uint256(loan.startTime) + tokenLoanParams[tokenId].duration <= block.timestamp,

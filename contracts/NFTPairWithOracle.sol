@@ -84,7 +84,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
 
     // Immutables (for MasterContract and all clones)
     IBentoBoxV1 public immutable bentoBox;
-    NFTPair public immutable masterContract;
+    NFTPairWithOracle public immutable masterContract;
 
     // MasterContract variables
     address public feeTo;
@@ -260,9 +260,9 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
             // We are withdrawing collateral that is not in use:
             require(msg.sender == loan.borrower, "NFTPair: not the borrower");
         } else if (loan.status == LOAN_OUTSTANDING) {
-            // We are seizing collateral as the lender. The loan has to be
+            // We are seizing collateral towards the lender. The loan has to be
             // expired and not paid off:
-            require(msg.sender == loan.lender, "NFTPair: not the lender");
+            require(to == loan.lender, "NFTPair: not the lender");
 
             if (uint256(loan.startTime) + tokenLoanParams[tokenId].duration > block.timestamp) {
                 TokenLoanParams memory loanParams = tokenLoanParams[tokenId];
