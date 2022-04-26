@@ -32,7 +32,7 @@ import "./interfaces/INFTOracle.sol";
 struct TokenLoanParams {
     uint128 valuation; // How much will you get? OK to owe until expiration.
     uint64 duration; // Length of loan in seconds
-    uint16 ltv; // 
+    uint16 ltv; //
     uint16 annualInterestBPS; // Variable cost of taking out the loan
     INFTOracle oracle; // oracle used
 }
@@ -261,7 +261,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
             require(msg.sender == loan.borrower, "NFTPair: not the borrower");
         } else if (loan.status == LOAN_OUTSTANDING) {
             // We are seizing collateral towards the lender. The loan has to be
-            // expired and not paid off:
+            // expired and not paid off, or underwater and not paid off:
             require(to == loan.lender, "NFTPair: not the lender");
 
             if (uint256(loan.startTime) + tokenLoanParams[tokenId].duration > block.timestamp) {
