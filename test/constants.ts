@@ -6,7 +6,8 @@ export const Constants = {
         degenBox: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
         mim: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
         spell: "0x090185f2135308BaD17527004364eBcC2D37e5F6",
-        ust: "0xa47c8bf37f92aBed4A126BDA807A7b7498661acD"
+        ust: "0xa47c8bf37f92aBed4A126BDA807A7b7498661acD",
+        multiSig: "0x5f0DeE98360d8200b20812e174d139A1a633EDd2"
     },
 
     avalanche: {

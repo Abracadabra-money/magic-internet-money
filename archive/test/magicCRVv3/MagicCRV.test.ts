@@ -71,10 +71,10 @@ describe("MagicCRV", async () => {
 
     const balance = await CRV.balanceOf(alice);
     await expect(MagicCRV.connect(aliceSigner).mint(balance)).to.be.revertedWith("No existing lock found");
-
-    await CRV.connect(crvWhaleSigner).transfer(CurveVoter.address, 1);
     await expect(CurveVoter.connect(aliceSigner).createMaxLock(1)).to.be.revertedWith("Ownable: caller is not the owner");
 
+    await CRV.connect(crvWhaleSigner).transfer(deployer, getBigNumber(999));
+    await CRV.connect(deployerSigner).approve(CurveVoter.address, ethers.constants.MaxUint256);
     await CurveVoter.createMaxLock(1);
 
     DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce");
