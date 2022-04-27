@@ -38,7 +38,7 @@
 | YVMIM3CRVOracle          | 0x547fD22A2d2A9e109A78eB88Fc640D166a64d45F |                                            |
 | YVMIM3CRVSwapper         | 0x05e46FFD98F94F62cC2817d54D5F0B1FD065B76d | Liquidation Swapper                        |
 | YVMIM3CRVLevSwapper      | 0x9b2794Aeff2E6Bd2b3e32e095E878bF17EB6BdCC | Leverage Swapper                           |
-| **yvDAI (CauldronV3)**   |                                            |                                            |
+| **yvDAI**   |                                            |                                            |
 | yvDAICauldron            | 0x7Ce7D9ED62B9A6c5aCe1c6Ec9aeb115FA3064757 | 90% LTV 0% initial 0% Interest, .5% fee    |
 | YVDAIOracleProxy         | 0x39DBa7955cEE12578B7548dF7eBf88F835d51bE1 | YVDAIOracleV1                              |
 | YVDAIOracleV1            | 0xaB137bb12e93fEdB8B639771c4C4fE29aC138Ee6 |                                            |

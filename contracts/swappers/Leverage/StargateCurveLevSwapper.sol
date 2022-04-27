@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
+import "@openzeppelin/contracts/utils/Address.sol";
 import "../../interfaces/ILevSwapperGeneric.sol";
 import "../../interfaces/IBentoBoxV1.sol";
 import "../../interfaces/IERC20.sol";
@@ -10,6 +11,8 @@ import "../../interfaces/stargate/IStargatePool.sol";
 
 /// @notice Leverage Swapper for Stargate LP using Curve
 contract StargateCurveLevSwapper is ILevSwapperGeneric {
+    using Address for address;
+
     IBentoBoxV1 public immutable degenBox;
     IStargatePool public immutable pool;
     IStargateRouter public immutable stargateRouter;
@@ -36,11 +39,11 @@ contract StargateCurveLevSwapper is ILevSwapperGeneric {
         curvePool = _curvePool;
         curvePoolI = _curvePoolI;
         curvePoolJ = _curvePoolJ;
-        mim = IERC20(_curvePool.coins(uint128(_curvePoolJ)));
+        mim = IERC20(_curvePool.coins(uint128(_curvePoolI)));
         underlyingPoolToken = IERC20(_pool.token());
 
         mim.approve(address(_curvePool), type(uint256).max);
-        underlyingPoolToken.approve(address(_stargateRouter), type(uint256).max);
+        _safeApprove(underlyingPoolToken, address(_stargateRouter), type(uint256).max);
         IERC20(address(pool)).approve(address(_degenBox), type(uint256).max);
     }
 
@@ -61,5 +64,25 @@ contract StargateCurveLevSwapper is ILevSwapperGeneric {
 
         (, shareReturned) = degenBox.deposit(IERC20(address(pool)), address(this), recipient, amount, 0);
         extraShare = shareReturned - shareToMin;
+    }
+
+    /// @dev copied from @openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol to avoid IERC20 naming conflict
+    function _safeApprove(
+        IERC20 token,
+        address spender,
+        uint256 value
+    ) private {
+        // solhint-disable-next-line reason-string
+        require((value == 0) || (token.allowance(address(this), spender) == 0), "SafeERC20: approve from non-zero to non-zero allowance");
+
+        bytes memory returndata = address(token).functionCall(
+            abi.encodeWithSelector(token.approve.selector, spender, value),
+            "SafeERC20: low-level call failed"
+        );
+        if (returndata.length > 0) {
+            // Return data is optional
+            // solhint-disable-next-line reason-string
+            require(abi.decode(returndata, (bool)), "SafeERC20: ERC20 operation did not succeed");
+        }
     }
 }
