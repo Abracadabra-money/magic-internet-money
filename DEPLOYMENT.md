@@ -212,10 +212,10 @@
 
 ### Popsicle Cauldrons
 
-| Contract                   | Address                                    | Note                                                      |
-| -------------------------- | ------------------------------------------ | --------------------------------------------------------- |
-| **USDC.e/WAVAX**           |                                            |                                                           |
-| PopsicleUsdcAvaxCauldron   | 0x02130dE2d2E1CB33cB23ACbB9c48e94a610AFA56 | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest |
-| Oracle                     | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 | reusing existing Joe USDC/WAVAX jLP oracle                |
-| PopsicleUsdcAvaxSwapper    | 0x4Ec0000Da67399AfCf4Ad04dA6089AFD63bEf901 | Liquidation Swapper                                       |
-| PopsicleUsdcAvaxLevSwapper | 0xc845C5bAf57f61eB925D400AeBff0501C0e9d2Ba | Leverage Swapper                                          |
+| Contract                     | Address                                    | Note                                                      |
+| ---------------------------- | ------------------------------------------ | --------------------------------------------------------- |
+| **USDC.e/WAVAX**             |                                            |                                                           |
+| PopsicleUsdcAvaxCauldron     | 0x02130dE2d2E1CB33cB23ACbB9c48e94a610AFA56 | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest |
+| Oracle                       | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 | reusing existing Joe USDC/WAVAX jLP oracle                |
+| PopsicleUsdcAvaxSwapperV2    | 0x6dA65013D5814dA632F1A94f3501aBc8e54C98ae | Liquidation Swapper using Platypus                        |
+| PopsicleUsdcAvaxLevSwapperV2 | 0x7d76568d84de8A0F34BBf315F53d7772c1fABcD8 | Leverage Swapper using Platypus                           |
