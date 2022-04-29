@@ -12,7 +12,7 @@ const USDCAVAX_LP_WHALE = "0x4483f0b6e2F5486D06958C20f8C39A7aBe87bf8F";
 const LIQUIDATION_LP_AMOUNT = getBigNumber(1, 17);
 const LEVERAGE_MIM_AMOUNT = getBigNumber(4_000_000);
 
-xdescribe("Lev/Liquidation UsdcAvax Swappers V2", async () => {
+describe("Lev/Liquidation UsdcAvax Swappers V2", async () => {
   let snapshotId;
   let MIM: ERC20Mock;
   let USDCAVAX: ERC20Mock;

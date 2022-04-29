@@ -5,6 +5,7 @@ export const Constants = {
   mainnet: {
     cauldronV3: "0x3E2a2BC69E5C22A8DA4056B413621D1820Eb493E",
     degenBox: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
+    multiSig: "0x5f0DeE98360d8200b20812e174d139A1a633EDd2",
     mim: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
     spell: "0x090185f2135308BaD17527004364eBcC2D37e5F6",
     ust: "0xa47c8bf37f92aBed4A126BDA807A7b7498661acD",
@@ -17,8 +18,8 @@ export const Constants = {
       usdtPool: "0x38EA452219524Bb87e18dE1C24D3bB59510BD783",
     },
     curve: {
-      mim3Crv: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B"
-    }
+      mim3Crv: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
+    },
   },
 
   arbitrum: {
@@ -34,8 +35,8 @@ export const Constants = {
       usdtPool: "0xB6CfcF89a7B22988bfC96632aC2A9D6daB60d641",
     },
     curve: {
-      mim2crvPool: "0x30dF229cefa463e991e29D42DB0bae2e122B2AC7"
-    }
+      mim2crvPool: "0x30dF229cefa463e991e29D42DB0bae2e122B2AC7",
+    },
   },
 
   avalanche: {
