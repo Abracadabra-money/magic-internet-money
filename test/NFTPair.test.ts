@@ -74,6 +74,7 @@ const nextDecade = Math.floor(new Date().getTime() / 1000) + YEAR * 10;
 describe("NFT Pair", async () => {
   let apes: ERC721Mock;
   let guineas: ERC20Mock;
+  let weth: WETH9Mock;
   let bentoBox: BentoBoxMock;
   let masterContract: NFTPair;
   let deployer: SignerWithAddress;
@@ -129,7 +130,11 @@ describe("NFT Pair", async () => {
   const mintApe = (ownerAddress) => mintToken(apes, ownerAddress);
 
   before(async () => {
-    const weth = await deployContract("WETH9Mock");
+    weth = await deployContract("WETH9Mock");
+    // The BentoBox complains if totalSupply = 0, and total supply is however
+    // many ETH has been deposited:
+    await weth.deposit({ value: getBigNumber(1) });
+
     bentoBox = await deployContract("BentoBoxMock", weth.address);
     masterContract = await deployContract("NFTPair", bentoBox.address);
     await bentoBox.whitelistMasterContract(masterContract.address, true);
@@ -1515,7 +1520,7 @@ describe("NFT Pair", async () => {
       expect(n).to.be.gte(2);
       const amountNeeded = getBigNumber(n * (n + 1) * 6);
       actions.push(ACTION_BENTO_DEPOSIT);
-      values.push(0); // TODO: Test with ETH as the token
+      values.push(0);
       datas.push(encodeParameters(["address", "address", "int256", "int256"], [guineas.address, alice.address, amountNeeded, 0]));
 
       // 3. Lend
@@ -1649,6 +1654,43 @@ describe("NFT Pair", async () => {
           false,
         ])
       ).to.be.revertedWith("NFTPair: bad params");
+    });
+
+    it("Should allow multiple BentoBox transfers", async () => {
+      const actions: number[] = [];
+      const values: any[] = [];
+      const datas: any[] = [];
+
+      // Share/amount ratio is 1:
+      expect(await bentoBox.toShare(weth.address, getBigNumber(1), false)).to.equal(getBigNumber(1));
+
+      // 1. Deposit
+      const toBob = getBigNumber(1);
+      const toCarol = getBigNumber(2);
+      const total = toBob.add(toCarol);
+      const USE_ETHEREUM = AddressZero;
+      actions.push(ACTION_BENTO_DEPOSIT);
+      values.push(total);
+      datas.push(encodeParameters(["address", "address", "int256", "int256"], [USE_ETHEREUM, alice.address, total, 0]));
+
+      // 2. Transfer (single)
+      const toCarolSingle = toCarol.mul(1).div(4);
+      const toCarolBatch = toCarol.sub(toCarolSingle);
+      expect(toCarolSingle.mul(toCarolBatch)).to.be.gt(0);
+      actions.push(ACTION_BENTO_TRANSFER);
+      values.push(0);
+      datas.push(encodeParameters(["address", "address", "int256"], [weth.address, carol.address, toCarolSingle]));
+
+      // 3. Transfer (multiple)
+      actions.push(ACTION_BENTO_TRANSFER_MULTIPLE);
+      values.push(0);
+      datas.push(encodeParameters(["address", "address[]", "uint256[]"], [weth.address, [bob.address, carol.address], [toBob, toCarolBatch]]));
+
+      await pair.connect(alice).cook(actions, values, datas, { value: total });
+
+      expect(await bentoBox.balanceOf(weth.address, alice.address)).to.equal(0);
+      expect(await bentoBox.balanceOf(weth.address, bob.address)).to.equal(toBob);
+      expect(await bentoBox.balanceOf(weth.address, carol.address)).to.equal(toCarol);
     });
   });
 
