@@ -206,7 +206,8 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
                 params.duration >= cur.duration &&
                     params.valuation <= cur.valuation &&
                     params.annualInterestBPS <= cur.annualInterestBPS &&
-                    params.ltvBPS >= cur.ltvBPS,
+                    params.ltvBPS >= cur.ltvBPS &&
+                    params.oracle == cur.oracle,
                 "NFTPair: worse params"
             );
         } else if (loan.status == LOAN_REQUESTED) {
@@ -313,7 +314,8 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
             params.valuation == accepted.valuation &&
                 params.duration <= accepted.duration &&
                 params.annualInterestBPS >= accepted.annualInterestBPS &&
-                params.ltvBPS <= accepted.ltvBPS,
+                params.ltvBPS <= accepted.ltvBPS &&
+                params.oracle == accepted.oracle,
             "NFTPair: bad params"
         );
 
