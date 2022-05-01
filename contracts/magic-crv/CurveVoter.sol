@@ -161,6 +161,17 @@ contract CurveVoter is Ownable {
         IVoteEscrow(ESCROW).withdraw();
     }
 
+    function execute(
+        address to,
+        uint256 value,
+        bytes calldata data
+    ) external onlyOwner returns (bool, bytes memory) {
+        // solhint-disable-next-line avoid-low-level-calls
+        (bool success, bytes memory result) = to.call{value: value}(data);
+
+        return (success, result);
+    }
+
     function withdraw(
         ERC20 token,
         address to,
