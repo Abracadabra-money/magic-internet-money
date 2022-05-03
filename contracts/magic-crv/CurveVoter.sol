@@ -16,12 +16,10 @@ contract CurveVoter is Ownable {
     event LogAllowedVoterChanged(address voter, bool allowed);
     event LogMagicCRVChanged(address magicCRV);
     event LogHarvesterChangeed(address harvester);
-    event LogMigrationEnabledChanged(bool enabled);
 
     error NotAllowedVoter();
     error NotMagicCRV();
     error NotAuthorized();
-    error NotMigrating();
 
     uint256 public constant MAX_LOCKTIME = 4 * 365 * 86400; // 4 years
 
@@ -39,7 +37,7 @@ contract CurveVoter is Ownable {
     uint256 public totalCRVTokens;
     address public magicCRV;
     address public harvester;
-    
+
     bool public migrationEnabled;
 
     modifier onlyAllowedVoters() {
@@ -81,12 +79,6 @@ contract CurveVoter is Ownable {
         emit LogHarvesterChangeed(_harvester);
     }
 
-    function setMigrationEnabled(bool _migrationEnabled) external onlyOwner {
-        migrationEnabled = _migrationEnabled;
-
-        emit LogMigrationEnabledChanged(_migrationEnabled);
-    }
-    
     /// @notice amount 10000 = 100%
     function voteForGaugeWeights(address gauge, uint256 amount) public onlyAllowedVoters {
         IGaugeController(GAUGE_CONTROLLER).vote_for_gauge_weights(gauge, amount);
@@ -180,15 +172,19 @@ contract CurveVoter is Ownable {
         IVoting(votingAddress).vote(voteId, support, false);
     }
 
+    function withdraw(
+        ERC20 token,
+        address to,
+        uint256 amount
+    ) external onlyOwner {
+        token.safeTransfer(to, amount);
+    }
+
     function execute(
         address to,
         uint256 value,
         bytes calldata data
     ) external onlyOwner returns (bool, bytes memory) {
-        if(!migrationEnabled) {
-            revert NotMigrating();
-        }
-        
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory result) = to.call{value: value}(data);
 
