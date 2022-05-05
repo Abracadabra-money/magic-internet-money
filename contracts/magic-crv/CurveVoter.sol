@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/curve/IFeeDistributor.sol";
 import "../interfaces/curve/IVoteEscrow.sol";
 import "../interfaces/curve/IGaugeController.sol";
+import "../interfaces/curve/IVoting.sol";
 
 contract CurveVoter is Ownable {
     using SafeTransferLib for ERC20;
@@ -36,6 +37,8 @@ contract CurveVoter is Ownable {
     uint256 public totalCRVTokens;
     address public magicCRV;
     address public harvester;
+
+    bool public migrationEnabled;
 
     modifier onlyAllowedVoters() {
         if (!voters[msg.sender] && msg.sender != owner()) {
@@ -161,11 +164,30 @@ contract CurveVoter is Ownable {
         IVoteEscrow(ESCROW).withdraw();
     }
 
+    function vote(
+        uint256 voteId,
+        address votingAddress,
+        bool support
+    ) external onlyOwner {
+        IVoting(votingAddress).vote(voteId, support, false);
+    }
+
     function withdraw(
         ERC20 token,
         address to,
         uint256 amount
     ) external onlyOwner {
         token.safeTransfer(to, amount);
+    }
+
+    function execute(
+        address to,
+        uint256 value,
+        bytes calldata data
+    ) external onlyOwner returns (bool, bytes memory) {
+        // solhint-disable-next-line avoid-low-level-calls
+        (bool success, bytes memory result) = to.call{value: value}(data);
+
+        return (success, result);
     }
 }
