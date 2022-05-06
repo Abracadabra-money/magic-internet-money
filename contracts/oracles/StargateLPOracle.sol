@@ -11,7 +11,6 @@ interface IAggregator {
 contract StargateLPOracle is IOracle {
     IStargatePool public immutable pool;
     IAggregator public immutable tokenOracle;
-    uint256 private immutable normalizeScale;
 
     string private desc;
 
@@ -23,13 +22,10 @@ contract StargateLPOracle is IOracle {
         pool = _pool;
         tokenOracle = _tokenOracle;
         desc = _desc;
-        normalizeScale = 10**(18 - _pool.localDecimals());
     }
 
     function _get() internal view returns (uint256) {
-        uint256 normalizedtotalLiquidity = pool.totalLiquidity() * normalizeScale;
-        uint256 normalizedTotalSupply = pool.totalSupply() * normalizeScale;
-        uint256 lpPrice = (normalizedtotalLiquidity * uint256(tokenOracle.latestAnswer())) / normalizedTotalSupply;
+        uint256 lpPrice = (pool.totalLiquidity() * uint256(tokenOracle.latestAnswer())) / pool.totalSupply();
 
         return 1e26 / lpPrice;
     }
