@@ -9,7 +9,7 @@ import { ParametersPerChain } from "../deploy/StargateCauldron";
 
 const globalParametersPerChain = {
   [ChainId.Arbitrum]: {
-    enabled: true,
+    enabled: false,
     jsonRpcUrl: process.env.ARBITRUM_RPC_URL,
     blockNumber: 10570348,
     mimWhale: "0xf46BB6dDA9709C49EfB918201D97F6474EAc5Aea",
@@ -21,7 +21,7 @@ const globalParametersPerChain = {
     mimWhale: "0x355D72Fb52AD4591B2066E43e89A7A38CF5cb341",
   },
   [ChainId.Avalanche]: {
-    enabled: true,
+    enabled: false,
     jsonRpcUrl: "https://api.avax.network/ext/bc/C/rpc",
     blockNumber: 13882968,
     mimWhale: "0x78a9e536EBdA08b5b9EDbE5785C9D1D50fA3278C",
@@ -34,10 +34,6 @@ const globalParametersPerChain = {
 // 3: the maximum MIM amount to leverage for collateral token amount
 // 4: oracle price - Beware that its value is based on the value of the plp at FORKBLOCK
 const cauldronsPerChain = {
-  [ChainId.Arbitrum]: [
-    ["USDC Pool", "0xeA8DfEE1898a7e0a59f7527F076106d7e44c2176", getBigNumber(435_000, 6), getBigNumber(5_000_000), "1.0001181799999999"],
-    ["USDT Pool", "0xeA8DfEE1898a7e0a59f7527F076106d7e44c2176", getBigNumber(14_900, 6), getBigNumber(5_000_000), "1.00043327"],
-  ],
   [ChainId.Mainnet]: [
     ["USDC Pool", "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b", getBigNumber(610_000, 6), getBigNumber(5_000_000), "1.00030884"],
     ["USDT Pool", "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b", getBigNumber(60_000, 6), getBigNumber(5_000_000), "1.00042542"],
@@ -45,6 +41,10 @@ const cauldronsPerChain = {
   [ChainId.Avalanche]: [
     ["USDC Pool", "0x8731d54E9D02c286767d56ac03e8037C07e01e98", getBigNumber(800_000, 6), getBigNumber(5_000_000), "1.00022102"],
     ["USDT Pool", "0x8731d54E9D02c286767d56ac03e8037C07e01e98", getBigNumber(60_000, 6), getBigNumber(5_000_000), "1.00059304"],
+  ],
+  [ChainId.Arbitrum]: [
+    ["USDC Pool", "0xeA8DfEE1898a7e0a59f7527F076106d7e44c2176", getBigNumber(435_000, 6), getBigNumber(5_000_000), "1.0001181799999999"],
+    ["USDT Pool", "0xeA8DfEE1898a7e0a59f7527F076106d7e44c2176", getBigNumber(14_900, 6), getBigNumber(5_000_000), "1.00043327"],
   ],
 };
 

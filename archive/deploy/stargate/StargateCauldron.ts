@@ -6,6 +6,9 @@ import { DegenBox, IOracle, ProxyOracle } from "../typechain";
 import { ChainId, setDeploymentSupportedChains, wrappedDeploy } from "../utilities";
 import { Constants, xMerlin } from "../test/constants";
 
+const INTEREST_CONVERSION = 1e18 / (365.25 * 3600 * 24) / 100;
+const OPENING_CONVERSION = 1e5 / 100;
+
 const oracleData = "0x0000000000000000000000000000000000000000";
 
 export const ParametersPerChain = {
@@ -16,6 +19,11 @@ export const ParametersPerChain = {
     mim: Constants.mainnet.mim,
     owner: xMerlin,
     stargateRouter: Constants.mainnet.stargate.router,
+
+    collateralization: 95 * 1e3, // 85% LTV
+    opening: 0 * OPENING_CONVERSION, // 0% initial
+    interest: parseInt(String(0 * INTEREST_CONVERSION)), // 0% Interest
+    liquidation: 0.5 * 1e3 + 1e5, // .5% liquidation fee
 
     cauldrons: [
       // USDC Pool
@@ -69,6 +77,11 @@ export const ParametersPerChain = {
     owner: xMerlin,
     stargateRouter: Constants.arbitrum.stargate.router,
 
+    collateralization: 95 * 1e3, // 85% LTV
+    opening: 0 * OPENING_CONVERSION, // 0% initial
+    interest: parseInt(String(0 * INTEREST_CONVERSION)), // 0% Interest
+    liquidation: 0.5 * 1e3 + 1e5, // .5% liquidation fee
+
     cauldrons: [
       // USDC Pool
       {
@@ -121,6 +134,11 @@ export const ParametersPerChain = {
     owner: xMerlin,
     stargateRouter: Constants.avalanche.stargate.router,
     platypusRouter: Constants.avalanche.platypus.router,
+
+    collateralization: 95 * 1e3, // 85% LTV
+    opening: 0 * OPENING_CONVERSION, // 0% initial
+    interest: parseInt(String(0 * INTEREST_CONVERSION)), // 0% Interest
+    liquidation: 0.5 * 1e3 + 1e5, // .5% liquidation fee
 
     cauldrons: [
       // USDC Pool
@@ -203,18 +221,17 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       await (await ProxyOracle.transferOwnership(xMerlin, true, false)).wait();
     }
 
-    const INTEREST_CONVERSION = 1e18 / (365.25 * 3600 * 24) / 100;
-    const OPENING_CONVERSION = 1e5 / 100;
-
-    // 85% LTV .5% initial 3% Interest
-    const collateralization = 85 * 1e3; // 85% LTV
-    const opening = 0.5 * OPENING_CONVERSION; // .5% initial
-    const interest = parseInt(String(3 * INTEREST_CONVERSION)); // 3% Interest
-    const liquidation = 8 * 1e3 + 1e5;
-
     let initData = ethers.utils.defaultAbiCoder.encode(
       ["address", "address", "bytes", "uint64", "uint256", "uint256", "uint256"],
-      [cauldron.collateral, ProxyOracle.address, oracleData, interest, liquidation, collateralization, opening]
+      [
+        cauldron.collateral,
+        ProxyOracle.address,
+        oracleData,
+        parameters.interest,
+        parameters.liquidation,
+        parameters.collateralization,
+        parameters.opening,
+      ]
     );
 
     const tx = await (await DegenBox.deploy(parameters.cauldronV3MC, initData, true)).wait();
