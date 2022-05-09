@@ -6,12 +6,14 @@ import "../interfaces/stargate/IStargatePool.sol";
 
 interface IAggregator {
     function latestAnswer() external view returns (int256 answer);
+    function decimals() external view returns (uint256);
 }
 
 contract StargateLPOracle is IOracle {
     IStargatePool public immutable pool;
     IAggregator public immutable tokenOracle;
-
+    
+    uint256 public immutable denominator;
     string private desc;
 
     constructor(
@@ -22,12 +24,13 @@ contract StargateLPOracle is IOracle {
         pool = _pool;
         tokenOracle = _tokenOracle;
         desc = _desc;
+        denominator = 10**(_pool.decimals() + _tokenOracle.decimals());
     }
 
     function _get() internal view returns (uint256) {
         uint256 lpPrice = (pool.totalLiquidity() * uint256(tokenOracle.latestAnswer())) / pool.totalSupply();
 
-        return 1e26 / lpPrice;
+        return denominator / lpPrice;
     }
 
     /// @inheritdoc IOracle
