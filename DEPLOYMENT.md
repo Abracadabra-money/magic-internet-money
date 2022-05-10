@@ -45,15 +45,13 @@
 | YVDAISwapper                    | 0xdb3A46896d2855e7932fC8Ea5A8465Fd07F7Fb57 | Liquidation Swapper                        |
 | YVDAILevSwapper                 | 0xD8AF1558A2ca227607b49a3293e278c6875F9a40 | Leverage Swapper                           |
 | **Stargate USDC**               |                                            |                                            |
-| StargateEthereumUsdcCauldron    | 0x738480073220bdAa798f7116C22F4e495CF06336 | 95% LTV 0% initial 0% Interest, 0.5% fee   |
-| StargateEthereumUsdcProxyOracle | 0x9141Fd00c1D2FBc5E92361DCD9854417409Cadb7 | Using StargateEthereumUsdcLPOracleV1       |
-| StargateEthereumUsdcLPOracleV1  | 0x33c2854027A55279491017E1020aEe2eFF8B718A |                                            |
+| StargateEthereumUsdcCauldron    | 0xd31E19A0574dBF09310c3B06f3416661B4Dc7324 | 95% LTV 0% initial 0% Interest, 0.5% fee   |
+| StargateEthereumUsdcProxyOracle | 0x16495612e7b35bbc8c672cd76de83bcc81774552 | Using StargateEthereumUsdcLPOracleV1       |
 | StargateEthereumUsdcSwapper     | 0x267A1D1Cf03E7514254eDDE262d229D02fF56a7D | Liquidation Swapper                        |
 | StargateEthereumUsdcLevSwapper  | 0xEdEa4518796EA45dFc38D78D9B8b9e070436AD51 | Leverage Swapper                           |
 | **Stargate USDT**               |                                            |                                            |
-| StargateEthereumUsdtCauldron    | 0x4439255D89B9Ce11e947b2C07Fa146326b6718A8 | 95% LTV 0% initial 0% Interest, 0.5% fee   |
-| StargateEthereumUsdtProxyOracle | 0x105CC8fACA360bBECf2242d1b6a11d2D00dB36ff | Using StargateEthereumUsdtLPOracleV1       |
-| StargateEthereumUsdtLPOracleV1  | 0xEfEB59D2C320741BDe8cA6B0Ff60cc8629d17e5b |                                            |
+| StargateEthereumUsdtCauldron    | 0xc6B2b3fE7c3D7a6f823D9106E22e66660709001e | 95% LTV 0% initial 0% Interest, 0.5% fee   |
+| StargateEthereumUsdtProxyOracle | 0xaBB326cD92b0e48fa6dfC54d69Cd1750a1007a97 | Using StargateEthereumUsdtLPOracleV1       |
 | StargateEthereumUsdtSwapper     | 0x8e266f8310E047B9900b60132E4767FfDD0878bC | Liquidation Swapper                        |
 | StargateEthereumUsdtLevSwapper  | 0x1E188DD74adf8CC95c98714407e88a4a99b759A5 | Leverage Swapper                           |
 
