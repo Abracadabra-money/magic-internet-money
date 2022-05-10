@@ -300,6 +300,15 @@ const config: HardhatUserConfig = {
           },
         },
       },
+      "contracts/CauldronV3.sol": {
+        version: "0.6.12",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 999999,
+          },
+        },
+      },
       "contracts/WhitelistedCauldronV3.sol": {
         version: "0.6.12",
         settings: {

@@ -31,8 +31,8 @@ contract USTSwapperMock is ISwapperGeneric {
     // Swaps to a flexible amount, from an exact input amount
     /// @inheritdoc ISwapperGeneric
     function swap(
-        IERC20 fromToken,
-        IERC20 toToken,
+        IERC20,
+        IERC20,
         address recipient,
         uint256 shareToMin,
         uint256 shareFrom
@@ -49,13 +49,13 @@ contract USTSwapperMock is ISwapperGeneric {
     // Swaps to an exact amount, from a flexible input amount
     /// @inheritdoc ISwapperGeneric
     function swapExact(
-        IERC20 fromToken,
-        IERC20 toToken,
-        address recipient,
-        address refundTo,
-        uint256 shareFromSupplied,
-        uint256 shareToExact
-    ) public override returns (uint256 shareUsed, uint256 shareReturned) {
+        IERC20,
+        IERC20,
+        address,
+        address,
+        uint256,
+        uint256
+    ) public override pure returns (uint256 shareUsed, uint256 shareReturned) {
         return (0,0);
     }
 }

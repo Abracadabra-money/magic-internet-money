@@ -25,7 +25,7 @@
     "kovan:verify": "hardhat --network kovan etherscan-verify --solc-input --license GPL-3.0 --force-license",
     "moonbase:deploy": "hardhat --network moonbase deploy",
     "arbitrum:deploy": "hardhat --network arbitrum deploy",
-    "arbitrum:verify": "hardhat --network arbitrum etherscan-verify --solc-input --license GPL-3.0 --force-license",
+    "arbitrum:verify": "hardhat --network arbitrum etherscan-verify --solc-input --license GPL-3.0 --force-license --sleep",
     "bsc:deploy": "hardhat --network bsc deploy",
     "bsc:verify": "hardhat --network bsc etherscan-verify --solc-input --license GPL-3.0 --force-license",
     "fantom:deploy": "hardhat --network fantom deploy",

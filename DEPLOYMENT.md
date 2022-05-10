@@ -18,32 +18,42 @@
 
 ### Cauldrons
 
-| Contract                 | Address                                    | Note                                       |
-| ------------------------ | ------------------------------------------ | ------------------------------------------ |
-| **Frax3Crv**             |                                            |                                            |
-| Frax3CrvCauldron         | 0x81446B23e28377e1a15b6d0b67f7A2ACe3A8E5bB | 80% LTV 1% initial 1% Interest, 1.5% fee   |
-| ConvexStakingWrapperAbra | 0x873221f8651bC14aa58b79489a4A927130259844 | Frax3Crv to Convex stkFrax3Crv Wrapper     |
-| Frax3CrvProxyOracle      | 0x66a809a31E6909C835219cC09eA0f52135fF0a11 | Using Frax3CrvOracle                       |
-| Frax3CrvOracle           | 0xD9bA8821e9EeFC89cBc80DA1EB5e3518BE383E63 |                                            |
-| StkFrax3CrvSwapper       | 0xD69E75C1c2a0f2838A6bbA8BDFf9d08C8f137cD9 | Liquidation Swapper                        |
-| **yvCVXETH**             |                                            |                                            |
-| yvCVXETHCauldron         | 0xf179fe36a36B32a4644587B8cdee7A23af98ed37 | 75% LTV .5% initial 1% Interest, 12.5% fee |
-| YVCVXETHOracleProxy      | 0xa32D03497FF5C32bcfeebE6A677Dbe4A496fD918 | Using YVCVXETHOracle                       |
-| YVCVXETHOracle           | 0x991536BF23fa40B578Fc3e1e3725E51D1bF889F3 |                                            |
-| YVCVXETHSwapper          | 0xF80a7b98b59e7F71BAa149990bAA6044728321bb | Liquidation Swapper                        |
-| YVCVXETHLevSwapper       | 0xE345156cDEc151D9F843F94ADE7770EFA9d56417 | Leverage Swapper                           |
-| **yvMIM3CRV**            |                                            |                                            |
-| yvMIM3CRVCauldron        | 0xaf487ab3b81B3E6370B5D4C69A8daEf7Cc65676F | 75% LTV .5% initial 1% Interest, 12.5% fee |
-| YVMIM3CRVOracleProxy     | 0x7d76568d84de8A0F34BBf315F53d7772c1fABcD8 | Using YVCVXETHOracle                       |
-| YVMIM3CRVOracle          | 0x547fD22A2d2A9e109A78eB88Fc640D166a64d45F |                                            |
-| YVMIM3CRVSwapper         | 0x05e46FFD98F94F62cC2817d54D5F0B1FD065B76d | Liquidation Swapper                        |
-| YVMIM3CRVLevSwapper      | 0x9b2794Aeff2E6Bd2b3e32e095E878bF17EB6BdCC | Leverage Swapper                           |
-| **yvDAI (CauldronV3)**   |                                            |                                            |
-| yvDAICauldron            | 0x7Ce7D9ED62B9A6c5aCe1c6Ec9aeb115FA3064757 | 90% LTV 0% initial 0% Interest, .5% fee    |
-| YVDAIOracleProxy         | 0x39DBa7955cEE12578B7548dF7eBf88F835d51bE1 | YVDAIOracleV1                              |
-| YVDAIOracleV1            | 0xaB137bb12e93fEdB8B639771c4C4fE29aC138Ee6 |                                            |
-| YVDAISwapper             | 0xdb3A46896d2855e7932fC8Ea5A8465Fd07F7Fb57 | Liquidation Swapper                        |
-| YVDAILevSwapper          | 0xD8AF1558A2ca227607b49a3293e278c6875F9a40 | Leverage Swapper                           |
+| Contract                        | Address                                    | Note                                       |
+| ------------------------------- | ------------------------------------------ | ------------------------------------------ |
+| **Frax3Crv**                    |                                            |                                            |
+| Frax3CrvCauldron                | 0x81446B23e28377e1a15b6d0b67f7A2ACe3A8E5bB | 80% LTV 1% initial 1% Interest, 1.5% fee   |
+| ConvexStakingWrapperAbra        | 0x873221f8651bC14aa58b79489a4A927130259844 | Frax3Crv to Convex stkFrax3Crv Wrapper     |
+| Frax3CrvProxyOracle             | 0x66a809a31E6909C835219cC09eA0f52135fF0a11 | Using Frax3CrvOracle                       |
+| Frax3CrvOracle                  | 0xD9bA8821e9EeFC89cBc80DA1EB5e3518BE383E63 |                                            |
+| StkFrax3CrvSwapper              | 0xD69E75C1c2a0f2838A6bbA8BDFf9d08C8f137cD9 | Liquidation Swapper                        |
+| **yvCVXETH**                    |                                            |                                            |
+| yvCVXETHCauldron                | 0xf179fe36a36B32a4644587B8cdee7A23af98ed37 | 75% LTV .5% initial 1% Interest, 12.5% fee |
+| YVCVXETHOracleProxy             | 0xa32D03497FF5C32bcfeebE6A677Dbe4A496fD918 | Using YVCVXETHOracle                       |
+| YVCVXETHOracle                  | 0x991536BF23fa40B578Fc3e1e3725E51D1bF889F3 |                                            |
+| YVCVXETHSwapper                 | 0xF80a7b98b59e7F71BAa149990bAA6044728321bb | Liquidation Swapper                        |
+| YVCVXETHLevSwapper              | 0xE345156cDEc151D9F843F94ADE7770EFA9d56417 | Leverage Swapper                           |
+| **yvMIM3CRV**                   |                                            |                                            |
+| yvMIM3CRVCauldron               | 0xaf487ab3b81B3E6370B5D4C69A8daEf7Cc65676F | 75% LTV .5% initial 1% Interest, 12.5% fee |
+| YVMIM3CRVOracleProxy            | 0x7d76568d84de8A0F34BBf315F53d7772c1fABcD8 | Using YVCVXETHOracle                       |
+| YVMIM3CRVOracle                 | 0x547fD22A2d2A9e109A78eB88Fc640D166a64d45F |                                            |
+| YVMIM3CRVSwapper                | 0x05e46FFD98F94F62cC2817d54D5F0B1FD065B76d | Liquidation Swapper                        |
+| YVMIM3CRVLevSwapper             | 0x9b2794Aeff2E6Bd2b3e32e095E878bF17EB6BdCC | Leverage Swapper                           |
+| **yvDAI**                       |                                            |                                            |
+| yvDAICauldron                   | 0x7Ce7D9ED62B9A6c5aCe1c6Ec9aeb115FA3064757 | 90% LTV 0% initial 0% Interest, .5% fee    |
+| YVDAIOracleProxy                | 0x39DBa7955cEE12578B7548dF7eBf88F835d51bE1 | YVDAIOracleV1                              |
+| YVDAIOracleV1                   | 0xaB137bb12e93fEdB8B639771c4C4fE29aC138Ee6 |                                            |
+| YVDAISwapper                    | 0xdb3A46896d2855e7932fC8Ea5A8465Fd07F7Fb57 | Liquidation Swapper                        |
+| YVDAILevSwapper                 | 0xD8AF1558A2ca227607b49a3293e278c6875F9a40 | Leverage Swapper                           |
+| **Stargate USDC**               |                                            |                                            |
+| StargateEthereumUsdcCauldron    | 0xd31E19A0574dBF09310c3B06f3416661B4Dc7324 | 95% LTV 0% initial 0% Interest, 0.5% fee   |
+| StargateEthereumUsdcProxyOracle | 0x16495612e7b35bbc8c672cd76de83bcc81774552 | Using StargateEthereumUsdcLPOracleV1       |
+| StargateEthereumUsdcSwapper     | 0x267A1D1Cf03E7514254eDDE262d229D02fF56a7D | Liquidation Swapper                        |
+| StargateEthereumUsdcLevSwapper  | 0xEdEa4518796EA45dFc38D78D9B8b9e070436AD51 | Leverage Swapper                           |
+| **Stargate USDT**               |                                            |                                            |
+| StargateEthereumUsdtCauldron    | 0xc6B2b3fE7c3D7a6f823D9106E22e66660709001e | 95% LTV 0% initial 0% Interest, 0.5% fee   |
+| StargateEthereumUsdtProxyOracle | 0xaBB326cD92b0e48fa6dfC54d69Cd1750a1007a97 | Using StargateEthereumUsdtLPOracleV1       |
+| StargateEthereumUsdtSwapper     | 0x8e266f8310E047B9900b60132E4767FfDD0878bC | Liquidation Swapper                        |
+| StargateEthereumUsdtLevSwapper  | 0x1E188DD74adf8CC95c98714407e88a4a99b759A5 | Leverage Swapper                           |
 
 ### Popsicle Cauldrons
 
@@ -146,9 +156,10 @@
 
 ## Cauldron MasterContracts
 
-| Contract                    | Address                                    |
-| --------------------------- | ------------------------------------------ |
-| CauldronV3 With Whitelistng | 0xE8681a8C8d8E24b65526C2f94Fd5eF9D3ec18726 |
+| Contract              | Address                                    |
+| --------------------- | ------------------------------------------ |
+| CauldronV3            | 0x177a24B427876F61983CCe0dD37608611e7de3f7 |
+| WhitelistedCauldronV3 | 0xE8681a8C8d8E24b65526C2f94Fd5eF9D3ec18726 |
 
 ### Cauldrons
 
@@ -195,6 +206,14 @@
 | ----------------------------------- | ------------------------------------------ | ---- |
 | DegenBox                            | 0xe56F37Ef2e54ECaA41a9675da1c3445736d60B42 |      |
 | CauldronV2MultiChain MasterContract | 0x9031c0Fd5bD1405132028A3e0eb277C705B3d8f7 |      |
+
+## Arbitrum
+
+## Cauldron MasterContracts
+
+| Contract                  | Address                                    |
+| ------------------------- | ------------------------------------------ |
+| CauldronV3 MasterContract | 0x233332a01Ebf20f770883ebff68374b015AccB9C |
 
 # Oracles
 

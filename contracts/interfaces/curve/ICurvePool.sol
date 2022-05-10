@@ -3,6 +3,8 @@
 pragma solidity >=0.6.12;
 
 interface CurvePool {
+    function coins(uint256 i) external view returns (address);
+
     function exchange_underlying(
         int128 i,
         int128 j,
