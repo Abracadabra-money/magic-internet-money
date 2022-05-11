@@ -48,7 +48,6 @@ abstract contract BaseStargateLpMimPool is Ownable {
         require(address(pools[tokenIn].oracle) != address(0), "invalid tokenIn");
 
         uint256 amountOut = getAmountOut(tokenIn, amountIn);
-
         ERC20(address(tokenIn)).safeTransferFrom(msg.sender, address(this), amountIn);
         _redeemStargateUnderlying(tokenIn, amountIn);
 

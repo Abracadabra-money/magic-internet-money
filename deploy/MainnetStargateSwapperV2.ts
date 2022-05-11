@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { deployments, ethers, getNamedAccounts } from "hardhat";
 import { expect } from "chai";
-import { BaseStargateLpMimPool, DegenBox, IOracle, ProxyOracle } from "../typechain";
+import { BaseStargateLpMimPool, DegenBox, IOracle, ProxyOracle, StargateCurveSwapperV2 } from "../typechain";
 import { ChainId, setDeploymentSupportedChains, wrappedDeploy } from "../utilities";
 import { Constants, xMerlin } from "../test/constants";
 
@@ -59,9 +59,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   for (let i = 0; i < cauldrons.length; i++) {
     const cauldron = cauldrons[i];
 
-    await MimPool.setPool(cauldron.collateral, cauldron.poolId);
-
-    await wrappedDeploy(`Stargate${cauldron.deploymentNamePrefix}SwapperV2`, {
+    const Swapper = await wrappedDeploy<StargateCurveSwapperV2>(`Stargate${cauldron.deploymentNamePrefix}SwapperV2`, {
       from: deployer,
       args: [
         parameters.degenBox,
@@ -76,6 +74,10 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       contract: "StargateCurveSwapperV2",
       deterministicDeployment: false,
     });
+
+    await (await MimPool.setPool(cauldron.collateral, cauldron.poolId, cauldron.oracle)).wait();
+    await (await MimPool.setAllowedRedeemer(Swapper.address, true)).wait(); 
+    await (await Swapper.setMimPool(MimPool.address)).wait();
   }
 };
 
