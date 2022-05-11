@@ -54,6 +54,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const MimPool = await wrappedDeploy<BaseStargateLpMimPool>(`MainnetStargateLpMimPoolV1`, {
     from: deployer,
     args: [Constants.mainnet.mim, Constants.mainnet.stargate.router],
+    contract: "MainnetStargateLpMimPool"
   });
 
   for (let i = 0; i < cauldrons.length; i++) {

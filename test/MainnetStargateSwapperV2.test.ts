@@ -58,97 +58,97 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldrons"
 
   const describeFn = globalParameters.enabled ? "describe" : "xdescribe";
 
-  forEach(cases)[describeFn](
-    "%s Cauldron",
-    async (_name, collateralWhale, cauldronParams, globalCauldronParams) => {
-      let snapshotId;
-      let MIM: ERC20Mock;
-      let CollateralToken: IStargatePool;
-      let CollateralTokenAsERC20: ERC20Mock;
+  forEach(cases)[describeFn]("%s Cauldron", async (_name, collateralWhale, cauldronParams, globalCauldronParams) => {
+    let snapshotId;
+    let MIM: ERC20Mock;
+    let CollateralToken: IStargatePool;
+    let CollateralTokenAsERC20: ERC20Mock;
 
-      let Swapper: ISwapperGeneric;
-      let LevSwapper: ILevSwapperGeneric;
-      let DegenBox: DegenBox;
-      let ProxyOracle: IOracle;
+    let Swapper: ISwapperGeneric;
+    let LevSwapper: ILevSwapperGeneric;
+    let DegenBox: DegenBox;
+    let ProxyOracle: IOracle;
 
-      let mimShare: BigNumber;
-      let collateralShare: BigNumber;
-      let mimWhaleSigner;
-      let collateralWhaleSigner;
-      let collateralPrice;
+    let mimShare: BigNumber;
+    let collateralShare: BigNumber;
+    let mimWhaleSigner;
+    let collateralWhaleSigner;
+    let collateralPrice;
+    let collateralDecimals;
 
-      before(async () => {
-        await network.provider.request({
-          method: "hardhat_reset",
-          params: [
-            {
-              forking: {
-                enabled: true,
-                jsonRpcUrl: globalParameters.jsonRpcUrl,
-                blockNumber: globalParameters.blockNumber,
-              },
+    before(async () => {
+      await network.provider.request({
+        method: "hardhat_reset",
+        params: [
+          {
+            forking: {
+              enabled: true,
+              jsonRpcUrl: globalParameters.jsonRpcUrl,
+              blockNumber: globalParameters.blockNumber,
             },
-          ],
-        });
-        hre.getChainId = () => Promise.resolve(_chainId.toString());
-
-        await deployments.fixture(["StargateSwapperV2"]);
-
-        Swapper = await ethers.getContract<ISwapperGeneric>(`Stargate${cauldronParams.deploymentNamePrefix}SwapperV2`);
-        ProxyOracle = await ethers.getContractAt<IOracle>("IOracle", cauldronParams.oracle);
-        CollateralToken = await ethers.getContractAt<IStargatePool>("IStargatePool", cauldronParams.collateral);
-        CollateralTokenAsERC20 = await ethers.getContractAt<ERC20Mock>("ERC20Mock", cauldronParams.collateral);
-
-        DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", globalCauldronParams.degenBox);
-        MIM = await ethers.getContractAt<ERC20Mock>("ERC20Mock", globalCauldronParams.mim);
-
-        await impersonate(globalParameters.mimWhale);
-        await impersonate(collateralWhale);
-
-        mimWhaleSigner = await ethers.getSigner(globalParameters.mimWhale);
-        collateralWhaleSigner = await ethers.getSigner(collateralWhale);
-
-        const spot = await ProxyOracle.peekSpot("0x");
-        collateralPrice = 1 / parseFloat(ethers.utils.formatEther(spot));
-        console.log(`Collateral Price = $${collateralPrice} usd`);
-
-        // Deposit collateral for liquidation swapper
-        const collateralAmountToLiquidate = await CollateralTokenAsERC20.balanceOf(collateralWhale);
-        collateralShare = await DegenBox.toShare(cauldronParams.collateral, collateralAmountToLiquidate, true);
-        await CollateralTokenAsERC20.connect(collateralWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
-        await DegenBox.connect(collateralWhaleSigner).deposit(CollateralToken.address, collateralWhale, Swapper.address, 0, collateralShare);
-
-        snapshotId = await ethers.provider.send("evm_snapshot", []);
+          },
+        ],
       });
+      hre.getChainId = () => Promise.resolve(_chainId.toString());
 
-      afterEach(async () => {
-        await network.provider.send("evm_revert", [snapshotId]);
-        snapshotId = await ethers.provider.send("evm_snapshot", []);
-      });
+      await deployments.fixture(["StargateSwapperV2"]);
 
-      it("should liquidate the collateral and deposit MIM back to degenbox", async () => {
-        const { alice } = await getNamedAccounts();
+      Swapper = await ethers.getContract<ISwapperGeneric>(`Stargate${cauldronParams.deploymentNamePrefix}SwapperV2`);
+      ProxyOracle = await ethers.getContractAt<IOracle>("IOracle", cauldronParams.oracle);
+      CollateralToken = await ethers.getContractAt<IStargatePool>("IStargatePool", cauldronParams.collateral);
+      CollateralTokenAsERC20 = await ethers.getContractAt<ERC20Mock>("ERC20Mock", cauldronParams.collateral);
 
-        const collateralAmount = await DegenBox.toAmount(CollateralToken.address, collateralShare, false);
-        const totalLiquidationPrice =
-          collateralPrice * parseFloat(ethers.utils.formatUnits(collateralAmount, parseInt((await CollateralToken.localDecimals()).toString())));
+      DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", globalCauldronParams.degenBox);
+      MIM = await ethers.getContractAt<ERC20Mock>("ERC20Mock", globalCauldronParams.mim);
 
-        console.log(`Liquidating for $${totalLiquidationPrice.toLocaleString()} worth of collateral tokens...`);
-        const amountCollateralBefore = (await DegenBox.totals(CollateralToken.address)).elastic;
-        const amountMimBefore = (await DegenBox.totals(MIM.address)).elastic;
+      await impersonate(globalParameters.mimWhale);
+      await impersonate(collateralWhale);
 
-        await Swapper.swap(ethers.constants.AddressZero, ethers.constants.AddressZero, alice, 0, collateralShare);
+      mimWhaleSigner = await ethers.getSigner(globalParameters.mimWhale);
+      collateralWhaleSigner = await ethers.getSigner(collateralWhale);
 
-        const amountCollateralAfter = (await DegenBox.totals(CollateralToken.address)).elastic;
-        const amountMimAfter = (await DegenBox.totals(MIM.address)).elastic;
+      collateralDecimals = parseInt((await CollateralToken.localDecimals()).toString());
 
-        console.log(
-          `Got ${parseFloat(ethers.utils.formatEther(amountMimAfter.sub(amountMimBefore))).toLocaleString()} MIM from Liquidation Swapper`
-        );
+      const spot = await ProxyOracle.peekSpot("0x");
+      collateralPrice = 1 / parseFloat(ethers.utils.formatUnits(spot, collateralDecimals));
+      console.log(`Collateral Price = $${collateralPrice} usd`);
 
-        expect(amountMimAfter).to.be.gt(amountMimBefore);
-        expect(amountCollateralAfter).to.be.lt(amountCollateralBefore);
-      });
-    }
-  );
+      // Deposit collateral for liquidation swapper
+      const collateralAmountToLiquidate = await CollateralTokenAsERC20.balanceOf(collateralWhale);
+      collateralShare = await DegenBox.toShare(cauldronParams.collateral, collateralAmountToLiquidate, true);
+      await CollateralTokenAsERC20.connect(collateralWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
+      await DegenBox.connect(collateralWhaleSigner).deposit(CollateralToken.address, collateralWhale, Swapper.address, 0, collateralShare);
+
+      snapshotId = await ethers.provider.send("evm_snapshot", []);
+    });
+
+    afterEach(async () => {
+      await network.provider.send("evm_revert", [snapshotId]);
+      snapshotId = await ethers.provider.send("evm_snapshot", []);
+    });
+
+    it("should liquidate the collateral and deposit MIM back to degenbox", async () => {
+      const { alice } = await getNamedAccounts();
+
+      const collateralAmount = await DegenBox.toAmount(CollateralToken.address, collateralShare, false);
+      const totalLiquidationPrice =
+        collateralPrice * parseFloat(ethers.utils.formatUnits(collateralAmount, collateralDecimals));
+
+      console.log(`Liquidating for $${totalLiquidationPrice.toLocaleString()} worth of collateral tokens...`);
+      const amountCollateralBefore = (await DegenBox.totals(CollateralToken.address)).elastic;
+      const amountMimBefore = (await DegenBox.totals(MIM.address)).elastic;
+
+      await Swapper.swap(ethers.constants.AddressZero, ethers.constants.AddressZero, alice, 0, collateralShare);
+
+      const amountCollateralAfter = (await DegenBox.totals(CollateralToken.address)).elastic;
+      const amountMimAfter = (await DegenBox.totals(MIM.address)).elastic;
+
+      console.log(
+        `Got ${parseFloat(ethers.utils.formatEther(amountMimAfter.sub(amountMimBefore))).toLocaleString()} MIM from Liquidation Swapper`
+      );
+
+      expect(amountMimAfter).to.be.gt(amountMimBefore);
+      expect(amountCollateralAfter).to.be.lt(amountCollateralBefore);
+    });
+  });
 });
