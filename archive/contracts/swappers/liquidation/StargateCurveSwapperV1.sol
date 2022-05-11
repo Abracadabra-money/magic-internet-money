@@ -9,7 +9,7 @@ import "../../interfaces/stargate/IStargateRouter.sol";
 import "../../interfaces/stargate/IStargatePool.sol";
 
 /// @notice Liquidation Swapper for Stargate LP using Curve
-contract StargateCurveSwapper is ISwapperGeneric {
+contract StargateCurveSwapperV1 is ISwapperGeneric {
     using Address for address;
 
     IBentoBoxV1 public immutable degenBox;
@@ -21,7 +21,7 @@ contract StargateCurveSwapper is ISwapperGeneric {
     uint16 public immutable poolId;
     IERC20 public immutable underlyingPoolToken;
     IERC20 public immutable mim;
-
+    
     constructor(
         IBentoBoxV1 _degenBox,
         IStargatePool _pool,
