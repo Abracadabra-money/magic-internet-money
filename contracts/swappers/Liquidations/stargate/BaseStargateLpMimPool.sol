@@ -14,9 +14,9 @@ abstract contract BaseStargateLpMimPool is Ownable {
     using SafeTransferLib for ERC20;
 
     event AllowedRedeemerChanged(address redeemer, bool allowed);
-    event SwappingFeeChanged(uint256 feeBps);
     event Swap(address from, IStargatePool tokenIn, uint256 amountIn, uint256 amountOut, address recipient);
     event PoolChanged(IStargatePool lp, uint16 poolId, IOracle oracle);
+    event FeeChanged(address feeCollector, uint256 fee);
 
     struct PoolInfo {
         uint16 poolId; // 16 bits
@@ -29,7 +29,8 @@ abstract contract BaseStargateLpMimPool is Ownable {
 
     IStargateRouter public immutable stargateRouter;
 
-    uint256 public swappingFeeBps;
+    uint256 public feeBps;
+    address public feeCollector;
 
     mapping(IStargatePool => PoolInfo) public pools;
     mapping(address => bool) public allowedRedeemers;
@@ -56,14 +57,14 @@ abstract contract BaseStargateLpMimPool is Ownable {
     ) external onlyAllowedRedeemers returns (uint256) {
         require(address(pools[tokenIn].oracle) != address(0), "invalid tokenIn");
 
-        uint256 mimAmountOut = getMimAmountOut(tokenIn, amountIn);
+        uint256 amount = getMimAmountOut(tokenIn, amountIn);
 
         ERC20(address(tokenIn)).safeTransferFrom(msg.sender, address(this), amountIn);
-        mim.transfer(recipient, mimAmountOut);
+        mim.transfer(recipient, amount);
 
-        emit Swap(msg.sender, tokenIn, amountIn, mimAmountOut, recipient);
+        emit Swap(msg.sender, tokenIn, amountIn, amount, recipient);
 
-        return mimAmountOut;
+        return amount;
     }
 
     function getMimAmountOut(IStargatePool tokenIn, uint256 amountIn) public view returns (uint256) {
@@ -72,8 +73,8 @@ abstract contract BaseStargateLpMimPool is Ownable {
         uint256 mimUsd = uint256(mimOracle.latestAnswer()); // 8 decimals
 
         /// @dev for oracleDecimalsMultipler = 14 and tokenIn is 6 decimals -> mimAmount is 18 decimals
-        uint256 mimAmount = (amountIn * pools[tokenIn].oracle.peekSpot("") * pools[tokenIn].oracleDecimalsMultipler) / mimUsd;
-        return mimAmount - ((mimAmount * swappingFeeBps) / 10_000);
+        uint256 amount = ((amountIn * 10**pools[tokenIn].oracleDecimalsMultipler) / pools[tokenIn].oracle.peekSpot("") ) / mimUsd;
+        return amount - ((amount * feeBps) / 10_000);
     }
 
     /*** Admin Functions ***/
@@ -82,9 +83,12 @@ abstract contract BaseStargateLpMimPool is Ownable {
         emit AllowedRedeemerChanged(redeemer, allowed);
     }
 
-    function setSwappingFee(uint256 feeBps) external onlyOwner {
-        swappingFeeBps = feeBps;
-        emit SwappingFeeChanged(feeBps);
+    function setFeeCollector(address _feeCollector, uint256 _feeBps) external onlyOwner {
+        require(_feeBps <= 10_000, "max fee is 10000");
+        feeCollector = _feeCollector;
+        feeBps = _feeBps;
+
+        emit FeeChanged(_feeCollector, _feeBps);
     }
 
     function setPool(

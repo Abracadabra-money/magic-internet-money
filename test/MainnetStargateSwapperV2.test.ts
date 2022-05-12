@@ -2,7 +2,7 @@
 import forEach from "mocha-each";
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
 import { ChainId, getBigNumber, impersonate } from "../utilities";
-import { DegenBox, ERC20Mock, ILevSwapperGeneric, IOracle, IStargatePool, ISwapperGeneric } from "../typechain";
+import { BaseStargateLpMimPool, DegenBox, ERC20Mock, ILevSwapperGeneric, IOracle, IStargatePool, ISwapperGeneric, MainnetStargateLpMimPool } from "../typechain";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ParametersPerChain } from "../deploy/MainnetStargateSwapperV2";
@@ -17,8 +17,8 @@ const globalParametersPerChain = {
   [ChainId.Mainnet]: {
     enabled: true,
     jsonRpcUrl: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-    blockNumber: 14756742,
-    mimWhale: "0x355D72Fb52AD4591B2066E43e89A7A38CF5cb341",
+    blockNumber: 14762605,
+    mimWhale: "0xbbc4A8d076F4B1888fec42581B6fc58d242CF2D5",
   },
   [ChainId.Avalanche]: {
     enabled: false,
@@ -61,6 +61,7 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldrons"
   forEach(cases)[describeFn]("%s Cauldron", async (_name, collateralWhale, cauldronParams, globalCauldronParams) => {
     let snapshotId;
     let MIM: ERC20Mock;
+    let MimPool: BaseStargateLpMimPool;
     let CollateralToken: IStargatePool;
     let CollateralTokenAsERC20: ERC20Mock;
 
@@ -97,7 +98,7 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldrons"
       ProxyOracle = await ethers.getContractAt<IOracle>("IOracle", cauldronParams.oracle);
       CollateralToken = await ethers.getContractAt<IStargatePool>("IStargatePool", cauldronParams.collateral);
       CollateralTokenAsERC20 = await ethers.getContractAt<ERC20Mock>("ERC20Mock", cauldronParams.collateral);
-
+      MimPool = await ethers.getContract<MainnetStargateLpMimPool>("MainnetStargateLpMimPoolV1");
       DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", globalCauldronParams.degenBox);
       MIM = await ethers.getContractAt<ERC20Mock>("ERC20Mock", globalCauldronParams.mim);
 
@@ -114,11 +115,12 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldrons"
       console.log(`Collateral Price = $${collateralPrice} usd`);
 
       // Deposit collateral for liquidation swapper
-      const collateralAmountToLiquidate = await CollateralTokenAsERC20.balanceOf(collateralWhale);
+      const collateralAmountToLiquidate = await CollateralTokenAsERC20.balanceOf(collateralWhaleSigner.address);
       collateralShare = await DegenBox.toShare(cauldronParams.collateral, collateralAmountToLiquidate, true);
       await CollateralTokenAsERC20.connect(collateralWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
       await DegenBox.connect(collateralWhaleSigner).deposit(CollateralToken.address, collateralWhale, Swapper.address, 0, collateralShare);
 
+      await MIM.connect(mimWhaleSigner).transfer(MimPool.address, getBigNumber(260_000_000));
       snapshotId = await ethers.provider.send("evm_snapshot", []);
     });
 
@@ -131,8 +133,7 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldrons"
       const { alice } = await getNamedAccounts();
 
       const collateralAmount = await DegenBox.toAmount(CollateralToken.address, collateralShare, false);
-      const totalLiquidationPrice =
-        collateralPrice * parseFloat(ethers.utils.formatUnits(collateralAmount, collateralDecimals));
+      const totalLiquidationPrice = collateralPrice * parseFloat(ethers.utils.formatUnits(collateralAmount, collateralDecimals));
 
       console.log(`Liquidating for $${totalLiquidationPrice.toLocaleString()} worth of collateral tokens...`);
       const amountCollateralBefore = (await DegenBox.totals(CollateralToken.address)).elastic;
