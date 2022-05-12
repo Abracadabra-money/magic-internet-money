@@ -9,8 +9,6 @@ import "../../interfaces/curve/ICurvePool.sol";
 import "../../interfaces/stargate/IStargateRouter.sol";
 import "../../interfaces/stargate/IStargatePool.sol";
 
-import "hardhat/console.sol";
-
 interface IStargateLpMimPool {
     function swapForMim(
         IStargatePool tokenIn,
@@ -98,9 +96,6 @@ contract StargateCurveSwapperV2 is ISwapperGeneric, Ownable {
             if (amount > 0) {
                 mimAmount += mimPool.swapForMim(pool, amount, address(degenBox));
             }
-
-            console.log("remaining lp", amount, " -> ", mimAmount);
-            
         } else {
             require(IERC20(address(pool)).balanceOf(address(this)) == 0, "Cannot fully redeem");
         }
