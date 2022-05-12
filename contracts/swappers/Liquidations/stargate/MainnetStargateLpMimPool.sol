@@ -19,39 +19,6 @@ contract MainnetStargateLpMimPool is BaseStargateLpMimPool {
 
     constructor(ERC20 _mim, IStargateRouter _stargateRouter) BaseStargateLpMimPool(MIM, MIM_ORACLE, ROUTER) {}
 
-    /// @param dstChainId the chainId to remove liquidity
-    /// @param srcPoolId the source poolId
-    /// @param dstPoolId the destination poolId
-    /// @param amount quantity of LP tokens to redeem
-    /// @param txParams adpater parameters
-    function redeemLocal(
-        uint16 dstChainId,
-        uint256 srcPoolId,
-        uint256 dstPoolId,
-        uint256 amount,
-        IStargateRouter.lzTxObj memory txParams
-    ) external onlyOwner {
-        stargateRouter.redeemLocal(
-            dstChainId,
-            srcPoolId,
-            dstPoolId,
-            payable(address(this)),
-            amount,
-            abi.encodePacked(address(this)),
-            txParams
-        );
-    }
-
-    function instantRedeemLocalMax(IStargatePool lp) external onlyOwner {
-        PoolInfo memory info = pools[lp];
-        stargateRouter.instantRedeemLocal(info.poolId, getMaximumInstantRedeemable(lp), address(this));
-    }
-
-    function instantRedeemLocal(IStargatePool lp, uint256 amount) external onlyOwner {
-        PoolInfo memory info = pools[lp];
-        stargateRouter.instantRedeemLocal(info.poolId, amount, address(this));
-    }
-
     function swapToMimOn1Inch(
         address inchrouter,
         ERC20 tokenIn,

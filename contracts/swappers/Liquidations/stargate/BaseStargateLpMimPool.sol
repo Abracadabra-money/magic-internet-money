@@ -73,7 +73,7 @@ abstract contract BaseStargateLpMimPool is Ownable {
         uint256 mimUsd = uint256(mimOracle.latestAnswer()); // 8 decimals
 
         /// @dev for oracleDecimalsMultipler = 14 and tokenIn is 6 decimals -> mimAmount is 18 decimals
-        uint256 amount = ((amountIn * 10**pools[tokenIn].oracleDecimalsMultipler) / pools[tokenIn].oracle.peekSpot("") ) / mimUsd;
+        uint256 amount = ((amountIn * 10**pools[tokenIn].oracleDecimalsMultipler) / pools[tokenIn].oracle.peekSpot("")) / mimUsd;
         return amount - ((amount * feeBps) / 10_000);
     }
 
@@ -111,6 +111,39 @@ abstract contract BaseStargateLpMimPool is Ownable {
         uint256 amountSD = lp.deltaCredit();
 
         return (amountSD * lp.totalSupply()) / totalLiquidity;
+    }
+
+    /// @param dstChainId the chainId to remove liquidity
+    /// @param srcPoolId the source poolId
+    /// @param dstPoolId the destination poolId
+    /// @param amount quantity of LP tokens to redeem
+    /// @param txParams adpater parameters
+    function redeemLocal(
+        uint16 dstChainId,
+        uint256 srcPoolId,
+        uint256 dstPoolId,
+        uint256 amount,
+        IStargateRouter.lzTxObj memory txParams
+    ) external onlyOwner {
+        stargateRouter.redeemLocal(
+            dstChainId,
+            srcPoolId,
+            dstPoolId,
+            payable(address(this)),
+            amount,
+            abi.encodePacked(address(this)),
+            txParams
+        );
+    }
+
+    function instantRedeemLocalMax(IStargatePool lp) external onlyOwner {
+        PoolInfo memory info = pools[lp];
+        stargateRouter.instantRedeemLocal(info.poolId, getMaximumInstantRedeemable(lp), address(this));
+    }
+
+    function instantRedeemLocal(IStargatePool lp, uint256 amount) external onlyOwner {
+        PoolInfo memory info = pools[lp];
+        stargateRouter.instantRedeemLocal(info.poolId, amount, address(this));
     }
 
     /*** Emergency Functions ***/
