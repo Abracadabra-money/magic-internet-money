@@ -76,7 +76,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       deterministicDeployment: false,
     });
 
-    await (await MimPool.setPool(cauldron.collateral, cauldron.poolId, cauldron.oracle)).wait();
+    await (await MimPool.setPool(cauldron.collateral, cauldron.poolId, cauldron.oracle, 14)).wait();
     await (await MimPool.setAllowedRedeemer(Swapper.address, true)).wait(); 
     await (await Swapper.setMimPool(MimPool.address)).wait();
   }

@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../../../interfaces/stargate/IStargatePool.sol";
 import "../../../interfaces/stargate/IStargateRouter.sol";
 import "../../../interfaces/IOracle.sol";
+import "../../../interfaces/IAggregator.sol";
 
 abstract contract BaseStargateLpMimPool is Ownable {
     using SafeTransferLib for ERC20;
@@ -18,11 +19,14 @@ abstract contract BaseStargateLpMimPool is Ownable {
     event PoolChanged(IStargatePool lp, uint16 poolId, IOracle oracle);
 
     struct PoolInfo {
-        uint16 poolId;
-        IOracle oracle;
+        uint16 poolId; // 16 bits
+        IOracle oracle; // 160 bits
+        uint80 oracleDecimalsMultipler; // 80 bits
     }
 
     ERC20 public immutable mim;
+    IAggregator public immutable mimOracle;
+
     IStargateRouter public immutable stargateRouter;
 
     uint256 public swappingFeeBps;
@@ -35,8 +39,13 @@ abstract contract BaseStargateLpMimPool is Ownable {
         _;
     }
 
-    constructor(ERC20 _mim, IStargateRouter _stargateRouter) {
+    constructor(
+        ERC20 _mim,
+        IAggregator _mimOracle,
+        IStargateRouter _stargateRouter
+    ) {
         mim = _mim;
+        mimOracle = _mimOracle;
         stargateRouter = _stargateRouter;
     }
 
@@ -47,28 +56,25 @@ abstract contract BaseStargateLpMimPool is Ownable {
     ) external onlyAllowedRedeemers returns (uint256) {
         require(address(pools[tokenIn].oracle) != address(0), "invalid tokenIn");
 
-        uint256 amountOut = getAmountOut(tokenIn, amountIn);
+        uint256 mimAmountOut = getMimAmountOut(tokenIn, amountIn);
+
         ERC20(address(tokenIn)).safeTransferFrom(msg.sender, address(this), amountIn);
-        _redeemStargateUnderlying(tokenIn, amountIn);
+        mim.transfer(recipient, mimAmountOut);
 
-        mim.transfer(recipient, amountOut);
+        emit Swap(msg.sender, tokenIn, amountIn, mimAmountOut, recipient);
 
-        emit Swap(msg.sender, tokenIn, amountIn, amountOut, recipient);
-
-        return amountOut;
+        return mimAmountOut;
     }
 
-    function getAmountOut(IStargatePool tokenIn, uint256 amountIn) public view returns (uint256) {
+    function getMimAmountOut(IStargatePool tokenIn, uint256 amountIn) public view returns (uint256) {
         require(address(pools[tokenIn].oracle) != address(0), "invalid tokenIn");
 
-        uint256 normalizedOraclePrice = pools[tokenIn].oracle.peekSpot("") * 10**(18 - tokenIn.decimals());
+        uint256 mimUsd = uint256(mimOracle.latestAnswer()); // 8 decimals
 
-        uint256 amount = (amountIn * normalizedOraclePrice) / 1e18;
-        return amount - ((amount * swappingFeeBps) / 10_000);
+        /// @dev for oracleDecimalsMultipler = 14 and tokenIn is 6 decimals -> mimAmount is 18 decimals
+        uint256 mimAmount = (amountIn * pools[tokenIn].oracle.peekSpot("") * pools[tokenIn].oracleDecimalsMultipler) / mimUsd;
+        return mimAmount - ((mimAmount * swappingFeeBps) / 10_000);
     }
-
-    /*** Abstract Functions ***/
-    function _redeemStargateUnderlying(IStargatePool lp, uint256 amount) internal virtual;
 
     /*** Admin Functions ***/
     function setAllowedRedeemer(address redeemer, bool allowed) external onlyOwner {
@@ -84,13 +90,23 @@ abstract contract BaseStargateLpMimPool is Ownable {
     function setPool(
         IStargatePool lp,
         uint16 poolId,
-        IOracle oracle
+        IOracle oracle,
+        uint80 oracleDecimalsMultipler
     ) external onlyOwner {
-        pools[lp] = PoolInfo({poolId: poolId, oracle: oracle});
+        pools[lp] = PoolInfo({poolId: poolId, oracle: oracle, oracleDecimalsMultipler: oracleDecimalsMultipler});
 
         ERC20(address(lp)).safeApprove(address(stargateRouter), type(uint256).max);
 
         emit PoolChanged(lp, poolId, oracle);
+    }
+
+    function getMaximumInstantRedeemable(IStargatePool lp) internal view returns (uint256) {
+        uint256 totalLiquidity = lp.totalLiquidity();
+
+        require(totalLiquidity > 0, "totalLiquidity is 0");
+        uint256 amountSD = lp.deltaCredit();
+
+        return (amountSD * lp.totalSupply()) / totalLiquidity;
     }
 
     /*** Emergency Functions ***/
