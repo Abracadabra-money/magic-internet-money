@@ -3,9 +3,9 @@ pragma solidity 0.8.10;
 
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 import "@rari-capital/solmate/src/tokens/ERC20.sol";
-import "../../../interfaces/stargate/IStargateRouter.sol";
-import "../../../interfaces/stargate/IStargatePool.sol";
-import "../../../interfaces/curve/ICurvePool.sol";
+import "../interfaces/stargate/IStargateRouter.sol";
+import "../interfaces/stargate/IStargatePool.sol";
+import "../interfaces/curve/ICurvePool.sol";
 
 import "./BaseStargateLpMimPool.sol";
 
@@ -33,8 +33,8 @@ contract MainnetStargateLpMimPool is BaseStargateLpMimPool {
         tokenIn.safeApprove(inchrouter, 0);
     }
 
-    function swapToMimOnCurve(uint256 amountIn, int128 i) external onlyOwner {
-        ERC20(MIM_3POOL.coins(uint128(i))).safeApprove(address(MIM_3POOL), amountIn);
+    function swapToMimOnCurve(ERC20 tokenIn, uint256 amountIn, int128 i) external onlyOwner {
+        tokenIn.safeApprove(address(MIM_3POOL), amountIn);
         MIM_3POOL.exchange_underlying(i, 0, amountIn, 0, address(this));
     }
 }

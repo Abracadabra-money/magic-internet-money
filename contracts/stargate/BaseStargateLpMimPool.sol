@@ -5,10 +5,10 @@ import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 import "@rari-capital/solmate/src/tokens/ERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../../../interfaces/stargate/IStargatePool.sol";
-import "../../../interfaces/stargate/IStargateRouter.sol";
-import "../../../interfaces/IOracle.sol";
-import "../../../interfaces/IAggregator.sol";
+import "../interfaces/stargate/IStargatePool.sol";
+import "../interfaces/stargate/IStargateRouter.sol";
+import "../interfaces/IOracle.sol";
+import "../interfaces/IAggregator.sol";
 
 abstract contract BaseStargateLpMimPool is Ownable {
     using SafeTransferLib for ERC20;
@@ -16,7 +16,7 @@ abstract contract BaseStargateLpMimPool is Ownable {
     event AllowedRedeemerChanged(address redeemer, bool allowed);
     event Swap(address from, IStargatePool tokenIn, uint256 amountIn, uint256 amountOut, address recipient);
     event PoolChanged(IStargatePool lp, uint16 poolId, IOracle oracle);
-    event FeeChanged(address feeCollector, uint256 fee);
+    event FeeChanged(uint256 feeBps);
 
     struct PoolInfo {
         uint16 poolId; // 16 bits
@@ -30,7 +30,6 @@ abstract contract BaseStargateLpMimPool is Ownable {
     IStargateRouter public immutable stargateRouter;
 
     uint256 public feeBps;
-    address public feeCollector;
 
     mapping(IStargatePool => PoolInfo) public pools;
     mapping(address => bool) public allowedRedeemers;
@@ -45,6 +44,7 @@ abstract contract BaseStargateLpMimPool is Ownable {
         IAggregator _mimOracle,
         IStargateRouter _stargateRouter
     ) {
+        feeBps = 20;
         mim = _mim;
         mimOracle = _mimOracle;
         stargateRouter = _stargateRouter;
@@ -83,12 +83,11 @@ abstract contract BaseStargateLpMimPool is Ownable {
         emit AllowedRedeemerChanged(redeemer, allowed);
     }
 
-    function setFeeCollector(address _feeCollector, uint256 _feeBps) external onlyOwner {
+    function setFee(uint256 _feeBps) external onlyOwner {
         require(_feeBps <= 10_000, "max fee is 10000");
-        feeCollector = _feeCollector;
         feeBps = _feeBps;
 
-        emit FeeChanged(_feeCollector, _feeBps);
+        emit FeeChanged(_feeBps);
     }
 
     function setPool(
@@ -118,18 +117,19 @@ abstract contract BaseStargateLpMimPool is Ownable {
     /// @param dstPoolId the destination poolId
     /// @param amount quantity of LP tokens to redeem
     /// @param txParams adpater parameters
+    /// https://layerzero.gitbook.io/docs/technical-reference/mainnet/supported-chain-ids
     function redeemLocal(
         uint16 dstChainId,
         uint256 srcPoolId,
         uint256 dstPoolId,
         uint256 amount,
         IStargateRouter.lzTxObj memory txParams
-    ) external onlyOwner {
-        stargateRouter.redeemLocal(
+    ) external payable onlyOwner {
+        stargateRouter.redeemLocal{value: msg.value}(
             dstChainId,
             srcPoolId,
             dstPoolId,
-            payable(address(this)),
+            payable(msg.sender),
             amount,
             abi.encodePacked(address(this)),
             txParams
@@ -138,7 +138,11 @@ abstract contract BaseStargateLpMimPool is Ownable {
 
     function instantRedeemLocalMax(IStargatePool lp) external onlyOwner {
         PoolInfo memory info = pools[lp];
-        stargateRouter.instantRedeemLocal(info.poolId, getMaximumInstantRedeemable(lp), address(this));
+
+        uint256 amount = ERC20(address(lp)).balanceOf(address(this));
+        uint256 max = getMaximumInstantRedeemable(lp);
+
+        stargateRouter.instantRedeemLocal(info.poolId, amount > max ? max : amount, address(this));
     }
 
     function instantRedeemLocal(IStargatePool lp, uint256 amount) external onlyOwner {

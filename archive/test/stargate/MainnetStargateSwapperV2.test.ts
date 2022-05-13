@@ -121,6 +121,7 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldrons"
       await DegenBox.connect(collateralWhaleSigner).deposit(CollateralToken.address, collateralWhale, Swapper.address, 0, collateralShare);
 
       await MIM.connect(mimWhaleSigner).transfer(MimPool.address, getBigNumber(260_000_000));
+      
       snapshotId = await ethers.provider.send("evm_snapshot", []);
     });
 

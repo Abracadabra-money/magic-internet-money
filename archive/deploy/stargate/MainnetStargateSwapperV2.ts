@@ -51,10 +51,10 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const parameters = ParametersPerChain[chainId];
   const cauldrons = parameters.cauldrons;
 
-  const MimPool = await wrappedDeploy<BaseStargateLpMimPool>(`MainnetStargateLpMimPoolV1`, {
+  const MimPool = await wrappedDeploy<BaseStargateLpMimPool>(`MainnetStargateLpMimPoolV5`, {
     from: deployer,
     args: [Constants.mainnet.mim, Constants.mainnet.stargate.router],
-    contract: "MainnetStargateLpMimPool"
+    contract: "MainnetStargateLpMimPool",
   });
 
   for (let i = 0; i < cauldrons.length; i++) {
@@ -77,7 +77,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     });
 
     await (await MimPool.setPool(cauldron.collateral, cauldron.poolId, cauldron.oracle, 26)).wait();
-    await (await MimPool.setAllowedRedeemer(Swapper.address, true)).wait(); 
+    await (await MimPool.setAllowedRedeemer(Swapper.address, true)).wait();
     await (await Swapper.setMimPool(MimPool.address)).wait();
   }
 };
