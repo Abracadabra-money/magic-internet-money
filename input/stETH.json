@@ -1,0 +1,785 @@
+{
+  "0xff011005418b22703394226a05abc1d3b5db16ad": {
+    "userBorrowPart": "1.97267575439403e+21"
+  },
+  "0xfce7cff486c2bc704f27ed3f21578f60e1775b91": {
+    "userBorrowPart": "4.19300126306155e+22"
+  },
+  "0xfac01bf00180ff294915e840b4309b823b759f83": {
+    "userBorrowPart": "1.71925598651929e+23"
+  },
+  "0xf9fbe6f636b073b34dd0221076e77332e27fba77": {
+    "userBorrowPart": "3.40779481618313e+23"
+  },
+  "0xf816a258170185d5c032f1ea1108b90ca6c019e2": {
+    "userBorrowPart": "1.24746209781939e+23"
+  },
+  "0xf5e3a29f68e839681f5f70f4927bff50211d61da": {
+    "userBorrowPart": "2.96445059681152e+23"
+  },
+  "0xf5bf3b7b7d03efd34ba1e1bcf1694080975d8a1c": {
+    "userBorrowPart": "40206504207507"
+  },
+  "0xf58764c35ed1528ec78df18bebb24fa20f6a626f": {
+    "userBorrowPart": "0"
+  },
+  "0xf57e3d82ce5538a47d5a717006777b7ad8f768b2": {
+    "userBorrowPart": "61470479728847"
+  },
+  "0xf46c5856822b9e09186882b5163301cecd081d0d": {
+    "userBorrowPart": "46177777439462700000"
+  },
+  "0xf45c4bb9db215a30b0c219e7a8b562f9afe4c6e5": {
+    "userBorrowPart": "1.01304484087965e+23"
+  },
+  "0xf2f6225962e7b1098d10f8b421b0c31936c7dcd2": {
+    "userBorrowPart": "0"
+  },
+  "0xf2eaeb6a0c248bcd69fd314180d69907b9be7491": {
+    "userBorrowPart": "1.17552681175376e+23"
+  },
+  "0xf0fb1d4699dc6ac4aba560b4e03026938fb8dd05": {
+    "userBorrowPart": "15823256054849"
+  },
+  "0xeefb5f077c78bee8d32444c2795493581b8b8c34": {
+    "userBorrowPart": "3.010008934293e+21"
+  },
+  "0xeedfab49602919cf17796a7b223fbd8ad8c4b505": {
+    "userBorrowPart": "5.97768057879346e+22"
+  },
+  "0xeecc42050ed0ee5027b09fdeee03b56055404c09": {
+    "userBorrowPart": "657567881065173"
+  },
+  "0xecfe970e280e3b5702802c87ebadf23ca4d785e5": {
+    "userBorrowPart": "0"
+  },
+  "0xecc782185a3866b0dba2c23e168764b632f40594": {
+    "userBorrowPart": "1.00872422811381e+23"
+  },
+  "0xec3f4f9fea9438a52f1a2bff3626d663fd8748fa": {
+    "userBorrowPart": "7.90315100209113e+21"
+  },
+  "0xebf24d9d9cb773a68802b02823d402a0d7cbdb22": {
+    "userBorrowPart": "3.11412913215169e+21"
+  },
+  "0xe9ed43ea13d8846c873eb6a8460c9afe350d75ae": {
+    "userBorrowPart": "5.47583131404452e+22"
+  },
+  "0xe8812ec6038bf0966fd79b1bb68b14e57e46fafb": {
+    "userBorrowPart": "8.32534400214546e+21"
+  },
+  "0xe5859cbc7a5c954d33480e67266c2bbc919a966e": {
+    "userBorrowPart": "5.33670579789502e+22"
+  },
+  "0xe44f3288128c049c2516035f5d20d5cc54a467e8": {
+    "userBorrowPart": "4.01747432607205e+21"
+  },
+  "0xe36d639a953f563e129ef289a04818bb04a2bcbe": {
+    "userBorrowPart": "2.29055055932882e+23"
+  },
+  "0xe2626fbb35c6ce84962e1c8e8adcef1d00247477": {
+    "userBorrowPart": "54652965480637"
+  },
+  "0xe057e6386047c690f6d2804ecd61e68441774bbc": {
+    "userBorrowPart": "4.64658060254277e+23"
+  },
+  "0xdfa8ee9ff8798b37800f3ab18807273d7caaf1b6": {
+    "userBorrowPart": "5.16314828635819e+22"
+  },
+  "0xdd84ce1adcb3a4908db61a1dfa3353c3974c5a2b": {
+    "userBorrowPart": "5.97882051960978e+22"
+  },
+  "0xdd7b48e65197254fda094e0f39ab435ba327bd3a": {
+    "userBorrowPart": "0"
+  },
+  "0xdcb71c2086f4d9aef8af0710780c29e046fe9dfd": {
+    "userBorrowPart": "0"
+  },
+  "0xdc4f0e1c52da6bfc39b0401a5e2099c9f78ea1b5": {
+    "userBorrowPart": "5.24562690425212e+21"
+  },
+  "0xdb722dd612d35a12e718138e7296e6ca3531fb98": {
+    "userBorrowPart": "1.32000992545584e+23"
+  },
+  "0xdac11260ea26aa7ace35f846ab7e389bd50c75ad": {
+    "userBorrowPart": "5.74124191771043e+22"
+  },
+  "0xdabf2bc9317008f902ee8b8ad7a6e97c5ea2fa56": {
+    "userBorrowPart": "2.51077670630565e+22"
+  },
+  "0xdaab9dd5ffad2585b18fecd40e14d051cfc04363": {
+    "userBorrowPart": "0"
+  },
+  "0xd9e38d3487298f9cfb2109f83d93196be5ad7cd3": {
+    "userBorrowPart": "854873376894071000000"
+  },
+  "0xd7d2b6894ddb725ce0c02c46bd71405378c91740": {
+    "userBorrowPart": "3.45103148289039e+22"
+  },
+  "0xd6fa0351348e16c101a2462c90019949cc936b66": {
+    "userBorrowPart": "1.047613698625e+23"
+  },
+  "0xd6cd56b69c2c345cdd98125ade6d25e1161d1a2e": {
+    "userBorrowPart": "0"
+  },
+  "0xd5c58b0d819be34b7b8ff69e76e6a4b5fb912263": {
+    "userBorrowPart": "3.59935089120062e+21"
+  },
+  "0xd5203cb8ab0b4cc1296f9bdfdd548b3cc8749c7c": {
+    "userBorrowPart": "2.25376361388848e+23"
+  },
+  "0xd4c621bcae8bc25cc5be96919bbdc888335a7f49": {
+    "userBorrowPart": "5.61147569542687e+21"
+  },
+  "0xd43a78d7bf1ccb9960439a1c6004eca54fa0342b": {
+    "userBorrowPart": "4721415907723"
+  },
+  "0xd385a7b673c90d75c26c6ca5ba2abb63bcd1666b": {
+    "userBorrowPart": "0"
+  },
+  "0xd1c1d7ade57144f0b7bfad2aaf3e99d26fa89b29": {
+    "userBorrowPart": "6544177074922"
+  },
+  "0xd057524fa8218d0c3e1ad9d1562402218a725f78": {
+    "userBorrowPart": "1.50233264530214e+21"
+  },
+  "0xcf07aeda16eba7c76f91a589e2c5265b1bf379a8": {
+    "userBorrowPart": "1.32174501011167e+22"
+  },
+  "0xcd858c241ae2b692532d71c30e9e3a8b527d1fbe": {
+    "userBorrowPart": "803930227380998000000"
+  },
+  "0xcb16f82e5949975f9cf229c91c3a6d43e3b32a9e": {
+    "userBorrowPart": "1.24096376581539e+24"
+  },
+  "0xc951d18638ef6c0a6c23d54af2603898ae569c89": {
+    "userBorrowPart": "93899795781485400000"
+  },
+  "0xc7382f0c5854b0b7e2bf05ada0360dc47505bf68": {
+    "userBorrowPart": "1177722599674170000"
+  },
+  "0xc71715d0e4ffcd11a424b5af4885bfdc4abf59bd": {
+    "userBorrowPart": "2.5918478506505e+23"
+  },
+  "0xc516f561098cea752f06c4f7295d0827f1ba0d6c": {
+    "userBorrowPart": "1.19491080013268e+22"
+  },
+  "0xc4544e21e0cc45b8564fe0881b870fb40c73ee24": {
+    "userBorrowPart": "5.01003513587765e+21"
+  },
+  "0xc43f914c4a29901301bb5a889391e2dfdbe948e7": {
+    "userBorrowPart": "1.48904603863614e+22"
+  },
+  "0xc2e5329356eb06d97406260aea056891f8477c0a": {
+    "userBorrowPart": "1.15753783865141e+22"
+  },
+  "0xc165626029a9bd9cb8efa234940b1364d14bf2e6": {
+    "userBorrowPart": "3.55662225084951e+22"
+  },
+  "0xbe4ed64e6bbc06d410322002cdd68f362676c510": {
+    "userBorrowPart": "6.60863390062357e+21"
+  },
+  "0xbc904354748f3eaea50f0ea36c959313ff55cc39": {
+    "userBorrowPart": "0"
+  },
+  "0xb87425090935054d55a7b4df73c8447885935c69": {
+    "userBorrowPart": "184272924643601000000"
+  },
+  "0xb835367ae1cafcea58a10a51b17fea25d16c3dab": {
+    "userBorrowPart": "60280691346556900000"
+  },
+  "0xb7e56c4f44d42487b73169d6ef727489dda00549": {
+    "userBorrowPart": "2.57421430834088e+22"
+  },
+  "0xb6d36b07f3ac6990b962ec6def96f57d52653f1d": {
+    "userBorrowPart": "8.82556196923727e+21"
+  },
+  "0xb63188d98921f0202b218ba95d8d7f9e63327b91": {
+    "userBorrowPart": "0"
+  },
+  "0xb3c3075529ec3c623f9537621089c8fed9457640": {
+    "userBorrowPart": "17640639137310"
+  },
+  "0xb2ce5553add3369f4aded617242f55bfd6d11d1a": {
+    "userBorrowPart": "77867013599616"
+  },
+  "0xb26fd4b2385f2b665c1d0c029b8524722cdd2c76": {
+    "userBorrowPart": "125341498929162000000"
+  },
+  "0xb25dd335e2e30c2cd0d62e88242eb9e88f8f0858": {
+    "userBorrowPart": "0"
+  },
+  "0xb1ee8ddfcfaa0b9e028e1d005e59c89957870c10": {
+    "userBorrowPart": "0"
+  },
+  "0xb1328907b14700379905d6d733fb0b31e46f3d62": {
+    "userBorrowPart": "1.03079584907463e+22"
+  },
+  "0xaf5b48f84b12879bf6b54e9835a82fa522b2961f": {
+    "userBorrowPart": "6.83305018244376e+22"
+  },
+  "0xacb6cb907c5ad997aeb5f44bffe8abec223592d2": {
+    "userBorrowPart": "0"
+  },
+  "0xac5406aebe35a27691d62bfb80eefcd7c0093164": {
+    "userBorrowPart": "1.0353045219449e+24"
+  },
+  "0xa9f04c41bc8cfeafdb99269e35bee91f14beef39": {
+    "userBorrowPart": "3.10615189081441e+21"
+  },
+  "0xa89d49bbdf31246dae0700beeeabf2fb9523160c": {
+    "userBorrowPart": "1093257863772010000"
+  },
+  "0xa84842f23737367274b6949e61f0ba8f3239b0bf": {
+    "userBorrowPart": "0"
+  },
+  "0xa4b2adb7c0afef6542af0bf25cafc818e9295681": {
+    "userBorrowPart": "8.53934870172466e+22"
+  },
+  "0xa49e66b1c410558b3914f63891038b8945b4676e": {
+    "userBorrowPart": "5.01876592648053e+21"
+  },
+  "0xa42a7786d57e693ad332883a1e35bd4d54d9862f": {
+    "userBorrowPart": "2.82360545254382e+21"
+  },
+  "0xa1bfd11f4b0b0a20fec87636cc1716262abd8eee": {
+    "userBorrowPart": "2.40321379039508e+23"
+  },
+  "0xa163cef64a09242fe26dcf8f728d6e2760055b52": {
+    "userBorrowPart": "0"
+  },
+  "0xa0a9ad080abcbe33641cd7fa97bf3d205f1980cd": {
+    "userBorrowPart": "3.08167542513765e+22"
+  },
+  "0xa080e11ff0ac09f0401ab3f5646318a2ee59b574": {
+    "userBorrowPart": "3.85034907074546e+21"
+  },
+  "0x9f1e5cf9fa7f80f118c396a188166a536a2ba836": {
+    "userBorrowPart": "6.26322721375402e+21"
+  },
+  "0x9de3327c7183c813f6df4fd51b09313f180e8d70": {
+    "userBorrowPart": "1.00553435447099e+21"
+  },
+  "0x9dbd600f88bc2b97632dfc60b7568a226d398a90": {
+    "userBorrowPart": "3.62811621593307e+22"
+  },
+  "0x9c9c45ce02fe2d66bff2f2e6eb381d54c3a6616a": {
+    "userBorrowPart": "0"
+  },
+  "0x9be8e4e9d4a68bbdaa8decae9f728ed50599be7c": {
+    "userBorrowPart": "0"
+  },
+  "0x9b354f0873b3bda4f8dc06e38533bfa62ecf650e": {
+    "userBorrowPart": "4.99763143972252e+21"
+  },
+  "0x9ae8d5af6a7600297c22194f4df95156a0d63663": {
+    "userBorrowPart": "4.08421016895547e+21"
+  },
+  "0x9a87a59040f86b5879cd21cf0b0c42a0c3e2a2ad": {
+    "userBorrowPart": "0"
+  },
+  "0x9a6b9f703de8adf7e7dda5dc5fb3256562266525": {
+    "userBorrowPart": "1.76097340261612e+22"
+  },
+  "0x98bd4c1d3a5f75d8a41b2cab04d79408cd521eae": {
+    "userBorrowPart": "0"
+  },
+  "0x98148afc215929448a1cfe201bf7191b49e48f0b": {
+    "userBorrowPart": "0"
+  },
+  "0x97f90dff8dd595c7cacf5e206ba5931b222ae33b": {
+    "userBorrowPart": "2.42469763166972e+22"
+  },
+  "0x967def9a45bed9b4ae493de31f575fd8262201f3": {
+    "userBorrowPart": "7.93784249623814e+22"
+  },
+  "0x9621a3f97b67137192198d2a78d092bf50a779cd": {
+    "userBorrowPart": "1.81016314955413e+22"
+  },
+  "0x94733b04a847c8a65399324a52e85d0a95dbeb16": {
+    "userBorrowPart": "6.92399129462619e+21"
+  },
+  "0x9428b02560e91608bd9780a916d5eb89eb9a4b6d": {
+    "userBorrowPart": "9189434010436"
+  },
+  "0x93aa0644e4d1436619f60995eca24c77b9966a0f": {
+    "userBorrowPart": "1.05900661161746e+22"
+  },
+  "0x9283a4339a2f6162bfbd83e92ed4eab0085693b3": {
+    "userBorrowPart": "0"
+  },
+  "0x8ef63b525fcef7f8662d98f77f5c9a86ae7dfe09": {
+    "userBorrowPart": "1.67456269624935e+23"
+  },
+  "0x8ea93d5d15c1bd460ad404e9332fe07146a5eb88": {
+    "userBorrowPart": "4.7869057514746e+23"
+  },
+  "0x8a7dacf37cb36507e56937e854cf2654b0bff2d6": {
+    "userBorrowPart": "1.38556483186071e+23"
+  },
+  "0x8a591e12b71a8ca156f79529c7e4a3c4997af982": {
+    "userBorrowPart": "15888895390871900000"
+  },
+  "0x8a2ec1337217dc52de95230a2979a408e7b4d78e": {
+    "userBorrowPart": "3.63193380694195e+22"
+  },
+  "0x8a0369272a18e603c5010323b389e16763240292": {
+    "userBorrowPart": "1.35293532753401e+22"
+  },
+  "0x87db27ac8459ab6602f7a6155b48f6b184065da0": {
+    "userBorrowPart": "174930703907978000000"
+  },
+  "0x87d9c2d9990a9f3a18f1377ff20d9945f9eb3792": {
+    "userBorrowPart": "3022262380489960000"
+  },
+  "0x85150d0f3d03cc1a89987b319f301dbbd8d54206": {
+    "userBorrowPart": "1.18280461734503e+23"
+  },
+  "0x84eaf06a85f498d4192946880307f9271d59304d": {
+    "userBorrowPart": "258084623381807000000"
+  },
+  "0x812ee6a96f5e25f6cdb2a5ee5fe2bc1cb3c31182": {
+    "userBorrowPart": "8.96650305177422e+21"
+  },
+  "0x80dad90019429c2951ce232b741c517a9c2dfe3d": {
+    "userBorrowPart": "0"
+  },
+  "0x805651a56e6121becb27219b65fd859ed3e97dc1": {
+    "userBorrowPart": "0"
+  },
+  "0x7ea8e1b9feb9f6a3420538a21497180866e44765": {
+    "userBorrowPart": "130268854628865000000"
+  },
+  "0x7d93f170dfd65d14d58682678b7a0d171f287c93": {
+    "userBorrowPart": "2.37814113435958e+22"
+  },
+  "0x7d78dd0f953dbee6ce8d50cef43f8718cf05a01d": {
+    "userBorrowPart": "548921513758459000000"
+  },
+  "0x7d6fadb02e70bfb6325cfd6ec5605e552115aa76": {
+    "userBorrowPart": "5.65737637331059e+21"
+  },
+  "0x7b0614920fc139a11dafa7da457c1f7e131bcb7f": {
+    "userBorrowPart": "2.71578554157291e+22"
+  },
+  "0x79a8c9ab20576639fc5e6930c6007695a3114e46": {
+    "userBorrowPart": "46198386461939900000"
+  },
+  "0x78766bfce436f64f4718b7c7fd82d3135059d89e": {
+    "userBorrowPart": "9.34822694562816e+22"
+  },
+  "0x783a25ad0495062c7edee18f35df2e11dfcd0da2": {
+    "userBorrowPart": "0"
+  },
+  "0x77ee52b29358386e31765b07396d53229a2079af": {
+    "userBorrowPart": "1.97283166904398e+24"
+  },
+  "0x77070bcacbd9966793ddd54cb4b69e5722597faa": {
+    "userBorrowPart": "0"
+  },
+  "0x761fd3276a060b26fac6161dfb914aa611b6ad37": {
+    "userBorrowPart": "1.66609112414723e+22"
+  },
+  "0x74a2682aab14963622425e313b9acb393aef4799": {
+    "userBorrowPart": "0"
+  },
+  "0x72fa29b9de74832d7c3d541ceed030fe0add46d9": {
+    "userBorrowPart": "4216904361187"
+  },
+  "0x72b223de2f773c814465c4a8f2ef9faae702cfb3": {
+    "userBorrowPart": "0"
+  },
+  "0x72721d3f3554519b6ac6aa676b3905964caccd86": {
+    "userBorrowPart": "16898055367179"
+  },
+  "0x6f36212aad5ffb626f09f1a32ade7c13b3cc389e": {
+    "userBorrowPart": "1.57070928908996e+22"
+  },
+  "0x6da6e5cc500878bfea253e747004bec4f6c7a5cf": {
+    "userBorrowPart": "5.88091686287907e+21"
+  },
+  "0x6c51fa14f293814bc1e30ec186a7c4896ed359f1": {
+    "userBorrowPart": "1.20588352801519e+23"
+  },
+  "0x6c36952cef0c1658400a3fe5951410abaf7f847c": {
+    "userBorrowPart": "0"
+  },
+  "0x6af0c2cf70435ac563747a0dd73c91c7dc09af50": {
+    "userBorrowPart": "2.12262048223138e+22"
+  },
+  "0x68bc736b217127efd0a8babf4c212878e79c6715": {
+    "userBorrowPart": "2.0440216517951e+22"
+  },
+  "0x68a9df153499ea9eae162be94790c6e7da9503d0": {
+    "userBorrowPart": "0"
+  },
+  "0x67c342000410aeef0475eee88a000e6a7e3606d0": {
+    "userBorrowPart": "1.72743673689923e+22"
+  },
+  "0x67bd50fafe39ab0a1b361b0c1470942a655acb86": {
+    "userBorrowPart": "7.29138738006154e+21"
+  },
+  "0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe": {
+    "userBorrowPart": "10000000000000000000000000"
+  },
+  "0x6763df505f7f343fbf69f8d5d87433dcdae2195a": {
+    "userBorrowPart": "7.53979260307436e+22"
+  },
+  "0x66c90bace2b68955c875fda89ba2c5a94e672440": {
+    "userBorrowPart": "3.9858680698953e+22"
+  },
+  "0x659992dfec52a34171d49eaada633a2e178fdb08": {
+    "userBorrowPart": "6.08857567048567e+21"
+  },
+  "0x611a2d7778f6bd8f8636f3d4cda84a044d8fd0f1": {
+    "userBorrowPart": "0"
+  },
+  "0x604fd7bf046057b4b9492e4fbd4181a04fee3d1f": {
+    "userBorrowPart": "0"
+  },
+  "0x5ee9b86f3d4c48bb5c72927e1e051466d5b0a41a": {
+    "userBorrowPart": "16386997255192700000"
+  },
+  "0x5ea61c2d641faf0368deb0c0790dd6a4ee8b23ff": {
+    "userBorrowPart": "5986711009512"
+  },
+  "0x5e945fe1851a2bfc86d618e200708d6209bb9bb6": {
+    "userBorrowPart": "1.00435262702043e+21"
+  },
+  "0x5e25dc12c8ef7935fb7852373e25969aa7465fdd": {
+    "userBorrowPart": "5.51745047099319e+22"
+  },
+  "0x5da7e3e73e36a576925e24285884403579186f28": {
+    "userBorrowPart": "4.21250303823305e+22"
+  },
+  "0x5d8e76b2fc2cee04a19d968e72335c911e695008": {
+    "userBorrowPart": "1.24254052155729e+22"
+  },
+  "0x5b81025dada7746f15fa94aa2b3d313adcb4caaa": {
+    "userBorrowPart": "7.53356325560947e+21"
+  },
+  "0x5a2a1e290034e15d22e905f1d9f0fdfc36774b4c": {
+    "userBorrowPart": "1.85560714344693e+22"
+  },
+  "0x59b9fac77b64dcc0006207a2a41d90d96b3bc301": {
+    "userBorrowPart": "8.53213196380943e+21"
+  },
+  "0x597568694fe6ee1b701ec8578bd57102c9a29abd": {
+    "userBorrowPart": "4.5688737861114e+23"
+  },
+  "0x57e1046aa0871dcd446edf903ed6ff4e9891e398": {
+    "userBorrowPart": "1.55e+23"
+  },
+  "0x5732e7f7ca75d0ad647c4ad32708626aa5b34dc5": {
+    "userBorrowPart": "7736170181747140000"
+  },
+  "0x569d59210d3ed3c50f91dcaa674516519d84401c": {
+    "userBorrowPart": "6.08832462998672e+21"
+  },
+  "0x56139c152f0079b8aa2401116d7346fa6bff7d28": {
+    "userBorrowPart": "0"
+  },
+  "0x560c2b6a1f215a5afe31e9915d73494a30021b27": {
+    "userBorrowPart": "1.15204012593903e+21"
+  },
+  "0x55eb08820fb6b7859ce8ddc1f4a188b47f3bade1": {
+    "userBorrowPart": "0"
+  },
+  "0x55d482fd4deaf0db3559a56e5e7990d196782e58": {
+    "userBorrowPart": "1.93448450428098e+22"
+  },
+  "0x55b5c749d5ba14ca81627c397fc411b4d5ceb074": {
+    "userBorrowPart": "83449490795236900000"
+  },
+  "0x554655c3e743abe133e9a0d395ca5a09a03f920b": {
+    "userBorrowPart": "0"
+  },
+  "0x548cedf0fe2d4a278ba9e6296f334ca97c08aeb9": {
+    "userBorrowPart": "0"
+  },
+  "0x51b4843988a1a8d8c45d742170e55cab9eca71b8": {
+    "userBorrowPart": "1.1456762803191e+22"
+  },
+  "0x51a125f89cbe0bfbfd62fee8a750aaec8fabc441": {
+    "userBorrowPart": "3.59115883600154e+23"
+  },
+  "0x4f6f2c9b043fd246e4cae95a5463c9d9ff1bef05": {
+    "userBorrowPart": "7988697437718880000"
+  },
+  "0x4f1a63e53e67be6ba0f497d91a3259686d41a540": {
+    "userBorrowPart": "0"
+  },
+  "0x4edaf9d6b34b1eb3ca712054ded4c87af9c4969b": {
+    "userBorrowPart": "6.04728296299092e+21"
+  },
+  "0x4da8c5e71152811390901bdc3a949fa8c8bb6aa9": {
+    "userBorrowPart": "0"
+  },
+  "0x4bc3f1ad1e490a8abe5bb5d2e64046a9d370cadd": {
+    "userBorrowPart": "2.5116553056176e+22"
+  },
+  "0x4ad8c6d982ea20c6b105c480c866fef79dde36db": {
+    "userBorrowPart": "5.01178198269106e+22"
+  },
+  "0x4a0789f9de105bfdc729039d8d7ba781e9a3c3d8": {
+    "userBorrowPart": "0"
+  },
+  "0x48d93dabf29aa5d86424a90ee60f419f1837649f": {
+    "userBorrowPart": "1.95341237100221e+25"
+  },
+  "0x482dedbd00ac5c3f59d3d84f86e16cfad8e5200d": {
+    "userBorrowPart": "23876550133813"
+  },
+  "0x46d16043787900f49bc5392eb92e678ce171d34f": {
+    "userBorrowPart": "32338042084050"
+  },
+  "0x4382916a88b6eed40530ef47ded0d402563ddaca": {
+    "userBorrowPart": "0"
+  },
+  "0x42dac2ec3e4231a0d046e7ba6053519f9db20b7d": {
+    "userBorrowPart": "9.01555952230917e+21"
+  },
+  "0x419809c2db0b4fe77f5a42056bdb800004db50d6": {
+    "userBorrowPart": "1.004288570988e+21"
+  },
+  "0x418921dd3a48d67b84821ebd8bd78c660b273df6": {
+    "userBorrowPart": "8562644304364150000"
+  },
+  "0x3ff5e4dca6195f49507724ffda79ea42d16109c9": {
+    "userBorrowPart": "1.9724065898013e+21"
+  },
+  "0x3ef89fd130bf0851a3aebb748fb200b11ea82a0b": {
+    "userBorrowPart": "0"
+  },
+  "0x3e64aadd9c6799bf641eb6ab659e44c387becec1": {
+    "userBorrowPart": "3701549127171800000"
+  },
+  "0x3d066684d6795109cab9606631b15c1ffac36596": {
+    "userBorrowPart": "1.57456190037514e+22"
+  },
+  "0x3c4d21243f55f0ee12f9ddde1296d08529503311": {
+    "userBorrowPart": "1.28493011520455e+23"
+  },
+  "0x3bb38db21cfa20fcaa9771ef4c973333f18b91b3": {
+    "userBorrowPart": "1.42487381232296e+23"
+  },
+  "0x3b5e393d467a8ffebc8d49b7e6c69188cee55582": {
+    "userBorrowPart": "0"
+  },
+  "0x3a9eef4770734421d57b9434c479b2cf815fd9c8": {
+    "userBorrowPart": "0"
+  },
+  "0x3985caf03eef8f885edb1f8358143bdf08d8d48b": {
+    "userBorrowPart": "1.19634537812083e+21"
+  },
+  "0x385c2f97e1c92ed874621844920f330834649f6a": {
+    "userBorrowPart": "0"
+  },
+  "0x38484f74afed5fb86b6fa3517e7ff91ceeb6ae7e": {
+    "userBorrowPart": "3.3859106111058e+22"
+  },
+  "0x37f0945dc06bf627d4cf875be442b012eccd53cb": {
+    "userBorrowPart": "234203706303225000"
+  },
+  "0x36c0ba3a6e30d5637d90f7c778d3fec2aecc3990": {
+    "userBorrowPart": "28525124157133000000"
+  },
+  "0x36273803306a3c22bc848f8db761e974697ece0d": {
+    "userBorrowPart": "1.6056773119493e+22"
+  },
+  "0x3581809251098424a2ca83b7f45bfeff285896b1": {
+    "userBorrowPart": "7.25331243339908e+21"
+  },
+  "0x337be27381af5ee40690426d5fcd44a30560082c": {
+    "userBorrowPart": "99402526572008"
+  },
+  "0x320f7dd7661b9c9273ab71f325870087b0b2df54": {
+    "userBorrowPart": "487608582600202000"
+  },
+  "0x3043132b84d8c2923f065a8c32a4dbd46ef3eff7": {
+    "userBorrowPart": "0"
+  },
+  "0x2f463642fa60cb1f1fd1c57af25b34b7a9a99586": {
+    "userBorrowPart": "2.95685727887632e+23"
+  },
+  "0x2f197df24f15d989caae47c4d950d1947ec4eace": {
+    "userBorrowPart": "3.10719335776867e+21"
+  },
+  "0x2eae36d41b57cbf1871e3e9cdbaaed85dfcc2033": {
+    "userBorrowPart": "16248951126028"
+  },
+  "0x2deb3882b844bd83360bbeaf7d901e59664df204": {
+    "userBorrowPart": "2.21532722476924e+22"
+  },
+  "0x2de40965382f28ca808ab7a9088e670aadf913c9": {
+    "userBorrowPart": "13637968389384900000"
+  },
+  "0x2b42b44b7a0b855afdc48a0137ade580bae98ffe": {
+    "userBorrowPart": "4.51318965276168e+21"
+  },
+  "0x2b0b8aadb9b16465a0cf526b63adea97a4f45e54": {
+    "userBorrowPart": "3.54736588363231e+21"
+  },
+  "0x2acf5448a7686904e535d93b066021d675eb0957": {
+    "userBorrowPart": "3.56155640619925e+22"
+  },
+  "0x2ab46295b5bc93d255ddc11d1a8a472b845930cc": {
+    "userBorrowPart": "46289523540062"
+  },
+  "0x2a0b5075e2d0845bd9114e8f3102e7441960a24c": {
+    "userBorrowPart": "0"
+  },
+  "0x2917c2459af0ec88c0dff4b765951de8da253cf0": {
+    "userBorrowPart": "1.42432835834779e+22"
+  },
+  "0x25bb02dc1ffa8d7f7725484d824eac95902a34fe": {
+    "userBorrowPart": "127071628294617000000"
+  },
+  "0x23bc20fdd363bbf39349c67b8745d88de86ca78b": {
+    "userBorrowPart": "8.02715195583507e+21"
+  },
+  "0x22b5629ce137d9b714fd22fbaf19ccbf5f04e58e": {
+    "userBorrowPart": "2.38233428377678e+21"
+  },
+  "0x21b3edd21f609c5f68d6ede16bf66dc890c56b7b": {
+    "userBorrowPart": "1.35775050815281e+22"
+  },
+  "0x20a3553af882dbc60a1154d965323a740e2d438a": {
+    "userBorrowPart": "2.60844018094183e+21"
+  },
+  "0x1fe850e040df04f5866912d33d1bffd3179bf369": {
+    "userBorrowPart": "91205497705748"
+  },
+  "0x1e567b7a92d3dc290f9ad3a82eacb8b9fa4201cb": {
+    "userBorrowPart": "3.27089501772253e+23"
+  },
+  "0x1dc8a00ae276c1d545fa71feadf628f1ac3bc43b": {
+    "userBorrowPart": "5.42410545543161e+21"
+  },
+  "0x1dc643df8e98e9ebdd5313f65aa4b761db6a8d08": {
+    "userBorrowPart": "0"
+  },
+  "0x1dacdf4899ef6944f351a0a3fd968ad044223777": {
+    "userBorrowPart": "6.05286767039677e+22"
+  },
+  "0x1c7a9275f2bd5a260a9c31069f77d53473b8ae2e": {
+    "userBorrowPart": "8.32007462850749e+21"
+  },
+  "0x1c3cb7e3920c77eba162cf044f418a854c12ffef": {
+    "userBorrowPart": "3.00741670612557e+23"
+  },
+  "0x1b72bac3772050fdcaf468cce7e20deb3cb02d89": {
+    "userBorrowPart": "1.93484298700071e+23"
+  },
+  "0x1a86201c07c024f08ca15a7d989f2e83fc2f405a": {
+    "userBorrowPart": "22975533783652"
+  },
+  "0x1a54b6422eb741baf15762ce3569e489e2c967fc": {
+    "userBorrowPart": "51295447863107"
+  },
+  "0x1a34ca24ba989b784e48b1b17cd663e0cf178cc0": {
+    "userBorrowPart": "298364630292740000000"
+  },
+  "0x19799f272574079a8dd591c13f7aed0d2f7aa011": {
+    "userBorrowPart": "7.51689269688488e+21"
+  },
+  "0x194d1a94cf0227af32f561756fc7ca596c0ddeca": {
+    "userBorrowPart": "0"
+  },
+  "0x194542d33dec448a78cb73b4763cd97a96672055": {
+    "userBorrowPart": "1.49823358429046e+22"
+  },
+  "0x18c85ecfc7005dfb6e50262069105396eeb89355": {
+    "userBorrowPart": "0"
+  },
+  "0x174ba736af8808f8283d6befc01cb6c6976d5f91": {
+    "userBorrowPart": "1.98015905001898e+21"
+  },
+  "0x1708e292f99a4bcafc99e79df3c47c43501193a3": {
+    "userBorrowPart": "99108150113105"
+  },
+  "0x16df95f1be0d56838e4ba9aae3e48a447af50785": {
+    "userBorrowPart": "0"
+  },
+  "0x16c2bd50c5930cb1046fe22349272b6d664551a3": {
+    "userBorrowPart": "6.01970405066274e+23"
+  },
+  "0x1612b8099e70fc39bee28ec5bb9ad24076f55adb": {
+    "userBorrowPart": "3.85770213480051e+21"
+  },
+  "0x14435bb061475ff6da3f378bdd81b243ff5fcb15": {
+    "userBorrowPart": "0"
+  },
+  "0x13005adbffee7a43b21c5027aeec2ab115df9a85": {
+    "userBorrowPart": "0"
+  },
+  "0x12158ec38b398631fbed34a8faedb988527e5323": {
+    "userBorrowPart": "1.00668548069673e+23"
+  },
+  "0x11556283a2c26babd9e920188ae17572fbabf5b2": {
+    "userBorrowPart": "8.74606972553767e+21"
+  },
+  "0x0f580a0d52c565df0c94ec365024cb02a948f6f1": {
+    "userBorrowPart": "1.0720731610272e+22"
+  },
+  "0x0f1a748cdf53bbad378ce2c4429463d01cce0c3f": {
+    "userBorrowPart": "9.41856013743454e+22"
+  },
+  "0x0dea416af1ce58b383820a36b72d09e95571301c": {
+    "userBorrowPart": "1.52848074118488e+22"
+  },
+  "0x0dbc5a9c40db5767711a3d99edd7d816167ed6b2": {
+    "userBorrowPart": "5.00939553969995e+22"
+  },
+  "0x0c2c7ace1083dfad67d89b111f550d3723686ee0": {
+    "userBorrowPart": "1.17755757671188e+22"
+  },
+  "0x0c20e9958e4eb2d9c112d1469e17ab6c830cde09": {
+    "userBorrowPart": "0"
+  },
+  "0x0b981d98e857c888e00d2c494d24dc16a12f8f3a": {
+    "userBorrowPart": "29757897365075"
+  },
+  "0x0b690298d2559a93024fa4fa495ec7559d3faaa0": {
+    "userBorrowPart": "9.88062400598805e+21"
+  },
+  "0x0b16154bcaa748c9e83f1df4035bbbe5578e41d6": {
+    "userBorrowPart": "1.94183651150907e+23"
+  },
+  "0x0ae83a9554c0137b06082b166871947ccc4e9674": {
+    "userBorrowPart": "5.98531339067783e+22"
+  },
+  "0x0a08789f14e352e85801a2289716c671c5c2607a": {
+    "userBorrowPart": "82130272327612"
+  },
+  "0x09fa38eba245bb68354b8950fa2fe71f02863393": {
+    "userBorrowPart": "57433336306934"
+  },
+  "0x086841ba4c8adc741580ac6f9310fc745c0e9ad7": {
+    "userBorrowPart": "3.50731156035368e+21"
+  },
+  "0x0459dda9eb7062e6fdca6293a4c363722fca6102": {
+    "userBorrowPart": "2.09191677522626e+24"
+  },
+  "0x0440d27bf03a589cfb969ec1695c319a299789b6": {
+    "userBorrowPart": "75404663709460"
+  },
+  "0x0425517c5adadde5c9f93f9988f089aa68716f0f": {
+    "userBorrowPart": "0"
+  },
+  "0x037ce2f795a0f5079d4b2a5c01e30b141b03e11f": {
+    "userBorrowPart": "852558807267213000000"
+  },
+  "0x031463303fb0fa553be262e2335836a74dd8e6bc": {
+    "userBorrowPart": "0"
+  },
+  "0x0302eb497f40b26ff111cd5bdb4fef474489a869": {
+    "userBorrowPart": "34510225528030700000000"
+  },
+  "0x01c3b97a362e4d2242020446eca9d33448dc615d": {
+    "userBorrowPart": "0"
+  },
+  "0x00b43a92d45ccdfeef6ea98d56f775586fe9e39e": {
+    "userBorrowPart": "4397798862603250000"
+  }
+}
