@@ -16,7 +16,15 @@ interface ISwapper {
     ) external returns (uint256 extraShare, uint256 shareReturned);
 }
 
-contract LevSwapperTester is Ownable {
+interface ILevSwapper {
+    function swap(
+        address recipient,
+        uint256 shareToMin,
+        uint256 shareFrom
+    ) external returns (uint256 extraShare, uint256 shareReturned);
+}
+
+contract SwapperTester is Ownable {
     using SafeTransferLib for ERC20;
 
     address public degenBox;
@@ -27,7 +35,7 @@ contract LevSwapperTester is Ownable {
         degenBox = _degenBox;
     }
 
-    function test(
+    function testLiquidation(
         address swapper,
         address collateral,
         uint256 amount,
@@ -41,6 +49,22 @@ contract LevSwapperTester is Ownable {
 
         uint256 mimShare = IBentoBoxV1Minimal(degenBox).balanceOf(mim, address(this));
         IBentoBoxV1Minimal(degenBox).withdraw(mim, address(this), msg.sender, 0, mimShare);
+    }
+
+    function testLeveraging(
+        address swapper,
+        address collateral,
+        uint256 amount,
+        uint256 shareToMin
+    ) external onlyOwner {
+        ERC20(mim).transferFrom(msg.sender, address(degenBox), amount);
+        IBentoBoxV1Minimal(degenBox).deposit(mim, degenBox, swapper, amount, 0);
+
+        uint256 shareFrom = IBentoBoxV1Minimal(degenBox).toShare(mim, amount, false);
+        ILevSwapper(swapper).swap(address(this), shareToMin, shareFrom);
+
+        uint256 collateralShare = IBentoBoxV1Minimal(degenBox).balanceOf(collateral, address(this));
+        IBentoBoxV1Minimal(degenBox).withdraw(collateral, address(this), msg.sender, 0, collateralShare);
     }
 
     function withdraw(

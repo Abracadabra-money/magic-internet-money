@@ -7,11 +7,11 @@ import { Constants } from "../test/constants";
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts();
 
-  await wrappedDeploy("LevSwapperTesterV1", {
+  await wrappedDeploy("SwapperTesterV1", {
     from: deployer,
     args: [Constants.mainnet.mim, Constants.mainnet.degenBox],
     log: true,
-    contract: "LevSwapperTester",
+    contract: "SwapperTester",
     deterministicDeployment: false,
   });
 };

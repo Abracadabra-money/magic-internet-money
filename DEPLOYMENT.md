@@ -18,9 +18,9 @@
 
 ### Stargate MIM Pool
 
-| Contract                 | Address |
-| ------------------------ | ------- |
-| MainnetStargateLpMimPool | 0x620F615D6E57a91a83cbFe6d6970296b3CF20Cf0     |
+| Contract                 | Address                                    |
+| ------------------------ | ------------------------------------------ |
+| MainnetStargateLpMimPool | 0x620F615D6E57a91a83cbFe6d6970296b3CF20Cf0 |
 
 ### Cauldrons
 
@@ -127,7 +127,7 @@
 | Contract           | Address                                    | Note                                                                                                                         |
 | ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | EthereumWithdrawer | 0xB2c3A9c577068479B1E5119f6B7da98d25Ba48f4 | Withdraw MIM fees from cauldron and swap for SPELL. Also used as recipient for swapping MIM fees received from other chains. |
-| LevSwapperTester   | 0x9ab1A92D2877A5EFbf42885159122556edD39A32 | Allows to atomically test collateral -> mim liquidation                                                                      |
+| SwapperTester      | 0x3A062dd7126EE8A30b16A881954Fb32A57FCB19c | Allows to atomically test leverage and liquidation swappers                                                                  |
 
 ### Oracles
 
