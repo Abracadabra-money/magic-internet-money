@@ -4,6 +4,7 @@ export const xCalibur = "0xfB3485c2e209A5cfBDC1447674256578f1A80eE3";
 export const Constants = {
   mainnet: {
     cauldronV3: "0x3E2a2BC69E5C22A8DA4056B413621D1820Eb493E",
+    cauldronV3Whitelisted: "0xe0d2007F6F2A71B90143D6667257d95643183F2b",
     degenBox: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
     multiSig: "0x5f0DeE98360d8200b20812e174d139A1a633EDd2",
     mim: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
@@ -20,6 +21,9 @@ export const Constants = {
     curve: {
       mim3Crv: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
     },
+    yearn: {
+      yvSTETHc: "0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E"
+    }
   },
 
   arbitrum: {
