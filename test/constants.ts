@@ -65,10 +65,15 @@ export const Constants = {
   fantom: {
     cauldronV3: "0xAcdd6e28b7440fe17EeFD927337480DD1Ea7A97b",
     limone: "0xc7a161Cfd0e133d289B13692b636B8e8B5CD8d8c",
-    mim: "0x82f0b8b456c1a451378467398982d4834b6829c1",
+    mim: "0x82f0B8B456c1A451378467398982d4834b6829c1",
     wftm: "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83",
+    usdc: "0x04068DA6C83AFCFA0e13ba15A6696662335D5B75",
     fusdt: "0x049d68029688eAbF473097a2fC38ef61633A3C7A",
+    curve: {
+      mim3poolv2: "0x2dd7C9371965472E5A5fD28fbE165007c61439E1"
+    },
     spiritswap: {
+      router: "0x16327E3FbDaCA3bcF7E38F5Af2599D2DDc33aE52",
       fUSDTUSDC: "0xe7F86CEf8FEf60ce5050899D1F8e465C00D04a79"
     },
     chainlink: {

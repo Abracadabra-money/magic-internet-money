@@ -149,13 +149,13 @@
 | Contract                         | Address                                    | Note                                    |
 | -------------------------------- | ------------------------------------------ | --------------------------------------- |
 | **Popsicle fUSDT/USDC**          |                                            |                                         |
-| fUSDTUSDCSpiritCauldron          | TDB                                        | 90% LTV 0% initial 2.5% Interest Liq 8% |
+| fUSDTUSDCSpiritCauldron          | 0xB23a8A3a6CEC34827BceFF327050B37Ce98CA4cD | 90% LTV 0% initial 2.5% Interest Liq 8% |
 | fUSDTUSDCSpiritProxyOracle       | 0xe56F37Ef2e54ECaA41a9675da1c3445736d60B42 | Using fUSDTUSDCSpiritInvertedLPOracle   |
 | fUSDTUSDCSpiritInvertedLPOracle  | 0x4A3A6Dd60A34bB2Aba60D73B4C88315E9CeB6A3D | Using fUSDTUSDCSpiritChainlinkOracleV1  |
 | fUSDTUSDCSpiritChainlinkOracleV1 | 0xfbF8035d24E9c539569F25C47896Ab2DF4a43f03 | Using fUSDTUSDCOracleV1                 |
 | fUSDTUSDCOracleV1                | 0x9031c0Fd5bD1405132028A3e0eb277C705B3d8f7 | Using Chainlink USDT/USD and USDC/USD   |
-| fUSDTUSDCSpiritSwapper           | TDB                                        | Liquidation Swapper                     |
-| fUSDTUSDCSpiritLevSwapper        | TDB                                        | Leverage Swapper                        |
+| SpiritfUSDTUSDCSwapper           | 0x1E217d3cA2a19f2cB0F9f12a65b40f335286758E | Liquidation Swapper                     |
+| SpiritfUSDTUSDCLevSwapper        | 0xc97C7F6e60Fdd610A0fCA4792BbBD1dbD028d474 | Leverage Swapper                        |
 
 ### Utilities
 
