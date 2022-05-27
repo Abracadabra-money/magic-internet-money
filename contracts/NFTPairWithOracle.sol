@@ -29,7 +29,7 @@ import "@sushiswap/bentobox-sdk/contracts/IBentoBoxV1.sol";
 import "./interfaces/IERC721.sol";
 import "./interfaces/INFTOracle.sol";
 
-struct TokenLoanParams {
+struct TokenLoanParamsWithOracle {
     uint128 valuation; // How much will you get? OK to owe until expiration.
     uint64 duration; // Length of loan in seconds
     uint16 annualInterestBPS; // Variable cost of taking out the loan
@@ -44,23 +44,11 @@ struct SignatureParams {
     bytes32 s;
 }
 
-interface ILendingClub {
+interface ILendingClubWithOracle {
     // Per token settings.
-    function willLend(uint256 tokenId, TokenLoanParams memory params) external view returns (bool);
+    function willLend(uint256 tokenId, TokenLoanParamsWithOracle memory params) external view returns (bool);
 
-    function lendingConditions(address nftPair, uint256 tokenId) external view returns (TokenLoanParams memory);
-}
-
-interface INFTPair {
-    function collateral() external view returns (IERC721);
-
-    function asset() external view returns (IERC20);
-
-    function masterContract() external view returns (address);
-
-    function bentoBox() external view returns (IBentoBoxV1);
-
-    function removeCollateral(uint256 tokenId, address to) external;
+    function lendingConditions(address nftPair, uint256 tokenId) external view returns (TokenLoanParamsWithOracle memory);
 }
 
 /// @title NFTPairWithOracle
@@ -108,7 +96,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
     uint256 public feesEarnedShare;
 
     // Per token settings.
-    mapping(uint256 => TokenLoanParams) public tokenLoanParams;
+    mapping(uint256 => TokenLoanParamsWithOracle) public tokenLoanParams;
 
     uint8 private constant LOAN_INITIAL = 0;
     uint8 private constant LOAN_REQUESTED = 1;
@@ -195,13 +183,13 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
         require(address(collateral) != address(0), "NFTPair: bad pair");
     }
 
-    function updateLoanParams(uint256 tokenId, TokenLoanParams memory params) public {
+    function updateLoanParams(uint256 tokenId, TokenLoanParamsWithOracle memory params) public {
         TokenLoan memory loan = tokenLoan[tokenId];
         if (loan.status == LOAN_OUTSTANDING) {
             // The lender can change terms so long as the changes are strictly
             // the same or better for the borrower:
             require(msg.sender == loan.lender, "NFTPair: not the lender");
-            TokenLoanParams memory cur = tokenLoanParams[tokenId];
+            TokenLoanParamsWithOracle memory cur = tokenLoanParams[tokenId];
             require(
                 params.duration >= cur.duration &&
                     params.valuation <= cur.valuation &&
@@ -226,7 +214,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
     function _requestLoan(
         address collateralProvider,
         uint256 tokenId,
-        TokenLoanParams memory params,
+        TokenLoanParamsWithOracle memory params,
         address to,
         bool skim
     ) private {
@@ -254,7 +242,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
     /// @param skim True if the token has already been transfered
     function requestLoan(
         uint256 tokenId,
-        TokenLoanParams memory params,
+        TokenLoanParamsWithOracle memory params,
         address to,
         bool skim
     ) public {
@@ -276,7 +264,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
             require(to == loan.lender || msg.sender == loan.lender, "NFTPair: not the lender");
 
             if (uint256(loan.startTime) + tokenLoanParams[tokenId].duration > block.timestamp) {
-                TokenLoanParams memory loanParams = tokenLoanParams[tokenId];
+                TokenLoanParamsWithOracle memory loanParams = tokenLoanParams[tokenId];
                 // No underflow: loan.startTime is only ever set to a block timestamp
                 // Cast is safe: if this overflows, then all loans have expired anyway
                 uint256 interest = calculateInterest(
@@ -301,12 +289,12 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
     function _lend(
         address lender,
         uint256 tokenId,
-        TokenLoanParams memory accepted,
+        TokenLoanParamsWithOracle memory accepted,
         bool skim
     ) internal {
         TokenLoan memory loan = tokenLoan[tokenId];
         require(loan.status == LOAN_REQUESTED, "NFTPair: not available");
-        TokenLoanParams memory params = tokenLoanParams[tokenId];
+        TokenLoanParamsWithOracle memory params = tokenLoanParams[tokenId];
 
         // Valuation has to be an exact match, everything else must be at least
         // as good for the lender as `accepted`.
@@ -357,7 +345,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
     /// @param skim True if the funds have been transfered to the contract
     function lend(
         uint256 tokenId,
-        TokenLoanParams memory accepted,
+        TokenLoanParamsWithOracle memory accepted,
         bool skim
     ) public {
         _lend(msg.sender, tokenId, accepted, skim);
@@ -391,13 +379,13 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
         uint256 tokenId,
         address lender,
         address recipient,
-        TokenLoanParams memory params,
+        TokenLoanParamsWithOracle memory params,
         bool skimCollateral,
         bool anyTokenId,
         SignatureParams memory signature
     ) public {
         if (signature.v == 0 && signature.r == bytes32(0) && signature.s == bytes32(0)) {
-            require(ILendingClub(lender).willLend(tokenId, params), "NFTPair: LendingClub does not like you");
+            require(ILendingClubWithOracle(lender).willLend(tokenId, params), "NFTPair: LendingClub does not like you");
         } else {
             require(block.timestamp <= signature.deadline, "NFTPair: signature expired");
             uint256 nonce = nonces[lender]++;
@@ -431,7 +419,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
     function takeCollateralAndLend(
         uint256 tokenId,
         address borrower,
-        TokenLoanParams memory params,
+        TokenLoanParamsWithOracle memory params,
         bool skimFunds,
         SignatureParams memory signature
     ) public {
@@ -540,7 +528,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
     function repay(uint256 tokenId, bool skim) public returns (uint256 amount) {
         TokenLoan memory loan = tokenLoan[tokenId];
         require(loan.status == LOAN_OUTSTANDING, "NFTPair: no loan");
-        TokenLoanParams memory loanParams = tokenLoanParams[tokenId];
+        TokenLoanParamsWithOracle memory loanParams = tokenLoanParams[tokenId];
         require(
             // Addition is safe: both summands are smaller than 256 bits
             uint256(loan.startTime) + loanParams.duration > block.timestamp,
@@ -682,13 +670,16 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
                 (uint256 tokenId, address to) = abi.decode(datas[i], (uint256, address));
                 removeCollateral(tokenId, to);
             } else if (action == ACTION_REQUEST_LOAN) {
-                (uint256 tokenId, TokenLoanParams memory params, address to, bool skim) = abi.decode(
+                (uint256 tokenId, TokenLoanParamsWithOracle memory params, address to, bool skim) = abi.decode(
                     datas[i],
-                    (uint256, TokenLoanParams, address, bool)
+                    (uint256, TokenLoanParamsWithOracle, address, bool)
                 );
                 requestLoan(tokenId, params, to, skim);
             } else if (action == ACTION_LEND) {
-                (uint256 tokenId, TokenLoanParams memory params, bool skim) = abi.decode(datas[i], (uint256, TokenLoanParams, bool));
+                (uint256 tokenId, TokenLoanParamsWithOracle memory params, bool skim) = abi.decode(
+                    datas[i],
+                    (uint256, TokenLoanParamsWithOracle, bool)
+                );
                 lend(tokenId, params, skim);
             } else if (action == ACTION_BENTO_SETAPPROVAL) {
                 (address user, address _masterContract, bool approved, uint8 v, bytes32 r, bytes32 s) = abi.decode(
@@ -719,15 +710,20 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
                     uint256 tokenId,
                     address lender,
                     address recipient,
-                    TokenLoanParams memory params,
+                    TokenLoanParamsWithOracle memory params,
                     bool skimCollateral,
                     bool anyTokenId,
                     SignatureParams memory signature
-                ) = abi.decode(datas[i], (uint256, address, address, TokenLoanParams, bool, bool, SignatureParams));
+                ) = abi.decode(datas[i], (uint256, address, address, TokenLoanParamsWithOracle, bool, bool, SignatureParams));
                 requestAndBorrow(tokenId, lender, recipient, params, skimCollateral, anyTokenId, signature);
             } else if (action == ACTION_TAKE_COLLATERAL_AND_LEND) {
-                (uint256 tokenId, address borrower, TokenLoanParams memory params, bool skimFunds, SignatureParams memory signature) = abi
-                    .decode(datas[i], (uint256, address, TokenLoanParams, bool, SignatureParams));
+                (
+                    uint256 tokenId,
+                    address borrower,
+                    TokenLoanParamsWithOracle memory params,
+                    bool skimFunds,
+                    SignatureParams memory signature
+                ) = abi.decode(datas[i], (uint256, address, TokenLoanParamsWithOracle, bool, SignatureParams));
                 takeCollateralAndLend(tokenId, borrower, params, skimFunds, signature);
             }
         }
