@@ -171,13 +171,13 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     }
 
     /// @notice De facto constructor for clone contracts
-    function init(bytes calldata data) public payable override {
+    function init(bytes calldata data) external payable override {
         require(address(collateral) == address(0), "NFTPair: already initialized");
         (collateral, asset) = abi.decode(data, (IERC721, IERC20));
         require(address(collateral) != address(0), "NFTPair: bad pair");
     }
 
-    function updateLoanParams(uint256 tokenId, TokenLoanParams memory params) public {
+    function updateLoanParams(uint256 tokenId, TokenLoanParams memory params) external {
         TokenLoan memory loan = tokenLoan[tokenId];
         if (loan.status == LOAN_OUTSTANDING) {
             // The lender can change terms so long as the changes are strictly
