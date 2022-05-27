@@ -2,7 +2,7 @@ import { ParamType } from "@ethersproject/abi";
 import { BigNumber, Contract } from "ethers";
 import { DeployFunction, DeployOptions } from "hardhat-deploy/types";
 import hre, { deployments, ethers, network } from "hardhat";
-import { DegenBox } from "../typechain";
+import { AggregatorV3Interface, DegenBox, IAggregator, InvertedLPOracle, ProxyOracle } from "../typechain";
 
 export const BASE_TEN = 10;
 
@@ -171,6 +171,52 @@ export async function deployCauldron<T extends Contract>(
   console.log(`${deploymentName} deployed at ${address}`);
 
   return ethers.getContract<T>(deploymentName);
+}
+
+// Use to deploy a new LP Oracle
+export async function deployLPOracle(name: string, desc: string, lp: string, tokenAOracle: string, tokenBOracle: string): Promise<ProxyOracle> {
+  const { deployer } = await hre.getNamedAccounts();
+
+  const ProxyOracle = await wrappedDeploy<ProxyOracle>(`${name}ProxyOracle`, {
+    from: deployer,
+    args: [],
+    log: true,
+    contract: "ProxyOracle",
+    deterministicDeployment: false,
+  });
+
+  // Gives the price of 1 tokenA in tokenB
+  const TokenOracle = await wrappedDeploy<AggregatorV3Interface>(`${name}TokenOracle`, {
+    from: deployer,
+    args: [tokenAOracle, tokenBOracle],
+    log: true,
+    contract: "TokenOracle",
+    deterministicDeployment: false,
+  });
+
+  // Gives the price of 1 LP in tokenB
+  const LPChainlinkOracle = await wrappedDeploy<IAggregator>(`${name}ChainlinkOracle`, {
+    from: deployer,
+    args: [lp, TokenOracle.address],
+    contract: "LPChainlinkOracle",
+    log: true,
+    deterministicDeployment: false,
+  });
+
+  // Gives how much LP denominated in tokenB, 1 USD can buy
+  const InvertedLPOracle = await wrappedDeploy<InvertedLPOracle>(`${name}InvertedLPOracle`, {
+    from: deployer,
+    args: [LPChainlinkOracle.address, tokenBOracle, desc],
+    log: true,
+    contract: "InvertedLPOracle",
+    deterministicDeployment: false,
+  });
+
+  if ((await ProxyOracle.oracleImplementation()) !== InvertedLPOracle.address) {
+    await ProxyOracle.changeOracleImplementation(InvertedLPOracle.address);
+  }
+
+  return ProxyOracle;
 }
 
 export * from "./time";
