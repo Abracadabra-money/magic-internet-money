@@ -10,8 +10,10 @@ const MaxUint128 = BigNumber.from(2).pow(128).sub(1);
 
 const hashUtf8String = (s: string) => keccak256(toUtf8Bytes(s));
 
+const zeroSign = (deadline) => ({ r: HashZero, s: HashZero, v: 0, deadline });
+
 import { BigRational, advanceNextTime, duration, encodeParameters, expApprox, getBigNumber, impersonate } from "../utilities";
-import { BentoBoxMock, ERC20Mock, ERC721Mock, LendingClubMock, WETH9Mock, NFTPair } from "../typechain";
+import { BentoBoxMock, ERC20Mock, ERC721Mock, LendingClubMock, NFTMarketMock, NFTBuyerSellerMock, WETH9Mock, NFTPair } from "../typechain";
 import { describeSnapshot } from "./helpers";
 
 const LoanStatus = {
@@ -21,7 +23,9 @@ const LoanStatus = {
 };
 
 // Cook actions
-const ACTION_REPAY = 2;
+const ACTION_GET_AMOUNT_DUE = 1;
+const ACTION_GET_SHARES_DUE = 2;
+const ACTION_REPAY = 3;
 const ACTION_REMOVE_COLLATERAL = 4;
 
 const ACTION_REQUEST_LOAN = 12;
@@ -64,6 +68,13 @@ interface IPartialLoanParams {
   annualInterestBPS?: number;
 }
 
+interface ISignature {
+  r: string;
+  s: string;
+  v: number;
+  deadline: number;
+}
+
 const DOMAIN_SEPARATOR_HASH = hashUtf8String("EIP712Domain(uint256 chainId,address verifyingContract)");
 
 const DAY = 24 * 3600;
@@ -72,6 +83,7 @@ const nextYear = Math.floor(new Date().getTime() / 1000) + YEAR;
 const nextDecade = Math.floor(new Date().getTime() / 1000) + YEAR * 10;
 
 describe("NFT Pair", async () => {
+  let chainId: BigNumberish;
   let apes: ERC721Mock;
   let guineas: ERC20Mock;
   let weth: WETH9Mock;
@@ -81,6 +93,7 @@ describe("NFT Pair", async () => {
   let alice: SignerWithAddress;
   let bob: SignerWithAddress;
   let carol: SignerWithAddress;
+  let apesMarket: NFTMarketMock;
 
   // Named token IDs for testing..
   let apeIds: {
@@ -121,7 +134,6 @@ describe("NFT Pair", async () => {
     });
 
   // Specific to the mock implementation..
-  // TODO: Upgrade BoringSolidity to version that returns the ID:
   const mintToken = async (mockContract, ownerAddress) => {
     const id = await mockContract.totalSupply();
     await mockContract.mint(ownerAddress);
@@ -129,7 +141,89 @@ describe("NFT Pair", async () => {
   };
   const mintApe = (ownerAddress) => mintToken(apes, ownerAddress);
 
+  const signLendRequest = async (pair, wallet, { tokenId, anyTokenId, valuation, duration, annualInterestBPS, deadline }) => {
+    const sigTypes = [
+      { name: "contract", type: "address" },
+      { name: "tokenId", type: "uint256" },
+      { name: "anyTokenId", type: "bool" },
+      { name: "valuation", type: "uint128" },
+      { name: "duration", type: "uint64" },
+      { name: "annualInterestBPS", type: "uint16" },
+      { name: "nonce", type: "uint256" },
+      { name: "deadline", type: "uint256" },
+    ];
+    const sigValues = {
+      contract: pair.address,
+      tokenId,
+      anyTokenId,
+      valuation,
+      duration,
+      annualInterestBPS,
+      nonce: 0,
+      deadline,
+    };
+    const sig = await wallet._signTypedData(
+      // The stuff going into DOMAIN_SEPARATOR:
+      { chainId, verifyingContract: masterContract.address },
+
+      // sigHash
+      { Lend: sigTypes },
+      sigValues
+    );
+    return { deadline, ...splitSignature(sig) };
+  };
+
+  const signBorrowRequest = async (pair, wallet, { tokenId, valuation, duration, annualInterestBPS, deadline }) => {
+    const sigTypes = [
+      { name: "contract", type: "address" },
+      { name: "tokenId", type: "uint256" },
+      { name: "valuation", type: "uint128" },
+      { name: "duration", type: "uint64" },
+      { name: "annualInterestBPS", type: "uint16" },
+      { name: "nonce", type: "uint256" },
+      { name: "deadline", type: "uint256" },
+    ];
+    // const sigArgs = sigTypes.map((t) => t.type + " " + t.name);
+    // const sigHash = keccak256(
+    //   toUtf8Bytes("Borrow(" + sigArgs.join(",") + ")")
+    // );
+
+    const sigValues = {
+      contract: pair.address,
+      tokenId,
+      valuation,
+      duration,
+      annualInterestBPS,
+      nonce: 0,
+      deadline,
+    };
+    // const dataHash = keccak256(defaultAbiCoder.encode(
+    //   ["bytes32 sigHash", ...sigArgs],
+    //   Object.values({ sigHash, ...sigValues })
+    // ));
+    // const digest = keccak256(
+    //   solidityPack(
+    //     ["string", "bytes32", "bytes32"],
+    //     ["\x19\x01", DOMAIN_SEPARATOR, dataHash]
+    //   )
+    // );
+
+    // At this point we'd like to sign this digest, but signing arbitrary
+    // data is made difficult in ethers.js to prevent abuse. So for now we
+    // use a helper method that basically does everything we just did again:
+    const sig = await wallet._signTypedData(
+      // The stuff going into DOMAIN_SEPARATOR:
+      { chainId, verifyingContract: masterContract.address },
+
+      // sigHash
+      { Borrow: sigTypes },
+      sigValues
+    );
+    return { deadline, ...splitSignature(sig) };
+  };
+
   before(async () => {
+    chainId = (await ethers.provider.getNetwork()).chainId;
     weth = await deployContract("WETH9Mock");
     // The BentoBox complains if totalSupply = 0, and total supply is however
     // many ETH has been deposited:
@@ -140,6 +234,8 @@ describe("NFT Pair", async () => {
     await bentoBox.whitelistMasterContract(masterContract.address, true);
     apes = await deployContract("ERC721Mock");
     guineas = await deployContract("ERC20Mock", MaxUint256);
+
+    apesMarket = await deployContract("NFTMarketMock", apes.address, guineas.address);
 
     const addresses = await getNamedAccounts();
     deployer = await ethers.getSigner(addresses.deployer);
@@ -644,7 +740,7 @@ describe("NFT Pair", async () => {
 
       // Two Bento transfers: payment to the lender, fee to the contract
       await advanceNextTime(DAY);
-      await expect(pair.connect(alice).repay(apeIds.aliceOne, false))
+      await expect(pair.connect(alice).repay(apeIds.aliceOne, alice.address, false))
         .to.emit(pair, "LogRepay")
         .withArgs(alice.address, apeIds.aliceOne)
         .to.emit(apes, "Transfer")
@@ -686,7 +782,7 @@ describe("NFT Pair", async () => {
       const t0 = await getBalances();
 
       await advanceNextTime(DAY);
-      await expect(pair.connect(carol).repay(apeIds.aliceOne, false))
+      await expect(pair.connect(carol).repay(apeIds.aliceOne, alice.address, false))
         .to.emit(pair, "LogRepay")
         .withArgs(carol.address, apeIds.aliceOne)
         .to.emit(apes, "Transfer")
@@ -737,7 +833,7 @@ describe("NFT Pair", async () => {
       const t0 = await getBalances();
 
       await ethers.provider.send("evm_setNextBlockTimestamp", [(await pair.tokenLoan(apeIds.aliceOne)).startTime.toNumber() + interval]);
-      await expect(pair.connect(carol).repay(apeIds.aliceOne, true))
+      await expect(pair.connect(carol).repay(apeIds.aliceOne, alice.address, true))
         .to.emit(pair, "LogRepay")
         .withArgs(pair.address, apeIds.aliceOne)
         .to.emit(apes, "Transfer")
@@ -773,6 +869,125 @@ describe("NFT Pair", async () => {
       expect(fee.mul(10)).to.be.lte(paid.sub(valuationShare));
     });
 
+    // Simple scenario to help refactor `cook()`:
+    it("Should allow paying off loans for someone else (cook)", async () => {
+      // ..and take from the correct person:
+      const getBalances = async () => ({
+        alice: await bentoBox.balanceOf(guineas.address, alice.address),
+        bob: await bentoBox.balanceOf(guineas.address, bob.address),
+        carol: await bentoBox.balanceOf(guineas.address, carol.address),
+        pair: await bentoBox.balanceOf(guineas.address, pair.address),
+        feeTracker: await pair.feesEarnedShare(),
+      });
+      const t0 = await getBalances();
+
+      await advanceNextTime(DAY);
+
+      const actions: number[] = [];
+      const values: any[] = [];
+      const datas: any[] = [];
+
+      actions.push(ACTION_REPAY);
+      values.push(0);
+      datas.push(encodeParameters(["uint256", "address", "bool"], [apeIds.aliceOne, alice.address, false]));
+
+      await expect(pair.connect(carol).cook(actions, values, datas))
+        .to.emit(pair, "LogRepay")
+        .withArgs(carol.address, apeIds.aliceOne)
+        .to.emit(apes, "Transfer")
+        .withArgs(pair.address, alice.address, apeIds.aliceOne)
+        .to.emit(bentoBox, "LogTransfer")
+        .to.emit(bentoBox, "LogTransfer");
+
+      const t1 = await getBalances();
+      const maxRepayShare = getMaxRepayShare(DAY, params);
+
+      // Alice paid or received nothing:
+      expect(t0.alice).to.equal(t1.alice);
+
+      const paid = t0.carol.sub(t1.carol);
+
+      // The difference is rounding errors only, so should be very small:
+      const paidError = maxRepayShare.sub(paid);
+      expect(paidError.mul(1_000_000_000)).to.be.lt(paid);
+
+      const fee = t1.feeTracker.sub(t0.feeTracker);
+      expect(fee.mul(10)).to.be.lte(paid.sub(valuationShare));
+      expect(t1.pair.sub(t0.pair)).to.equal(fee);
+
+      const received = t1.bob.sub(t0.bob);
+      expect(received.add(fee)).to.equal(paid);
+    });
+
+    it("Should allow paying off loans for someone else (c+s)", async () => {
+      const interval = 234 * DAY + 5678;
+      // Does not matter who supplies the payment. Note that there will be
+      // an excess left; skimming is really only suitable for contracts that
+      // can calculate the exact repayment needed:
+      const exactAmount = params.valuation.add(await pair.calculateInterest(params.valuation, interval, params.annualInterestBPS));
+      // The contract rounds down; we round up and add a little:
+      const closeToShare = exactAmount.mul(9).add(19).div(20);
+      const enoughShare = closeToShare.add(getBigNumber(1337, 8));
+
+      // This would normally be done in the same transaction...
+      const actions: number[] = [];
+      const values: any[] = [];
+      const datas: any[] = [];
+
+      const getBalances = async () => ({
+        alice: await bentoBox.balanceOf(guineas.address, alice.address),
+        bob: await bentoBox.balanceOf(guineas.address, bob.address),
+        carol: await bentoBox.balanceOf(guineas.address, carol.address),
+        pair: await bentoBox.balanceOf(guineas.address, pair.address),
+        feeTracker: await pair.feesEarnedShare(),
+      });
+      const t0 = await getBalances();
+
+      // Calculate repay share exactly
+      actions.push(ACTION_GET_SHARES_DUE);
+      values.push(0);
+      datas.push(encodeParameters(["uint256"], [apeIds.aliceOne]));
+
+      actions.push(ACTION_BENTO_TRANSFER);
+      values.push(0);
+      datas.push(encodeParameters(["address", "address", "int256"], [guineas.address, pair.address, USE_VALUE1]));
+
+      actions.push(ACTION_REPAY);
+      values.push(0);
+      datas.push(encodeParameters(["uint256", "address", "bool"], [apeIds.aliceOne, alice.address, true]));
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [(await pair.tokenLoan(apeIds.aliceOne)).startTime.toNumber() + interval]);
+      await expect(pair.connect(carol).cook(actions, values, datas))
+        .to.emit(pair, "LogRepay")
+        .withArgs(pair.address, apeIds.aliceOne)
+        .to.emit(apes, "Transfer")
+        .withArgs(pair.address, alice.address, apeIds.aliceOne)
+        .to.emit(bentoBox, "LogTransfer")
+        .to.emit(bentoBox, "LogTransfer");
+
+      const t1 = await getBalances();
+      const maxRepayShare = getMaxRepayShare(interval, params);
+
+      // We essentially did a normal repayment, so expect the same balance
+      // changes as in the case where we are not skimming:
+
+      // Alice paid or received nothing:
+      expect(t0.alice).to.equal(t1.alice);
+
+      const paid = t0.carol.sub(t1.carol);
+
+      // The difference is rounding errors only, so should be very small:
+      const paidError = maxRepayShare.sub(paid);
+      expect(paidError.mul(1_000_000_000)).to.be.lt(paid);
+
+      const fee = t1.feeTracker.sub(t0.feeTracker);
+      expect(fee.mul(10)).to.be.lte(paid.sub(valuationShare));
+      expect(t1.pair.sub(t0.pair)).to.equal(fee);
+
+      const received = t1.bob.sub(t0.bob);
+      expect(received.add(fee)).to.equal(paid);
+    });
+
     it("Should work for a large, but repayable, number", async () => {
       const fiveYears = 5 * YEAR;
       const large: ILoanParams = {
@@ -804,7 +1019,7 @@ describe("NFT Pair", async () => {
 
       const inFive = await advanceNextTime(fiveYears);
 
-      await expect(pair.connect(alice).repay(apeIds.aliceTwo, false))
+      await expect(pair.connect(alice).repay(apeIds.aliceTwo, alice.address, false))
         .to.emit(pair, "LogRepay")
         .withArgs(alice.address, apeIds.aliceTwo)
         .to.emit(apes, "Transfer")
@@ -842,12 +1057,12 @@ describe("NFT Pair", async () => {
 
     it("Should refuse repayments on expired loans", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [startTime + params.duration]);
-      await expect(pair.connect(alice).repay(apeIds.aliceOne, false)).to.be.revertedWith("NFTPair: loan expired");
+      await expect(pair.connect(alice).repay(apeIds.aliceOne, alice.address, false)).to.be.revertedWith("NFTPair: loan expired");
     });
 
     it("Should refuse repayments on nonexistent loans", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [startTime + params.duration]);
-      await expect(pair.connect(carol).repay(apeIds.carolOne, false)).to.be.revertedWith("NFTPair: no loan");
+      await expect(pair.connect(carol).repay(apeIds.carolOne, carol.address, false)).to.be.revertedWith("NFTPair: no loan");
     });
 
     it("Should refuse to skim too much", async () => {
@@ -862,21 +1077,18 @@ describe("NFT Pair", async () => {
       await bentoBox.connect(bob).transfer(guineas.address, bob.address, pair.address, notEnoughShare);
 
       await ethers.provider.send("evm_setNextBlockTimestamp", [(await pair.tokenLoan(apeIds.aliceOne)).startTime.toNumber() + interval]);
-      await expect(pair.connect(carol).repay(apeIds.aliceOne, true)).to.be.revertedWith("NFTPair: skim too much");
+      await expect(pair.connect(carol).repay(apeIds.aliceOne, alice.address, true)).to.be.revertedWith("NFTPair: skim too much");
     });
   });
 
   describeSnapshot("Signed Lend/Borrow", () => {
     let pair: NFTPair;
-    let chainId: BigNumberish;
     let DOMAIN_SEPARATOR: string;
     let BORROW_SIGNATURE_HASH: string;
     let LEND_SIGNATURE_HASH: string;
 
     before(async () => {
       pair = await deployPair();
-
-      chainId = (await ethers.provider.getNetwork()).chainId;
 
       DOMAIN_SEPARATOR = keccak256(
         defaultAbiCoder.encode(["bytes32", "uint256", "address"], [DOMAIN_SEPARATOR_HASH, chainId, masterContract.address])
@@ -886,87 +1098,6 @@ describe("NFT Pair", async () => {
         await apes.connect(signer).setApprovalForAll(pair.address, true);
       }
     });
-
-    const signBorrowRequest = async (wallet, { tokenId, valuation, duration, annualInterestBPS, deadline }) => {
-      const sigTypes = [
-        { name: "contract", type: "address" },
-        { name: "tokenId", type: "uint256" },
-        { name: "valuation", type: "uint128" },
-        { name: "duration", type: "uint64" },
-        { name: "annualInterestBPS", type: "uint16" },
-        { name: "nonce", type: "uint256" },
-        { name: "deadline", type: "uint256" },
-      ];
-      // const sigArgs = sigTypes.map((t) => t.type + " " + t.name);
-      // const sigHash = keccak256(
-      //   toUtf8Bytes("Borrow(" + sigArgs.join(",") + ")")
-      // );
-
-      const sigValues = {
-        contract: pair.address,
-        tokenId,
-        valuation,
-        duration,
-        annualInterestBPS,
-        nonce: 0,
-        deadline,
-      };
-      // const dataHash = keccak256(defaultAbiCoder.encode(
-      //   ["bytes32 sigHash", ...sigArgs],
-      //   Object.values({ sigHash, ...sigValues })
-      // ));
-      // const digest = keccak256(
-      //   solidityPack(
-      //     ["string", "bytes32", "bytes32"],
-      //     ["\x19\x01", DOMAIN_SEPARATOR, dataHash]
-      //   )
-      // );
-
-      // At this point we'd like to sign this digest, but signing arbitrary
-      // data is made difficult in ethers.js to prevent abuse. So for now we
-      // use a helper method that basically does everything we just did again:
-      const sig = await wallet._signTypedData(
-        // The stuff going into DOMAIN_SEPARATOR:
-        { chainId, verifyingContract: masterContract.address },
-
-        // sigHash
-        { Borrow: sigTypes },
-        sigValues
-      );
-      return splitSignature(sig);
-    };
-
-    const signLendRequest = async (wallet, { tokenId, anyTokenId, valuation, duration, annualInterestBPS, deadline }) => {
-      const sigTypes = [
-        { name: "contract", type: "address" },
-        { name: "tokenId", type: "uint256" },
-        { name: "anyTokenId", type: "bool" },
-        { name: "valuation", type: "uint128" },
-        { name: "duration", type: "uint64" },
-        { name: "annualInterestBPS", type: "uint16" },
-        { name: "nonce", type: "uint256" },
-        { name: "deadline", type: "uint256" },
-      ];
-      const sigValues = {
-        contract: pair.address,
-        tokenId,
-        anyTokenId,
-        valuation,
-        duration,
-        annualInterestBPS,
-        nonce: 0,
-        deadline,
-      };
-      const sig = await wallet._signTypedData(
-        // The stuff going into DOMAIN_SEPARATOR:
-        { chainId, verifyingContract: masterContract.address },
-
-        // sigHash
-        { Lend: sigTypes },
-        sigValues
-      );
-      return splitSignature(sig);
-    };
 
     it("Should have the expected DOMAIN_SEPARATOR", async () => {
       expect(DOMAIN_SEPARATOR).to.equal(await pair.DOMAIN_SEPARATOR());
@@ -985,7 +1116,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { v, r, s } = await signLendRequest(bob, {
+        const sigParams = await signLendRequest(pair, bob, {
           tokenId: apeIds.carolOne,
           anyTokenId: false,
           valuation,
@@ -998,21 +1129,8 @@ describe("NFT Pair", async () => {
         await expect(
           pair
             .connect(carol)
-            .requestAndBorrow(
-              apeIds.carolOne,
-              bob.address,
-              carol.address,
-              { valuation, duration, annualInterestBPS },
-              false,
-              false,
-              deadline,
-              v,
-              r,
-              s
-            )
-        )
-          .to.emit(pair, "LogRequestLoan")
-          .to.emit(pair, "LogLend");
+            .requestAndBorrow(apeIds.carolOne, bob.address, carol.address, { valuation, duration, annualInterestBPS }, false, false, sigParams)
+        ).to.emit(pair, "LogLend");
       });
 
       it("Should support pre-approving a loan request for any token", async () => {
@@ -1025,7 +1143,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { v, r, s } = await signLendRequest(bob, {
+        const sigParams = await signLendRequest(pair, bob, {
           tokenId: 0,
           anyTokenId: true,
           valuation,
@@ -1038,21 +1156,8 @@ describe("NFT Pair", async () => {
         await expect(
           pair
             .connect(carol)
-            .requestAndBorrow(
-              apeIds.carolOne,
-              bob.address,
-              carol.address,
-              { valuation, duration, annualInterestBPS },
-              false,
-              true,
-              deadline,
-              v,
-              r,
-              s
-            )
-        )
-          .to.emit(pair, "LogRequestLoan")
-          .to.emit(pair, "LogLend");
+            .requestAndBorrow(apeIds.carolOne, bob.address, carol.address, { valuation, duration, annualInterestBPS }, false, true, sigParams)
+        ).to.emit(pair, "LogLend");
       });
 
       it("Should require an exact match on all conditions", async () => {
@@ -1062,7 +1167,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signLendRequest(bob, {
+        const sigParams = await signLendRequest(pair, bob, {
           tokenId: apeIds.carolOne,
           anyTokenId: false,
           valuation,
@@ -1083,7 +1188,7 @@ describe("NFT Pair", async () => {
           const altered = BigNumber.from(value).add(1);
           const badLoanParams = { ...loanParams, [key]: altered };
           await expect(
-            pair.connect(carol).requestAndBorrow(apeIds.carolOne, bob.address, carol.address, badLoanParams, false, false, deadline, v, r, s)
+            pair.connect(carol).requestAndBorrow(apeIds.carolOne, bob.address, carol.address, badLoanParams, false, false, sigParams)
           ).to.be.revertedWith("NFTPair: signature invalid");
         }
       });
@@ -1095,7 +1200,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signLendRequest(bob, {
+        const sigParams = await signLendRequest(pair, bob, {
           tokenId: apeIds.carolOne,
           anyTokenId: false,
           valuation,
@@ -1107,7 +1212,7 @@ describe("NFT Pair", async () => {
         const loanParams = { valuation, duration, annualInterestBPS };
         // Carol tries to take the loan from Alice instead and fails:
         await expect(
-          pair.connect(carol).requestAndBorrow(apeIds.carolOne, alice.address, carol.address, loanParams, false, false, deadline, v, r, s)
+          pair.connect(carol).requestAndBorrow(apeIds.carolOne, alice.address, carol.address, loanParams, false, false, sigParams)
         ).to.be.revertedWith("NFTPair: signature invalid");
       });
 
@@ -1118,7 +1223,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signLendRequest(bob, {
+        const sigParams = await signLendRequest(pair, bob, {
           tokenId: apeIds.carolOne,
           anyTokenId: false,
           valuation,
@@ -1128,7 +1233,7 @@ describe("NFT Pair", async () => {
         });
 
         const loanParams = { valuation, duration, annualInterestBPS };
-        const successParams = [apeIds.carolOne, bob.address, carol.address, loanParams, false, false, deadline, v, r, s] as const;
+        const successParams = [apeIds.carolOne, bob.address, carol.address, loanParams, false, false, sigParams] as const;
 
         // Request fails because the deadline has expired:
         await advanceNextTime(3601);
@@ -1142,7 +1247,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signLendRequest(bob, {
+        const sigParams = await signLendRequest(pair, bob, {
           tokenId: apeIds.carolOne,
           anyTokenId: false,
           valuation,
@@ -1152,13 +1257,13 @@ describe("NFT Pair", async () => {
         });
 
         const loanParams = { valuation, duration, annualInterestBPS };
-        const successParams = [apeIds.carolOne, bob.address, carol.address, loanParams, false, false, deadline, v, r, s] as const;
+        const successParams = [apeIds.carolOne, bob.address, carol.address, loanParams, false, false, sigParams] as const;
 
         // It works the first time:
         await expect(pair.connect(carol).requestAndBorrow(...successParams)).to.emit(pair, "LogLend");
 
         // Carol repays the loan to get the token back:
-        await expect(pair.connect(carol).repay(apeIds.carolOne, false)).to.emit(pair, "LogRepay");
+        await expect(pair.connect(carol).repay(apeIds.carolOne, carol.address, false)).to.emit(pair, "LogRepay");
         expect(await apes.ownerOf(apeIds.carolOne)).to.equal(carol.address);
 
         // It fails now (because the nonce is no longer a match):
@@ -1183,7 +1288,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signBorrowRequest(bob, {
+        const sigParams = await signBorrowRequest(pair, bob, {
           tokenId: apeIds.bobTwo,
           valuation,
           duration,
@@ -1193,12 +1298,8 @@ describe("NFT Pair", async () => {
 
         // Alice takes the loan:
         await expect(
-          pair
-            .connect(alice)
-            .takeCollateralAndLend(apeIds.bobTwo, bob.address, { valuation, duration, annualInterestBPS }, false, deadline, v, r, s)
-        )
-          .to.emit(pair, "LogRequestLoan")
-          .to.emit(pair, "LogLend");
+          pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, { valuation, duration, annualInterestBPS }, false, sigParams)
+        ).to.emit(pair, "LogLend");
       });
 
       it("Should require an exact match on all conditions", async () => {
@@ -1208,7 +1309,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signBorrowRequest(bob, {
+        const sigParams = await signBorrowRequest(pair, bob, {
           tokenId: apeIds.bobTwo,
           valuation,
           duration,
@@ -1221,7 +1322,7 @@ describe("NFT Pair", async () => {
           const altered = BigNumber.from(value).add(1);
           const badLoanParams = { ...loanParams, [key]: altered };
           await expect(
-            pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, badLoanParams, false, deadline, v, r, s)
+            pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, badLoanParams, false, sigParams)
           ).to.be.revertedWith("NFTPair: signature invalid");
         }
       });
@@ -1233,7 +1334,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signBorrowRequest(bob, {
+        const sigParams = await signBorrowRequest(pair, bob, {
           tokenId: apeIds.bobTwo,
           valuation,
           duration,
@@ -1243,9 +1344,9 @@ describe("NFT Pair", async () => {
 
         const loanParams = { valuation, duration, annualInterestBPS };
         // Alice tries to lend to Carol instead and fails:
-        await expect(
-          pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, carol.address, loanParams, false, deadline, v, r, s)
-        ).to.be.revertedWith("NFTPair: signature invalid");
+        await expect(pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, carol.address, loanParams, false, sigParams)).to.be.revertedWith(
+          "NFTPair: signature invalid"
+        );
       });
 
       it("Should enforce the deadline", async () => {
@@ -1255,7 +1356,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signBorrowRequest(bob, {
+        const sigParams = await signBorrowRequest(pair, bob, {
           tokenId: apeIds.bobTwo,
           valuation,
           duration,
@@ -1266,9 +1367,9 @@ describe("NFT Pair", async () => {
         const loanParams = { valuation, duration, annualInterestBPS };
 
         await advanceNextTime(3601);
-        await expect(
-          pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, loanParams, false, deadline, v, r, s)
-        ).to.be.revertedWith("NFTPair: signature expired");
+        await expect(pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, loanParams, false, sigParams)).to.be.revertedWith(
+          "NFTPair: signature expired"
+        );
       });
 
       it("Should not accept the same signature twice", async () => {
@@ -1278,7 +1379,7 @@ describe("NFT Pair", async () => {
         const annualInterestBPS = 15000;
         const deadline = timestamp + 3600;
 
-        const { r, s, v } = await signBorrowRequest(bob, {
+        const sigParams = await signBorrowRequest(pair, bob, {
           tokenId: apeIds.bobTwo,
           valuation,
           duration,
@@ -1288,19 +1389,19 @@ describe("NFT Pair", async () => {
 
         const loanParams = { valuation, duration, annualInterestBPS };
 
-        await expect(pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, loanParams, false, deadline, v, r, s)).to.emit(
+        await expect(pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, loanParams, false, sigParams)).to.emit(
           pair,
           "LogLend"
         );
 
         // Bob repays the loan to get the token back:
-        await expect(pair.connect(bob).repay(apeIds.bobTwo, false)).to.emit(pair, "LogRepay");
+        await expect(pair.connect(bob).repay(apeIds.bobTwo, bob.address, false)).to.emit(pair, "LogRepay");
         expect(await apes.ownerOf(apeIds.bobTwo)).to.equal(bob.address);
 
         // It fails now (because the nonce is no longer a match):
-        await expect(
-          pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, loanParams, false, deadline, v, r, s)
-        ).to.be.revertedWith("NFTPair: signature invalid");
+        await expect(pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, loanParams, false, sigParams)).to.be.revertedWith(
+          "NFTPair: signature invalid"
+        );
       });
     });
 
@@ -1401,17 +1502,16 @@ describe("NFT Pair", async () => {
     });
   });
 
-  describeSnapshot("Cook Scenarios", () => {
+  describeSnapshot("Other Cook Scenarios", () => {
     // Uses its own
     let pair: NFTPair;
-    let chainId: BigNumberish;
+    let market: NFTMarketMock;
     let DOMAIN_SEPARATOR: string;
     let BORROW_SIGNATURE_HASH: string;
     let LEND_SIGNATURE_HASH: string;
 
     const tokenIds: BigNumber[] = [];
     before(async () => {
-      chainId = (await ethers.provider.getNetwork()).chainId;
       pair = await deployPair();
       // Undo some of the setup, so we start from scratch:
       const mc = masterContract.address;
@@ -1694,6 +1794,764 @@ describe("NFT Pair", async () => {
     });
   });
 
+  describeSnapshot("Flash Repay", () => {
+    let pair: NFTPair;
+    let swapper: NFTBuyerSellerMock;
+
+    const params1 = {
+      valuation: getBigNumber(10),
+      duration: YEAR,
+      annualInterestBPS: 2000,
+    };
+    const params2 = { ...params1, valuation: getBigNumber(25) };
+
+    before(async () => {
+      // Alice requests a loan of 10 guineas against "AliceOne":
+      pair = await deployPair();
+      swapper = await deployContract("NFTBuyerSellerMock", bentoBox.address, apesMarket.address);
+
+      for (const signer of [deployer, alice, bob, carol]) {
+        await apes.connect(signer).setApprovalForAll(pair.address, true);
+      }
+
+      // Alice requests two loans
+      await pair.connect(alice).requestLoan(apeIds.aliceOne, params1, alice.address, false);
+      await pair.connect(alice).requestLoan(apeIds.aliceTwo, params2, alice.address, false);
+
+      // Bob issues the loans
+      await pair.connect(bob).lend(apeIds.aliceOne, params1, false);
+      await pair.connect(bob).lend(apeIds.aliceTwo, params2, false);
+
+      // Alice donates all her money to Carol
+      await bentoBox
+        .connect(alice)
+        .transfer(guineas.address, alice.address, carol.address, await bentoBox.balanceOf(guineas.address, alice.address));
+      await guineas.connect(alice).transfer(carol.address, await guineas.balanceOf(alice.address));
+
+      // Carol uses some of it to fund the apes market
+      await guineas.connect(carol).approve(apesMarket.address, MaxUint256);
+      await apesMarket.connect(carol).fund(getBigNumber(100));
+    });
+
+    it("Should allow flash repayments via cook()", async () => {
+      const getBalances = async () => ({
+        alice: await guineas.balanceOf(alice.address),
+        aliceBento: await bentoBox.balanceOf(guineas.address, alice.address),
+
+        pairBento: await bentoBox.balanceOf(guineas.address, pair.address),
+        pairFees: await pair.feesEarnedShare(),
+      });
+      const t0 = await getBalances();
+
+      expect(t0.alice).to.equal(0);
+      expect(t0.aliceBento).to.equal(0);
+
+      const actions: number[] = [];
+      const values: any[] = [];
+      const datas: any[] = [];
+
+      // We're just repaying one loan in this test.
+
+      // 1. Repay, send to marketplace to skim. Also, set "skim = true" so that
+      //    the actual payment will be skimmed later.
+      //    This sets both slots of `result`, to [<amount in shares>, <amount>].
+      actions.push(ACTION_REPAY);
+      values.push(0);
+      datas.push(encodeParameters(["uint256", "address", "bool"], [apeIds.aliceOne, apesMarket.address, true]));
+
+      // 2. Sell the NFT, by skimming.
+      //    Our mock "market" happens to require a hardcoded amount, because
+      //    `cook()` is not flexible enough to pass the amount needed in the
+      //    appropriate parameter position.
+      //    This will not always be the case, but we have to assume that it is
+      //    in general, so we have not "fixed" the mock contract to make it
+      //    work. That way, this/these test case(s) paint a more fair picture
+      //    of what using `cook()` for flash loans is like.
+      const salePrice = getBigNumber(11); // enough to cover the loan
+      actions.push(ACTION_CALL);
+      values.push(0);
+      datas.push(
+        encodeParameters(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [
+            apesMarket.address,
+            apesMarket.interface.encodeFunctionData("sell", [apeIds.aliceOne, salePrice, alice.address, true]),
+            false,
+            false,
+            0,
+          ]
+        )
+      );
+
+      // 3. ACTION_REPAY told us how much it was; transfer that amount to the
+      //    BentoBox. `result[0]` has the amount in shares:
+      actions.push(ACTION_BENTO_DEPOSIT);
+      values.push(0);
+      datas.push(encodeParameters(["address", "address", "int256", "int256"], [guineas.address, pair.address, 0, USE_VALUE1]));
+
+      // That's it; `cook()` will now skim the balance at the end:
+      await expect(pair.connect(alice).cook(actions, values, datas)).to.emit(pair, "LogRepay");
+
+      const t1 = await getBalances();
+
+      // Alice should have a little left:
+    });
+
+    it("Should allow multiple flash repayments via cook()", async () => {
+      const getBalances = async () => ({
+        alice: await guineas.balanceOf(alice.address),
+        aliceBento: await bentoBox.balanceOf(guineas.address, alice.address),
+
+        pairBento: await bentoBox.balanceOf(guineas.address, pair.address),
+        pairFees: await pair.feesEarnedShare(),
+      });
+      const t0 = await getBalances();
+
+      expect(t0.alice).to.equal(0);
+      expect(t0.aliceBento).to.equal(0);
+
+      const actions: number[] = [];
+      const values: any[] = [];
+      const datas: any[] = [];
+
+      // (See the single repayment test for more function-specific comments)
+      // What we're doing here is:
+      // - Flash repay first loan, send token to "market" contract
+      // - Sell the first token in the market (for "enough"; can't get exact)
+      // - Flash repay second loan, send token to "market" contract
+      // - Sell the second token in the market (again, enough)h
+      // - Pay enough for both loans at once
+      //
+      // This makes it even harder to deposit only EXACTLY what was required,
+      // unless we're willing to needlessly do two Bento transfers. (The repay
+      // logic populates fields with shares or amount required, but we have
+      // no way to add them up).
+      // Since we're testing the double recursion, we leave that aspect as is
+      // and just send "definitely enough to cover" if we want it to succeed.
+      actions.push(ACTION_REPAY);
+      values.push(0);
+      datas.push(encodeParameters(["uint256", "address", "bool"], [apeIds.aliceOne, apesMarket.address, true]));
+
+      const salePrice1 = getBigNumber(11); // enough to cover the loan
+      actions.push(ACTION_CALL);
+      values.push(0);
+      datas.push(
+        encodeParameters(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [
+            apesMarket.address,
+            apesMarket.interface.encodeFunctionData("sell", [apeIds.aliceOne, salePrice1, alice.address, true]),
+            false,
+            false,
+            0,
+          ]
+        )
+      );
+
+      actions.push(ACTION_REPAY);
+      values.push(0);
+      datas.push(encodeParameters(["uint256", "address", "bool"], [apeIds.aliceTwo, apesMarket.address, true]));
+
+      const salePrice2 = getBigNumber(26); // enough to cover the loan
+      actions.push(ACTION_CALL);
+      values.push(0);
+      datas.push(
+        encodeParameters(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [
+            apesMarket.address,
+            apesMarket.interface.encodeFunctionData("sell", [apeIds.aliceTwo, salePrice2, alice.address, true]),
+            false,
+            false,
+            0,
+          ]
+        )
+      );
+
+      // 3. ACTION_REPAY told us how much it was; transfer that amount to the
+      //    BentoBox. `result[0]` has the amount in shares:
+      actions.push(ACTION_BENTO_DEPOSIT);
+      values.push(0);
+      datas.push(encodeParameters(["address", "address", "int256", "int256"], [guineas.address, pair.address, salePrice1.add(salePrice2), 0]));
+
+      // That's it; `cook()` will now skim the balance at the end:
+      await expect(pair.connect(alice).cook(actions, values, datas)).to.emit(pair, "LogRepay").to.emit(pair, "LogRepay");
+    });
+
+    it("Should refuse flash repayments via cook() - not enough", async () => {
+      const getBalances = async () => ({
+        alice: await guineas.balanceOf(alice.address),
+        aliceBento: await bentoBox.balanceOf(guineas.address, alice.address),
+
+        pairBento: await bentoBox.balanceOf(guineas.address, pair.address),
+        pairFees: await pair.feesEarnedShare(),
+      });
+      const t0 = await getBalances();
+
+      expect(t0.alice).to.equal(0);
+      expect(t0.aliceBento).to.equal(0);
+
+      const actions: number[] = [];
+      const values: any[] = [];
+      const datas: any[] = [];
+
+      // We're just repaying one loan in this test.
+
+      // 1. Repay, send to marketplace to skim. Also, set "skim = true" so that
+      //    the actual payment will be skimmed later.
+      //    This sets both slots of `result`, to [<amount in shares>, <amount>].
+      actions.push(ACTION_REPAY);
+      values.push(0);
+      datas.push(encodeParameters(["uint256", "address", "bool"], [apeIds.aliceOne, apesMarket.address, true]));
+
+      // 2. Sell the NFT, by skimming.
+      //    Our mock "market" happens to require a hardcoded amount, because
+      //    `cook()` is not flexible enough to pass the amount needed in the
+      //    appropriate parameter position.
+      //    This will not always be the case, but we have to assume that it is
+      //    in general, so we have not "fixed" the mock contract to make it
+      //    work. That way, this/these test case(s) paint a more fair picture
+      //    of what using `cook()` for flash loans is like.
+      const salePrice = getBigNumber(11); // enough to cover the loan
+      actions.push(ACTION_CALL);
+      values.push(0);
+      datas.push(
+        encodeParameters(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [
+            apesMarket.address,
+            apesMarket.interface.encodeFunctionData("sell", [apeIds.aliceOne, salePrice, alice.address, true]),
+            false,
+            false,
+            0,
+          ]
+        )
+      );
+
+      // 3. Skip sending the money
+
+      // That's it; `cook()` will now skim the balance at the end:
+      await expect(pair.connect(alice).cook(actions, values, datas)).to.be.revertedWith("NFTPair: skim too much");
+    });
+
+    it("Should allow flash repayments with swapper - good price", async () => {
+      await expect(pair.connect(alice).flashRepay(apeIds.aliceOne, params1.valuation.mul(2), swapper.address, alice.address, false)).to.emit(
+        pair,
+        "LogRepay"
+      );
+    });
+
+    it("Should refuse flash repayments with swapper - not enough", async () => {
+      await expect(
+        pair.connect(alice).flashRepay(
+          apeIds.aliceOne,
+          params1.valuation, // Will not cover interest
+          swapper.address,
+          alice.address,
+          false
+        )
+      ).to.be.revertedWith("BoringMath: Underflow");
+    });
+  });
+
+  describeSnapshot("Flash Borrow", () => {
+    let pair: NFTPair;
+    let swapper: NFTBuyerSellerMock;
+
+    const params1 = {
+      valuation: getBigNumber(10),
+      duration: YEAR,
+      annualInterestBPS: 2000,
+    };
+    const params2 = { ...params1, valuation: getBigNumber(25) };
+
+    let aliceSig: ISignature;
+    let bobSig: ISignature;
+
+    before(async () => {
+      // Alice requests a loan of 10 guineas against "AliceOne":
+      pair = await deployPair();
+      swapper = await deployContract("NFTBuyerSellerMock", bentoBox.address, apesMarket.address);
+
+      for (const signer of [deployer, alice, bob, carol]) {
+        await apes.connect(signer).setApprovalForAll(pair.address, true);
+      }
+
+      const { timestamp } = await ethers.provider.getBlock("latest");
+      const deadline = timestamp + 3600;
+
+      // Alice signs a lending request against CarolOne
+      aliceSig = await signLendRequest(pair, alice, {
+        tokenId: apeIds.carolOne,
+        anyTokenId: false,
+        ...params1,
+        deadline,
+      });
+      // Bob signs a lending request against any ape
+      bobSig = await signLendRequest(pair, bob, {
+        tokenId: 0,
+        anyTokenId: true,
+        ...params2,
+        deadline,
+      });
+
+      // Stock the apes market:
+      for (const signer of [alice, bob, carol]) {
+        await apes.connect(signer).setApprovalForAll(apesMarket.address, true);
+      }
+      await apesMarket.connect(alice).stock(apeIds.aliceOne);
+      await apesMarket.connect(bob).stock(apeIds.bobOne);
+      await apesMarket.connect(carol).stock(apeIds.carolOne);
+    });
+
+    it("Should allow flash borrowing (LTV < 1)", async () => {
+      // Bob knows about Alice's commitment to lend 10 guineas against ape
+      // "carolOne". Assuming it costs 13 guineas, he needs to put up another
+      // 3, plus the opening fee on borrowing the 10 -- 0.1 guinea:
+      const price = getBigNumber(13);
+      // `toShare` rounding up:
+      const priceShare = price.mul(9).add(19).div(20); // rounding up
+      const totalShare = params1.valuation.mul(9).div(20); // rounding down
+      const openFeeShare = totalShare.mul(1).div(100);
+      const protocolFeeShare = openFeeShare.div(10);
+      const lenderOutShare = totalShare.sub(openFeeShare).add(protocolFeeShare);
+      const borrowerShare = totalShare.sub(openFeeShare);
+      const shortage = priceShare.sub(borrowerShare);
+      await expect(
+        pair
+          .connect(bob)
+          .flashRequestAndBorrow(apeIds.carolOne, alice.address, bob.address, params1, false, aliceSig, price, swapper.address, false)
+      )
+        .to.emit(pair, "LogLend")
+        .to.emit(bentoBox, "LogTransfer")
+        .withArgs(guineas.address, bob.address, pair.address, shortage)
+        .to.emit(bentoBox, "LogTransfer")
+        .withArgs(guineas.address, alice.address, pair.address, lenderOutShare)
+        .to.emit(guineas, "Transfer")
+        .withArgs(bentoBox.address, swapper.address, price)
+        .to.emit(guineas, "Transfer")
+        .withArgs(swapper.address, apesMarket.address, price)
+        .to.emit(apes, "Transfer")
+        .withArgs(apesMarket.address, pair.address, apeIds.carolOne);
+    });
+
+    it("Should allow flash borrowing (LTV > 1)", async () => {
+      // Bob can buy "CarolOne" at a price below what he can borrow against it.
+      // As such he can get paid to take out the loab:
+      // "carolOne". Assuming it costs 13 guineas, he needs to put up another
+      // 3, plus the opening fee on borrowing the 10 -- 0.1 guinea:
+      const price = getBigNumber(7);
+      // `toShare` rounding up:
+      const priceShare = price.mul(9).add(19).div(20); // rounding up
+      const totalShare = params1.valuation.mul(9).div(20); // rounding down
+      const openFeeShare = totalShare.mul(1).div(100);
+      const protocolFeeShare = openFeeShare.div(10);
+      const lenderOutShare = totalShare.sub(openFeeShare).add(protocolFeeShare);
+      const borrowerShare = totalShare.sub(openFeeShare);
+      const excess = borrowerShare.sub(priceShare);
+      await expect(
+        pair
+          .connect(bob)
+          .flashRequestAndBorrow(apeIds.carolOne, alice.address, bob.address, params1, false, aliceSig, price, swapper.address, false)
+      )
+        .to.emit(pair, "LogLend")
+        .to.emit(bentoBox, "LogTransfer")
+        .withArgs(guineas.address, pair.address, bob.address, excess)
+        .to.emit(bentoBox, "LogTransfer")
+        .withArgs(guineas.address, alice.address, pair.address, lenderOutShare)
+        .to.emit(guineas, "Transfer")
+        .withArgs(bentoBox.address, swapper.address, price)
+        .to.emit(guineas, "Transfer")
+        .withArgs(swapper.address, apesMarket.address, price)
+        .to.emit(apes, "Transfer")
+        .withArgs(apesMarket.address, pair.address, apeIds.carolOne);
+    });
+
+    it("Should allow flash borrowing (LTV = 1)", async () => {
+      const getBalances = async () => ({
+        bob: await guineas.balanceOf(bob.address),
+        bobBento: await bentoBox.balanceOf(guineas.address, bob.address),
+
+        deployer: await guineas.balanceOf(deployer.address),
+        deployerBento: await bentoBox.balanceOf(guineas.address, deployer.address),
+      });
+      const t0 = await getBalances();
+
+      // Bob can buy "CarolOne" at a price that happens to be exactly what he
+      // gets when taking out a loan -- meaning the principal less open fee.
+      // Actually, given the signature, anyone can make the call; we'll let the
+      // deployer do it. Bob still gets the loan:
+      const totalShare = params1.valuation.mul(9).div(20); // rounding down
+      const openFeeShare = totalShare.mul(1).div(100);
+      const protocolFeeShare = openFeeShare.div(10);
+      const lenderOutShare = totalShare.sub(openFeeShare).add(protocolFeeShare);
+      const borrowerShare = totalShare.sub(openFeeShare);
+
+      const priceShare = borrowerShare;
+      // The following mght be off a little, if the amount/share ratio is not
+      // hardcoded to 20/9:
+      const price = priceShare.mul(20).div(9);
+
+      await expect(
+        pair
+          .connect(deployer)
+          .flashRequestAndBorrow(apeIds.carolOne, alice.address, bob.address, params1, false, aliceSig, price, swapper.address, false)
+      )
+        .to.emit(pair, "LogLend")
+        .to.emit(bentoBox, "LogTransfer")
+        .withArgs(guineas.address, alice.address, pair.address, lenderOutShare)
+        .to.emit(guineas, "Transfer")
+        .withArgs(bentoBox.address, swapper.address, price)
+        .to.emit(guineas, "Transfer")
+        .withArgs(swapper.address, apesMarket.address, price)
+        .to.emit(apes, "Transfer")
+        .withArgs(apesMarket.address, pair.address, apeIds.carolOne);
+
+      const t1 = await getBalances();
+
+      expect(t1.deployer.sub(t0.deployer)).to.equal(0);
+      expect(t1.deployerBento.sub(t0.deployerBento)).to.equal(0);
+      expect(t1.bob.sub(t0.bob)).to.equal(0);
+      expect(t1.bobBento.sub(t0.bobBento)).to.equal(0);
+    });
+
+    it("Should allow flash borrowing (LTV < 1, cook)", async () => {
+      // Bob knows about Alice's commitment to lend 10 guineas against ape
+      // "carolOne". Assuming it costs 13 guineas, he needs to put up another
+      // 3, plus the opening fee on borrowing the 10 -- 0.1 guinea:
+      const price = getBigNumber(13);
+      // `toShare` rounding up:
+      const priceShare = price.mul(9).add(19).div(20); // rounding up
+      const totalShare = params1.valuation.mul(9).div(20); // rounding down
+      const openFeeShare = totalShare.mul(1).div(100);
+      const protocolFeeShare = openFeeShare.div(10);
+      const lenderOutShare = totalShare.sub(openFeeShare).add(protocolFeeShare);
+      const borrowerShare = totalShare.sub(openFeeShare);
+      const shortage = priceShare.sub(borrowerShare);
+
+      const actions: number[] = [];
+      const values: any[] = [];
+      const datas: any[] = [];
+
+      // Bob starts the test with JUST enough guineas to make up the shortage:
+      await bentoBox
+        .connect(bob)
+        .transfer(guineas.address, bob.address, deployer.address, (await bentoBox.balanceOf(guineas.address, bob.address)).sub(shortage));
+
+      // Bob requests a loan agains CarolOne, uses that loan to buy help buy it
+      // at the market, then posts the purchased token as collateral.
+
+      // 1. Take out the loan
+      actions.push(ACTION_REQUEST_AND_BORROW);
+      values.push(0);
+      datas.push(
+        encodeParameters(
+          [
+            "uint256",
+            "address",
+            "address",
+            "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS)",
+            "bool",
+            "bool",
+            "tuple(uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
+          ],
+          [
+            apeIds.carolOne,
+            alice.address,
+            bob.address,
+            params1,
+            true, // (skimCOllateral)
+            false,
+            aliceSig,
+          ]
+        )
+      );
+
+      // 2. Send funds to the apes market. Since Bob now has the loan in his
+      //    BentoBox balance, this will succeed:
+      actions.push(ACTION_BENTO_WITHDRAW);
+      values.push(0);
+      datas.push(encodeParameters(["address", "address", "int256", "int256"], [guineas.address, apesMarket.address, price, 0]));
+
+      // 3. Buy the token at the apes market, skimming the funds and sending
+      //    the token to the pair:
+      actions.push(ACTION_CALL);
+      values.push(0);
+      datas.push(
+        encodeParameters(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [apesMarket.address, apesMarket.interface.encodeFunctionData("buy", [apeIds.carolOne, price, pair.address, true]), false, false, 0]
+        )
+      );
+
+      // .. that's it; having indicated in step 1 that we are skimming the
+      // token, `cook()` will use it as collateral in the final step.
+      await expect(pair.connect(bob).cook(actions, values, datas))
+        .to.emit(pair, "LogLend")
+        .to.emit(bentoBox, "LogTransfer")
+        .withArgs(guineas.address, pair.address, bob.address, borrowerShare)
+        .to.emit(bentoBox, "LogTransfer")
+        .withArgs(guineas.address, alice.address, pair.address, lenderOutShare)
+        .to.emit(guineas, "Transfer")
+        .withArgs(bentoBox.address, apesMarket.address, price)
+        .to.emit(apes, "Transfer")
+        .withArgs(apesMarket.address, pair.address, apeIds.carolOne);
+    });
+
+    it("Should allow flash borrowing (LTV > 1, cook)", async () => {
+      // Alice borrows 25 guineas from Bob, using his "any token" signature,
+      // against "carolOne". Assuming it costs 20 guineas, Alice can start with
+      // no guineas at all, and end up with about 4.75 guineas -- the 5 extra,
+      // minus the 0.25 open fee on the loan -- along with the option to repay
+      // the loan.
+      const price = getBigNumber(20);
+      const priceShare = price.mul(9).add(19).div(20); // rounding up
+      const totalShare = params2.valuation.mul(9).div(20); // rounding down
+      const openFeeShare = totalShare.mul(1).div(100);
+      const protocolFeeShare = openFeeShare.div(10);
+      const lenderOutShare = totalShare.sub(openFeeShare).add(protocolFeeShare);
+      const borrowerShare = totalShare.sub(openFeeShare);
+      const excessShare = borrowerShare.sub(priceShare);
+
+      expect(excessShare).to.be.lt(getBigNumber(5).mul(9).div(20));
+      expect(excessShare).to.be.gte(getBigNumber(475).div(100).mul(9).div(20));
+
+      const actions: number[] = [];
+      const values: any[] = [];
+      const datas: any[] = [];
+
+      // Alice starts the test with an empty BentoBox balance:
+      await bentoBox
+        .connect(alice)
+        .transfer(guineas.address, alice.address, deployer.address, await bentoBox.balanceOf(guineas.address, alice.address));
+
+      // Alice requests a loan agains CarolOne, uses some of the loan to buy it
+      // at the market, then posts the purchased token as collateral.
+
+      // 1. Take out the loan
+      actions.push(ACTION_REQUEST_AND_BORROW);
+      values.push(0);
+      datas.push(
+        encodeParameters(
+          [
+            "uint256",
+            "address",
+            "address",
+            "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS)",
+            "bool",
+            "bool",
+            "tuple(uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
+          ],
+          [
+            apeIds.carolOne,
+            bob.address,
+            alice.address,
+            params2,
+            true, // (skimCOllateral)
+            true, // (anyTokenId in sig)
+            bobSig,
+          ]
+        )
+      );
+
+      // 2. Send funds to the apes market. Succeeds, since Alice got the loan:
+      actions.push(ACTION_BENTO_WITHDRAW);
+      values.push(0);
+      datas.push(encodeParameters(["address", "address", "int256", "int256"], [guineas.address, apesMarket.address, price, 0]));
+
+      // 3. Buy the token at the apes market, skimming the funds and sending
+      //    the token to the pair:
+      actions.push(ACTION_CALL);
+      values.push(0);
+      datas.push(
+        encodeParameters(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [apesMarket.address, apesMarket.interface.encodeFunctionData("buy", [apeIds.carolOne, price, pair.address, true]), false, false, 0]
+        )
+      );
+
+      // .. that's it; having indicated in step 1 that we are skimming the
+      // token, `cook()` will use it as collateral in the final step.
+      await expect(pair.connect(alice).cook(actions, values, datas))
+        .to.emit(pair, "LogLend")
+        .to.emit(bentoBox, "LogTransfer")
+        .withArgs(guineas.address, pair.address, alice.address, borrowerShare)
+        .to.emit(bentoBox, "LogTransfer")
+        .withArgs(guineas.address, bob.address, pair.address, lenderOutShare)
+        .to.emit(guineas, "Transfer")
+        .withArgs(bentoBox.address, apesMarket.address, price)
+        .to.emit(apes, "Transfer")
+        .withArgs(apesMarket.address, pair.address, apeIds.carolOne);
+
+      expect(await bentoBox.balanceOf(guineas.address, alice.address)).to.equal(excessShare);
+    });
+
+    it("Should reject if the collateral is not posted (cook)", async () => {
+      // Uses the successful case of 25 against Bob's "any" signature, but
+      // fails to send the token to the contract
+      const price = getBigNumber(20);
+
+      const actions: number[] = [];
+      const values: any[] = [];
+      const datas: any[] = [];
+
+      // Alice starts the test with an empty BentoBox balance:
+      await bentoBox
+        .connect(alice)
+        .transfer(guineas.address, alice.address, deployer.address, await bentoBox.balanceOf(guineas.address, alice.address));
+
+      // Alice requests a loan agains CarolOne, uses some of the loan to buy it
+      // at the market. The collateral stays with Alice this time:
+
+      // 1. Take out the loan
+      actions.push(ACTION_REQUEST_AND_BORROW);
+      values.push(0);
+      datas.push(
+        encodeParameters(
+          [
+            "uint256",
+            "address",
+            "address",
+            "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS)",
+            "bool",
+            "bool",
+            "tuple(uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
+          ],
+          [
+            apeIds.carolOne,
+            bob.address,
+            alice.address,
+            params2,
+            true, // (skimCOllateral)
+            true, // (anyTokenId in sig)
+            bobSig,
+          ]
+        )
+      );
+
+      // 2. Send funds to the apes market. Succeeds, since Alice got the loan:
+      actions.push(ACTION_BENTO_WITHDRAW);
+      values.push(0);
+      datas.push(encodeParameters(["address", "address", "int256", "int256"], [guineas.address, apesMarket.address, price, 0]));
+
+      // 3. Buy the token at the apes market, skimming the funds and sending
+      //    the token to the pair:
+      actions.push(ACTION_CALL);
+      values.push(0);
+      datas.push(
+        encodeParameters(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [
+            apesMarket.address,
+            apesMarket.interface.encodeFunctionData("buy", [
+              apeIds.carolOne,
+              price,
+              alice.address, // not pair.address
+              true,
+            ]),
+            false,
+            false,
+            0,
+          ]
+        )
+      );
+
+      // .. that's it; having indicated in step 1 that we are skimming the
+      // token, `cook()` will use it as collateral in the final step.
+      await expect(pair.connect(alice).cook(actions, values, datas)).to.be.revertedWith("NFTPair: skim failed");
+    });
+
+    it("Should allow flash borrowing (LTV > 1, cook, no skim)", async () => {
+      // Skimming is more efficient, but if Alice has approved the contract
+      // then the collateral can be taken from her address instead.
+      // This is the same as the "reject if collateral not posted" scenario,
+      // where Alice ends up with the collateral, except that skimming is not
+      // used. As a last step, the pair takes the collateral from Alice:
+      const price = getBigNumber(20);
+      const priceShare = price.mul(9).add(19).div(20); // rounding up
+      const totalShare = params2.valuation.mul(9).div(20); // rounding down
+      const openFeeShare = totalShare.mul(1).div(100);
+      const protocolFeeShare = openFeeShare.div(10);
+      const lenderOutShare = totalShare.sub(openFeeShare).add(protocolFeeShare);
+      const borrowerShare = totalShare.sub(openFeeShare);
+      const excessShare = borrowerShare.sub(priceShare);
+
+      expect(excessShare).to.be.lt(getBigNumber(5).mul(9).div(20));
+      expect(excessShare).to.be.gte(getBigNumber(475).div(100).mul(9).div(20));
+
+      const actions: number[] = [];
+      const values: any[] = [];
+      const datas: any[] = [];
+
+      // Alice starts the test with an empty BentoBox balance:
+      await bentoBox
+        .connect(alice)
+        .transfer(guineas.address, alice.address, deployer.address, await bentoBox.balanceOf(guineas.address, alice.address));
+
+      // Alice requests a loan agains CarolOne, uses some of the loan to buy it
+      // at the market, then posts the purchased token as collateral.
+
+      // 1. Take out the loan
+      actions.push(ACTION_REQUEST_AND_BORROW);
+      values.push(0);
+      datas.push(
+        encodeParameters(
+          [
+            "uint256",
+            "address",
+            "address",
+            "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS)",
+            "bool",
+            "bool",
+            "tuple(uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
+          ],
+          [
+            apeIds.carolOne,
+            bob.address,
+            alice.address,
+            params2,
+            false, // (skimCOllateral)
+            true, // (anyTokenId in sig)
+            bobSig,
+          ]
+        )
+      );
+
+      // 2. Send funds to the apes market. Succeeds, since Alice got the loan:
+      actions.push(ACTION_BENTO_WITHDRAW);
+      values.push(0);
+      datas.push(encodeParameters(["address", "address", "int256", "int256"], [guineas.address, apesMarket.address, price, 0]));
+
+      // 3. Buy the token at the apes market, skimming the funds and sending
+      //    the token to the pair:
+      actions.push(ACTION_CALL);
+      values.push(0);
+      datas.push(
+        encodeParameters(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [apesMarket.address, apesMarket.interface.encodeFunctionData("buy", [apeIds.carolOne, price, alice.address, true]), false, false, 0]
+        )
+      );
+
+      // .. that's it: the contract will take the collateral from Alice, who
+      // got it from the apes market.
+      await expect(pair.connect(alice).cook(actions, values, datas))
+        .to.emit(pair, "LogLend")
+        .to.emit(bentoBox, "LogTransfer")
+        .withArgs(guineas.address, pair.address, alice.address, borrowerShare)
+        .to.emit(bentoBox, "LogTransfer")
+        .withArgs(guineas.address, bob.address, pair.address, lenderOutShare)
+        .to.emit(guineas, "Transfer")
+        .withArgs(bentoBox.address, apesMarket.address, price)
+        .to.emit(apes, "Transfer")
+        .withArgs(apesMarket.address, alice.address, apeIds.carolOne)
+        .to.emit(apes, "Transfer")
+        .withArgs(alice.address, pair.address, apeIds.carolOne);
+
+      expect(await bentoBox.balanceOf(guineas.address, alice.address)).to.equal(excessShare);
+    });
+  });
+
   describeSnapshot("Lending Club", () => {
     let pair: NFTPair;
     let lendingClub: LendingClubMock;
@@ -1716,8 +2574,14 @@ describe("NFT Pair", async () => {
       await bentoBox.connect(bob).deposit(guineas.address, bob.address, lendingClub.address, getBigNumber(10), 0);
     });
 
-    const borrow = (borrower: SignerWithAddress, club: LendingClubMock, tokenId: BigNumberish, params: ILoanParams) =>
-      pair.connect(borrower).requestAndBorrow(tokenId, club.address, borrower.address, params, false, false, 0, 0, HashZero, HashZero);
+    const borrow = (
+      borrower: SignerWithAddress,
+      club: LendingClubMock,
+      tokenId: BigNumberish,
+      params: ILoanParams,
+      // Defaults to "next week'
+      deadline: BigNumberish = Math.floor(new Date().getTime() / 1000) + 86400 * 7
+    ) => pair.connect(borrower).requestAndBorrow(tokenId, club.address, borrower.address, params, false, false, zeroSign(deadline));
 
     it("Should allow LendingClubs to approve or reject loans", async () => {
       // Mock implementation detail: tokenId has to be even
@@ -1741,9 +2605,7 @@ describe("NFT Pair", async () => {
           duration,
           annualInterestBPS,
         })
-      )
-        .to.emit(pair, "LogRequestLoan")
-        .to.emit(pair, "LogLend");
+      ).to.emit(pair, "LogLend");
 
       expect(getBigNumber(apeIds.aliceTwo, 0).mod(2)).to.equal(1);
       await expect(

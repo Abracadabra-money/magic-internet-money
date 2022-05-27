@@ -3,7 +3,7 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
-import "../NFTPair.sol";
+import "../interfaces/INFTPair.sol";
 
 // Minimal implementation to set up some tests.
 contract LendingClubMock {

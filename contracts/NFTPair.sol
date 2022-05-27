@@ -26,31 +26,10 @@ import "@boringcrypto/boring-solidity/contracts/interfaces/IMasterContract.sol";
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
 import "@sushiswap/bentobox-sdk/contracts/IBentoBoxV1.sol";
 import "./interfaces/IERC721.sol";
-
-struct TokenLoanParams {
-    uint128 valuation; // How much will you get? OK to owe until expiration.
-    uint64 duration; // Length of loan in seconds
-    uint16 annualInterestBPS; // Variable cost of taking out the loan
-}
-
-interface ILendingClub {
-    // Per token settings.
-    function willLend(uint256 tokenId, TokenLoanParams memory params) external view returns (bool);
-
-    function lendingConditions(address nftPair, uint256 tokenId) external view returns (TokenLoanParams memory);
-}
-
-interface INFTPair {
-    function collateral() external view returns (IERC721);
-
-    function asset() external view returns (IERC20);
-
-    function masterContract() external view returns (address);
-
-    function bentoBox() external view returns (IBentoBoxV1);
-
-    function removeCollateral(uint256 tokenId, address to) external;
-}
+import "./interfaces/ILendingClub.sol";
+import "./interfaces/INFTBuyer.sol";
+import "./interfaces/INFTSeller.sol";
+import "./interfaces/INFTPair.sol";
 
 /// @title NFTPair
 /// @dev This contract allows contract calls to any contract (except BentoBox)
@@ -110,7 +89,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     uint256 private constant YEAR_BPS = 3600 * 24 * 365 * 10_000;
 
     // Highest order term in the Maclaurin series for exp used by
-    // `calculateIntest`.
+    // `calculateInterest`.
     // Intuitive interpretation: interest continuously accrues on the principal.
     // That interest, in turn, earns "second-order" interest-on-interest, which
     // itself earns "third-order" interest, etc. This constant determines how
@@ -201,42 +180,47 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         emit LogUpdateLoanParams(tokenId, params.valuation, params.duration, params.annualInterestBPS);
     }
 
-    function _requestLoan(
-        address collateralProvider,
+    /// @notice It is the caller's responsibility to ensure skimmed tokens get accounted for somehow so they cannot be used twice.
+    /// @notice It is the caller's responsibility to ensure `provider` consented to the specific transfer. (EIR-721 approval is not good enough).
+    function _requireCollateral(
+        address provider,
         uint256 tokenId,
-        TokenLoanParams memory params,
-        address to,
         bool skim
     ) private {
-        // Edge case: valuation can be zero. That effectively gifts the NFT and
-        // is therefore a bad idea, but does not break the contract.
-        require(tokenLoan[tokenId].status == LOAN_INITIAL, "NFTPair: loan exists");
         if (skim) {
             require(collateral.ownerOf(tokenId) == address(this), "NFTPair: skim failed");
         } else {
-            collateral.transferFrom(collateralProvider, address(this), tokenId);
+            collateral.transferFrom(provider, address(this), tokenId);
         }
-        TokenLoan memory loan;
-        loan.borrower = to;
-        loan.status = LOAN_REQUESTED;
-        tokenLoan[tokenId] = loan;
-        tokenLoanParams[tokenId] = params;
-
-        emit LogRequestLoan(to, tokenId, params.valuation, params.duration, params.annualInterestBPS);
     }
 
     /// @notice Deposit an NFT as collateral and request a loan against it
     /// @param tokenId ID of the NFT
     /// @param to Address to receive the loan, or option to withdraw collateral
     /// @param params Loan conditions on offer
-    /// @param skim True if the token has already been transfered
+    /// @param skim True if the token has already been transferred
     function requestLoan(
         uint256 tokenId,
         TokenLoanParams memory params,
         address to,
         bool skim
     ) public {
-        _requestLoan(msg.sender, tokenId, params, to, skim);
+        // Edge case: valuation can be zero. That effectively gifts the NFT and
+        // is therefore a bad idea, but does not break the contract.
+        TokenLoan memory loan = tokenLoan[tokenId];
+        require(loan.status == LOAN_INITIAL, "NFTPair: loan exists");
+
+        loan.borrower = to;
+        loan.status = LOAN_REQUESTED;
+        tokenLoan[tokenId] = loan;
+        tokenLoanParams[tokenId] = params;
+
+        emit LogRequestLoan(to, tokenId, params.valuation, params.duration, params.annualInterestBPS);
+        // Skimming is safe:
+        // - This method both requires loan state to be LOAN_INITIAL and sets
+        //   it to something else. Every other use of _requireCollateral must
+        //   uphold this same requirement; see to it.
+        _requireCollateral(msg.sender, tokenId, skim);
     }
 
     /// @notice Removes `tokenId` as collateral and transfers it to `to`.
@@ -266,27 +250,18 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         emit LogRemoveCollateral(tokenId, to);
     }
 
-    // Assumes the lender has agreed to the loan.
+    ///@notice Assumes the lender has agreed to the loan.
+    ///@param borrower Receives the option to repay and get the collateral back
+    ///@param initialRecipient Receives the initial funds
     function _lend(
         address lender,
+        address borrower,
+        address initialRecipient,
         uint256 tokenId,
-        TokenLoanParams memory accepted,
+        uint256 amount,
         bool skim
-    ) internal {
-        TokenLoan memory loan = tokenLoan[tokenId];
-        require(loan.status == LOAN_REQUESTED, "NFTPair: not available");
-        TokenLoanParams memory params = tokenLoanParams[tokenId];
-
-        // Valuation has to be an exact match, everything else must be at least
-        // as good for the lender as `accepted`.
-        require(
-            params.valuation == accepted.valuation &&
-                params.duration <= accepted.duration &&
-                params.annualInterestBPS >= accepted.annualInterestBPS,
-            "NFTPair: bad params"
-        );
-
-        uint256 totalShare = bentoBox.toShare(asset, params.valuation, false);
+    ) internal returns (uint256 borrowerShare) {
+        uint256 totalShare = bentoBox.toShare(asset, amount, false);
         // No overflow: at most 128 + 16 bits (fits in BentoBox)
         uint256 openFeeShare = (totalShare * OPEN_FEE_BPS) / BPS;
         uint256 protocolFeeShare = (openFeeShare * PROTOCOL_FEE_BPS) / BPS;
@@ -300,12 +275,14 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
             bentoBox.transfer(asset, lender, address(this), totalShare - openFeeShare + protocolFeeShare);
         }
         // No underflow: follows from OPEN_FEE_BPS <= BPS
-        uint256 borrowerShare = totalShare - openFeeShare;
-        bentoBox.transfer(asset, address(this), loan.borrower, borrowerShare);
+        borrowerShare = totalShare - openFeeShare;
+        bentoBox.transfer(asset, address(this), initialRecipient, borrowerShare);
         // No overflow: addends (and result) must fit in BentoBox
         feesEarnedShare += protocolFeeShare;
 
+        TokenLoan memory loan;
         loan.lender = lender;
+        loan.borrower = borrower;
         loan.status = LOAN_OUTSTANDING;
         loan.startTime = uint64(block.timestamp); // Do not use in 12e10 years..
         tokenLoan[tokenId] = loan;
@@ -316,13 +293,25 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     /// @notice Lends with the parameters specified by the borrower.
     /// @param tokenId ID of the token that will function as collateral
     /// @param accepted Loan parameters as the lender saw them, for security
-    /// @param skim True if the funds have been transfered to the contract
+    /// @param skim True if the funds have been transferred to the contract
     function lend(
         uint256 tokenId,
         TokenLoanParams memory accepted,
         bool skim
     ) public {
-        _lend(msg.sender, tokenId, accepted, skim);
+        TokenLoan memory loan = tokenLoan[tokenId];
+        require(loan.status == LOAN_REQUESTED, "NFTPair: not available");
+        TokenLoanParams memory requested = tokenLoanParams[tokenId];
+
+        // Valuation has to be an exact match, everything else must be at least
+        // as good for the lender as `accepted`.
+        require(
+            requested.valuation == accepted.valuation &&
+                requested.duration <= accepted.duration &&
+                requested.annualInterestBPS >= accepted.annualInterestBPS,
+            "NFTPair: bad params"
+        );
+        _lend(msg.sender, loan.borrower, loan.borrower, tokenId, requested.valuation, skim);
     }
 
     // solhint-disable-next-line func-name-mixedcase
@@ -345,26 +334,94 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     /// @notice Caller provides collateral; loan can go to a different address.
     /// @param tokenId ID of the token that will function as collateral
     /// @param lender Lender, whose BentoBox balance the funds will come from
-    /// @param recipient Address to receive the loan.
+    /// @param borrower Receives the funds and the option to repay
     /// @param params Loan parameters requested, and signed by the lender
-    /// @param skimCollateral True if the collateral has already been transfered
+    /// @param skimCollateral True if the collateral has already been transferred
     /// @param anyTokenId Set if lender agreed to any token. Must have tokenId 0 in signature.
     function requestAndBorrow(
         uint256 tokenId,
         address lender,
-        address recipient,
+        address borrower,
         TokenLoanParams memory params,
         bool skimCollateral,
         bool anyTokenId,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
+        SignatureParams memory signature
     ) public {
-        if (v == 0 && r == bytes32(0) && s == bytes32(0)) {
+        _requireSignedLendParams(lender, tokenId, params, anyTokenId, signature);
+        _lend(lender, borrower, borrower, tokenId, params.valuation, false);
+        // Skimming is safe:
+        // - This method both requires loan state to be LOAN_INITIAL and sets
+        //   it to something else. Every other use of _requireCollateral must
+        //   uphold this same requirement; see to it.
+        //   (The check is in `_requireSignedLendParams()`)
+        _requireCollateral(msg.sender, tokenId, skimCollateral);
+    }
+
+    ///@param borrower Also receives excess if token cheaper than loan amount
+    function flashRequestAndBorrow(
+        uint256 tokenId,
+        address lender,
+        address borrower,
+        TokenLoanParams memory params,
+        bool anyTokenId,
+        SignatureParams memory signature,
+        uint256 price,
+        INFTBuyer buyer,
+        bool skimShortage
+    ) external {
+        _requireSignedLendParams(lender, tokenId, params, anyTokenId, signature);
+        // Round up: this is how many Bento-shares it will take to withdraw
+        // `price` tokens
+        uint256 priceShare = bentoBox.toShare(asset, price, true);
+        // Bento-shares received by taking out the loan. They are sent to the
+        // buyer contract for skimming.
+        // TODO: Allow Bento-withdrawing instead?
+        uint256 borrowerShare = _lend(lender, borrower, address(this), tokenId, params.valuation, false);
+        // At this point the contract has `borrowerShare` extra shares. If this
+        // is too much, then the borrower gets the excess. If this is not
+        // enough, we either take the rest from msg.sender, or have the amount
+        // skimmed.
+        if (borrowerShare > priceShare) {
+            bentoBox.transfer(asset, address(this), borrower, borrowerShare - priceShare);
+        } else if (borrowerShare < priceShare) {
+            if (skimShortage) {
+                // We have `borrowerShare`, but need `priceShare`:
+                require(bentoBox.balanceOf(asset, address(this)) >= (priceShare + feesEarnedShare), "NFTPair: skim too much");
+            } else {
+                // We need the difference:
+                bentoBox.transfer(asset, msg.sender, address(this), priceShare - borrowerShare);
+            }
+        }
+        // The share amount taken will be exactly `priceShare`, and the token
+        // amount will be exactly `price`. If we passed `priceShare` instead,
+        // the token amount given could be different.
+        bentoBox.withdraw(asset, address(this), address(buyer), price, 0);
+
+        // External call is safe: At this point, the state of the contract is
+        // unusual only in that it has issued a loan against the token that has
+        // not been delivered yet. Any interaction that does not involve this
+        // loan/token is no different from outside this call. Taking out a new
+        // loan is not possible. Repaying the loan is, but requires that:
+        // a) the buyer either is, or has the token sent to, the borrower;
+        // b) the token is sent to the contract first -- `_repayBefore()` will
+        //    try to transfer it away.
+        // By (b) in particular, the buyer contract cannot exploit this
+        // situation.
+        buyer.buy(asset, price, collateral, tokenId, address(this));
+        require(collateral.ownerOf(tokenId) == address(this), "NFTPair: buyer failed");
+    }
+
+    function _requireSignedLendParams(
+        address lender,
+        uint256 tokenId,
+        TokenLoanParams memory params,
+        bool anyTokenId,
+        SignatureParams memory signature
+    ) private {
+        if (signature.v == 0 && signature.r == bytes32(0) && signature.s == bytes32(0)) {
             require(ILendingClub(lender).willLend(tokenId, params), "NFTPair: LendingClub does not like you");
         } else {
-            require(block.timestamp <= deadline, "NFTPair: signature expired");
+            require(block.timestamp <= signature.deadline, "NFTPair: signature expired");
             uint256 nonce = nonces[lender]++;
             bytes32 dataHash = keccak256(
                 abi.encode(
@@ -376,13 +433,39 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
                     params.duration,
                     params.annualInterestBPS,
                     nonce,
-                    deadline
+                    signature.deadline
                 )
             );
-            require(ecrecover(_getDigest(dataHash), v, r, s) == lender, "NFTPair: signature invalid");
+            require(ecrecover(_getDigest(dataHash), signature.v, signature.r, signature.s) == lender, "NFTPair: signature invalid");
         }
-        _requestLoan(msg.sender, tokenId, params, recipient, skimCollateral);
-        _lend(lender, tokenId, params, false);
+
+        require(tokenLoan[tokenId].status == LOAN_INITIAL, "NFTPair: loan exists");
+        tokenLoanParams[tokenId] = params;
+    }
+
+    function _requireSignedBorrowParams(
+        address borrower,
+        uint256 tokenId,
+        TokenLoanParams memory params,
+        SignatureParams memory signature
+    ) private {
+        require(block.timestamp <= signature.deadline, "NFTPair: signature expired");
+        uint256 nonce = nonces[borrower]++;
+        bytes32 dataHash = keccak256(
+            abi.encode(
+                BORROW_SIGNATURE_HASH,
+                address(this),
+                tokenId,
+                params.valuation,
+                params.duration,
+                params.annualInterestBPS,
+                nonce,
+                signature.deadline
+            )
+        );
+        require(ecrecover(_getDigest(dataHash), signature.v, signature.r, signature.s) == borrower, "NFTPair: signature invalid");
+        require(tokenLoan[tokenId].status == LOAN_INITIAL, "NFTPair: loan exists");
+        tokenLoanParams[tokenId] = params;
     }
 
     /// @notice Take collateral from a pre-commited borrower and lend against it
@@ -396,28 +479,18 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         address borrower,
         TokenLoanParams memory params,
         bool skimFunds,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
+        SignatureParams memory signature
     ) public {
-        require(block.timestamp <= deadline, "NFTPair: signature expired");
-        uint256 nonce = nonces[borrower]++;
-        bytes32 dataHash = keccak256(
-            abi.encode(
-                BORROW_SIGNATURE_HASH,
-                address(this),
-                tokenId,
-                params.valuation,
-                params.duration,
-                params.annualInterestBPS,
-                nonce,
-                deadline
-            )
-        );
-        require(ecrecover(_getDigest(dataHash), v, r, s) == borrower, "NFTPair: signature invalid");
-        _requestLoan(borrower, tokenId, params, borrower, false);
-        _lend(msg.sender, tokenId, params, skimFunds);
+        _requireSignedBorrowParams(borrower, tokenId, params, signature);
+        _lend(msg.sender, borrower, borrower, tokenId, params.valuation, skimFunds);
+        // Skimming is safe:
+        // - This method both requires loan state to be LOAN_INITIAL and sets
+        //   it to something else. Every other use of _requireCollateral must
+        //   uphold this same requirement; see to it.
+        //   (The check is in `_requireSignedBorrowParams()`)
+        // Taking collateral from someone other than msg.sender is safe: the
+        // borrower signed a message giving permission.
+        _requireCollateral(borrower, tokenId, false);
     }
 
     /// Approximates continuous compounding. Uses Horner's method to evaluate
@@ -454,7 +527,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         //
         // which approaches, but never exceeds the "theoretical" result,
         //
-        //          M := principal * [ exp (t * aprBPS / YEAR_BPS) - 1
+        //          M := principal * [ exp (t * aprBPS / YEAR_BPS) - 1 ]
         //
         // as n goes to infinity. We use the fact that
         //
@@ -501,9 +574,19 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         }
     }
 
-    function repay(uint256 tokenId, bool skim) public returns (uint256 amount) {
+    function _repayBefore(uint256 tokenId, address to)
+        public
+        returns (
+            uint256 totalShare,
+            uint256 totalAmount,
+            uint256 feeShare,
+            address lender
+        )
+    {
         TokenLoan memory loan = tokenLoan[tokenId];
         require(loan.status == LOAN_OUTSTANDING, "NFTPair: no loan");
+        require(msg.sender == loan.borrower || to == loan.borrower, "NFTPair: not borrower");
+
         TokenLoanParams memory loanParams = tokenLoanParams[tokenId];
         require(
             // Addition is safe: both summands are smaller than 256 bits
@@ -515,33 +598,119 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
 
         // No underflow: loan.startTime is only ever set to a block timestamp
         // Cast is safe: if this overflows, then all loans have expired anyway
-        uint256 interest = calculateInterest(principal, uint64(block.timestamp - loan.startTime), loanParams.annualInterestBPS).to128();
+        uint256 interest = calculateInterest(principal, uint64(block.timestamp - loan.startTime), loanParams.annualInterestBPS);
+        // No overflow: multiplicands fit in 128 and 16 bits
         uint256 fee = (interest * PROTOCOL_FEE_BPS) / BPS;
-        amount = principal + interest;
+        // No overflon: both terms are 128 bits
+        totalAmount = principal + interest;
 
-        uint256 totalShare = bentoBox.toShare(asset, amount, false);
-        uint256 feeShare = bentoBox.toShare(asset, fee, false);
+        totalShare = bentoBox.toShare(asset, totalAmount, false);
+        feeShare = bentoBox.toShare(asset, fee, false);
+        lender = loan.lender;
 
-        address from;
-        if (skim) {
-            require(bentoBox.balanceOf(asset, address(this)) >= (totalShare + feesEarnedShare), "NFTPair: skim too much");
-            from = address(this);
-            // No overflow: result fits in BentoBox
-        } else {
-            bentoBox.transfer(asset, msg.sender, address(this), feeShare);
-            from = msg.sender;
-        }
-        // No underflow: PROTOCOL_FEE_BPS < BPS by construction.
-        feesEarnedShare += feeShare;
         delete tokenLoan[tokenId];
+        delete tokenLoanParams[tokenId];
 
-        bentoBox.transfer(asset, from, loan.lender, totalShare - feeShare);
-        collateral.transferFrom(address(this), loan.borrower, tokenId);
-
-        emit LogRepay(from, tokenId);
+        collateral.transferFrom(address(this), to, tokenId);
     }
 
-    uint8 internal constant ACTION_REPAY = 2;
+    function _repayAfter(
+        address lender,
+        uint256 totalShare,
+        uint256 feeShare,
+        uint256 tokenId,
+        bool skim
+    ) private {
+        // No overflow: `totalShare - feeShare` is 90% of `totalShare`, and
+        // if that exceeds 128 bits the BentoBox transfer will revert. It
+        // follows that `totalShare` fits in 129 bits, and `feesEarnedShare`
+        // fits in 128 as it represents a BentoBox balance.
+        // Skimming is safe: the amount gets transfered to the lender later,
+        // and therefore cannot be skimmed twice.
+        if (skim) {
+            require(bentoBox.balanceOf(asset, address(this)) >= (totalShare + feesEarnedShare), "NFTPair: skim too much");
+        } else {
+            bentoBox.transfer(asset, msg.sender, address(this), totalShare);
+        }
+        // No overflow: result fits in BentoBox
+        feesEarnedShare += feeShare;
+        // No underflow: `feeShare` is 10% of part of `totalShare`
+        bentoBox.transfer(asset, address(this), lender, totalShare - feeShare);
+        emit LogRepay(skim ? address(this) : msg.sender, tokenId);
+    }
+
+    function repay(
+        uint256 tokenId,
+        address to,
+        bool skim
+    ) external {
+        (uint256 totalShare, , uint256 feeShare, address lender) = _repayBefore(tokenId, to);
+        _repayAfter(lender, totalShare, feeShare, tokenId, skim);
+    }
+
+    function flashRepay(
+        uint256 tokenId,
+        uint256 price,
+        INFTSeller seller,
+        address excessRecipient,
+        bool skimShortage
+    ) external {
+        (uint256 totalShare, , uint256 feeShare, address lender) = _repayBefore(tokenId, address(seller));
+
+        // External call is safe: At this point the loan is already gone, the
+        // seller has the token, and an amount must be paid via skimming or the
+        // entire transaction reverts.
+        // Other than being owed the money, the contract is in a valid state,
+        // and once payment is received it is "accounted for" by being sent
+        // away (in `_repayAfter()`), so that it cannot be reused for skimming.
+        // Relying on return value is safe: if the amount reported is too high,
+        // then either `_repayAfter()` will fail, or the funds were sitting in
+        // the contract's BentoBox balance unaccounted for, and could be freely
+        // skimmed for another purpose anyway.
+        uint256 priceShare = seller.sell(collateral, tokenId, asset, price, address(this));
+        if (priceShare < totalShare) {
+            // No overflow: `totalShare` fits or `_repayAfter()` reverts. See
+            // comments there for proof.
+            // If we are skimming, then we defer the check to `_repayAfter()`,
+            // which checks that the full amount (`totalShare`) has been sent.
+            if (!skimShortage) {
+                bentoBox.transfer(asset, msg.sender, address(this), totalShare - priceShare);
+            }
+        } else if (priceShare > totalShare) {
+            bentoBox.transfer(asset, address(this), excessRecipient, priceShare - totalShare);
+        }
+        _repayAfter(lender, totalShare, feeShare, tokenId, true);
+    }
+
+    /// @notice Withdraws the fees accumulated.
+    function withdrawFees() public {
+        address to = masterContract.feeTo();
+
+        uint256 _share = feesEarnedShare;
+        if (_share > 0) {
+            bentoBox.transfer(asset, address(this), to, _share);
+            feesEarnedShare = 0;
+        }
+
+        emit LogWithdrawFees(to, _share);
+    }
+
+    /// @notice Sets the beneficiary of fees accrued in liquidations.
+    /// MasterContract Only Admin function.
+    /// @param newFeeTo The address of the receiver.
+    function setFeeTo(address newFeeTo) public onlyOwner {
+        feeTo = newFeeTo;
+        emit LogFeeTo(newFeeTo);
+    }
+
+    //// Cook actions
+
+    // Information only
+    uint8 internal constant ACTION_GET_AMOUNT_DUE = 1;
+    uint8 internal constant ACTION_GET_SHARES_DUE = 2;
+
+    // End up owing collateral
+    uint8 internal constant ACTION_REPAY = 3;
     uint8 internal constant ACTION_REMOVE_COLLATERAL = 4;
 
     uint8 internal constant ACTION_REQUEST_LOAN = 12;
@@ -625,23 +794,54 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         return (returnData, returnValues);
     }
 
-    /// @notice Executes a set of actions and allows composability (contract calls) to other contracts.
-    /// @param actions An array with a sequence of actions to execute (see ACTION_ declarations).
-    /// @param values A one-to-one mapped array to `actions`. ETH amounts to send along with the actions.
-    /// Only applicable to `ACTION_CALL`, `ACTION_BENTO_DEPOSIT`.
-    /// @param datas A one-to-one mapped array to `actions`. Contains abi encoded data of function arguments.
-    /// @return value1 May contain the first positioned return value of the last executed action (if applicable).
-    /// @return value2 May contain the second positioned return value of the last executed action which returns 2 values (if applicable).
-    function cook(
+    // (For the cook action)
+    function _getAmountDue(uint256 tokenId) private view returns (uint256) {
+        TokenLoanParams memory params = tokenLoanParams[tokenId];
+        // No underflow: startTime is always set to some block timestamp
+        uint256 principal = params.valuation;
+        uint256 interest = calculateInterest(principal, uint64(block.timestamp - tokenLoan[tokenId].startTime), params.annualInterestBPS);
+        // No overflow: both terms are 128 bits
+        return principal + interest;
+    }
+
+    function _cook(
         uint8[] calldata actions,
         uint256[] calldata values,
-        bytes[] calldata datas
-    ) external payable returns (uint256 value1, uint256 value2) {
-        for (uint256 i = 0; i < actions.length; i++) {
+        bytes[] calldata datas,
+        uint256 i,
+        uint256[2] memory result
+    ) private {
+        for (; i < actions.length; i++) {
             uint8 action = actions[i];
-            if (action == ACTION_REPAY) {
-                (uint256 tokenId, bool skim) = abi.decode(datas[i], (uint256, bool));
-                repay(tokenId, skim);
+            if (action == ACTION_GET_AMOUNT_DUE) {
+                uint256 tokenId = abi.decode(datas[i], (uint256));
+                result[0] = _getAmountDue(tokenId);
+            } else if (action == ACTION_GET_SHARES_DUE) {
+                uint256 tokenId = abi.decode(datas[i], (uint256));
+                result[1] = _getAmountDue(tokenId);
+                result[0] = bentoBox.toShare(asset, result[1], false);
+            } else if (action == ACTION_REPAY) {
+                uint256 tokenId;
+                uint256 totalShare;
+                uint256 feeShare;
+                address lender;
+                bool skim;
+                {
+                    address to;
+                    // No skimming, but it can sill be done
+                    (tokenId, to, skim) = abi.decode(datas[i], (uint256, address, bool));
+                    (totalShare, result[1], feeShare, lender) = _repayBefore(tokenId, to);
+                    // Delaying asset collection until after the rest of the
+                    // cook is safe: after checking..  - `feesEarnedShare` is
+                    // updated after the check - The rest (`totalShare -
+                    // feeShare`) is transferred away It is therefore not
+                    // possible to skim the same amount twice.
+                    // (Reusing `i` slot for stack depth reasons)
+                }
+                result[0] = totalShare;
+                _cook(actions, values, datas, ++i, result);
+                _repayAfter(lender, totalShare, feeShare, tokenId, skim);
+                return;
             } else if (action == ACTION_REMOVE_COLLATERAL) {
                 (uint256 tokenId, address to) = abi.decode(datas[i], (uint256, address));
                 removeCollateral(tokenId, to);
@@ -661,71 +861,77 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
                 );
                 bentoBox.setMasterContractApproval(user, _masterContract, approved, v, r, s);
             } else if (action == ACTION_BENTO_DEPOSIT) {
-                (value1, value2) = _bentoDeposit(datas[i], values[i], value1, value2);
+                (result[0], result[1]) = _bentoDeposit(datas[i], values[i], result[0], result[1]);
             } else if (action == ACTION_BENTO_WITHDRAW) {
-                (value1, value2) = _bentoWithdraw(datas[i], value1, value2);
+                (result[0], result[1]) = _bentoWithdraw(datas[i], result[0], result[1]);
             } else if (action == ACTION_BENTO_TRANSFER) {
                 (IERC20 token, address to, int256 share) = abi.decode(datas[i], (IERC20, address, int256));
-                bentoBox.transfer(token, msg.sender, to, _num(share, value1, value2));
+                bentoBox.transfer(token, msg.sender, to, _num(share, result[0], result[1]));
             } else if (action == ACTION_BENTO_TRANSFER_MULTIPLE) {
                 (IERC20 token, address[] memory tos, uint256[] memory shares) = abi.decode(datas[i], (IERC20, address[], uint256[]));
                 bentoBox.transferMultiple(token, msg.sender, tos, shares);
             } else if (action == ACTION_CALL) {
-                (bytes memory returnData, uint8 returnValues) = _call(values[i], datas[i], value1, value2);
+                (bytes memory returnData, uint8 returnValues) = _call(values[i], datas[i], result[0], result[1]);
 
                 if (returnValues == 1) {
-                    (value1) = abi.decode(returnData, (uint256));
+                    (result[0]) = abi.decode(returnData, (uint256));
                 } else if (returnValues == 2) {
-                    (value1, value2) = abi.decode(returnData, (uint256, uint256));
+                    (result[0], result[1]) = abi.decode(returnData, (uint256, uint256));
                 }
             } else if (action == ACTION_REQUEST_AND_BORROW) {
-                (
-                    uint256 tokenId,
-                    address lender,
-                    address recipient,
-                    TokenLoanParams memory params,
-                    bool skimCollateral,
-                    bool anyTokenId,
-                    uint256 deadline,
-                    uint8 v,
-                    bytes32 r,
-                    bytes32 s
-                ) = abi.decode(datas[i], (uint256, address, address, TokenLoanParams, bool, bool, uint256, uint8, bytes32, bytes32));
-                requestAndBorrow(tokenId, lender, recipient, params, skimCollateral, anyTokenId, deadline, v, r, s);
+                bool skimCollateral;
+                uint256 tokenId;
+                {
+                    address lender;
+                    address borrower;
+                    TokenLoanParams memory params;
+                    bool anyTokenId;
+                    SignatureParams memory signature;
+                    (tokenId, lender, borrower, params, skimCollateral, anyTokenId, signature) = abi.decode(
+                        datas[i],
+                        (uint256, address, address, TokenLoanParams, bool, bool, SignatureParams)
+                    );
+                    _requireSignedLendParams(lender, tokenId, params, anyTokenId, signature);
+                    _lend(lender, borrower, borrower, tokenId, params.valuation, false);
+                }
+                _cook(actions, values, datas, ++i, result);
+                // Skimming is safe:
+                // - This call both requires loan state to be LOAN_INITIAL and
+                //   sets it to something else. Every other use of
+                //   `_requireCollateral()` must uphold that same requirement;
+                //   see to it.
+                // Delaying until after the rest of the cook is safe:
+                // - If the rest of the cook _also_ takes this collateral
+                //   somehow -- either via skimming, or via just having it
+                //   transfered in -- then it did so by opening a loan. But
+                //   that is only possible if this one (that we are collecting
+                //   the collateral for) got repaid in the mean time, which is
+                //   a silly thing to do, but otherwise legitimate and not an
+                //   exploit.
+                _requireCollateral(msg.sender, tokenId, skimCollateral);
+                return;
             } else if (action == ACTION_TAKE_COLLATERAL_AND_LEND) {
-                (
-                    uint256 tokenId,
-                    address borrower,
-                    TokenLoanParams memory params,
-                    bool skimFunds,
-                    uint256 deadline,
-                    uint8 v,
-                    bytes32 r,
-                    bytes32 s
-                ) = abi.decode(datas[i], (uint256, address, TokenLoanParams, bool, uint256, uint8, bytes32, bytes32));
-                takeCollateralAndLend(tokenId, borrower, params, skimFunds, deadline, v, r, s);
+                (uint256 tokenId, address borrower, TokenLoanParams memory params, bool skimFunds, SignatureParams memory signature) = abi
+                    .decode(datas[i], (uint256, address, TokenLoanParams, bool, SignatureParams));
+                takeCollateralAndLend(tokenId, borrower, params, skimFunds, signature);
             }
         }
     }
 
-    /// @notice Withdraws the fees accumulated.
-    function withdrawFees() public {
-        address to = masterContract.feeTo();
-
-        uint256 _share = feesEarnedShare;
-        if (_share > 0) {
-            bentoBox.transfer(asset, address(this), to, _share);
-            feesEarnedShare = 0;
-        }
-
-        emit LogWithdrawFees(to, _share);
-    }
-
-    /// @notice Sets the beneficiary of fees accrued in liquidations.
-    /// MasterContract Only Admin function.
-    /// @param newFeeTo The address of the receiver.
-    function setFeeTo(address newFeeTo) public onlyOwner {
-        feeTo = newFeeTo;
-        emit LogFeeTo(newFeeTo);
+    /// @notice Executes a set of actions and allows composability (contract calls) to other contracts.
+    /// @param actions An array with a sequence of actions to execute (see ACTION_ declarations).
+    /// @param values A one-to-one mapped array to `actions`. ETH amounts to send along with the actions.
+    /// Only applicable to `ACTION_CALL`, `ACTION_BENTO_DEPOSIT`.
+    /// @param datas A one-to-one mapped array to `actions`. Contains abi encoded data of function arguments.
+    /// @return value1 May contain the first positioned return value of the last executed action (if applicable).
+    /// @return value2 May contain the second positioned return value of the last executed action which returns 2 values (if applicable).
+    function cook(
+        uint8[] calldata actions,
+        uint256[] calldata values,
+        bytes[] calldata datas
+    ) external payable returns (uint256 value1, uint256 value2) {
+        uint256[2] memory result;
+        _cook(actions, values, datas, 0, result);
+        return (result[0], result[1]);
     }
 }
