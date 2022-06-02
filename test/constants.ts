@@ -62,12 +62,14 @@ export const Constants = {
     usdc: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
     usdce: "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664",
     wavax: "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7",
+    savax: "0x2b2c81e08f1af8835a78bb2a90ae924ace0ea4be",
     chainlink: {
       savax: "0x2854Ca10a54800e15A2a25cFa52567166434Ff0a",
       wavax: "0x0a77230d17318075983913bc2145db16c7366156",
     },
     traderjoe: {
       savaxWavax: "0x4b946c91C2B1a7d7C40FB3C130CdfBaf8389094d",
+      router: "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"
     },
     platypus: {
       router: "0x73256EC7575D999C360c1EeC118ECbEFd8DA7D12",
@@ -78,6 +80,9 @@ export const Constants = {
       usdcPool: "0x1205f31718499dBf1fCa446663B532Ef87481fe1",
       usdtPool: "0x29e38769f23701A2e4A8Ef0492e19dA4604Be62c",
     },
+    aggregators: {
+      zeroXExchangProxy: "0xDef1C0ded9bec7F1a1670819833240f027b25EfF"
+    }
   },
 
   fantom: {

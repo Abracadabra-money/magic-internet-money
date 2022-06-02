@@ -7,13 +7,16 @@ import { getNamedAccounts, network } from "hardhat";
 // List of supported chains to deploy on
 export const ParametersPerChain = {
   [ChainId.Avalanche]: {
-    cauldronDeploymentName: "PopsicleTraderJoeSAVAXWAVAXCauldron",
+    cauldronDeploymentName: "PopsicleJoeSavaxWavaxCauldron",
     degenBox: Constants.avalanche.limone,
     cauldronV3MasterContract: Constants.avalanche.cauldronV31_Limone,
     collateral: Constants.avalanche.traderjoe.savaxWavax,
     oracleData: "0x0000000000000000000000000000000000000000",
-    swapperName: "JoeSavaxWavaxSwapper",
-    levSwapperName: "JoeSavaxWavaxLevSwapper",
+    swapperName: "JoeSavaxWavaxSwapperV1",
+    levSwapperName: "JoeSavaxWavaxLevSwapperV1",
+    joeRouter: Constants.avalanche.traderjoe.router,
+    mim: Constants.avalanche.mim,
+    zeroXExchangeProxy: Constants.avalanche.aggregators.zeroXExchangProxy,
   },
 };
 
@@ -29,6 +32,14 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     Constants.avalanche.chainlink.savax,
     Constants.avalanche.chainlink.wavax
   );
+
+  const swapperArgs = [
+    parameters.degenBox,
+    parameters.joeRouter,
+    parameters.collateral,
+    parameters.mim,
+    parameters.zeroXExchangeProxy
+  ];
 
   await deployCauldron(
     parameters.cauldronDeploymentName,
@@ -46,16 +57,18 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   // Liquidation Swapper
   await wrappedDeploy(parameters.swapperName, {
     from: deployer,
-    args: [parameters.degenBox],
+    args: swapperArgs,
     log: true,
+    contract: "ZeroXUniswapLikeLPSwapper",
     deterministicDeployment: false,
   });
 
   // Leverage Swapper
   await wrappedDeploy(parameters.levSwapperName, {
     from: deployer,
-    args: [parameters.degenBox],
+    args: swapperArgs,
     log: true,
+    contract: "ZeroXUniswapLikeLPLevSwapper",
     deterministicDeployment: false,
   });
 
@@ -71,4 +84,4 @@ export default deployFunction;
 setDeploymentSupportedChains(Object.keys(ParametersPerChain), deployFunction);
 
 deployFunction.tags = ["PopsicleJoeSavaxWavaxCauldron"];
-deployFunction.dependencies = ["CauldronV3_1MC"];
+deployFunction.dependencies = [];
