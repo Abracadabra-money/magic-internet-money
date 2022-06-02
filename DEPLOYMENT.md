@@ -206,6 +206,7 @@
 | Contract             | Address                                    | Note                                                             |
 | -------------------- | ------------------------------------------ | ---------------------------------------------------------------- |
 | MultichainWithdrawer | 0x2b95bf93B5873c8cB9aE3374e3054736A5b79676 | Withdraw MIM fees from cauldron and bridge to EthereumWithdrawer |
+| SwapperTester        | 0x526a17c623809792c033c9816Ae9a6fA80aCDfdd |
 
 ## Boba Network
 
