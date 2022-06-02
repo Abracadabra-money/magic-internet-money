@@ -9,8 +9,8 @@ import { ParametersPerChain } from "../deploy/PopsicleJoeSavaxWavaxCauldron";
 import { Constants } from "./constants";
 
 // Top holders at the given fork block
-const MIM_WHALE = "0xF5BCE5077908a1b7370B9ae04AdC565EBd643966";
-const FORKBLOCK = 15210511;
+const MIM_WHALE = "0x78a9e536EBdA08b5b9EDbE5785C9D1D50fA3278C";
+const FORKBLOCK = 15245643;
 
 // In order:
 // 0: name
@@ -20,10 +20,10 @@ const FORKBLOCK = 15210511;
 const cases = [
   [
     "TraderJoe sAVAX/wAVAX",
-    "PopsicleSpiritiswapfUSDTUSDCCauldron",
+    "PopsicleJoeSavaxWavaxCauldron",
     "0x188bED1968b795d5c9022F6a0bb5931Ac4c18F00",
-    "492721",
-    ParametersPerChain[ChainId.Fantom],
+    "21500542291329291",
+    ParametersPerChain[ChainId.Avalanche],
   ],
 ];
 
@@ -47,20 +47,27 @@ forEach(cases).describe("%s Cauldron", async (_name, deploymentName, collateralW
       params: [
         {
           forking: {
-            jsonRpcUrl: "https://rpc.ankr.com/fantom",
+            jsonRpcUrl: `https://api.avax.network/ext/bc/C/rpc`,
             blockNumber: FORKBLOCK,
           },
         },
       ],
     });
 
-    hre.getChainId = () => Promise.resolve(ChainId.Fantom.toString());
+    hre.getChainId = () => Promise.resolve(ChainId.Avalanche.toString());
     await deployments.fixture([deploymentName]);
     const { deployer } = await getNamedAccounts();
     deployerSigner = await ethers.getSigner(deployer);
 
     Cauldron = await ethers.getContractAt<CauldronV3>("CauldronV3", (await ethers.getContract(parameters.cauldronDeploymentName)).address);
-    ProxyOracle = await ethers.getContractAt<ProxyOracle>("ProxyOracle", "0xe56F37Ef2e54ECaA41a9675da1c3445736d60B42");
+
+    ProxyOracle = await ethers.getContractAt<ProxyOracle>("ProxyOracle", await Cauldron.oracle());
+    const spot = await ProxyOracle.peekSpot("0x");
+    tokenPrice = 1 / parseFloat(ethers.utils.formatEther(spot));
+    console.log(`1 lp = $${tokenPrice.toLocaleString()} usd`);
+    console.log("spot: ", spot.toString());
+    expect(spot).to.be.eq(oracleExpectedPrice);
+
     DegenBox = await ethers.getContractAt<DegenBox>("DegenBox", parameters.degenBox);
     MIM = await ethers.getContractAt<ERC20Mock>("ERC20Mock", Constants.fantom.mim);
     Collateral = await ethers.getContractAt<ERC20Mock>("ERC20Mock", Constants.fantom.spiritswap.fUSDTUSDC);
@@ -82,12 +89,6 @@ forEach(cases).describe("%s Cauldron", async (_name, deploymentName, collateralW
     mimShare = await DegenBox.toShare(MIM.address, getBigNumber(5_000_000), true);
     await MIM.connect(mimWhaleSigner).approve(DegenBox.address, ethers.constants.MaxUint256);
     await DegenBox.connect(mimWhaleSigner).deposit(MIM.address, MIM_WHALE, LevSwapper.address, 0, mimShare);
-
-    const spot = await ProxyOracle.peekSpot("0x");
-    tokenPrice = 1 / parseFloat(ethers.utils.formatEther(spot));
-    console.log(`1 lp = $${tokenPrice.toLocaleString()} usd`);
-    console.log("spot: ", spot.toString());
-    expect(spot).to.be.eq(oracleExpectedPrice);
 
     snapshotId = await ethers.provider.send("evm_snapshot", []);
   });

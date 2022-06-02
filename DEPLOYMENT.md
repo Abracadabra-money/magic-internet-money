@@ -243,10 +243,11 @@
 
 # Popsicle
 
-| Contract                     | Address                                    | Note |
-| ---------------------------- | ------------------------------------------ | ---- |
-| Popsicle Degenbox            | 0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4 |      |
-| PopsicleCauldronV2MultiChain | 0xfe0f13fD5f928539C5bc377c8200a699FC95Ca02 |      |
+| Contract                        | Address                                    | Note          |
+| ------------------------------- | ------------------------------------------ | ------------- |
+| Popsicle Degenbox (Limone)      | 0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4 |               |
+| PopsicleCauldronV2MultiChain    | 0xfe0f13fD5f928539C5bc377c8200a699FC95Ca02 |               |
+| CauldronV3_1MC_Limone_Avalanche | 0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75 | Cauldron V3.1 |
 
 ### Popsicle Cauldrons
 

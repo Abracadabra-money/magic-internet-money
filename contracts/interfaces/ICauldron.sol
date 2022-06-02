@@ -41,5 +41,13 @@ interface ICauldron {
         address swapper
     ) external;
 
+    function liquidate(
+        address[] calldata users,
+        uint256[] calldata maxBorrowParts,
+        address to,
+        address swapper,
+        bytes calldata swapperData
+    ) external;
+
     function exchangeRate() external view returns (uint256);
 }

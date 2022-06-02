@@ -7,6 +7,7 @@ export const Constants = {
     cauldronV3Whitelisted: "0xe0d2007F6F2A71B90143D6667257d95643183F2b",
     degenBox: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
     multiSig: "0x5f0DeE98360d8200b20812e174d139A1a633EDd2",
+    dai: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     mim: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
     spell: "0x090185f2135308BaD17527004364eBcC2D37e5F6",
     ust: "0xa47c8bf37f92aBed4A126BDA807A7b7498661acD",
@@ -22,7 +23,11 @@ export const Constants = {
       mim3Crv: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
     },
     yearn: {
-      yvSTETHc: "0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E"
+      yvSTETHc: "0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E",
+    },
+    aggregators: {
+      oneInchV4Router: "0x1111111254fb6c44bac0bed2854e76f90643097d",
+      zeroXExchangProxy: "0xDef1C0ded9bec7F1a1670819833240f027b25EfF"
     }
   },
 
@@ -45,8 +50,10 @@ export const Constants = {
 
   avalanche: {
     cauldronV3: "0x177a24B427876F61983CCe0dD37608611e7de3f7",
+    cauldronV31_Limone: "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75",
     whitelistedCauldronV3: "0xE8681a8C8d8E24b65526C2f94Fd5eF9D3ec18726",
     degenBox: "0x1fC83f75499b7620d53757f0b01E2ae626aAE530",
+    limone: "0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4",
     mim: "0x130966628846BFd36ff31a822705796e8cb8C18D",
     spell: "0xCE1bFFBD5374Dac86a2893119683F4911a2F7814",
     ust: "0xb599c3590F42f8F995ECfa0f85D2980B76862fc1",
@@ -57,7 +64,7 @@ export const Constants = {
     wavax: "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7",
     chainlink: {
       savax: "0x2854Ca10a54800e15A2a25cFa52567166434Ff0a",
-      wavax: "0x0a77230d17318075983913bc2145db16c7366156"
+      wavax: "0x0a77230d17318075983913bc2145db16c7366156",
     },
     traderjoe: {
       savaxWavax: "0x4b946c91C2B1a7d7C40FB3C130CdfBaf8389094d",
@@ -74,22 +81,22 @@ export const Constants = {
   },
 
   fantom: {
-    cauldronV3: "0xAcdd6e28b7440fe17EeFD927337480DD1Ea7A97b",
+    cauldronV3Limone: "0xAcdd6e28b7440fe17EeFD927337480DD1Ea7A97b",
     limone: "0xc7a161Cfd0e133d289B13692b636B8e8B5CD8d8c",
     mim: "0x82f0B8B456c1A451378467398982d4834b6829c1",
     wftm: "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83",
     usdc: "0x04068DA6C83AFCFA0e13ba15A6696662335D5B75",
     fusdt: "0x049d68029688eAbF473097a2fC38ef61633A3C7A",
     curve: {
-      mim3poolv2: "0x2dd7C9371965472E5A5fD28fbE165007c61439E1"
+      mim3poolv2: "0x2dd7C9371965472E5A5fD28fbE165007c61439E1",
     },
     spiritswap: {
       router: "0x16327E3FbDaCA3bcF7E38F5Af2599D2DDc33aE52",
-      fUSDTUSDC: "0xe7F86CEf8FEf60ce5050899D1F8e465C00D04a79"
+      fUSDTUSDC: "0xe7F86CEf8FEf60ce5050899D1F8e465C00D04a79",
     },
     chainlink: {
       usdt: "0xF64b636c5dFe1d3555A847341cDC449f612307d0",
       usdc: "0x2553f4eeb82d5A26427b8d1106C51499CBa5D99c",
-    }
-  }
+    },
+  },
 };

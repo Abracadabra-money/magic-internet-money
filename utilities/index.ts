@@ -129,6 +129,8 @@ export async function deployCauldron<T extends Contract>(
   } catch {}
 
   console.table({
+    ChainId: await hre.getChainId(),
+    BentoBox: degenBox,
     MasterContract: masterContract,
     Collateral: collateral,
     LTV: `${ltv}%`,
@@ -157,7 +159,7 @@ export async function deployCauldron<T extends Contract>(
 
   const deployEvent = tx?.events?.[0];
   if (deployEvent?.eventSignature !== "LogDeploy(address,bytes,address)") {
-    throw new Error("Error while deploying cauldron, unexpected eventSignature returned");
+    throw new Error(`Error while deploying cauldron, unexpected eventSignature returned: ${deployEvent?.eventSignature}`);
   }
 
   const address = deployEvent?.args?.cloneAddress;

@@ -47,7 +47,7 @@ contract TokenOracle is IAggregator {
         (, int256 tokenUSDFeed, , , ) = tokenUSD.latestRoundData();
         (, int256 denominatorUSDFeed, , , ) = denominatorUSD.latestRoundData();
         
-        if(tokenUSDFeed > 0 || denominatorUSDFeed < 0) {
+        if(tokenUSDFeed < 0 || denominatorUSDFeed < 0) {
             revert NegativePriceFeed();
         }
 
