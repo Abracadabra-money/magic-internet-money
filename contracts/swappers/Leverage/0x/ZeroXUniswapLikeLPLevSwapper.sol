@@ -11,7 +11,8 @@ import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Router01.sol";
 import "../../../interfaces/IBentoBoxV1Minimal.sol";
 import "../../../interfaces/ILevSwapperV2.sol";
 
-contract UniswapLikeLevSwapper is ILevSwapperV2 {
+/// @notice Generic LP leverage swapper for Uniswap like compatible DEX using Matcha/0x aggregator
+contract ZeroXUniswapLikeLPLevSwapper is ILevSwapperV2 {
     using SafeTransferLib for ERC20;
 
     error ErrToken0SwapFailed();
@@ -46,15 +47,18 @@ contract UniswapLikeLevSwapper is ILevSwapperV2 {
 
         _token0.safeApprove(address(_router), type(uint256).max);
         _token1.safeApprove(address(_router), type(uint256).max);
-        _mim.safeApprove(_zeroXExchangeProxy, type(uint256).max);
+        _mim.approve(_zeroXExchangeProxy, type(uint256).max);
     }
 
+    /// @inheritdoc ILevSwapperV2
     function swap(
         address recipient,
         uint256 shareToMin,
         uint256 shareFrom,
         bytes calldata data
     ) external override returns (uint256 extraShare, uint256 shareReturned) {
+        // 0: MIM -> token0
+        // 1: MIM -> token1
         bytes[] memory swapData = abi.decode(data, (bytes[]));
 
         bentoBox.withdraw(address(mim), address(this), address(this), 0, shareFrom);
