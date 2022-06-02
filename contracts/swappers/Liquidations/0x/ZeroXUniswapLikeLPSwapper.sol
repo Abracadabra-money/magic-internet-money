@@ -11,6 +11,7 @@ import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Router01.sol";
 import "../../../interfaces/IBentoBoxV1Minimal.sol";
 import "../../../interfaces/ISwapperV2.sol";
 
+/// @notice Generic LP liquidation/deleverage swapper for Uniswap like compatible DEX using Matcha/0x aggregator
 contract ZeroXUniswapLikeLPSwapper is ISwapperV2 {
     using SafeTransferLib for ERC20;
 
