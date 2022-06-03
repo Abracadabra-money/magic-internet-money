@@ -5,26 +5,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 import "@rari-capital/solmate/src/tokens/ERC20.sol";
 import "../interfaces/IBentoBoxV1Minimal.sol";
+import "../interfaces/ISwapperV2.sol";
+import "../interfaces/ILevSwapperV2.sol";
 
-interface ISwapper {
-    function swap(
-        address fromToken,
-        address toToken,
-        address recipient,
-        uint256 shareToMin,
-        uint256 shareFrom
-    ) external returns (uint256 extraShare, uint256 shareReturned);
-}
-
-interface ILevSwapper {
-    function swap(
-        address recipient,
-        uint256 shareToMin,
-        uint256 shareFrom
-    ) external returns (uint256 extraShare, uint256 shareReturned);
-}
-
-contract SwapperTester is Ownable {
+contract SwapperTesterV2 is Ownable {
     using SafeTransferLib for ERC20;
 
     address public mim;
@@ -38,13 +22,14 @@ contract SwapperTester is Ownable {
         address swapper,
         address collateral,
         uint256 amount,
-        uint256 shareToMin
+        uint256 shareToMin,
+        bytes calldata data
     ) external onlyOwner {
         ERC20(collateral).transferFrom(msg.sender, address(degenBox), amount);
         IBentoBoxV1Minimal(degenBox).deposit(collateral, degenBox, swapper, amount, 0);
 
         uint256 shareFrom = IBentoBoxV1Minimal(degenBox).toShare(collateral, amount, false);
-        ISwapper(swapper).swap(address(0), address(0), address(this), shareToMin, shareFrom);
+        ISwapperV2(swapper).swap(address(0), address(0), address(this), shareToMin, shareFrom, data);
 
         uint256 mimShare = IBentoBoxV1Minimal(degenBox).balanceOf(mim, address(this));
         IBentoBoxV1Minimal(degenBox).withdraw(mim, address(this), msg.sender, 0, mimShare);
@@ -55,13 +40,14 @@ contract SwapperTester is Ownable {
         address swapper,
         address collateral,
         uint256 amount,
-        uint256 shareToMin
+        uint256 shareToMin,
+        bytes calldata data
     ) external onlyOwner {
         ERC20(mim).transferFrom(msg.sender, address(degenBox), amount);
         IBentoBoxV1Minimal(degenBox).deposit(mim, degenBox, swapper, amount, 0);
 
         uint256 shareFrom = IBentoBoxV1Minimal(degenBox).toShare(mim, amount, false);
-        ILevSwapper(swapper).swap(address(this), shareToMin, shareFrom);
+        ILevSwapperV2(swapper).swap(address(this), shareToMin, shareFrom, data);
 
         uint256 collateralShare = IBentoBoxV1Minimal(degenBox).balanceOf(collateral, address(this));
         IBentoBoxV1Minimal(degenBox).withdraw(collateral, address(this), msg.sender, 0, collateralShare);

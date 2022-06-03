@@ -7,11 +7,11 @@ import { getNamedAccounts, network } from "hardhat";
 // List of supported chains to deploy on
 export const ParametersPerChain = {
   [ChainId.Avalanche]: {
-    cauldronDeploymentName: "MainnetSwapperTester",
+    cauldronDeploymentName: "MainnetSwapperTesterV2",
     mim: Constants.mainnet.mim
   },
   [ChainId.Avalanche]: {
-    cauldronDeploymentName: "AvalancheSwapperTester",
+    cauldronDeploymentName: "AvalancheSwapperTesterV2",
     mim: Constants.avalanche.mim
   },
 };
@@ -25,7 +25,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     from: deployer,
     args: [parameters.mim],
     log: true,
-    contract: "SwapperTester",
+    contract: "SwapperTesterV2",
     deterministicDeployment: false,
   });
 };
@@ -34,5 +34,5 @@ export default deployFunction;
 
 setDeploymentSupportedChains(Object.keys(ParametersPerChain), deployFunction);
 
-deployFunction.tags = ["SwapperTester"];
+deployFunction.tags = ["SwapperTesterV2"];
 deployFunction.dependencies = [];
