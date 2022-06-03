@@ -224,17 +224,18 @@
 
 # Popsicle
 
-| Contract                     | Address                                    | Note |
-| ---------------------------- | ------------------------------------------ | ---- |
-| Popsicle Degenbox            | 0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4 |      |
-| PopsicleCauldronV2MultiChain | 0xfe0f13fD5f928539C5bc377c8200a699FC95Ca02 |      |
+| Contract                      | Address                                    | Note           |
+| ----------------------------- | ------------------------------------------ | -------------- |
+| Popsicle Degenbox             | 0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4 |                |
+| PopsicleCauldronV2MultiChain  | 0xfe0f13fD5f928539C5bc377c8200a699FC95Ca02 |                |
+| CauldronV3MC_Limone_Avalanche | 0xf24F4cf3E272eF412D0d4764909141B39CC878CF | Cauldron V3 MC |
 
 ### Popsicle Cauldrons
 
 | Contract                     | Address                                    | Note                                                                        |
 | ---------------------------- | ------------------------------------------ | --------------------------------------------------------------------------- |
 | **USDC.e/WAVAX**             |                                            |                                                                             |
-| PopsicleUsdcAvaxCauldron     | 0x72e8C2f0c4dba61bd83A6FFA0A5871165904aeEf | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest, Using CauldronV3 |
+| PopsicleUsdcAvaxCauldron     | 0x3Cf232F346934B949b99797d225Bb72734731990 | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest, Using CauldronV3 |
 | Oracle                       | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 | reusing existing Joe USDC/WAVAX jLP oracle                                  |
 | PopsicleUsdcAvaxSwapperV3    | 0x0B76afC2E52f84E04Ee3fb1961277783Fb804750 | Liquidation Swapper using Platypus                                          |
 | PopsicleUsdcAvaxLevSwapperV2 | 0x7d76568d84de8A0F34BBf315F53d7772c1fABcD8 | Leverage Swapper using Platypus                                             |

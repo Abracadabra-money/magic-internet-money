@@ -10,7 +10,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
  export const ParametersPerChain = {
    [ChainId.Avalanche]: {
      degenBox: "0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4",
-     CauldronV3: "0x177a24B427876F61983CCe0dD37608611e7de3f7",
+     CauldronV3MC: "0xf24F4cf3E272eF412D0d4764909141B39CC878CF",
      collateral: "0xA389f9430876455C36478DeEa9769B7Ca4E3DDB1", // USDC.e/WAVAX jLP
      oracle: "0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85", // reusing existing Joe USDC/WAVAX jLP oracle
      oracleData: "0x0000000000000000000000000000000000000000"
@@ -42,13 +42,13 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
      [parameters.collateral, ProxyOracle.address, parameters.oracleData, interest, liquidationFee, maximumCollateralRatio, borrowFee]
    );
    
-   const tx = await (await DegenBox.deploy(parameters.CauldronV3, initData, true)).wait();
+   const tx = await (await DegenBox.deploy(parameters.CauldronV3MC, initData, true)).wait();
 
    const deployEvent = tx?.events?.[0];
    expect(deployEvent?.eventSignature).to.be.eq("LogDeploy(address,bytes,address)");
  
    // Register the deployment so it's available within the test using `getContract`
-   deployments.save("PopsicleUsdcAvaxCauldronV2", {
+   deployments.save("PopsicleUsdcAvaxCauldron", {
      abi: require("../abi/CauldronV3.json"),
      address: deployEvent?.args?.cloneAddress,
    });
