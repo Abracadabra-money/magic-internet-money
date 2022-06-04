@@ -206,7 +206,6 @@
 | Contract             | Address                                    | Note                                                             |
 | -------------------- | ------------------------------------------ | ---------------------------------------------------------------- |
 | MultichainWithdrawer | 0x2b95bf93B5873c8cB9aE3374e3054736A5b79676 | Withdraw MIM fees from cauldron and bridge to EthereumWithdrawer |
-| SwapperTester        | 0x526a17c623809792c033c9816Ae9a6fA80aCDfdd |
 
 ## Boba Network
 
@@ -263,4 +262,4 @@
 | PopsicleJoeSavaxWavaxCauldron... | 0x562Db5B5E95961760806A0435aa292c34919eC47 | 75% LTV, 12.5% liquidation fee, 1% borrow fee, 1% Interest |
 | TraderJoeSAVAXWAVAXProxyOracle   | 0x0CC93802f800cCee67914c3072e80d23e920a3e2 | Inverted LP price of 1 sAVAX/wAVAX LP                      |
 | JoeSavaxWavaxSwapperV1           | 0x1B77fDaBAa7FefD55f4aC075B6E817b8d773315b | Using 0x aggregator                                        |
-| JoeSavaxWavaxLevSwapperV1        | 0x0d62F99AC1Fd8B9aA51762a207e9E92Fe353C4F7 | Using 0x aggregator                                        |
+| JoeSavaxWavaxLevSwapperV1        | TBD                                        | Using 0x aggregator                                        |
