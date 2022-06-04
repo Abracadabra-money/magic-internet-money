@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { ChainId, deployCauldron, deployLPOracle, setDeploymentSupportedChains, wrappedDeploy } from "../utilities";
+import { ChainId, deployCauldron, deployLPOracle, getBigNumber, setDeploymentSupportedChains, wrappedDeploy } from "../utilities";
 import { Constants, xMerlin } from "../test/constants";
 import { getNamedAccounts, network } from "hardhat";
 
@@ -25,7 +25,12 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     parameters.joeRouter,
     parameters.collateral,
     parameters.mim,
-    parameters.zeroXExchangeProxy
+    parameters.zeroXExchangeProxy,
+
+    // Minimum or 0.01 wAvax or sAvax remaining for one-siding the remaining
+    // after the initial addLiquidity
+    getBigNumber(1, 16).toString(),
+    getBigNumber(1, 16).toString()
   ];
 
   // Leverage Swapper

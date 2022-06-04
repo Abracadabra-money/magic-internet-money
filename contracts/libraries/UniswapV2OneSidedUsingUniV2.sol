@@ -21,6 +21,18 @@ library UniswapV2OneSidedUsingUniV2 {
         address recipient;
     }
 
+    struct AddLiquidityFromSingleTokenParams {
+        IUniswapV2Router01 router;
+        IUniswapV2Pair pair;
+        address token0;
+        address token1;
+        uint256 reserve0;
+        uint256 reserve1;
+        address tokenIn;
+        uint256 tokenInAmount;
+        address recipient;
+    }
+
     function _calculateSwapInAmount(uint256 reserveIn, uint256 userIn) internal pure returns (uint256) {
         return (Babylonian.sqrt(reserveIn * ((userIn * 3988000) + (reserveIn * 3988009))) - (reserveIn * 1997)) / 1994;
     }
@@ -70,7 +82,7 @@ library UniswapV2OneSidedUsingUniV2 {
         }
 
         if (oneSideTokenAmount > 0) {
-            (uint256 _idealAmount0, uint256 _idealAmount1, uint256 _liquidity) = addLiquidityFromSingleToken(
+            AddLiquidityFromSingleTokenParams memory _addLiquidityFromSingleTokenParams = AddLiquidityFromSingleTokenParams(
                 params.router,
                 params.pair,
                 params.token0,
@@ -78,26 +90,21 @@ library UniswapV2OneSidedUsingUniV2 {
                 params.reserve0,
                 params.reserve1,
                 oneSideTokenIn,
-                params.token1Amount,
+                oneSideTokenAmount,
                 params.recipient
             );
+
+            (uint256 _idealAmount0, uint256 _idealAmount1, uint256 _liquidity) = addLiquidityFromSingleToken(
+                _addLiquidityFromSingleTokenParams
+            );
+
             idealAmount0 += _idealAmount0;
             idealAmount1 += _idealAmount1;
             liquidity = _liquidity;
         }
     }
 
-    function addLiquidityFromSingleToken(
-        IUniswapV2Router01 router,
-        IUniswapV2Pair pair,
-        address token0,
-        address token1,
-        uint256 reserve0,
-        uint256 reserve1,
-        address tokenIn,
-        uint256 tokenInAmount,
-        address recipient
-    )
+    function addLiquidityFromSingleToken(AddLiquidityFromSingleTokenParams memory params)
         internal
         returns (
             uint256 amountA,
@@ -105,20 +112,40 @@ library UniswapV2OneSidedUsingUniV2 {
             uint256 liquidity
         )
     {
-        if (tokenIn == token0) {
-            uint256 tokenInSwapAmount = _calculateSwapInAmount(reserve0, tokenInAmount);
-            tokenInAmount -= tokenInSwapAmount;
-            uint256 sideTokenAmount = _getAmountOut(tokenInSwapAmount, reserve0, reserve1);
-            IERC20(tokenIn).transfer(address(pair), tokenInSwapAmount);
-            pair.swap(0, sideTokenAmount, address(this), "");
-            return router.addLiquidity(token0, token1, sideTokenAmount, sideTokenAmount, 0, 0, recipient, type(uint256).max);
+        if (params.tokenIn == params.token0) {
+            uint256 tokenInSwapAmount = _calculateSwapInAmount(params.reserve0, params.tokenInAmount);
+            params.tokenInAmount -= tokenInSwapAmount;
+            uint256 sideTokenAmount = _getAmountOut(tokenInSwapAmount, params.reserve0, params.reserve1);
+            IERC20(params.tokenIn).transfer(address(params.pair), tokenInSwapAmount);
+            params.pair.swap(0, sideTokenAmount, address(this), "");
+            return
+                params.router.addLiquidity(
+                    params.token0,
+                    params.token1,
+                    sideTokenAmount,
+                    sideTokenAmount,
+                    0,
+                    0,
+                    params.recipient,
+                    type(uint256).max
+                );
         } else {
-            uint256 tokenInSwapAmount = _calculateSwapInAmount(reserve1, tokenInAmount);
-            tokenInAmount -= tokenInSwapAmount;
-            uint256 sideTokenAmount = _getAmountOut(tokenInSwapAmount, reserve1, reserve0);
-            IERC20(tokenIn).transfer(address(pair), tokenInSwapAmount);
-            pair.swap(sideTokenAmount, 0, address(this), "");
-            return router.addLiquidity(token0, token1, sideTokenAmount, sideTokenAmount, 0, 0, recipient, type(uint256).max);
+            uint256 tokenInSwapAmount = _calculateSwapInAmount(params.reserve1, params.tokenInAmount);
+            params.tokenInAmount -= tokenInSwapAmount;
+            uint256 sideTokenAmount = _getAmountOut(tokenInSwapAmount, params.reserve1, params.reserve0);
+            IERC20(params.tokenIn).transfer(address(params.pair), tokenInSwapAmount);
+            params.pair.swap(sideTokenAmount, 0, address(this), "");
+            return
+                params.router.addLiquidity(
+                    params.token0,
+                    params.token1,
+                    sideTokenAmount,
+                    sideTokenAmount,
+                    0,
+                    0,
+                    params.recipient,
+                    type(uint256).max
+                );
         }
     }
 }
