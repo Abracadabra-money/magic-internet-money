@@ -12,6 +12,8 @@ import "../../../interfaces/IBentoBoxV1Minimal.sol";
 import "../../../interfaces/ILevSwapperV2.sol";
 import "../../../libraries/UniswapV2OneSidedUsingUniV2.sol";
 
+import "hardhat/console.sol";
+
 /// @notice Generic LP leverage swapper for Uniswap like compatible DEX using Matcha/0x aggregator
 contract ZeroXUniswapLikeLPLevSwapper is ILevSwapperV2 {
     using SafeTransferLib for ERC20;
@@ -28,27 +30,18 @@ contract ZeroXUniswapLikeLPLevSwapper is ILevSwapperV2 {
 
     address public immutable zeroXExchangeProxy;
 
-    /// @dev The minimum amount of amount0 and amount1 amounts to trigger adding extra liquidity
-    // from it using one-sided
-    uint256 public immutable minOneSideableAmount0;
-    uint256 public immutable minOneSideableAmount1;
-
     constructor(
         IBentoBoxV1Minimal _bentoBox,
         IUniswapV2Router01 _router,
         IUniswapV2Pair _pair,
         ERC20 _mim,
-        address _zeroXExchangeProxy,
-        uint256 _minOneSideableAmount0,
-        uint256 _minOneSideableAmount1
+        address _zeroXExchangeProxy
     ) {
         bentoBox = _bentoBox;
         router = _router;
         pair = _pair;
         mim = _mim;
         zeroXExchangeProxy = _zeroXExchangeProxy;
-        minOneSideableAmount0 = _minOneSideableAmount0;
-        minOneSideableAmount1 = _minOneSideableAmount1;
 
         ERC20 _token0 = ERC20(_pair.token0());
         ERC20 _token1 = ERC20(_pair.token1());
@@ -69,7 +62,10 @@ contract ZeroXUniswapLikeLPLevSwapper is ILevSwapperV2 {
     ) external override returns (uint256 extraShare, uint256 shareReturned) {
         // 0: MIM -> token0
         // 1: MIM -> token1
-        bytes[] memory swapData = abi.decode(data, (bytes[]));
+        (bytes[] memory swapData, uint256 minOneSideableAmount0, uint256 minOneSideableAmount1) = abi.decode(
+            data,
+            (bytes[], uint256, uint256)
+        );
 
         bentoBox.withdraw(address(mim), address(this), address(this), 0, shareFrom);
 

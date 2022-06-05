@@ -9,7 +9,7 @@ export const ParametersPerChain = {
   [ChainId.Avalanche]: {
     degenBox: Constants.avalanche.limone,
     collateral: Constants.avalanche.traderjoe.savaxWavax,
-    levSwapperName: "JoeSavaxWavaxLevSwapper",
+    levSwapperName: "JoeSavaxWavaxLevSwapperV1",
     joeRouter: Constants.avalanche.traderjoe.router,
     mim: Constants.avalanche.mim,
     zeroXExchangeProxy: Constants.avalanche.aggregators.zeroXExchangProxy,
@@ -25,12 +25,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     parameters.joeRouter,
     parameters.collateral,
     parameters.mim,
-    parameters.zeroXExchangeProxy,
-
-    // Minimum or 0.01 wAvax or sAvax remaining for one-siding the remaining
-    // after the initial addLiquidity
-    getBigNumber(1, 16).toString(),
-    getBigNumber(1, 16).toString()
+    parameters.zeroXExchangeProxy
   ];
 
   // Leverage Swapper

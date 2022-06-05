@@ -63,7 +63,7 @@ library UniswapV2OneSidedUsingUniV2 {
             params.token1Amount,
             0,
             0,
-            address(this),
+            params.recipient,
             type(uint256).max
         );
 
@@ -73,10 +73,10 @@ library UniswapV2OneSidedUsingUniV2 {
         address oneSideTokenIn;
         uint256 oneSideTokenAmount;
 
-        if (idealAmount0 >= params.minOneSideableAmount0) {
+        if (params.token0Amount >= params.minOneSideableAmount0) {
             oneSideTokenIn = params.token0;
             oneSideTokenAmount = params.token0Amount;
-        } else if (idealAmount1 >= params.minOneSideableAmount1) {
+        } else if (params.token1Amount > params.minOneSideableAmount1) {
             oneSideTokenIn = params.token1;
             oneSideTokenAmount = params.token1Amount;
         }
@@ -100,7 +100,7 @@ library UniswapV2OneSidedUsingUniV2 {
 
             idealAmount0 += _idealAmount0;
             idealAmount1 += _idealAmount1;
-            liquidity = _liquidity;
+            liquidity += _liquidity;
         }
     }
 
@@ -122,7 +122,7 @@ library UniswapV2OneSidedUsingUniV2 {
                 params.router.addLiquidity(
                     params.token0,
                     params.token1,
-                    sideTokenAmount,
+                    params.tokenInAmount,
                     sideTokenAmount,
                     0,
                     0,
@@ -135,12 +135,13 @@ library UniswapV2OneSidedUsingUniV2 {
             uint256 sideTokenAmount = _getAmountOut(tokenInSwapAmount, params.reserve1, params.reserve0);
             IERC20(params.tokenIn).transfer(address(params.pair), tokenInSwapAmount);
             params.pair.swap(sideTokenAmount, 0, address(this), "");
+
             return
                 params.router.addLiquidity(
                     params.token0,
                     params.token1,
                     sideTokenAmount,
-                    sideTokenAmount,
+                    params.tokenInAmount,
                     0,
                     0,
                     params.recipient,
