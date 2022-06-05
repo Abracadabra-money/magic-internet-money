@@ -238,7 +238,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
             require(to == loan.lender || msg.sender == loan.lender, "NFTPair: not the lender");
             require(
                 // Addition is safe: both summands are smaller than 256 bits
-                uint256(loan.startTime) + tokenLoanParams[tokenId].duration <= block.timestamp,
+                uint256(loan.startTime) + tokenLoanParams[tokenId].duration < block.timestamp,
                 "NFTPair: not expired"
             );
         }
@@ -590,7 +590,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         TokenLoanParams memory loanParams = tokenLoanParams[tokenId];
         require(
             // Addition is safe: both summands are smaller than 256 bits
-            uint256(loan.startTime) + loanParams.duration > block.timestamp,
+            uint256(loan.startTime) + loanParams.duration >= block.timestamp,
             "NFTPair: loan expired"
         );
 
