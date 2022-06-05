@@ -12,8 +12,6 @@ import "../../../interfaces/IBentoBoxV1Minimal.sol";
 import "../../../interfaces/ILevSwapperV2.sol";
 import "../../../libraries/UniswapV2OneSidedUsingUniV2.sol";
 
-import "hardhat/console.sol";
-
 /// @notice Generic LP leverage swapper for Uniswap like compatible DEX using Matcha/0x aggregator
 contract ZeroXUniswapLikeLPLevSwapper is ILevSwapperV2 {
     using SafeTransferLib for ERC20;

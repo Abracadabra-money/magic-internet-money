@@ -262,4 +262,4 @@
 | PopsicleJoeSavaxWavaxCauldron... | 0x562Db5B5E95961760806A0435aa292c34919eC47 | 75% LTV, 12.5% liquidation fee, 1% borrow fee, 1% Interest |
 | TraderJoeSAVAXWAVAXProxyOracle   | 0x0CC93802f800cCee67914c3072e80d23e920a3e2 | Inverted LP price of 1 sAVAX/wAVAX LP                      |
 | JoeSavaxWavaxSwapperV1           | 0x1B77fDaBAa7FefD55f4aC075B6E817b8d773315b | Using 0x aggregator                                        |
-| JoeSavaxWavaxLevSwapperV1        | 0xEdEa4518796EA45dFc38D78D9B8b9e070436AD51 | Using 0x aggregator                                        |
+| JoeSavaxWavaxLevSwapperV1        | 0xEf05d8747a6Fc81509fb37EcF6b1a2D39290d881 | Using 0x aggregator                                        |
