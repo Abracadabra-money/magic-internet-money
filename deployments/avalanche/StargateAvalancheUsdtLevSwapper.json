@@ -1,0 +1,315 @@
+{
+  "address": "0xAC6C439253987Be9aFF6AaC047EC8501eA13d512",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IBentoBoxV1",
+          "name": "_degenBox",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IStargatePool",
+          "name": "_pool",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_poolId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "contract IStargateRouter",
+          "name": "_stargateRouter",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IPlatypusRouter01",
+          "name": "_platypusRouter",
+          "type": "address"
+        },
+        {
+          "internalType": "address[]",
+          "name": "_tokenPath",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "_poolPath",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "degenBox",
+      "outputs": [
+        {
+          "internalType": "contract IBentoBoxV1",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "platypusRouter",
+      "outputs": [
+        {
+          "internalType": "contract IPlatypusRouter01",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pool",
+      "outputs": [
+        {
+          "internalType": "contract IStargatePool",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "poolId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "poolPath",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "stargateRouter",
+      "outputs": [
+        {
+          "internalType": "contract IStargateRouter",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareToMin",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareFrom",
+          "type": "uint256"
+        }
+      ],
+      "name": "swap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "extraShare",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareReturned",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "tokenPath",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xa1ef51338404f83e22b940fcef84b80b4eae6ab98f7b5e0e357270d27caf4df0",
+  "receipt": {
+    "to": null,
+    "from": "0xfB3485c2e209A5cfBDC1447674256578f1A80eE3",
+    "contractAddress": "0xAC6C439253987Be9aFF6AaC047EC8501eA13d512",
+    "transactionIndex": 9,
+    "gasUsed": "727245",
+    "logsBloom": "0x00000000000000000000100000000000000000000000200000000000040000000000000000000000000000000000000000000000000000000000000000200000000100000000000000000000000000000000000200000000000000000000000000000000000008000000000000000000020000000000000040020000000000000000000000000000000000000000000000000010000000020000000000000000020000000000000000020008000000000000010000000000000000000000000000000000000000000000000000000000000200000000000000420000100000000010000000000000000000000000000100000000000000020000000000000000",
+    "blockHash": "0x623c71b15e782a07443ca45c54a4f68a559188b5902c9a1cb67f4d7429763e61",
+    "transactionHash": "0xa1ef51338404f83e22b940fcef84b80b4eae6ab98f7b5e0e357270d27caf4df0",
+    "logs": [
+      {
+        "transactionIndex": 9,
+        "blockNumber": 14522622,
+        "transactionHash": "0xa1ef51338404f83e22b940fcef84b80b4eae6ab98f7b5e0e357270d27caf4df0",
+        "address": "0x130966628846BFd36ff31a822705796e8cb8C18D",
+        "topics": [
+          "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+          "0x000000000000000000000000ac6c439253987be9aff6aac047ec8501ea13d512",
+          "0x00000000000000000000000073256ec7575d999c360c1eec118ecbefd8da7d12"
+        ],
+        "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "logIndex": 61,
+        "blockHash": "0x623c71b15e782a07443ca45c54a4f68a559188b5902c9a1cb67f4d7429763e61"
+      },
+      {
+        "transactionIndex": 9,
+        "blockNumber": 14522622,
+        "transactionHash": "0xa1ef51338404f83e22b940fcef84b80b4eae6ab98f7b5e0e357270d27caf4df0",
+        "address": "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+        "topics": [
+          "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+          "0x000000000000000000000000ac6c439253987be9aff6aac047ec8501ea13d512",
+          "0x00000000000000000000000045a01e4e04f14f7a4a6702c74187c5f6222033cd"
+        ],
+        "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "logIndex": 62,
+        "blockHash": "0x623c71b15e782a07443ca45c54a4f68a559188b5902c9a1cb67f4d7429763e61"
+      },
+      {
+        "transactionIndex": 9,
+        "blockNumber": 14522622,
+        "transactionHash": "0xa1ef51338404f83e22b940fcef84b80b4eae6ab98f7b5e0e357270d27caf4df0",
+        "address": "0x29e38769f23701A2e4A8Ef0492e19dA4604Be62c",
+        "topics": [
+          "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+          "0x000000000000000000000000ac6c439253987be9aff6aac047ec8501ea13d512",
+          "0x0000000000000000000000001fc83f75499b7620d53757f0b01e2ae626aae530"
+        ],
+        "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "logIndex": 63,
+        "blockHash": "0x623c71b15e782a07443ca45c54a4f68a559188b5902c9a1cb67f4d7429763e61"
+      }
+    ],
+    "blockNumber": 14522622,
+    "cumulativeGasUsed": "2993372",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x1fC83f75499b7620d53757f0b01E2ae626aAE530",
+    "0x29e38769f23701A2e4A8Ef0492e19dA4604Be62c",
+    2,
+    "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd",
+    "0x73256EC7575D999C360c1EeC118ECbEFd8DA7D12",
+    [
+      "0x130966628846BFd36ff31a822705796e8cb8C18D",
+      "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+      "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7"
+    ],
+    [
+      "0x30C30d826be87Cd0A4b90855C2F38f7FcfE4eaA7",
+      "0x66357dCaCe80431aee0A7507e2E361B7e2402370"
+    ]
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "b9d3cef12655f85a98fc145e8163b38a",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.10+commit.fc410830\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IBentoBoxV1\",\"name\":\"_degenBox\",\"type\":\"address\"},{\"internalType\":\"contract IStargatePool\",\"name\":\"_pool\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_poolId\",\"type\":\"uint256\"},{\"internalType\":\"contract IStargateRouter\",\"name\":\"_stargateRouter\",\"type\":\"address\"},{\"internalType\":\"contract IPlatypusRouter01\",\"name\":\"_platypusRouter\",\"type\":\"address\"},{\"internalType\":\"address[]\",\"name\":\"_tokenPath\",\"type\":\"address[]\"},{\"internalType\":\"address[]\",\"name\":\"_poolPath\",\"type\":\"address[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"degenBox\",\"outputs\":[{\"internalType\":\"contract IBentoBoxV1\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"platypusRouter\",\"outputs\":[{\"internalType\":\"contract IPlatypusRouter01\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pool\",\"outputs\":[{\"internalType\":\"contract IStargatePool\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"poolId\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"poolPath\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"stargateRouter\",\"outputs\":[{\"internalType\":\"contract IStargateRouter\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"shareToMin\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"shareFrom\",\"type\":\"uint256\"}],\"name\":\"swap\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"extraShare\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"shareReturned\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"tokenPath\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"constructor\":{\"details\":\"_tokenPath[0] must be MIM and last one Stargate Pool Underlying Token\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"swap(address,uint256,uint256)\":{\"notice\":\"Swaps to a flexible amount, from an exact input amount\"}},\"notice\":\"Leverage Swapper for Stargate LP using Platypus\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/swappers/Leverage/StargatePlatypusLevSwapper.sol\":\"StargatePlatypusLevSwapper\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":690},\"remappings\":[]},\"sources\":{\"contracts/interfaces/IBentoBoxV1.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\nimport \\\"./IERC20.sol\\\";\\r\\n\\r\\ninterface IBentoBoxV1 {\\r\\n    function toAmount(\\r\\n        address _token,\\r\\n        uint256 _share,\\r\\n        bool _roundUp\\r\\n    ) external view returns (uint256);\\r\\n\\r\\n    function withdraw(\\r\\n        IERC20 token,\\r\\n        address from,\\r\\n        address to,\\r\\n        uint256 amount,\\r\\n        uint256 share\\r\\n    ) external returns (uint256, uint256);\\r\\n\\r\\n    function deposit(\\r\\n        IERC20 token,\\r\\n        address from,\\r\\n        address to,\\r\\n        uint256 amount,\\r\\n        uint256 share\\r\\n    ) external returns (uint256, uint256);\\r\\n\\r\\n    function deploy(\\r\\n        address masterContract,\\r\\n        bytes calldata data,\\r\\n        bool useCreate2\\r\\n    ) external payable returns (address cloneAddress);\\r\\n\\r\\n    function setMasterContractApproval(\\r\\n        address user,\\r\\n        address masterContract,\\r\\n        bool approved,\\r\\n        uint8 v,\\r\\n        bytes32 r,\\r\\n        bytes32 s\\r\\n    ) external;\\r\\n\\r\\n    function balanceOf(IERC20, address) external view returns (uint256);\\r\\n\\r\\n    function totals(IERC20) external view returns (uint128 elastic, uint128 base);\\r\\n\\r\\n    function flashLoan(\\r\\n        address borrower,\\r\\n        address receiver,\\r\\n        IERC20 token,\\r\\n        uint256 amount,\\r\\n        bytes calldata data\\r\\n    ) external;\\r\\n\\r\\n    function toShare(\\r\\n        address token,\\r\\n        uint256 amount,\\r\\n        bool roundUp\\r\\n    ) external view returns (uint256 share);\\r\\n}\\r\\n\",\"keccak256\":\"0xf654f9181ff602627dd70c0c65999488b3a28d6941386231351f38bc9eb7f8fb\",\"license\":\"MIT\"},\"contracts/interfaces/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface IERC20 {\\r\\n    function totalSupply() external view returns (uint256);\\r\\n\\r\\n    function balanceOf(address account) external view returns (uint256);\\r\\n\\r\\n    function allowance(address owner, address spender) external view returns (uint256);\\r\\n\\r\\n    function approve(address spender, uint256 amount) external returns (bool);\\r\\n\\r\\n    function transfer(address recipient, uint256 amount) external returns (bool);\\r\\n\\r\\n    function transferFrom(\\r\\n        address sender,\\r\\n        address recipient,\\r\\n        uint256 amount\\r\\n    ) external returns (bool);\\r\\n\\r\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\r\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\r\\n\\r\\n    /// @notice EIP 2612\\r\\n    function permit(\\r\\n        address owner,\\r\\n        address spender,\\r\\n        uint256 value,\\r\\n        uint256 deadline,\\r\\n        uint8 v,\\r\\n        bytes32 r,\\r\\n        bytes32 s\\r\\n    ) external;\\r\\n}\\r\\n\",\"keccak256\":\"0x33e3d42a9bc583e9d2732a4c71bddebd883199abe927faef674c60463a459730\",\"license\":\"MIT\"},\"contracts/interfaces/ILevSwapperGeneric.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface ILevSwapperGeneric {\\r\\n    /// @notice Swaps to a flexible amount, from an exact input amount\\r\\n    function swap(\\r\\n        address recipient,\\r\\n        uint256 shareToMin,\\r\\n        uint256 shareFrom\\r\\n    ) external returns (uint256 extraShare, uint256 shareReturned);\\r\\n}\\r\\n\",\"keccak256\":\"0x9412c47adeb7f02484cc03a0167ad3da2364b0c659c45a918941f61572d98d78\",\"license\":\"MIT\"},\"contracts/interfaces/platypus/IPlatypusRouter01.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface IPlatypusRouter01 {\\r\\n    function swapTokensForTokens(\\r\\n        address[] calldata tokenPath,\\r\\n        address[] calldata poolPath,\\r\\n        uint256 fromAmount,\\r\\n        uint256 minimumToAmount,\\r\\n        address to,\\r\\n        uint256 deadline\\r\\n    ) external returns (uint256 amountOut, uint256 haircut);\\r\\n}\\r\\n\",\"keccak256\":\"0x7cd1f600b91b4ae3290047ee4056675987354cb114547463d2a9cd8777a8002d\",\"license\":\"BUSL-1.1\"},\"contracts/interfaces/stargate/IStargatePool.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface IStargatePool {\\r\\n    function totalLiquidity() external view returns (uint256);\\r\\n\\r\\n    function totalSupply() external view returns (uint256);\\r\\n\\r\\n    function decimals() external view returns (uint256);\\r\\n\\r\\n    function localDecimals() external view returns (uint256);\\r\\n\\r\\n    function token() external view returns (address);\\r\\n}\\r\\n\",\"keccak256\":\"0x3ca69b22d4623073f0f4590889019cac56c9ca0c8663bf9c58cfba3e44aac0e1\",\"license\":\"BUSL-1.1\"},\"contracts/interfaces/stargate/IStargateRouter.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\r\\n// solhint-disable contract-name-camelcase\\r\\n\\r\\npragma solidity >=0.7.6;\\r\\npragma abicoder v2;\\r\\n\\r\\ninterface IStargateRouter {\\r\\n    struct lzTxObj {\\r\\n        uint256 dstGasForCall;\\r\\n        uint256 dstNativeAmount;\\r\\n        bytes dstNativeAddr;\\r\\n    }\\r\\n\\r\\n    function addLiquidity(\\r\\n        uint256 _poolId,\\r\\n        uint256 _amountLD,\\r\\n        address _to\\r\\n    ) external;\\r\\n\\r\\n    function swap(\\r\\n        uint16 _dstChainId,\\r\\n        uint256 _srcPoolId,\\r\\n        uint256 _dstPoolId,\\r\\n        address payable _refundAddress,\\r\\n        uint256 _amountLD,\\r\\n        uint256 _minAmountLD,\\r\\n        lzTxObj memory _lzTxParams,\\r\\n        bytes calldata _to,\\r\\n        bytes calldata _payload\\r\\n    ) external payable;\\r\\n\\r\\n    function redeemRemote(\\r\\n        uint16 _dstChainId,\\r\\n        uint256 _srcPoolId,\\r\\n        uint256 _dstPoolId,\\r\\n        address payable _refundAddress,\\r\\n        uint256 _amountLP,\\r\\n        uint256 _minAmountLD,\\r\\n        bytes calldata _to,\\r\\n        lzTxObj memory _lzTxParams\\r\\n    ) external payable;\\r\\n\\r\\n    function instantRedeemLocal(\\r\\n        uint16 _srcPoolId,\\r\\n        uint256 _amountLP,\\r\\n        address _to\\r\\n    ) external returns (uint256);\\r\\n\\r\\n    function redeemLocal(\\r\\n        uint16 _dstChainId,\\r\\n        uint256 _srcPoolId,\\r\\n        uint256 _dstPoolId,\\r\\n        address payable _refundAddress,\\r\\n        uint256 _amountLP,\\r\\n        bytes calldata _to,\\r\\n        lzTxObj memory _lzTxParams\\r\\n    ) external payable;\\r\\n\\r\\n    function sendCredits(\\r\\n        uint16 _dstChainId,\\r\\n        uint256 _srcPoolId,\\r\\n        uint256 _dstPoolId,\\r\\n        address payable _refundAddress\\r\\n    ) external payable;\\r\\n\\r\\n    function quoteLayerZeroFee(\\r\\n        uint16 _dstChainId,\\r\\n        uint8 _functionType,\\r\\n        bytes calldata _toAddress,\\r\\n        bytes calldata _transferAndCallPayload,\\r\\n        lzTxObj memory _lzTxParams\\r\\n    ) external view returns (uint256, uint256);\\r\\n}\\r\\n\",\"keccak256\":\"0x5caa470f6ffb1935cf48357f65f1f2fa79cf6f54f46c335f3f97a3b0f8ea1b91\",\"license\":\"BUSL-1.1\"},\"contracts/swappers/Leverage/StargatePlatypusLevSwapper.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity 0.8.10;\\r\\n\\r\\nimport \\\"../../interfaces/ILevSwapperGeneric.sol\\\";\\r\\nimport \\\"../../interfaces/IBentoBoxV1.sol\\\";\\r\\nimport \\\"../../interfaces/IERC20.sol\\\";\\r\\nimport \\\"../../interfaces/platypus/IPlatypusRouter01.sol\\\";\\r\\nimport \\\"../../interfaces/stargate/IStargateRouter.sol\\\";\\r\\nimport \\\"../../interfaces/stargate/IStargatePool.sol\\\";\\r\\n\\r\\n/// @notice Leverage Swapper for Stargate LP using Platypus\\r\\ncontract StargatePlatypusLevSwapper is ILevSwapperGeneric {\\r\\n    IBentoBoxV1 public immutable degenBox;\\r\\n    IStargatePool public immutable pool;\\r\\n    IStargateRouter public immutable stargateRouter;\\r\\n    IPlatypusRouter01 public immutable platypusRouter;\\r\\n    uint256 public immutable poolId;\\r\\n    address[] public tokenPath;\\r\\n    address[] public poolPath;\\r\\n\\r\\n    /// @dev _tokenPath[0] must be MIM and last one Stargate Pool Underlying Token\\r\\n    constructor(\\r\\n        IBentoBoxV1 _degenBox,\\r\\n        IStargatePool _pool,\\r\\n        uint256 _poolId,\\r\\n        IStargateRouter _stargateRouter,\\r\\n        IPlatypusRouter01 _platypusRouter,\\r\\n        address[] memory _tokenPath,\\r\\n        address[] memory _poolPath\\r\\n    ) {\\r\\n        degenBox = _degenBox;\\r\\n        pool = _pool;\\r\\n        poolId = _poolId;\\r\\n        stargateRouter = _stargateRouter;\\r\\n        platypusRouter = _platypusRouter;\\r\\n\\r\\n        for (uint256 i = 0; i < _tokenPath.length; i++) {\\r\\n            tokenPath.push(_tokenPath[i]);\\r\\n        }\\r\\n        for (uint256 i = 0; i < _poolPath.length; i++) {\\r\\n            poolPath.push(_poolPath[i]);\\r\\n        }\\r\\n\\r\\n        IERC20(_tokenPath[0]).approve(address(_platypusRouter), type(uint256).max);\\r\\n        IERC20(_tokenPath[_tokenPath.length - 1]).approve(address(_stargateRouter), type(uint256).max);\\r\\n        IERC20(address(pool)).approve(address(_degenBox), type(uint256).max);\\r\\n    }\\r\\n\\r\\n    // Swaps to a flexible amount, from an exact input amount\\r\\n    function swap(\\r\\n        address recipient,\\r\\n        uint256 shareToMin,\\r\\n        uint256 shareFrom\\r\\n    ) public override returns (uint256 extraShare, uint256 shareReturned) {\\r\\n        (uint256 amount, ) = degenBox.withdraw(IERC20(tokenPath[0]), address(this), address(this), 0, shareFrom);\\r\\n\\r\\n        // MIM -> Stargate Pool Underlying Token\\r\\n        (amount, ) = platypusRouter.swapTokensForTokens(tokenPath, poolPath, amount, 0, address(this), type(uint256).max);\\r\\n\\r\\n        // Underlying Token -> Stargate Pool LP\\r\\n        stargateRouter.addLiquidity(poolId, amount, address(this));\\r\\n        amount = IERC20(address(pool)).balanceOf(address(this));\\r\\n\\r\\n        (, shareReturned) = degenBox.deposit(IERC20(address(pool)), address(this), recipient, amount, 0);\\r\\n        extraShare = shareReturned - shareToMin;\\r\\n    }\\r\\n}\\r\\n\",\"keccak256\":\"0x5fece5bc355cb96448e73a852efcd314a0842e967f583188a21bddb6770468ad\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x6101206040523480156200001257600080fd5b5060405162000d1738038062000d178339810160408190526200003591620003fd565b6001600160a01b0380881660805286811660a05261010086905284811660c052831660e05260005b8251811015620000ce5760008382815181106200007e576200007e620004c7565b60209081029190910181015182546001810184556000938452919092200180546001600160a01b0319166001600160a01b0390921691909117905580620000c581620004f3565b9150506200005d565b5060005b815181101562000143576001828281518110620000f357620000f3620004c7565b60209081029190910181015182546001810184556000938452919092200180546001600160a01b0319166001600160a01b03909216919091179055806200013a81620004f3565b915050620000d2565b50816000815181106200015a576200015a620004c7565b602090810291909101015160405163095ea7b360e01b81526001600160a01b03858116600483015260001960248301529091169063095ea7b3906044016020604051808303816000875af1158015620001b7573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190620001dd919062000511565b508160018351620001ef91906200053c565b81518110620002025762000202620004c7565b602090810291909101015160405163095ea7b360e01b81526001600160a01b03868116600483015260001960248301529091169063095ea7b3906044016020604051808303816000875af11580156200025f573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019062000285919062000511565b5060a05160405163095ea7b360e01b81526001600160a01b03898116600483015260001960248301529091169063095ea7b3906044016020604051808303816000875af1158015620002db573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019062000301919062000511565b505050505050505062000556565b6001600160a01b03811681146200032557600080fd5b50565b805162000335816200030f565b919050565b634e487b7160e01b600052604160045260246000fd5b600082601f8301126200036257600080fd5b815160206001600160401b03808311156200038157620003816200033a565b8260051b604051601f19603f83011681018181108482111715620003a957620003a96200033a565b604052938452858101830193838101925087851115620003c857600080fd5b83870191505b84821015620003f257620003e28262000328565b83529183019190830190620003ce565b979650505050505050565b600080600080600080600060e0888a0312156200041957600080fd5b875162000426816200030f565b602089015190975062000439816200030f565b604089015160608a0151919750955062000453816200030f565b608089015190945062000466816200030f565b60a08901519093506001600160401b03808211156200048457600080fd5b620004928b838c0162000350565b935060c08a0151915080821115620004a957600080fd5b50620004b88a828b0162000350565b91505092959891949750929550565b634e487b7160e01b600052603260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b60006000198214156200050a576200050a620004dd565b5060010190565b6000602082840312156200052457600080fd5b815180151581146200053557600080fd5b9392505050565b600082821015620005515762000551620004dd565b500390565b60805160a05160c05160e0516101005161074d620005ca6000396000818161011001526103a201526000818160e9015261030d0152600081816101a701526103d801526000818160920152818161044f01526104da0152600081816101800152818161020a0152610521015261074d6000f3fe608060405234801561001057600080fd5b50600436106100885760003560e01c806347f7a0a01161005b57806347f7a0a0146101405780639f1d0f59146101535780639f495c151461017b578063a9e56f3c146101a257600080fd5b806316f0115b1461008d5780632e5929cc146100d15780633b74de3d146100e45780633e0dc34e1461010b575b600080fd5b6100b47f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b0390911681526020015b60405180910390f35b6100b46100df3660046105a8565b6101c9565b6100b47f000000000000000000000000000000000000000000000000000000000000000081565b6101327f000000000000000000000000000000000000000000000000000000000000000081565b6040519081526020016100c8565b6100b461014e3660046105a8565b6101f3565b6101666101613660046105c1565b610203565b604080519283526020830191909152016100c8565b6100b47f000000000000000000000000000000000000000000000000000000000000000081565b6100b47f000000000000000000000000000000000000000000000000000000000000000081565b600081815481106101d957600080fd5b6000918252602090912001546001600160a01b0316905081565b600181815481106101d957600080fd5b60008060007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166397da6d306000808154811061024a5761024a610602565b600091825260208220015460405160e084901b7fffffffff000000000000000000000000000000000000000000000000000000001681526001600160a01b0390911660048201523060248201819052604482015260648101919091526084810187905260a40160408051808303816000875af11580156102ce573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906102f29190610618565b506040516321579b7960e01b81529091506001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016906321579b79906103509060009060019086908390309060001990600401610685565b60408051808303816000875af115801561036e573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103929190610618565b506040516321ec87bf60e21b81527f00000000000000000000000000000000000000000000000000000000000000006004820152602481018290523060448201529091507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316906387b21efc90606401600060405180830381600087803b15801561042457600080fd5b505af1158015610438573d6000803e3d6000fd5b50506040516370a0823160e01b81523060048201527f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031692506370a082319150602401602060405180830381865afa1580156104a0573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104c491906106d9565b60405162ae511b60e21b81526001600160a01b037f000000000000000000000000000000000000000000000000000000000000000081166004830152306024830152888116604483015260648201839052600060848301529192507f0000000000000000000000000000000000000000000000000000000000000000909116906302b9446c9060a40160408051808303816000875af115801561056b573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061058f9190610618565b925061059d905085836106f2565b925050935093915050565b6000602082840312156105ba57600080fd5b5035919050565b6000806000606084860312156105d657600080fd5b83356001600160a01b03811681146105ed57600080fd5b95602085013595506040909401359392505050565b634e487b7160e01b600052603260045260246000fd5b6000806040838503121561062b57600080fd5b505080516020909101519092909150565b6000815480845260208085019450836000528060002060005b8381101561067a5781546001600160a01b031687529582019560019182019101610655565b509495945050505050565b60c08152600061069860c083018961063c565b82810360208401526106aa818961063c565b9150508560408301528460608301526001600160a01b03841660808301528260a0830152979650505050505050565b6000602082840312156106eb57600080fd5b5051919050565b60008282101561071257634e487b7160e01b600052601160045260246000fd5b50039056fea264697066735822122020170eb73ff9cf0619d7d6ddcb233c94eb854205bb91acd8de6b26e457c1df8164736f6c634300080a0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100885760003560e01c806347f7a0a01161005b57806347f7a0a0146101405780639f1d0f59146101535780639f495c151461017b578063a9e56f3c146101a257600080fd5b806316f0115b1461008d5780632e5929cc146100d15780633b74de3d146100e45780633e0dc34e1461010b575b600080fd5b6100b47f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b0390911681526020015b60405180910390f35b6100b46100df3660046105a8565b6101c9565b6100b47f000000000000000000000000000000000000000000000000000000000000000081565b6101327f000000000000000000000000000000000000000000000000000000000000000081565b6040519081526020016100c8565b6100b461014e3660046105a8565b6101f3565b6101666101613660046105c1565b610203565b604080519283526020830191909152016100c8565b6100b47f000000000000000000000000000000000000000000000000000000000000000081565b6100b47f000000000000000000000000000000000000000000000000000000000000000081565b600081815481106101d957600080fd5b6000918252602090912001546001600160a01b0316905081565b600181815481106101d957600080fd5b60008060007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166397da6d306000808154811061024a5761024a610602565b600091825260208220015460405160e084901b7fffffffff000000000000000000000000000000000000000000000000000000001681526001600160a01b0390911660048201523060248201819052604482015260648101919091526084810187905260a40160408051808303816000875af11580156102ce573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906102f29190610618565b506040516321579b7960e01b81529091506001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016906321579b79906103509060009060019086908390309060001990600401610685565b60408051808303816000875af115801561036e573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103929190610618565b506040516321ec87bf60e21b81527f00000000000000000000000000000000000000000000000000000000000000006004820152602481018290523060448201529091507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316906387b21efc90606401600060405180830381600087803b15801561042457600080fd5b505af1158015610438573d6000803e3d6000fd5b50506040516370a0823160e01b81523060048201527f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031692506370a082319150602401602060405180830381865afa1580156104a0573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104c491906106d9565b60405162ae511b60e21b81526001600160a01b037f000000000000000000000000000000000000000000000000000000000000000081166004830152306024830152888116604483015260648201839052600060848301529192507f0000000000000000000000000000000000000000000000000000000000000000909116906302b9446c9060a40160408051808303816000875af115801561056b573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061058f9190610618565b925061059d905085836106f2565b925050935093915050565b6000602082840312156105ba57600080fd5b5035919050565b6000806000606084860312156105d657600080fd5b83356001600160a01b03811681146105ed57600080fd5b95602085013595506040909401359392505050565b634e487b7160e01b600052603260045260246000fd5b6000806040838503121561062b57600080fd5b505080516020909101519092909150565b6000815480845260208085019450836000528060002060005b8381101561067a5781546001600160a01b031687529582019560019182019101610655565b509495945050505050565b60c08152600061069860c083018961063c565b82810360208401526106aa818961063c565b9150508560408301528460608301526001600160a01b03841660808301528260a0830152979650505050505050565b6000602082840312156106eb57600080fd5b5051919050565b60008282101561071257634e487b7160e01b600052601160045260246000fd5b50039056fea264697066735822122020170eb73ff9cf0619d7d6ddcb233c94eb854205bb91acd8de6b26e457c1df8164736f6c634300080a0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "constructor": {
+        "details": "_tokenPath[0] must be MIM and last one Stargate Pool Underlying Token"
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "swap(address,uint256,uint256)": {
+        "notice": "Swaps to a flexible amount, from an exact input amount"
+      }
+    },
+    "notice": "Leverage Swapper for Stargate LP using Platypus",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 12954,
+        "contract": "contracts/swappers/Leverage/StargatePlatypusLevSwapper.sol:StargatePlatypusLevSwapper",
+        "label": "tokenPath",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_array(t_address)dyn_storage"
+      },
+      {
+        "astId": 12957,
+        "contract": "contracts/swappers/Leverage/StargatePlatypusLevSwapper.sol:StargatePlatypusLevSwapper",
+        "label": "poolPath",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_array(t_address)dyn_storage"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_address)dyn_storage": {
+        "base": "t_address",
+        "encoding": "dynamic_array",
+        "label": "address[]",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

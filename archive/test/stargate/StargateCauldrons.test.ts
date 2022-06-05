@@ -110,7 +110,7 @@ forEach(Object.keys(cauldronsPerChain)).describe("Stargate ChainId %s Cauldrons"
         collateralWhaleSigner = await ethers.getSigner(collateralWhale);
 
         const spot = await ProxyOracle.peekSpot("0x");
-        collateralPrice = 1 / parseFloat(ethers.utils.formatEther(spot));
+        collateralPrice = 1 / parseFloat(ethers.utils.formatUnits(spot, 6));
         console.log(`Collateral Price = $${collateralPrice} usd`);
         expect(collateralPrice.toString()).to.be.eq(expectedOraclePrice);
 
