@@ -156,6 +156,8 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         require(address(collateral) != address(0), "NFTPair: bad pair");
     }
 
+    /// @param tokenId The token ID of the loan in question
+    /// @param params The desired new loan parameters
     function updateLoanParams(uint256 tokenId, TokenLoanParams memory params) external {
         TokenLoan memory loan = tokenLoan[tokenId];
         if (loan.status == LOAN_OUTSTANDING) {
@@ -293,7 +295,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     /// @notice Lends with the parameters specified by the borrower.
     /// @param tokenId ID of the token that will function as collateral
     /// @param accepted Loan parameters as the lender saw them, for security
-    /// @param skim True if the funds have been transferred to the contract
+    /// @param skim True if the funds have been Bento-transferred to the contract
     function lend(
         uint256 tokenId,
         TokenLoanParams memory accepted,
@@ -321,7 +323,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
 
     // NOTE on signature hashes: the domain separator only guarantees that the
     // chain ID and master contract are a match, so we explicitly include the
-    // clone address (and the asset/collateral addresses):
+    // clone address
 
     // keccak256("Lend(address contract,uint256 tokenId,bool anyTokenId,uint128 valuation,uint64 duration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
     bytes32 private constant LEND_SIGNATURE_HASH = 0x06bcca6f35b7c1b98f11abbb10957d273a681069ba90358de25404f49e2430f8;
@@ -338,6 +340,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     /// @param params Loan parameters requested, and signed by the lender
     /// @param skimCollateral True if the collateral has already been transferred
     /// @param anyTokenId Set if lender agreed to any token. Must have tokenId 0 in signature.
+    /// @param signature (deadline, v, r, s) of signature. (See docs)
     function requestAndBorrow(
         uint256 tokenId,
         address lender,
@@ -357,7 +360,17 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         _requireCollateral(msg.sender, tokenId, skimCollateral);
     }
 
-    ///@param borrower Also receives excess if token cheaper than loan amount
+    /// @notice Request and immediately borrow from a pre-committed lender, while buying the collateral in the same transaction.
+    /// @notice Caller provides extra funds if needed; loan can go to a different address.
+    /// @param tokenId ID of the token that will function as collateral
+    /// @param lender Lender, whose BentoBox balance the funds will come from
+    /// @param borrower Receives the funds (and excess if token is cheaper)
+    /// @param params Loan parameters requested, and signed by the lender
+    /// @param anyTokenId Set if lender agreed to any token. Must have tokenId 0 in signature.
+    /// @param signature (deadline, v, r, s) of signature. (See docs)
+    /// @param price Price of token (in wei), sent to buyer contract
+    /// @param buyer INFTBuyer contract that will purchase the token
+    /// @param skimShortage True if any funds needed in excess of the loan have already been Bento-transfered to the contract
     function flashRequestAndBorrow(
         uint256 tokenId,
         address lender,
@@ -473,7 +486,8 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     /// @param tokenId ID of the token that will function as collateral
     /// @param borrower Address that provides collateral and receives the loan
     /// @param params Loan terms offered, and signed by the borrower
-    /// @param skimFunds True if the funds have been transferred to the contract
+    /// @param skimFunds True if the funds have been Bento-transferred to the contract
+    /// @param signature (deadline, v, r, s) of signature. (See docs)
     function takeCollateralAndLend(
         uint256 tokenId,
         address borrower,
@@ -493,23 +507,26 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         _requireCollateral(borrower, tokenId, false);
     }
 
-    /// Approximates continuous compounding. Uses Horner's method to evaluate
-    /// the truncated Maclaurin series for exp - 1, accumulating rounding
-    /// errors along the way. The following is always guaranteed:
-    ///
-    ///   principal * time * apr <= result <= principal * (e^(time * apr) - 1),
-    ///
-    /// where time = t/YEAR, up to at most the rounding error obtained in
-    /// calculating linear interest.
-    ///
-    /// If the theoretical result that we are approximating (the rightmost part
-    /// of the above inquality) fits in 128 bits, then the function is
-    /// guaranteed not to revert (unless n > 250, which is way too high).
-    /// If even the linear interest (leftmost part of the inequality) does not
-    /// the function will revert.
-    /// Otherwise, the function may revert, return a reasonable result, or
-    /// return a very inaccurate result. Even then the above inequality is
-    /// respected.
+    // Approximates continuous compounding. Uses Horner's method to evaluate
+    // the truncated Maclaurin series for exp - 1, accumulating rounding
+    // errors along the way. The following is always guaranteed:
+    //
+    //   principal * time * apr <= result <= principal * (e^(time * apr) - 1),
+    //
+    // where time = t/YEAR, up to at most the rounding error obtained in
+    // calculating linear interest.
+    //
+    // If the theoretical result that we are approximating (the rightmost part
+    // of the above inquality) fits in 128 bits, then the function is
+    // guaranteed not to revert (unless n > 250, which is way too high).
+    // If even the linear interest (leftmost part of the inequality) does not
+    // the function will revert.
+    // Otherwise, the function may revert, return a reasonable result, or
+    // return a very inaccurate result. Even then the above inequality is
+    // respected.
+    /// @param principal Amount owed in wei
+    /// @param t Duration in seconds
+    /// @param aprBPS Annual rate in basis points (1/10_000)
     function calculateInterest(
         uint256 principal,
         uint64 t,
@@ -575,7 +592,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     }
 
     function _repayBefore(uint256 tokenId, address to)
-        public
+        private
         returns (
             uint256 totalShare,
             uint256 totalAmount,
@@ -639,6 +656,10 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         emit LogRepay(skim ? address(this) : msg.sender, tokenId);
     }
 
+    /// @notice Repay a loan in full
+    /// @param tokenId Token ID of the loan in question.
+    /// @param to Recipient of the returned collateral. Can be anyone if msg.sender is the borrower, otherwise the borrower.
+    /// @param skim True if the funds have already been Bento-transfered to the contract. Take care to send enough; interest accumulates by the second.
     function repay(
         uint256 tokenId,
         address to,
@@ -648,6 +669,12 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         _repayAfter(lender, totalShare, feeShare, tokenId, skim);
     }
 
+    /// @notice Repay a loan in full, by selling the token in the same transaction. Must be the borrower.
+    /// @param tokenId Token ID of the loan in question.
+    /// @param price Sale price of the token, in wei
+    /// @param seller INFTSeller contract that will perform the sale
+    /// @param excessRecipient Receives any funds left over after repaying, if any
+    /// @param skimShortage True if any extra funds required have already been Bento-transfered to the contract. Take care to send enough; interest accumulates by the second.
     function flashRepay(
         uint256 tokenId,
         uint256 price,
