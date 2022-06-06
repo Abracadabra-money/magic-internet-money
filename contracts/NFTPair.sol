@@ -570,7 +570,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         }
 
         if (interest >= 2**128) {
-            revert();
+            revert("NFTPair: Interest unpayable");
         }
     }
 
