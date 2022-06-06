@@ -248,6 +248,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         // can claim it by first requesting a loan with `skim` set to true, and
         // then withdrawing. So we might as well allow it here..
         delete tokenLoan[tokenId];
+        delete tokenLoanParams[tokenId];
         collateral.transferFrom(address(this), to, tokenId);
         emit LogRemoveCollateral(tokenId, to);
     }
