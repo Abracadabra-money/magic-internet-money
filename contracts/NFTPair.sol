@@ -473,7 +473,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     /// @param tokenId ID of the token that will function as collateral
     /// @param borrower Address that provides collateral and receives the loan
     /// @param params Loan terms offered, and signed by the borrower
-    /// @param skimFunds True if the funds have been transfered to the contract
+    /// @param skimFunds True if the funds have been transferred to the contract
     function takeCollateralAndLend(
         uint256 tokenId,
         address borrower,
@@ -625,7 +625,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         // if that exceeds 128 bits the BentoBox transfer will revert. It
         // follows that `totalShare` fits in 129 bits, and `feesEarnedShare`
         // fits in 128 as it represents a BentoBox balance.
-        // Skimming is safe: the amount gets transfered to the lender later,
+        // Skimming is safe: the amount gets transferred to the lender later,
         // and therefore cannot be skimmed twice.
         if (skim) {
             require(bentoBox.balanceOf(asset, address(this)) >= (totalShare + feesEarnedShare), "NFTPair: skim too much");
@@ -903,7 +903,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
                 // Delaying until after the rest of the cook is safe:
                 // - If the rest of the cook _also_ takes this collateral
                 //   somehow -- either via skimming, or via just having it
-                //   transfered in -- then it did so by opening a loan. But
+                //   transferred in -- then it did so by opening a loan. But
                 //   that is only possible if this one (that we are collecting
                 //   the collateral for) got repaid in the mean time, which is
                 //   a silly thing to do, but otherwise legitimate and not an
