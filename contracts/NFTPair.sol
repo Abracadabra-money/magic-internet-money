@@ -419,7 +419,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         SignatureParams memory signature
     ) private {
         if (signature.v == 0 && signature.r == bytes32(0) && signature.s == bytes32(0)) {
-            require(ILendingClub(lender).willLend(tokenId, params), "NFTPair: LendingClub does not like you");
+            require(ILendingClub(lender).willLend(tokenId, params), "NFTPair: LendingClub refused");
         } else {
             require(block.timestamp <= signature.deadline, "NFTPair: signature expired");
             uint256 nonce = nonces[lender]++;

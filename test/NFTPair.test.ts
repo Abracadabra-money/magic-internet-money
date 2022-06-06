@@ -2632,7 +2632,7 @@ describe("NFT Pair", async () => {
           duration,
           annualInterestBPS,
         })
-      ).to.be.revertedWith("NFTPair: LendingClub does not like you");
+      ).to.be.revertedWith("NFTPair: LendingClub refused");
 
       await expect(
         borrow(alice, lendingClub, apeIds.aliceOne, {
@@ -2649,7 +2649,7 @@ describe("NFT Pair", async () => {
           duration,
           annualInterestBPS,
         })
-      ).to.be.revertedWith("NFTPair: LendingClub does not like you");
+      ).to.be.revertedWith("NFTPair: LendingClub refused");
     });
   });
 });
