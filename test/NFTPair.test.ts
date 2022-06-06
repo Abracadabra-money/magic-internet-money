@@ -12,6 +12,8 @@ const hashUtf8String = (s: string) => keccak256(toUtf8Bytes(s));
 
 const zeroSign = (deadline) => ({ r: HashZero, s: HashZero, v: 0, deadline });
 
+const paramsArray = (params: ILoanParams) => [params.valuation, params.duration, params.annualInterestBPS];
+
 import { BigRational, advanceNextTime, duration, encodeParameters, expApprox, getBigNumber, impersonate } from "../utilities";
 import { BentoBoxMock, ERC20Mock, ERC721Mock, LendingClubMock, NFTMarketMock, NFTBuyerSellerMock, WETH9Mock, NFTPair } from "../typechain";
 import { describeSnapshot } from "./helpers";
@@ -319,7 +321,7 @@ describe("NFT Pair", async () => {
         .to.emit(apes, "Transfer")
         .withArgs(alice.address, pair.address, apeIds.aliceOne)
         .to.emit(pair, "LogRequestLoan")
-        .withArgs(alice.address, apeIds.aliceOne, params.valuation, params.duration, params.annualInterestBPS);
+        .withArgs(alice.address, apeIds.aliceOne, paramsArray(params));
     });
 
     it("Should let anyone with an NFT request a loan (skim)", async () => {
@@ -416,7 +418,7 @@ describe("NFT Pair", async () => {
 
       await expect(pair.connect(carol).lend(apeIds.aliceOne, params1, false))
         .to.emit(pair, "LogLend")
-        .withArgs(carol.address, apeIds.aliceOne)
+        .withArgs(carol.address, alice.address, apeIds.aliceOne, paramsArray(params1))
         .to.emit(bentoBox, "LogTransfer")
         .withArgs(guineas.address, carol.address, pair.address, lenderOut)
         .to.emit(bentoBox, "LogTransfer")
@@ -449,7 +451,7 @@ describe("NFT Pair", async () => {
       // Loan was requested by Bob, but money and option to repay go to Carol:
       await expect(pair.connect(alice).lend(apeIds.bobTwo, params1, false))
         .to.emit(pair, "LogLend")
-        .withArgs(alice.address, apeIds.bobTwo)
+        .withArgs(alice.address, carol.address, apeIds.bobTwo, paramsArray(params1))
         .to.emit(bentoBox, "LogTransfer")
         .withArgs(guineas.address, alice.address, pair.address, lenderOut)
         .to.emit(bentoBox, "LogTransfer")
@@ -542,7 +544,7 @@ describe("NFT Pair", async () => {
       for (const params of data) {
         await expect(pair.connect(alice).updateLoanParams(apeIds.aliceOne, params))
           .to.emit(pair, "LogUpdateLoanParams")
-          .withArgs(apeIds.aliceOne, params.valuation, params.duration, params.annualInterestBPS);
+          .withArgs(apeIds.aliceOne, paramsArray(params));
       }
     });
 
@@ -1660,11 +1662,35 @@ describe("NFT Pair", async () => {
         .to.emit(apes, "Transfer")
         .withArgs(bob.address, pair.address, tokenIds[9])
         .to.emit(pair, "LogRequestLoan")
-        .withArgs(alice.address, tokenIds[6], getBigNumber(7 * 12), YEAR, 6 * 500)
+        .withArgs(
+          alice.address,
+          tokenIds[6],
+          paramsArray({
+            valuation: getBigNumber(7 * 12),
+            duration: YEAR,
+            annualInterestBPS: 6 * 500,
+          })
+        )
         .to.emit(pair, "LogRequestLoan")
-        .withArgs(bob.address, tokenIds[7], getBigNumber(8 * 12), YEAR, 7 * 500)
+        .withArgs(
+          bob.address,
+          tokenIds[7],
+          paramsArray({
+            valuation: getBigNumber(8 * 12),
+            duration: YEAR,
+            annualInterestBPS: 7 * 500,
+          })
+        )
         .to.emit(pair, "LogRequestLoan")
-        .withArgs(carol.address, tokenIds[8], getBigNumber(9 * 12), YEAR, 8 * 500);
+        .withArgs(
+          carol.address,
+          tokenIds[8],
+          paramsArray({
+            valuation: getBigNumber(9 * 12),
+            duration: YEAR,
+            annualInterestBPS: 8 * 500,
+          })
+        );
     });
 
     it("Should have the expected domain separator", async () => {
@@ -1728,7 +1754,16 @@ describe("NFT Pair", async () => {
         ])
       )
         .to.emit(pair, "LogLend")
-        .withArgs(alice.address, tokenIds[0]);
+        .withArgs(
+          alice.address,
+          bob.address,
+          tokenIds[0],
+          paramsArray({
+            valuation: getBigNumber(12),
+            duration: YEAR,
+            annualInterestBPS: 0,
+          })
+        );
     });
 
     it("Should revert the entire cook if one transaction fails", async () => {

@@ -40,12 +40,12 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     using RebaseLibrary for Rebase;
     using BoringERC20 for IERC20;
 
-    event LogRequestLoan(address indexed borrower, uint256 indexed tokenId, uint128 valuation, uint64 duration, uint16 annualInterestBPS);
-    event LogUpdateLoanParams(uint256 indexed tokenId, uint128 valuation, uint64 duration, uint16 annualInterestBPS);
+    event LogRequestLoan(address indexed borrower, uint256 indexed tokenId, TokenLoanParams params);
+    event LogUpdateLoanParams(uint256 indexed tokenId, TokenLoanParams params);
     // This automatically clears the associated loan, if any
     event LogRemoveCollateral(uint256 indexed tokenId, address recipient);
     // Details are in the loan request
-    event LogLend(address indexed lender, uint256 indexed tokenId);
+    event LogLend(address indexed lender, address indexed borrower, uint256 indexed tokenId, TokenLoanParams params);
     event LogRepay(address indexed from, uint256 indexed tokenId);
     event LogFeeTo(address indexed newFeeTo);
     event LogWithdrawFees(address indexed feeTo, uint256 feeShare);
@@ -177,7 +177,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
             revert("NFTPair: no collateral");
         }
         tokenLoanParams[tokenId] = params;
-        emit LogUpdateLoanParams(tokenId, params.valuation, params.duration, params.annualInterestBPS);
+        emit LogUpdateLoanParams(tokenId, params);
     }
 
     /// @notice It is the caller's responsibility to ensure skimmed tokens get accounted for somehow so they cannot be used twice.
@@ -215,7 +215,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         tokenLoan[tokenId] = loan;
         tokenLoanParams[tokenId] = params;
 
-        emit LogRequestLoan(to, tokenId, params.valuation, params.duration, params.annualInterestBPS);
+        emit LogRequestLoan(to, tokenId, params);
         // Skimming is safe:
         // - This method both requires loan state to be LOAN_INITIAL and sets
         //   it to something else. Every other use of _requireCollateral must
@@ -258,10 +258,10 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         address borrower,
         address initialRecipient,
         uint256 tokenId,
-        uint256 amount,
+        TokenLoanParams memory params,
         bool skim
     ) internal returns (uint256 borrowerShare) {
-        uint256 totalShare = bentoBox.toShare(asset, amount, false);
+        uint256 totalShare = bentoBox.toShare(asset, params.valuation, false);
         // No overflow: at most 128 + 16 bits (fits in BentoBox)
         uint256 openFeeShare = (totalShare * OPEN_FEE_BPS) / BPS;
         uint256 protocolFeeShare = (openFeeShare * PROTOCOL_FEE_BPS) / BPS;
@@ -287,7 +287,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         loan.startTime = uint64(block.timestamp); // Do not use in 12e10 years..
         tokenLoan[tokenId] = loan;
 
-        emit LogLend(lender, tokenId);
+        emit LogLend(lender, borrower, tokenId, params);
     }
 
     /// @notice Lends with the parameters specified by the borrower.
@@ -311,7 +311,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
                 requested.annualInterestBPS >= accepted.annualInterestBPS,
             "NFTPair: bad params"
         );
-        _lend(msg.sender, loan.borrower, loan.borrower, tokenId, requested.valuation, skim);
+        _lend(msg.sender, loan.borrower, loan.borrower, tokenId, requested, skim);
     }
 
     // solhint-disable-next-line func-name-mixedcase
@@ -348,7 +348,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         SignatureParams memory signature
     ) public {
         _requireSignedLendParams(lender, tokenId, params, anyTokenId, signature);
-        _lend(lender, borrower, borrower, tokenId, params.valuation, false);
+        _lend(lender, borrower, borrower, tokenId, params, false);
         // Skimming is safe:
         // - This method both requires loan state to be LOAN_INITIAL and sets
         //   it to something else. Every other use of _requireCollateral must
@@ -376,7 +376,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         // Bento-shares received by taking out the loan. They are sent to the
         // buyer contract for skimming.
         // TODO: Allow Bento-withdrawing instead?
-        uint256 borrowerShare = _lend(lender, borrower, address(this), tokenId, params.valuation, false);
+        uint256 borrowerShare = _lend(lender, borrower, address(this), tokenId, params, false);
         // At this point the contract has `borrowerShare` extra shares. If this
         // is too much, then the borrower gets the excess. If this is not
         // enough, we either take the rest from msg.sender, or have the amount
@@ -482,7 +482,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         SignatureParams memory signature
     ) public {
         _requireSignedBorrowParams(borrower, tokenId, params, signature);
-        _lend(msg.sender, borrower, borrower, tokenId, params.valuation, skimFunds);
+        _lend(msg.sender, borrower, borrower, tokenId, params, skimFunds);
         // Skimming is safe:
         // - This method both requires loan state to be LOAN_INITIAL and sets
         //   it to something else. Every other use of _requireCollateral must
@@ -892,7 +892,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
                         (uint256, address, address, TokenLoanParams, bool, bool, SignatureParams)
                     );
                     _requireSignedLendParams(lender, tokenId, params, anyTokenId, signature);
-                    _lend(lender, borrower, borrower, tokenId, params.valuation, false);
+                    _lend(lender, borrower, borrower, tokenId, params, false);
                 }
                 _cook(actions, values, datas, ++i, result);
                 // Skimming is safe:
