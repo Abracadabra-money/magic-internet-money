@@ -651,8 +651,10 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
         // No overflon: both terms are 128 bits
         totalAmount = principal + interest;
 
-        totalShare = bentoBox.toShare(asset, totalAmount, false);
-        feeShare = bentoBox.toShare(asset, fee, false);
+        Rebase memory bentoBoxTotals = bentoBox.totals(asset);
+        totalShare = bentoBoxTotals.toBase(totalAmount, false);
+        feeShare = bentoBoxTotals.toBase(fee, false);
+
         lender = loan.lender;
 
         delete tokenLoan[tokenId];
