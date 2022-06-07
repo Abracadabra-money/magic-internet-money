@@ -628,8 +628,8 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
 
     function _repayBefore(
         uint256 tokenId,
+        uint256 principal,
         address to,
-        uint256 partBPS,
         bool skim
     )
         private
@@ -651,20 +651,18 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
             "NFTPair: loan expired"
         );
 
-        uint256 principal = loanParams.valuation;
-        if (partBPS < BPS) {
-            // Math is safe: principal fits in 128 bits
-            principal = (principal * partBPS) / BPS;
-            // Math and cast are safe: principal is less than valuation
-            loanParams.valuation = uint128(loanParams.valuation - principal);
-            tokenLoanParams[tokenId] = loanParams;
-            emit LogUpdateLoanParams(tokenId, loanParams);
-        } else {
+        if (principal == 0 || principal >= loanParams.valuation) {
+            principal = loanParams.valuation;
             // Not following checks-effects-interaction: we are already not
             // doing that by splitting `repay()` like this; we'll have to trust
             // the collateral contract if we are to support flash repayments.
             _finalizeLoan(tokenId, to);
             emit LogRepay(skim ? address(this) : msg.sender, tokenId);
+        } else {
+            // Math and cast are safe: 0 < principal < loanParams.valuation
+            loanParams.valuation = uint128(loanParams.valuation - principal);
+            tokenLoanParams[tokenId] = loanParams;
+            emit LogUpdateLoanParams(tokenId, loanParams);
         }
 
         // No underflow: loan.startTime is only ever set to a block timestamp
@@ -709,16 +707,16 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
 
     /// @notice Repay a loan in part or in full
     /// @param tokenId Token ID of the loan in question.
+    /// @param principal How much of the principal to repay. Saturates at the full loan value. Zero also taken to mean 100%.
     /// @param to Recipient of the returned collateral. Can be anyone if msg.sender is the borrower, otherwise the borrower.
-    /// @param partBPS Part of the loan to repay, in BPS. (Saturates at 10k).
     /// @param skim True if the funds have already been Bento-transfered to the contract. Take care to send enough; interest accumulates by the second.
     function repay(
         uint256 tokenId,
+        uint256 principal,
         address to,
-        uint16 partBPS,
         bool skim
     ) external {
-        (uint256 totalShare, , uint256 feeShare, address lender) = _repayBefore(tokenId, to, partBPS, skim);
+        (uint256 totalShare, , uint256 feeShare, address lender) = _repayBefore(tokenId, principal, to, skim);
         _repayAfter(lender, totalShare, feeShare, skim);
     }
 
@@ -735,7 +733,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
         address excessRecipient,
         bool skimShortage
     ) external {
-        (uint256 totalShare, , uint256 feeShare, address lender) = _repayBefore(tokenId, address(seller), BPS, false);
+        (uint256 totalShare, , uint256 feeShare, address lender) = _repayBefore(tokenId, 0, address(seller), false);
 
         // External call is safe: At this point the loan is already gone, the
         // seller has the token, and an amount must be paid via skimming or the
@@ -904,14 +902,14 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
                 uint256 tokenId;
                 uint256 totalShare;
                 uint256 feeShare;
+                uint256 principal;
                 address lender;
-                uint16 partBPS;
                 bool skim;
                 {
                     address to;
                     // No skimming, but it can sill be done
-                    (tokenId, to, partBPS, skim) = abi.decode(datas[i], (uint256, address, uint16, bool));
-                    (totalShare, result[1], feeShare, lender) = _repayBefore(tokenId, to, partBPS, skim);
+                    (tokenId, principal, to, skim) = abi.decode(datas[i], (uint256, uint256, address, bool));
+                    (totalShare, result[1], feeShare, lender) = _repayBefore(tokenId, principal, to, skim);
                     // Delaying asset collection until after the rest of the
                     // cook is safe: after checking..  - `feesEarnedShare` is
                     // updated after the check - The rest (`totalShare -

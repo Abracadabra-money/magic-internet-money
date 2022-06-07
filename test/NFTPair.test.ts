@@ -708,13 +708,18 @@ describe("NFT Pair", async () => {
     // happens:
     const YEAR_BPS = YEAR * 10_000;
     const COMPOUND_TERMS = 6;
-    const getMaxRepayShare = (time, params_, part = 10_000) => {
+    const getMaxRepayShare = (time, params_, overrideValuation: BigNumberish | null = null) => {
       // We mimic what the contract does, but without rounding errors in the
       // approximation, so the upper bound should be strict.
       // 1. Calculate exact amount owed; round it down, like the contract does.
       // 2. Convert that to Bento shares (still hardcoded at 9/20); rounding up
       const x = BigRational.from(time * params_.annualInterestBPS).div(YEAR_BPS);
-      return expApprox(x, COMPOUND_TERMS).mul(params_.valuation).mul(part).div(10_000).floor().mul(9).add(19).div(20);
+      return expApprox(x, COMPOUND_TERMS)
+        .mul(overrideValuation ?? params_.valuation)
+        .floor()
+        .mul(9)
+        .add(19)
+        .div(20);
     };
 
     before(async () => {
@@ -742,7 +747,7 @@ describe("NFT Pair", async () => {
 
       // Two Bento transfers: payment to the lender, fee to the contract
       await advanceNextTime(DAY);
-      await expect(pair.connect(alice).repay(apeIds.aliceOne, alice.address, 10_000, false))
+      await expect(pair.connect(alice).repay(apeIds.aliceOne, 0, alice.address, false))
         .to.emit(pair, "LogRepay")
         .withArgs(alice.address, apeIds.aliceOne)
         .to.emit(apes, "Transfer")
@@ -784,7 +789,7 @@ describe("NFT Pair", async () => {
       const t0 = await getBalances();
 
       await advanceNextTime(DAY);
-      await expect(pair.connect(carol).repay(apeIds.aliceOne, alice.address, 10_000, false))
+      await expect(pair.connect(carol).repay(apeIds.aliceOne, 0, alice.address, false))
         .to.emit(pair, "LogRepay")
         .withArgs(carol.address, apeIds.aliceOne)
         .to.emit(apes, "Transfer")
@@ -835,7 +840,7 @@ describe("NFT Pair", async () => {
       const t0 = await getBalances();
 
       await ethers.provider.send("evm_setNextBlockTimestamp", [(await pair.tokenLoan(apeIds.aliceOne)).startTime.toNumber() + interval]);
-      await expect(pair.connect(carol).repay(apeIds.aliceOne, alice.address, 10_000, true))
+      await expect(pair.connect(carol).repay(apeIds.aliceOne, 0, alice.address, true))
         .to.emit(pair, "LogRepay")
         .withArgs(pair.address, apeIds.aliceOne)
         .to.emit(apes, "Transfer")
@@ -891,7 +896,7 @@ describe("NFT Pair", async () => {
 
       actions.push(ACTION_REPAY);
       values.push(0);
-      datas.push(encodeParameters(["uint256", "address", "uint16", "bool"], [apeIds.aliceOne, alice.address, 10_000, false]));
+      datas.push(encodeParameters(["uint256", "uint256", "address", "bool"], [apeIds.aliceOne, 0, alice.address, false]));
 
       await expect(pair.connect(carol).cook(actions, values, datas))
         .to.emit(pair, "LogRepay")
@@ -956,7 +961,7 @@ describe("NFT Pair", async () => {
 
       actions.push(ACTION_REPAY);
       values.push(0);
-      datas.push(encodeParameters(["uint256", "address", "uint16", "bool"], [apeIds.aliceOne, alice.address, 10_000, true]));
+      datas.push(encodeParameters(["uint256", "uint256", "address", "bool"], [apeIds.aliceOne, 0, alice.address, true]));
 
       await ethers.provider.send("evm_setNextBlockTimestamp", [(await pair.tokenLoan(apeIds.aliceOne)).startTime.toNumber() + interval]);
       await expect(pair.connect(carol).cook(actions, values, datas))
@@ -1021,7 +1026,7 @@ describe("NFT Pair", async () => {
 
       const inFive = await advanceNextTime(fiveYears);
 
-      await expect(pair.connect(alice).repay(apeIds.aliceTwo, alice.address, 10_000, false))
+      await expect(pair.connect(alice).repay(apeIds.aliceTwo, 0, alice.address, false))
         .to.emit(pair, "LogRepay")
         .withArgs(alice.address, apeIds.aliceTwo)
         .to.emit(apes, "Transfer")
@@ -1059,12 +1064,12 @@ describe("NFT Pair", async () => {
 
     it("Should refuse repayments on expired loans", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [startTime + params.duration + 1]);
-      await expect(pair.connect(alice).repay(apeIds.aliceOne, alice.address, 10_000, false)).to.be.revertedWith("NFTPair: loan expired");
+      await expect(pair.connect(alice).repay(apeIds.aliceOne, 0, alice.address, false)).to.be.revertedWith("NFTPair: loan expired");
     });
 
     it("Should refuse repayments on nonexistent loans", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [startTime + params.duration + 1]);
-      await expect(pair.connect(carol).repay(apeIds.carolOne, carol.address, 10_000, false)).to.be.revertedWith("NFTPair: no loan");
+      await expect(pair.connect(carol).repay(apeIds.carolOne, 0, carol.address, false)).to.be.revertedWith("NFTPair: no loan");
     });
 
     it("Should refuse to skim too much", async () => {
@@ -1079,7 +1084,7 @@ describe("NFT Pair", async () => {
       await bentoBox.connect(bob).transfer(guineas.address, bob.address, pair.address, notEnoughShare);
 
       await ethers.provider.send("evm_setNextBlockTimestamp", [(await pair.tokenLoan(apeIds.aliceOne)).startTime.toNumber() + interval]);
-      await expect(pair.connect(carol).repay(apeIds.aliceOne, alice.address, 10_000, true)).to.be.revertedWith("NFTPair: skim too much");
+      await expect(pair.connect(carol).repay(apeIds.aliceOne, 0, alice.address, true)).to.be.revertedWith("NFTPair: skim too much");
     });
 
     it("Should allow partial repayments", async () => {
@@ -1091,20 +1096,17 @@ describe("NFT Pair", async () => {
       });
       const t0 = await getBalances();
 
-      const part = 1337; // Parts out of 10k that get paid off
+      const part = params.valuation.mul(1337).div(10_000);
 
       const afterParams = {
         ...params,
         // We round down when calculating how much to repay, so round up here:
-        valuation: params.valuation
-          .mul(10_000 - part)
-          .add(9999)
-          .div(10_000),
+        valuation: params.valuation.sub(part),
       };
 
       // Two Bento transfers: payment to the lender, fee to the contract
       await advanceNextTime(DAY);
-      await expect(pair.connect(alice).repay(apeIds.aliceOne, alice.address, part, false))
+      await expect(pair.connect(alice).repay(apeIds.aliceOne, part, alice.address, false))
         .to.emit(pair, "LogUpdateLoanParams")
         .withArgs(apeIds.aliceOne, paramsArray(afterParams))
         .to.emit(bentoBox, "LogTransfer")
@@ -1116,7 +1118,7 @@ describe("NFT Pair", async () => {
 
       const t1 = await getBalances();
       const maxRepayShare = getMaxRepayShare(DAY, params, part);
-      const partValuationShare = valuationShare.mul(part).div(10_000);
+      const partValuationShare = valuationShare.mul(part).div(params.valuation);
       const linearInterest = partValuationShare.mul(params.annualInterestBPS).mul(DAY).div(YEAR_BPS);
 
       const paid = t0.alice.sub(t1.alice);
@@ -1320,7 +1322,7 @@ describe("NFT Pair", async () => {
         await expect(pair.connect(carol).requestAndBorrow(...successParams)).to.emit(pair, "LogLend");
 
         // Carol repays the loan to get the token back:
-        await expect(pair.connect(carol).repay(apeIds.carolOne, carol.address, 10_000, false)).to.emit(pair, "LogRepay");
+        await expect(pair.connect(carol).repay(apeIds.carolOne, 0, carol.address, false)).to.emit(pair, "LogRepay");
         expect(await apes.ownerOf(apeIds.carolOne)).to.equal(carol.address);
 
         // It fails now (because the nonce is no longer a match):
@@ -1452,7 +1454,7 @@ describe("NFT Pair", async () => {
         );
 
         // Bob repays the loan to get the token back:
-        await expect(pair.connect(bob).repay(apeIds.bobTwo, bob.address, 10_000, false)).to.emit(pair, "LogRepay");
+        await expect(pair.connect(bob).repay(apeIds.bobTwo, 0, bob.address, false)).to.emit(pair, "LogRepay");
         expect(await apes.ownerOf(apeIds.bobTwo)).to.equal(bob.address);
 
         // It fails now (because the nonce is no longer a match):
@@ -1947,7 +1949,7 @@ describe("NFT Pair", async () => {
       //    This sets both slots of `result`, to [<amount in shares>, <amount>].
       actions.push(ACTION_REPAY);
       values.push(0);
-      datas.push(encodeParameters(["uint256", "address", "uint16", "bool"], [apeIds.aliceOne, apesMarket.address, 10_000, true]));
+      datas.push(encodeParameters(["uint256", "uint256", "address", "bool"], [apeIds.aliceOne, 0, apesMarket.address, true]));
 
       // 2. Sell the NFT, by skimming.
       //    Our mock "market" happens to require a hardcoded amount, because
@@ -2020,7 +2022,7 @@ describe("NFT Pair", async () => {
       // and just send "definitely enough to cover" if we want it to succeed.
       actions.push(ACTION_REPAY);
       values.push(0);
-      datas.push(encodeParameters(["uint256", "address", "uint16", "bool"], [apeIds.aliceOne, apesMarket.address, 10_000, true]));
+      datas.push(encodeParameters(["uint256", "uint256", "address", "bool"], [apeIds.aliceOne, 0, apesMarket.address, true]));
 
       const salePrice1 = getBigNumber(11); // enough to cover the loan
       actions.push(ACTION_CALL);
@@ -2040,7 +2042,7 @@ describe("NFT Pair", async () => {
 
       actions.push(ACTION_REPAY);
       values.push(0);
-      datas.push(encodeParameters(["uint256", "address", "uint16", "bool"], [apeIds.aliceTwo, apesMarket.address, 10_000, true]));
+      datas.push(encodeParameters(["uint256", "uint256", "address", "bool"], [apeIds.aliceTwo, 0, apesMarket.address, true]));
 
       const salePrice2 = getBigNumber(26); // enough to cover the loan
       actions.push(ACTION_CALL);
@@ -2092,7 +2094,7 @@ describe("NFT Pair", async () => {
       //    This sets both slots of `result`, to [<amount in shares>, <amount>].
       actions.push(ACTION_REPAY);
       values.push(0);
-      datas.push(encodeParameters(["uint256", "address", "uint16", "bool"], [apeIds.aliceOne, apesMarket.address, 10_000, true]));
+      datas.push(encodeParameters(["uint256", "uint256", "address", "bool"], [apeIds.aliceOne, 0, apesMarket.address, true]));
 
       // 2. Sell the NFT, by skimming.
       //    Our mock "market" happens to require a hardcoded amount, because
