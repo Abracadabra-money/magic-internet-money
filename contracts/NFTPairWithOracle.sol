@@ -695,15 +695,16 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
         // fits in 128 as it represents a BentoBox balance.
         // Skimming is safe: the amount gets transferred to the lender later,
         // and therefore cannot be skimmed twice.
+        IERC20 asset_ = asset;
         if (skim) {
-            require(bentoBox.balanceOf(asset, address(this)) >= (totalShare + feesEarnedShare), "NFTPair: skim too much");
+            require(bentoBox.balanceOf(asset_, address(this)) >= (totalShare + feesEarnedShare), "NFTPair: skim too much");
         } else {
-            bentoBox.transfer(asset, msg.sender, address(this), totalShare);
+            bentoBox.transfer(asset_, msg.sender, address(this), totalShare);
         }
         // No overflow: result fits in BentoBox
         feesEarnedShare += feeShare;
         // No underflow: `feeShare` is 10% of part of `totalShare`
-        bentoBox.transfer(asset, address(this), lender, totalShare - feeShare);
+        bentoBox.transfer(asset_, address(this), lender, totalShare - feeShare);
     }
 
     /// @notice Repay a loan in part or in full
