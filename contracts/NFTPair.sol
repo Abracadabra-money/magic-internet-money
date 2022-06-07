@@ -225,6 +225,13 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         _requireCollateral(msg.sender, tokenId, skim);
     }
 
+    /// @dev Assumes all checks have been done
+    function _finalizeLoan(uint256 tokenId, address collateralTo) private {
+        delete tokenLoan[tokenId];
+        delete tokenLoanParams[tokenId];
+        collateral.transferFrom(address(this), collateralTo, tokenId);
+    }
+
     /// @notice Removes `tokenId` as collateral and transfers it to `to`.
     /// @notice This destroys the loan.
     /// @param tokenId The token
@@ -247,9 +254,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         // If there somehow is collateral but no accompanying loan, then anyone
         // can claim it by first requesting a loan with `skim` set to true, and
         // then withdrawing. So we might as well allow it here..
-        delete tokenLoan[tokenId];
-        delete tokenLoanParams[tokenId];
-        collateral.transferFrom(address(this), to, tokenId);
+        _finalizeLoan(tokenId, to);
         emit LogRemoveCollateral(tokenId, to);
     }
 
@@ -592,7 +597,12 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         }
     }
 
-    function _repayBefore(uint256 tokenId, address to)
+    function _repayBefore(
+        uint256 tokenId,
+        address to,
+        uint256 partBPS,
+        bool skim
+    )
         private
         returns (
             uint256 totalShare,
@@ -612,33 +622,42 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
             "NFTPair: loan expired"
         );
 
-        uint128 principal = loanParams.valuation;
+        uint256 principal = loanParams.valuation;
+        if (partBPS < BPS) {
+            // Math is safe: principal fits in 128 bits
+            principal = (principal * partBPS) / BPS;
+            // Math and cast are safe: principal is less than valuation
+            loanParams.valuation = uint128(loanParams.valuation - principal);
+            tokenLoanParams[tokenId] = loanParams;
+            emit LogUpdateLoanParams(tokenId, loanParams);
+        } else {
+            // Not following checks-effects-interaction: we are already not
+            // doing that by splitting `repay()` like this; we'll have to trust
+            // the collateral contract if we are to support flash repayments.
+            _finalizeLoan(tokenId, to);
+            emit LogRepay(skim ? address(this) : msg.sender, tokenId);
+        }
 
         // No underflow: loan.startTime is only ever set to a block timestamp
+        // Cast is safe (principal): is LTE loan.valuation
         // Cast is safe: if this overflows, then all loans have expired anyway
-        uint256 interest = calculateInterest(principal, uint64(block.timestamp - loan.startTime), loanParams.annualInterestBPS);
+        uint256 interest = calculateInterest(uint128(principal), uint64(block.timestamp - loan.startTime), loanParams.annualInterestBPS);
         // No overflow: multiplicands fit in 128 and 16 bits
         uint256 fee = (interest * PROTOCOL_FEE_BPS) / BPS;
         // No overflon: both terms are 128 bits
         totalAmount = principal + interest;
 
         Rebase memory bentoBoxTotals = bentoBox.totals(asset);
+
         totalShare = bentoBoxTotals.toBase(totalAmount, false);
         feeShare = bentoBoxTotals.toBase(fee, false);
-
         lender = loan.lender;
-
-        delete tokenLoan[tokenId];
-        delete tokenLoanParams[tokenId];
-
-        collateral.transferFrom(address(this), to, tokenId);
     }
 
     function _repayAfter(
         address lender,
         uint256 totalShare,
         uint256 feeShare,
-        uint256 tokenId,
         bool skim
     ) private {
         // No overflow: `totalShare - feeShare` is 90% of `totalShare`, and
@@ -656,20 +675,21 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         feesEarnedShare += feeShare;
         // No underflow: `feeShare` is 10% of part of `totalShare`
         bentoBox.transfer(asset, address(this), lender, totalShare - feeShare);
-        emit LogRepay(skim ? address(this) : msg.sender, tokenId);
     }
 
-    /// @notice Repay a loan in full
+    /// @notice Repay a loan in part or in full
     /// @param tokenId Token ID of the loan in question.
     /// @param to Recipient of the returned collateral. Can be anyone if msg.sender is the borrower, otherwise the borrower.
+    /// @param partBPS Part of the loan to repay, in BPS. (Saturates at 10k).
     /// @param skim True if the funds have already been Bento-transfered to the contract. Take care to send enough; interest accumulates by the second.
     function repay(
         uint256 tokenId,
         address to,
+        uint16 partBPS,
         bool skim
     ) external {
-        (uint256 totalShare, , uint256 feeShare, address lender) = _repayBefore(tokenId, to);
-        _repayAfter(lender, totalShare, feeShare, tokenId, skim);
+        (uint256 totalShare, , uint256 feeShare, address lender) = _repayBefore(tokenId, to, partBPS, skim);
+        _repayAfter(lender, totalShare, feeShare, skim);
     }
 
     /// @notice Repay a loan in full, by selling the token in the same transaction. Must be the borrower.
@@ -685,7 +705,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         address excessRecipient,
         bool skimShortage
     ) external {
-        (uint256 totalShare, , uint256 feeShare, address lender) = _repayBefore(tokenId, address(seller));
+        (uint256 totalShare, , uint256 feeShare, address lender) = _repayBefore(tokenId, address(seller), BPS, false);
 
         // External call is safe: At this point the loan is already gone, the
         // seller has the token, and an amount must be paid via skimming or the
@@ -709,7 +729,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         } else if (priceShare > totalShare) {
             bentoBox.transfer(asset, address(this), excessRecipient, priceShare - totalShare);
         }
-        _repayAfter(lender, totalShare, feeShare, tokenId, true);
+        _repayAfter(lender, totalShare, feeShare, true);
     }
 
     /// @notice Withdraws the fees accumulated.
@@ -855,12 +875,13 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
                 uint256 totalShare;
                 uint256 feeShare;
                 address lender;
+                uint16 partBPS;
                 bool skim;
                 {
                     address to;
                     // No skimming, but it can sill be done
-                    (tokenId, to, skim) = abi.decode(datas[i], (uint256, address, bool));
-                    (totalShare, result[1], feeShare, lender) = _repayBefore(tokenId, to);
+                    (tokenId, to, partBPS, skim) = abi.decode(datas[i], (uint256, address, uint16, bool));
+                    (totalShare, result[1], feeShare, lender) = _repayBefore(tokenId, to, partBPS, skim);
                     // Delaying asset collection until after the rest of the
                     // cook is safe: after checking..  - `feesEarnedShare` is
                     // updated after the check - The rest (`totalShare -
@@ -870,7 +891,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
                 }
                 result[0] = totalShare;
                 _cook(actions, values, datas, ++i, result);
-                _repayAfter(lender, totalShare, feeShare, tokenId, skim);
+                _repayAfter(lender, totalShare, feeShare, skim);
                 return;
             } else if (action == ACTION_REMOVE_COLLATERAL) {
                 (uint256 tokenId, address to) = abi.decode(datas[i], (uint256, address));
