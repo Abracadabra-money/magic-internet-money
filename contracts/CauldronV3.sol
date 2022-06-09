@@ -511,7 +511,6 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
         uint256 allBorrowAmount;
         uint256 allBorrowPart;
         Rebase memory _totalBorrow = totalBorrow;
-        Rebase memory bentoBoxTotals = bentoBox.totals(collateral);
         for (uint256 i = 0; i < users.length; i++) {
             address user = users[i];
             if (!_isSolvent(user, _exchangeRate)) {
@@ -522,8 +521,9 @@ contract CauldronV3 is BoringOwnable, IMasterContract {
                     userBorrowPart[user] = availableBorrowPart.sub(borrowPart);
                 }
                 uint256 borrowAmount = _totalBorrow.toElastic(borrowPart, false);
-                uint256 collateralShare =
-                    bentoBoxTotals.toBase(
+                uint256 collateralShare = 
+                    bentoBox.toShare(
+                        collateral,
                         borrowAmount.mul(LIQUIDATION_MULTIPLIER).mul(_exchangeRate) /
                             (LIQUIDATION_MULTIPLIER_PRECISION * EXCHANGE_RATE_PRECISION),
                         false
