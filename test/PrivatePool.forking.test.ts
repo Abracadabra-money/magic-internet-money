@@ -1,4 +1,10 @@
-import { ethers, network, deployments, getNamedAccounts, artifacts } from "hardhat";
+import {
+  ethers,
+  network,
+  deployments,
+  getNamedAccounts,
+  artifacts,
+} from "hardhat";
 import { expect } from "chai";
 import { BigNumberish, Signer } from "ethers";
 import _ from "lodash";
@@ -36,7 +42,10 @@ const typeDefaults = {
 // These rely on JS/TS iterating over the keys in the order they were defined:
 const initTypeString = _.map(initTypes, (t, name) => `${t} ${name}`).join(", ");
 const encodeInitData = (kvs) =>
-  ethers.utils.defaultAbiCoder.encode([`tuple(${initTypeString})`], [_.mapValues(initTypes, (t, k) => kvs[k] || typeDefaults[t] || 0)]);
+  ethers.utils.defaultAbiCoder.encode(
+    [`tuple(${initTypeString})`],
+    [_.mapValues(initTypes, (t, k) => kvs[k] || typeDefaults[t] || 0)]
+  );
 
 const getSignerFor = async (addr) => {
   await impersonate(addr);
@@ -53,9 +62,13 @@ describe("Private Lending Pool - Forked Mainnet", async () => {
   let generalWhale: Signer;
 
   const deployPair = async (initSettings) => {
-    const deployTx = await bentoBox.deploy(masterContract.address, encodeInitData(initSettings), false).then((tx) => tx.wait());
+    const deployTx = await bentoBox
+      .deploy(masterContract.address, encodeInitData(initSettings), false)
+      .then((tx) => tx.wait());
     const [deployEvent] = deployTx.events;
-    expect(deployEvent.eventSignature).to.equal("LogDeploy(address,bytes,address)");
+    expect(deployEvent.eventSignature).to.equal(
+      "LogDeploy(address,bytes,address)"
+    );
     const { cloneAddress } = deployEvent.args;
     return ethers.getContractAt<PrivatePool>("PrivatePool", cloneAddress);
   };
@@ -67,7 +80,9 @@ describe("Private Lending Pool - Forked Mainnet", async () => {
       params: [
         {
           forking: {
-            jsonRpcUrl: process.env.ETHEREUM_RPC_URL || `https://eth-mainnet.alchemyapi.io/v2/${alchemyKey}`,
+            jsonRpcUrl:
+              process.env.ETHEREUM_RPC_URL ||
+              `https://eth-mainnet.alchemyapi.io/v2/${alchemyKey}`,
             blockNumber: 13715035,
           },
         },
@@ -76,7 +91,10 @@ describe("Private Lending Pool - Forked Mainnet", async () => {
 
     await deployments.fixture(["PrivatePool"]);
     masterContract = await ethers.getContract<PrivatePool>("PrivatePool");
-    bentoBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", await masterContract.bentoBox());
+    bentoBox = await ethers.getContractAt<BentoBoxV1>(
+      "BentoBoxV1",
+      await masterContract.bentoBox()
+    );
 
     const sevenPercentAnnually = getBigNumber(7).div(100 * 3600 * 24 * 365);
     pairContract = await deployPair({
@@ -135,7 +153,9 @@ describe("Private Lending Pool - Forked Mainnet", async () => {
     });
 
     it("Should refuse to initialize twice", async () => {
-      await expect(pairContract.init(encodeInitData({}))).to.be.revertedWith("PrivatePool: already initialized");
+      await expect(pairContract.init(encodeInitData({}))).to.be.revertedWith(
+        "PrivatePool: already initialized"
+      );
     });
   });
 });

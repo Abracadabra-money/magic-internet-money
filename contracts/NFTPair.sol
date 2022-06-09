@@ -716,17 +716,18 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         // then either `_repayAfter()` will fail, or the funds were sitting in
         // the contract's BentoBox balance unaccounted for, and could be freely
         // skimmed for another purpose anyway.
-        uint256 priceShare = seller.sell(collateral, tokenId, asset, price, address(this));
+        IERC20 asset_ = asset;
+        uint256 priceShare = seller.sell(collateral, tokenId, asset_, price, address(this));
         if (priceShare < totalShare) {
             // No overflow: `totalShare` fits or `_repayAfter()` reverts. See
             // comments there for proof.
             // If we are skimming, then we defer the check to `_repayAfter()`,
             // which checks that the full amount (`totalShare`) has been sent.
             if (!skimShortage) {
-                bentoBox.transfer(asset, msg.sender, address(this), totalShare - priceShare);
+                bentoBox.transfer(asset_, msg.sender, address(this), totalShare - priceShare);
             }
         } else if (priceShare > totalShare) {
-            bentoBox.transfer(asset, address(this), excessRecipient, priceShare - totalShare);
+            bentoBox.transfer(asset_, address(this), excessRecipient, priceShare - totalShare);
         }
         _repayAfter(lender, totalShare, feeShare, true);
     }
