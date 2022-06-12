@@ -12,6 +12,11 @@ const ParametersPerChain = {
     degenBox: Constants.avalanche.degenBox,
     mim: Constants.avalanche.mim,
   },
+  [ChainId.Mainnet]: {
+    owner: xMerlin,
+    degenBox: Constants.mainnet.degenBox,
+    mim: Constants.mainnet.mim,
+  },
 };
 
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {

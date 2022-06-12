@@ -145,13 +145,30 @@
 
 ## Fantom
 
+## Cauldron MasterContracts
+
+| Contract                  | DegenBox | Address                                    |
+| ------------------------- | -------- | ------------------------------------------ |
+| CauldronV3 MasterContract | Limone   | 0xAcdd6e28b7440fe17EeFD927337480DD1Ea7A97b |
+
+### Cauldrons
+
+| Contract                         | Address                                    | Note                                    |
+| -------------------------------- | ------------------------------------------ | --------------------------------------- |
+| **Popsicle fUSDT/USDC**          |                                            |                                         |
+| fUSDTUSDCSpiritCauldron          | 0xB23a8A3a6CEC34827BceFF327050B37Ce98CA4cD | 90% LTV 0% initial 2.5% Interest Liq 8% |
+| fUSDTUSDCSpiritProxyOracle       | 0xe56F37Ef2e54ECaA41a9675da1c3445736d60B42 | Using fUSDTUSDCSpiritInvertedLPOracle   |
+| fUSDTUSDCSpiritInvertedLPOracle  | 0x4A3A6Dd60A34bB2Aba60D73B4C88315E9CeB6A3D | Using fUSDTUSDCSpiritChainlinkOracleV1  |
+| fUSDTUSDCSpiritChainlinkOracleV1 | 0xfbF8035d24E9c539569F25C47896Ab2DF4a43f03 | Using fUSDTUSDCOracleV1                 |
+| fUSDTUSDCOracleV1                | 0x9031c0Fd5bD1405132028A3e0eb277C705B3d8f7 | Using Chainlink USDT/USD and USDC/USD   |
+| SpiritfUSDTUSDCSwapper           | 0x1E217d3cA2a19f2cB0F9f12a65b40f335286758E | Liquidation Swapper                     |
+| SpiritfUSDTUSDCLevSwapper        | 0xc97C7F6e60Fdd610A0fCA4792BbBD1dbD028d474 | Leverage Swapper                        |
+
 ### Utilities
 
 | Contract             | Address                                    | Note |
 | -------------------- | ------------------------------------------ | ---- |
 | MultichainWithdrawer | 0x7a3b799E929C9bef403976405D8908fa92080449 |      |
-
-## Arbitrum
 
 ### Utilities
 
@@ -163,10 +180,20 @@
 
 ## Cauldron MasterContracts
 
-| Contract              | Address                                    |
-| --------------------- | ------------------------------------------ |
-| CauldronV3            | 0x177a24B427876F61983CCe0dD37608611e7de3f7 |
-| WhitelistedCauldronV3 | 0xE8681a8C8d8E24b65526C2f94Fd5eF9D3ec18726 |
+| Contract                         | Address                                    |
+| -------------------------------- | ------------------------------------------ | ---------------------------------------- |
+| CauldronV3                       | 0x177a24B427876F61983CCe0dD37608611e7de3f7 |
+| WhitelistedCauldronV3            | 0xE8681a8C8d8E24b65526C2f94Fd5eF9D3ec18726 |
+| **Stargate USDC**                |                                            |                                          |
+| StargateAvalancheUsdcCauldron    | 0xF6BB4627A86CE4AC6d748d4F69856980A305EC99 | 95% LTV 0% initial 0% Interest, 0.5% fee |
+| StargateAvalancheUsdcProxyOracle | 0xb69c154030ce89340cdceca8eed93283499a8276 |                                          |
+| StargateAvalancheUsdcSwapper     | 0x6C464923568a466262E2Bb614723a98813b0B548 | Liquidation Swapper                      |
+| StargateAvalancheUsdcLevSwapper  | 0x49AF4181b36b629089A3B26E046D313a115eC911 | Leverage Swapper                         |
+| **Stargate USDT**                |                                            |                                          |
+| StargateAvalancheUsdtCauldron    | 0xD9BD7cBB757c5689aFa1E6B7D526C7b544cD6e7F | 95% LTV 0% initial 0% Interest, 0.5% fee |
+| StargateAvalancheUsdtProxyOracle | 0x7E0f0Cc086b069d1Ae3edB7E7aEEcc770b6d3aeb |                                          |
+| StargateAvalancheUsdtSwapper     | 0x198892f3709A6A03F4de1165057f78A9f2741B6e | Liquidation Swapper                      |
+| StargateAvalancheUsdtLevSwapper  | 0xAC6C439253987Be9aFF6AaC047EC8501eA13d512 | Leverage Swapper                         |
 
 ### Cauldrons
 
@@ -222,6 +249,21 @@
 | ------------------------- | ------------------------------------------ |
 | CauldronV3 MasterContract | 0x233332a01Ebf20f770883ebff68374b015AccB9C |
 
+### Cauldrons
+
+| Contract                        | Address                                    |
+| ------------------------------- | ------------------------------------------ | ---------------------------------------- |
+| **Stargate USDC**               |                                            |                                          |
+| StargateArbitrumUsdcCauldron    | 0x5170f2037a1F63D2A40cb3585a73292762ddFfEC | 95% LTV 0% initial 0% Interest, 0.5% fee |
+| StargateArbitrumUsdcProxyOracle | 0x0D52048451207106184f0423cAF055aE24a5A38A |                                          |
+| StargateArbitrumUsdcSwapper     | 0x4C44B16422c4cd58a37aAD4Fc3b8b376393a91dC | Liquidation Swapper                      |
+| StargateArbitrumUsdcLevSwapper  | 0xDfa94F2CE5bC1961F2604338F97F468592CA293D | Leverage Swapper                         |
+| **Stargate USDT**               |                                            |                                          |
+| StargateArbitrumUsdtCauldron    | 0xB22D606676870c6116ED68757f18622060eaaf9e | 95% LTV 0% initial 0% Interest, 0.5% fee |
+| StargateArbitrumUsdtProxyOracle | 0xD6b8bd85A9593cb47c8C15C95bbF3e593c5Dc591 |                                          |
+| StargateArbitrumUsdtSwapper     | 0x56e8004C16b3caD2038c10EA9469f7bad765Be85 | Liquidation Swapper                      |
+| StargateArbitrumUsdtLevSwapper  | 0xa64B73699Cc7334810E382A4C09CAEc53636Ab96 | Leverage Swapper                         |
+
 # Oracles
 
 | Chain | Token                 | Address                                    |
@@ -231,17 +273,18 @@
 
 # Popsicle
 
-| Contract                     | Address                                    | Note |
-| ---------------------------- | ------------------------------------------ | ---- |
-| Popsicle Degenbox            | 0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4 |      |
-| PopsicleCauldronV2MultiChain | 0xfe0f13fD5f928539C5bc377c8200a699FC95Ca02 |      |
+| Contract                      | Address                                    | Note           |
+| ----------------------------- | ------------------------------------------ | -------------- |
+| Popsicle Degenbox             | 0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4 |                |
+| PopsicleCauldronV2MultiChain  | 0xfe0f13fD5f928539C5bc377c8200a699FC95Ca02 |                |
+| CauldronV3MC_Limone_Avalanche | 0xf24F4cf3E272eF412D0d4764909141B39CC878CF | Cauldron V3 MC |
 
 ### Popsicle Cauldrons
 
-| Contract                     | Address                                    | Note                                                      |
-| ---------------------------- | ------------------------------------------ | --------------------------------------------------------- |
-| **USDC.e/WAVAX**             |                                            |                                                           |
-| PopsicleUsdcAvaxCauldron     | 0x02130dE2d2E1CB33cB23ACbB9c48e94a610AFA56 | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest |
-| Oracle                       | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 | reusing existing Joe USDC/WAVAX jLP oracle                |
-| PopsicleUsdcAvaxSwapperV2    | 0x6dA65013D5814dA632F1A94f3501aBc8e54C98ae | Liquidation Swapper using Platypus                        |
-| PopsicleUsdcAvaxLevSwapperV2 | 0x7d76568d84de8A0F34BBf315F53d7772c1fABcD8 | Leverage Swapper using Platypus                           |
+| Contract                     | Address                                    | Note                                                                        |
+| ---------------------------- | ------------------------------------------ | --------------------------------------------------------------------------- |
+| **USDC.e/WAVAX**             |                                            |                                                                             |
+| PopsicleUsdcAvaxCauldron     | 0x3Cf232F346934B949b99797d225Bb72734731990 | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest, Using CauldronV3 |
+| Oracle                       | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 | reusing existing Joe USDC/WAVAX jLP oracle                                  |
+| PopsicleUsdcAvaxSwapperV3    | 0x0B76afC2E52f84E04Ee3fb1961277783Fb804750 | Liquidation Swapper using Platypus                                          |
+| PopsicleUsdcAvaxLevSwapperV2 | 0x7d76568d84de8A0F34BBf315F53d7772c1fABcD8 | Leverage Swapper using Platypus                                             |

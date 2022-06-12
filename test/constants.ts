@@ -4,6 +4,7 @@ export const xCalibur = "0xfB3485c2e209A5cfBDC1447674256578f1A80eE3";
 export const Constants = {
   mainnet: {
     cauldronV3: "0x3E2a2BC69E5C22A8DA4056B413621D1820Eb493E",
+    cauldronV3Whitelisted: "0xe0d2007F6F2A71B90143D6667257d95643183F2b",
     degenBox: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
     multiSig: "0x5f0DeE98360d8200b20812e174d139A1a633EDd2",
     mim: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
@@ -20,6 +21,9 @@ export const Constants = {
     curve: {
       mim3Crv: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
     },
+    yearn: {
+      yvSTETHc: "0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E"
+    }
   },
 
   arbitrum: {
@@ -50,6 +54,7 @@ export const Constants = {
     usdte: "0xc7198437980c041c805A1EDcbA50c1Ce5db95118",
     usdc: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
     usdce: "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664",
+    wavax: "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7",
     platypus: {
       router: "0x73256EC7575D999C360c1EeC118ECbEFd8DA7D12",
     },
@@ -60,4 +65,24 @@ export const Constants = {
       usdtPool: "0x29e38769f23701A2e4A8Ef0492e19dA4604Be62c",
     },
   },
+
+  fantom: {
+    cauldronV3: "0xAcdd6e28b7440fe17EeFD927337480DD1Ea7A97b",
+    limone: "0xc7a161Cfd0e133d289B13692b636B8e8B5CD8d8c",
+    mim: "0x82f0B8B456c1A451378467398982d4834b6829c1",
+    wftm: "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83",
+    usdc: "0x04068DA6C83AFCFA0e13ba15A6696662335D5B75",
+    fusdt: "0x049d68029688eAbF473097a2fC38ef61633A3C7A",
+    curve: {
+      mim3poolv2: "0x2dd7C9371965472E5A5fD28fbE165007c61439E1"
+    },
+    spiritswap: {
+      router: "0x16327E3FbDaCA3bcF7E38F5Af2599D2DDc33aE52",
+      fUSDTUSDC: "0xe7F86CEf8FEf60ce5050899D1F8e465C00D04a79"
+    },
+    chainlink: {
+      usdt: "0xF64b636c5dFe1d3555A847341cDC449f612307d0",
+      usdc: "0x2553f4eeb82d5A26427b8d1106C51499CBa5D99c",
+    }
+  }
 };
