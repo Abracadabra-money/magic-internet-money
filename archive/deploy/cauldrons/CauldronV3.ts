@@ -18,6 +18,13 @@ const ParametersPerChain = {
     mim: Constants.avalanche.mim,
     owner: xMerlin,
   },
+  // Popsicle
+  [ChainId.Fantom]: {
+    deploymentName: "CauldronV3MCLimoneFantom",
+    degenBox: Constants.fantom.limone,
+    mim: Constants.fantom.mim,
+    owner: xMerlin,
+  },
 };
 
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
