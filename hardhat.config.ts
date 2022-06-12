@@ -42,7 +42,7 @@ const config: HardhatUserConfig = {
       optimisticEthereum: process.env.ETHERSCAN_TOKEN,
       arbitrumOne: process.env.ARBISCAN_TOKEN,
       avalanche: process.env.ETHERSCAN_TOKEN,
-      opera: process.env.FTMSCAN_TOKEN,
+      opera: process.env.ETHERSCAN_TOKEN,
       bsc: process.env.BSCSCAN_TOKEN,
     },
   },
@@ -310,6 +310,15 @@ const config: HardhatUserConfig = {
         },
       },
       "contracts/WhitelistedCauldronV3.sol": {
+        version: "0.6.12",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 999999,
+          },
+        },
+      },
+      "contracts/CauldronV3_1.sol": {
         version: "0.6.12",
         settings: {
           optimizer: {
