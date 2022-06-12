@@ -10,10 +10,13 @@ import "../interfaces/stargate/IStargateRouter.sol";
 import "../interfaces/IOracle.sol";
 import "../interfaces/IAggregator.sol";
 
-abstract contract BaseStargateLpMimPool is Ownable {
+contract StargateLpMimPool is Ownable {
     using SafeTransferLib for ERC20;
 
+    error ErrSwapFailed();
+
     event AllowedRedeemerChanged(address redeemer, bool allowed);
+    event AllowedExecutorChanged(address redeemer, bool allowed);
     event Swap(address from, IStargatePool tokenIn, uint256 amountIn, uint256 amountOut, address recipient);
     event PoolChanged(IStargatePool lp, uint16 poolId, IOracle oracle);
     event FeeChanged(uint256 feeBps);
@@ -33,9 +36,15 @@ abstract contract BaseStargateLpMimPool is Ownable {
 
     mapping(IStargatePool => PoolInfo) public pools;
     mapping(address => bool) public allowedRedeemers;
+    mapping(address => bool) public allowedExecutors;
 
     modifier onlyAllowedRedeemers() {
         require(allowedRedeemers[msg.sender] == true, "not allowed");
+        _;
+    }
+
+    modifier onlyAllowedExecutors() {
+        require(allowedExecutors[msg.sender] == true, "not allowed");
         _;
     }
 
@@ -83,6 +92,11 @@ abstract contract BaseStargateLpMimPool is Ownable {
         emit AllowedRedeemerChanged(redeemer, allowed);
     }
 
+    function setAllowedExecutor(address executor, bool allowed) external onlyOwner {
+        allowedExecutors[executor] = allowed;
+        emit AllowedExecutorChanged(executor, allowed);
+    }
+
     function setFee(uint256 _feeBps) external onlyOwner {
         require(_feeBps <= 10_000, "max fee is 10000");
         feeBps = _feeBps;
@@ -124,7 +138,7 @@ abstract contract BaseStargateLpMimPool is Ownable {
         uint256 dstPoolId,
         uint256 amount,
         IStargateRouter.lzTxObj memory txParams
-    ) external payable onlyOwner {
+    ) external payable onlyAllowedExecutors {
         stargateRouter.redeemLocal{value: msg.value}(
             dstChainId,
             srcPoolId,
@@ -136,7 +150,7 @@ abstract contract BaseStargateLpMimPool is Ownable {
         );
     }
 
-    function instantRedeemLocalMax(IStargatePool lp) external onlyOwner {
+    function instantRedeemLocalMax(IStargatePool lp) external onlyAllowedExecutors {
         PoolInfo memory info = pools[lp];
 
         uint256 amount = ERC20(address(lp)).balanceOf(address(this));
@@ -145,9 +159,26 @@ abstract contract BaseStargateLpMimPool is Ownable {
         stargateRouter.instantRedeemLocal(info.poolId, amount > max ? max : amount, address(this));
     }
 
-    function instantRedeemLocal(IStargatePool lp, uint256 amount) external onlyOwner {
+    function instantRedeemLocal(IStargatePool lp, uint256 amount) external onlyAllowedExecutors {
         PoolInfo memory info = pools[lp];
         stargateRouter.instantRedeemLocal(info.poolId, amount, address(this));
+    }
+
+    /// @dev Swap internal tokens using an aggregator, for example, 1inch, 0x.
+    function swapOnAggregator(
+        address aggreagtorRouter,
+        ERC20 tokenIn,
+        bytes calldata data
+    ) external onlyAllowedExecutors {
+        tokenIn.safeApprove(aggreagtorRouter, type(uint256).max);
+
+        // solhint-disable-next-line avoid-low-level-calls
+        (bool success, ) = aggreagtorRouter.call(data);
+        if (!success) {
+            revert ErrSwapFailed();
+        }
+
+        tokenIn.safeApprove(aggreagtorRouter, 0);
     }
 
     /*** Emergency Functions ***/

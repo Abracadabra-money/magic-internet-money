@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { deployments, ethers, getNamedAccounts } from "hardhat";
 import { expect } from "chai";
-import { BaseStargateLpMimPool, DegenBox, IOracle, ProxyOracle, StargateCurveSwapperV2 } from "../typechain";
+import { StargateLpMimPool, DegenBox, IOracle, ProxyOracle, StargateCurveSwapperV2 } from "../typechain";
 import { ChainId, setDeploymentSupportedChains, wrappedDeploy } from "../utilities";
 import { Constants, xMerlin } from "../test/constants";
 
@@ -14,6 +14,7 @@ export const ParametersPerChain = {
     mim: Constants.mainnet.mim,
     owner: xMerlin,
     stargateRouter: Constants.mainnet.stargate.router,
+    mimOracle: "0x7A364e8770418566e3eb2001A96116E6138Eb32F", // Chainlink MIM/USD
 
     cauldrons: [
       // USDC Pool
@@ -51,10 +52,10 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const parameters = ParametersPerChain[chainId];
   const cauldrons = parameters.cauldrons;
 
-  const MimPool = await wrappedDeploy<BaseStargateLpMimPool>(`MainnetStargateLpMimPoolV5`, {
+  const MimPool = await wrappedDeploy<StargateLpMimPool>(`MainnetStargateLpMimPool`, {
     from: deployer,
-    args: [Constants.mainnet.mim, Constants.mainnet.stargate.router],
-    contract: "MainnetStargateLpMimPool",
+    args: [parameters.mim, parameters.mimOracle, parameters.stargateRouter],
+    contract: "StargateLpMimPool",
   });
 
   for (let i = 0; i < cauldrons.length; i++) {
@@ -80,6 +81,8 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     await (await MimPool.setAllowedRedeemer(Swapper.address, true)).wait();
     await (await Swapper.setMimPool(MimPool.address)).wait();
   }
+
+  await (await MimPool.setAllowedExecutor(xMerlin, true)).wait();
 };
 
 export default deployFunction;

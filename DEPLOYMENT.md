@@ -20,7 +20,7 @@
 
 | Contract                 | Address                                    |
 | ------------------------ | ------------------------------------------ |
-| MainnetStargateLpMimPool | 0x620F615D6E57a91a83cbFe6d6970296b3CF20Cf0 |
+| MainnetStargateLpMimPool | 0x185697868e26c2Ec5b6b86504dB2F2d390f54720 |
 
 ### Cauldrons
 
@@ -53,12 +53,12 @@
 | **Stargate USDC**               |                                            |                                            |
 | StargateEthereumUsdcCauldron    | 0xd31E19A0574dBF09310c3B06f3416661B4Dc7324 | 95% LTV 0% initial 0% Interest, 0.5% fee   |
 | StargateEthereumUsdcProxyOracle | 0x16495612e7b35bbc8c672cd76de83bcc81774552 | Using StargateEthereumUsdcLPOracleV1       |
-| StargateEthereumUsdcSwapperV2   | 0x4ED0935ecC03D7FcEfb059e279BCD910a02F284C | Liquidation Swapper                        |
+| StargateEthereumUsdcSwapperV2   | 0x727f7302c6F5FCE0464F77735b84B2d192b0C89E | Liquidation Swapper                        |
 | StargateEthereumUsdcLevSwapper  | 0xEdEa4518796EA45dFc38D78D9B8b9e070436AD51 | Leverage Swapper                           |
 | **Stargate USDT**               |                                            |                                            |
 | StargateEthereumUsdtCauldron    | 0xc6B2b3fE7c3D7a6f823D9106E22e66660709001e | 95% LTV 0% initial 0% Interest, 0.5% fee   |
 | StargateEthereumUsdtProxyOracle | 0xaBB326cD92b0e48fa6dfC54d69Cd1750a1007a97 | Using StargateEthereumUsdtLPOracleV1       |
-| StargateEthereumUsdtSwapperV2   | 0x41B8Dbde2D4127111FBEDF31783781ae69300026 | Liquidation Swapper                        |
+| StargateEthereumUsdtSwapperV2   | 0xc99A4863173Ef52CCB7EA05440da0e37bA39c139 | Liquidation Swapper                        |
 | StargateEthereumUsdtLevSwapper  | 0x1E188DD74adf8CC95c98714407e88a4a99b759A5 | Leverage Swapper                           |
 
 ### Popsicle Cauldrons
@@ -127,7 +127,6 @@
 | Contract           | Address                                    | Note                                                                                                                         |
 | ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | EthereumWithdrawer | 0xB2c3A9c577068479B1E5119f6B7da98d25Ba48f4 | Withdraw MIM fees from cauldron and swap for SPELL. Also used as recipient for swapping MIM fees received from other chains. |
-| SwapperTester      | 0x3A062dd7126EE8A30b16A881954Fb32A57FCB19c | Allows to atomically test leverage and liquidation swappers                                                                  |
 
 ### Oracles
 
