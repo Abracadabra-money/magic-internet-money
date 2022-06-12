@@ -27,8 +27,8 @@ export const Constants = {
     },
     aggregators: {
       oneInchV4Router: "0x1111111254fb6c44bac0bed2854e76f90643097d",
-      zeroXExchangProxy: "0xDef1C0ded9bec7F1a1670819833240f027b25EfF"
-    }
+      zeroXExchangProxy: "0xDef1C0ded9bec7F1a1670819833240f027b25EfF",
+    },
   },
 
   arbitrum: {
@@ -69,7 +69,7 @@ export const Constants = {
     },
     traderjoe: {
       savaxWavax: "0x4b946c91C2B1a7d7C40FB3C130CdfBaf8389094d",
-      router: "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"
+      router: "0x60aE616a2155Ee3d9A68541Ba4544862310933d4",
     },
     platypus: {
       router: "0x73256EC7575D999C360c1EeC118ECbEFd8DA7D12",
@@ -81,10 +81,9 @@ export const Constants = {
       usdtPool: "0x29e38769f23701A2e4A8Ef0492e19dA4604Be62c",
     },
     aggregators: {
-      zeroXExchangProxy: "0xDef1C0ded9bec7F1a1670819833240f027b25EfF"
-    }
+      zeroXExchangProxy: "0xDef1C0ded9bec7F1a1670819833240f027b25EfF",
+    },
   },
-
   fantom: {
     cauldronV3Limone: "0xAcdd6e28b7440fe17EeFD927337480DD1Ea7A97b",
     limone: "0xc7a161Cfd0e133d289B13692b636B8e8B5CD8d8c",
