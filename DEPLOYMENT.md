@@ -181,8 +181,8 @@
 
 | Contract                         | Address                                    |
 | -------------------------------- | ------------------------------------------ | ---------------------------------------- |
-| CauldronV3                       | 0x177a24B427876F61983CCe0dD37608611e7de3f7 |
-| WhitelistedCauldronV3            | 0xE8681a8C8d8E24b65526C2f94Fd5eF9D3ec18726 |
+| CauldronV3                       | 0x177a24B427876F61983CCe0dD37608611e7de3f7 |                                          |
+| WhitelistedCauldronV3            | 0xE8681a8C8d8E24b65526C2f94Fd5eF9D3ec18726 |                                          |
 | **Stargate USDC**                |                                            |                                          |
 | StargateAvalancheUsdcCauldron    | 0xF6BB4627A86CE4AC6d748d4F69856980A305EC99 | 95% LTV 0% initial 0% Interest, 0.5% fee |
 | StargateAvalancheUsdcProxyOracle | 0xb69c154030ce89340cdceca8eed93283499a8276 |                                          |
