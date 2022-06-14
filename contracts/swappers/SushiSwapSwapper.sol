@@ -57,12 +57,11 @@ contract SushiSwapSwapper is ISwapper {
         uint256 shareFrom
     ) public override returns (uint256 extraShare, uint256 shareReturned) {
         (IERC20 token0, IERC20 token1) = fromToken < toToken ? (fromToken, toToken) : (toToken, fromToken);
-        IUniswapV2Pair pair =
-            IUniswapV2Pair(
-                uint256(
-                    keccak256(abi.encodePacked(hex"ff", factory, keccak256(abi.encodePacked(address(token0), address(token1))), pairCodeHash))
-                )
-            );
+        IUniswapV2Pair pair = IUniswapV2Pair(
+            uint256(
+                keccak256(abi.encodePacked(hex"ff", factory, keccak256(abi.encodePacked(address(token0), address(token1))), pairCodeHash))
+            )
+        );
 
         (uint256 amountFrom, ) = bentoBox.withdraw(fromToken, address(this), address(pair), 0, shareFrom);
 
@@ -94,7 +93,9 @@ contract SushiSwapSwapper is ISwapper {
             (IERC20 token0, IERC20 token1) = fromToken < toToken ? (fromToken, toToken) : (toToken, fromToken);
             pair = IUniswapV2Pair(
                 uint256(
-                    keccak256(abi.encodePacked(hex"ff", factory, keccak256(abi.encodePacked(address(token0), address(token1))), pairCodeHash))
+                    keccak256(
+                        abi.encodePacked(hex"ff", factory, keccak256(abi.encodePacked(address(token0), address(token1))), pairCodeHash)
+                    )
                 )
             );
         }

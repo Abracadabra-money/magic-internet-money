@@ -22,8 +22,8 @@ interface AggregatorV3Interface {
 contract AvaxUsdtOracleV1 is AggregatorV3Interface {
     AggregatorV3Interface public constant USDTUSD = AggregatorV3Interface(0xEBE676ee90Fe1112671f19b6B7459bC678B67e8a);
     AggregatorV3Interface public constant AVAXUSD = AggregatorV3Interface(0x0A77230d17318075983913bC2145DB16C7366156);
-    
-    function decimals() external override pure returns (uint8) {
+
+    function decimals() external pure override returns (uint8) {
         return 18;
     }
 
@@ -39,8 +39,8 @@ contract AvaxUsdtOracleV1 is AggregatorV3Interface {
             uint80 answeredInRound
         )
     {
-        (,int256 usdtUsdFeed,,,) = USDTUSD.latestRoundData();
-        (,int256 avaxUsdFeed,,,) = AVAXUSD.latestRoundData();
+        (, int256 usdtUsdFeed, , , ) = USDTUSD.latestRoundData();
+        (, int256 avaxUsdFeed, , , ) = AVAXUSD.latestRoundData();
 
         return (0, (usdtUsdFeed * 1e18) / avaxUsdFeed, 0, 0, 0);
     }

@@ -4,13 +4,12 @@ import "../interfaces/IOracle.sol";
 
 // Chainlink Aggregator
 
-
 interface ILPOracle {
     function lp_price() external view returns (uint256 price);
 }
 
 contract ThreeCryptoOracle is IOracle {
-    ILPOracle constant public LP_ORACLE = ILPOracle(0xE8b2989276E2Ca8FDEA2268E3551b2b4B2418950);
+    ILPOracle public constant LP_ORACLE = ILPOracle(0xE8b2989276E2Ca8FDEA2268E3551b2b4B2418950);
 
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD

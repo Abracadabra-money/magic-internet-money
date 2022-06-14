@@ -7,13 +7,14 @@ import "../interfaces/IOracle.sol";
 interface IAggregator {
     function latestAnswer() external view returns (int256 answer);
 }
+
 interface ICurvePool {
     function get_virtual_price() external view returns (uint256 price);
 }
 
 contract RenBTCCrvOracle is IOracle {
-    ICurvePool constant public renCrv = ICurvePool(0x93054188d876f558f4a66B2EF1d97d16eDf0895B);
-    IAggregator constant public BTC = IAggregator(0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c);
+    ICurvePool public constant renCrv = ICurvePool(0x93054188d876f558f4a66B2EF1d97d16eDf0895B);
+    IAggregator public constant BTC = IAggregator(0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c);
 
     /**
      * @dev Returns the smallest of two numbers.
@@ -26,7 +27,6 @@ contract RenBTCCrvOracle is IOracle {
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get() internal view returns (uint256) {
-
         // As the price should never be negative, the unchecked conversion is acceptable
         uint256 renCrvPrice = renCrv.get_virtual_price() * uint256(BTC.latestAnswer());
 

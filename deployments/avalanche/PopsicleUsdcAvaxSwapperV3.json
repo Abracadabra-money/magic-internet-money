@@ -1,0 +1,275 @@
+{
+  "address": "0x0B76afC2E52f84E04Ee3fb1961277783Fb804750",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IBentoBoxV1",
+          "name": "_DEGENBOX",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "DEGENBOX",
+      "outputs": [
+        {
+          "internalType": "contract IBentoBoxV1",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIM",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PLATYPUS_ROUTER",
+      "outputs": [
+        {
+          "internalType": "contract IPlatypusRouter01",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "USDC",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "USDCE",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "USDCEAVAX",
+      "outputs": [
+        {
+          "internalType": "contract IUniswapV2Pair",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "WAVAX",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareToMin",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareFrom",
+          "type": "uint256"
+        }
+      ],
+      "name": "swap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "extraShare",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareReturned",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "swapExact",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "shareUsed",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareReturned",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xfebaa57f577a0193a62159ba667ff69f95244ee153f07402cab92b7fff6a3712",
+  "receipt": {
+    "to": null,
+    "from": "0xfB3485c2e209A5cfBDC1447674256578f1A80eE3",
+    "contractAddress": "0x0B76afC2E52f84E04Ee3fb1961277783Fb804750",
+    "transactionIndex": 7,
+    "gasUsed": "794458",
+    "logsBloom": "0x00000000000000000000100000000000000000000000000000000080040000000000000000000000000000000000000000000000000000000000000000210000000000000000000000000000800000040000000200000000000000000000000000000000000000000000000000100000000000000001000000000000000000000000000000000000000000000000000000000000000000020000000000000000020000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000420000000000000010000000000000000000000000000004000400000000000000000000000000",
+    "blockHash": "0xe5811e5ab92709edd3e6a7c8f61a8702f5b8cb405e414dc24013f0ac1c0dbdbe",
+    "transactionHash": "0xfebaa57f577a0193a62159ba667ff69f95244ee153f07402cab92b7fff6a3712",
+    "logs": [
+      {
+        "transactionIndex": 7,
+        "blockNumber": 14981738,
+        "transactionHash": "0xfebaa57f577a0193a62159ba667ff69f95244ee153f07402cab92b7fff6a3712",
+        "address": "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664",
+        "topics": [
+          "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+          "0x0000000000000000000000000b76afc2e52f84e04ee3fb1961277783fb804750",
+          "0x00000000000000000000000073256ec7575d999c360c1eec118ecbefd8da7d12"
+        ],
+        "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "logIndex": 23,
+        "blockHash": "0xe5811e5ab92709edd3e6a7c8f61a8702f5b8cb405e414dc24013f0ac1c0dbdbe"
+      },
+      {
+        "transactionIndex": 7,
+        "blockNumber": 14981738,
+        "transactionHash": "0xfebaa57f577a0193a62159ba667ff69f95244ee153f07402cab92b7fff6a3712",
+        "address": "0x130966628846BFd36ff31a822705796e8cb8C18D",
+        "topics": [
+          "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+          "0x0000000000000000000000000b76afc2e52f84e04ee3fb1961277783fb804750",
+          "0x000000000000000000000000d825d06061fdc0585e4373f0a3f01a8c02b0e6a4"
+        ],
+        "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "logIndex": 24,
+        "blockHash": "0xe5811e5ab92709edd3e6a7c8f61a8702f5b8cb405e414dc24013f0ac1c0dbdbe"
+      }
+    ],
+    "blockNumber": 14981738,
+    "cumulativeGasUsed": "2487718",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "30369cc72316f790d332de6d7365deea",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.10+commit.fc410830\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IBentoBoxV1\",\"name\":\"_DEGENBOX\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"DEGENBOX\",\"outputs\":[{\"internalType\":\"contract IBentoBoxV1\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MIM\",\"outputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"PLATYPUS_ROUTER\",\"outputs\":[{\"internalType\":\"contract IPlatypusRouter01\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"USDC\",\"outputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"USDCE\",\"outputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"USDCEAVAX\",\"outputs\":[{\"internalType\":\"contract IUniswapV2Pair\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"WAVAX\",\"outputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"shareToMin\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"shareFrom\",\"type\":\"uint256\"}],\"name\":\"swap\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"extraShare\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"shareReturned\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"swapExact\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"shareUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"shareReturned\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"swap(address,address,address,uint256,uint256)\":{\"notice\":\"Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper. Swaps it for at least 'amountToMin' of token 'to'. Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer. Returns the amount of tokens 'to' transferred to BentoBox. (The BentoBox skim function will be used by the caller to get the swapped funds).\"},\"swapExact(address,address,address,address,uint256,uint256)\":{\"notice\":\"Calculates the amount of token 'from' needed to complete the swap (amountFrom), this should be less than or equal to amountFromMax. Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper. Swaps it for exactly 'exactAmountTo' of token 'to'. Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer. Transfers allocated, but unused 'from' tokens within the BentoBox to 'refundTo' (amountFromMax - amountFrom). Returns the amount of 'from' tokens withdrawn from BentoBox (amountFrom). (The BentoBox skim function will be used by the caller to get the swapped funds).\"}},\"notice\":\"Joe USDCE.e/WAVAX swapper using Platypus for swapping USDCE.e to MIM\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/swappers/Liquidations/UsdceAvaxSwapperV3.sol\":\"UsdceAvaxSwapperV3\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":690},\"remappings\":[]},\"sources\":{\"@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol\":{\"content\":\"// SPDX-License-Identifier: GPL-3.0\\n\\npragma solidity >=0.5.0;\\n\\ninterface IUniswapV2Pair {\\n    event Approval(address indexed owner, address indexed spender, uint value);\\n    event Transfer(address indexed from, address indexed to, uint value);\\n\\n    function name() external pure returns (string memory);\\n    function symbol() external pure returns (string memory);\\n    function decimals() external pure returns (uint8);\\n    function totalSupply() external view returns (uint);\\n    function balanceOf(address owner) external view returns (uint);\\n    function allowance(address owner, address spender) external view returns (uint);\\n\\n    function approve(address spender, uint value) external returns (bool);\\n    function transfer(address to, uint value) external returns (bool);\\n    function transferFrom(address from, address to, uint value) external returns (bool);\\n\\n    function DOMAIN_SEPARATOR() external view returns (bytes32);\\n    function PERMIT_TYPEHASH() external pure returns (bytes32);\\n    function nonces(address owner) external view returns (uint);\\n\\n    function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;\\n\\n    event Mint(address indexed sender, uint amount0, uint amount1);\\n    event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);\\n    event Swap(\\n        address indexed sender,\\n        uint amount0In,\\n        uint amount1In,\\n        uint amount0Out,\\n        uint amount1Out,\\n        address indexed to\\n    );\\n    event Sync(uint112 reserve0, uint112 reserve1);\\n\\n    function MINIMUM_LIQUIDITY() external pure returns (uint);\\n    function factory() external view returns (address);\\n    function token0() external view returns (address);\\n    function token1() external view returns (address);\\n    function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);\\n    function price0CumulativeLast() external view returns (uint);\\n    function price1CumulativeLast() external view returns (uint);\\n    function kLast() external view returns (uint);\\n\\n    function mint(address to) external returns (uint liquidity);\\n    function burn(address to) external returns (uint amount0, uint amount1);\\n    function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external;\\n    function skim(address to) external;\\n    function sync() external;\\n\\n    function initialize(address, address) external;\\n}\",\"keccak256\":\"0x08f9a63b34855eec941be8d36a04424f1a1725a2c030373fcef3afeb480ca385\",\"license\":\"GPL-3.0\"},\"contracts/interfaces/IBentoBoxV1.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\nimport \\\"./IERC20.sol\\\";\\r\\n\\r\\ninterface IBentoBoxV1 {\\r\\n    function toAmount(\\r\\n        address _token,\\r\\n        uint256 _share,\\r\\n        bool _roundUp\\r\\n    ) external view returns (uint256);\\r\\n\\r\\n    function withdraw(\\r\\n        IERC20 token,\\r\\n        address from,\\r\\n        address to,\\r\\n        uint256 amount,\\r\\n        uint256 share\\r\\n    ) external returns (uint256, uint256);\\r\\n\\r\\n    function deposit(\\r\\n        IERC20 token,\\r\\n        address from,\\r\\n        address to,\\r\\n        uint256 amount,\\r\\n        uint256 share\\r\\n    ) external returns (uint256, uint256);\\r\\n\\r\\n    function deploy(\\r\\n        address masterContract,\\r\\n        bytes calldata data,\\r\\n        bool useCreate2\\r\\n    ) external payable returns (address cloneAddress);\\r\\n\\r\\n    function setMasterContractApproval(\\r\\n        address user,\\r\\n        address masterContract,\\r\\n        bool approved,\\r\\n        uint8 v,\\r\\n        bytes32 r,\\r\\n        bytes32 s\\r\\n    ) external;\\r\\n\\r\\n    function balanceOf(IERC20, address) external view returns (uint256);\\r\\n\\r\\n    function totals(IERC20) external view returns (uint128 elastic, uint128 base);\\r\\n\\r\\n    function flashLoan(\\r\\n        address borrower,\\r\\n        address receiver,\\r\\n        IERC20 token,\\r\\n        uint256 amount,\\r\\n        bytes calldata data\\r\\n    ) external;\\r\\n\\r\\n    function toShare(\\r\\n        address token,\\r\\n        uint256 amount,\\r\\n        bool roundUp\\r\\n    ) external view returns (uint256 share);\\r\\n}\\r\\n\",\"keccak256\":\"0xf654f9181ff602627dd70c0c65999488b3a28d6941386231351f38bc9eb7f8fb\",\"license\":\"MIT\"},\"contracts/interfaces/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface IERC20 {\\r\\n    function totalSupply() external view returns (uint256);\\r\\n\\r\\n    function balanceOf(address account) external view returns (uint256);\\r\\n\\r\\n    function allowance(address owner, address spender) external view returns (uint256);\\r\\n\\r\\n    function approve(address spender, uint256 amount) external returns (bool);\\r\\n\\r\\n    function transfer(address recipient, uint256 amount) external returns (bool);\\r\\n\\r\\n    function transferFrom(\\r\\n        address sender,\\r\\n        address recipient,\\r\\n        uint256 amount\\r\\n    ) external returns (bool);\\r\\n\\r\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\r\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\r\\n\\r\\n    /// @notice EIP 2612\\r\\n    function permit(\\r\\n        address owner,\\r\\n        address spender,\\r\\n        uint256 value,\\r\\n        uint256 deadline,\\r\\n        uint8 v,\\r\\n        bytes32 r,\\r\\n        bytes32 s\\r\\n    ) external;\\r\\n}\\r\\n\",\"keccak256\":\"0x33e3d42a9bc583e9d2732a4c71bddebd883199abe927faef674c60463a459730\",\"license\":\"MIT\"},\"contracts/interfaces/ISwapperGeneric.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >= 0.6.12;\\r\\n\\r\\nimport \\\"./IERC20.sol\\\";\\r\\n\\r\\ninterface ISwapperGeneric {\\r\\n    /// @notice Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper.\\r\\n    /// Swaps it for at least 'amountToMin' of token 'to'.\\r\\n    /// Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer.\\r\\n    /// Returns the amount of tokens 'to' transferred to BentoBox.\\r\\n    /// (The BentoBox skim function will be used by the caller to get the swapped funds).\\r\\n    function swap(\\r\\n        IERC20 fromToken,\\r\\n        IERC20 toToken,\\r\\n        address recipient,\\r\\n        uint256 shareToMin,\\r\\n        uint256 shareFrom\\r\\n    ) external returns (uint256 extraShare, uint256 shareReturned);\\r\\n\\r\\n    /// @notice Calculates the amount of token 'from' needed to complete the swap (amountFrom),\\r\\n    /// this should be less than or equal to amountFromMax.\\r\\n    /// Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper.\\r\\n    /// Swaps it for exactly 'exactAmountTo' of token 'to'.\\r\\n    /// Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer.\\r\\n    /// Transfers allocated, but unused 'from' tokens within the BentoBox to 'refundTo' (amountFromMax - amountFrom).\\r\\n    /// Returns the amount of 'from' tokens withdrawn from BentoBox (amountFrom).\\r\\n    /// (The BentoBox skim function will be used by the caller to get the swapped funds).\\r\\n    function swapExact(\\r\\n        IERC20 fromToken,\\r\\n        IERC20 toToken,\\r\\n        address recipient,\\r\\n        address refundTo,\\r\\n        uint256 shareFromSupplied,\\r\\n        uint256 shareToExact\\r\\n    ) external returns (uint256 shareUsed, uint256 shareReturned);\\r\\n}\\r\\n\",\"keccak256\":\"0xa570144cf506e407d9f9283278509e24015e69e15f0017f9ea7d3fe4b870b13e\",\"license\":\"MIT\"},\"contracts/interfaces/platypus/IPlatypusRouter01.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface IPlatypusRouter01 {\\r\\n    function swapTokensForTokens(\\r\\n        address[] calldata tokenPath,\\r\\n        address[] calldata poolPath,\\r\\n        uint256 fromAmount,\\r\\n        uint256 minimumToAmount,\\r\\n        address to,\\r\\n        uint256 deadline\\r\\n    ) external returns (uint256 amountOut, uint256 haircut);\\r\\n}\\r\\n\",\"keccak256\":\"0x7cd1f600b91b4ae3290047ee4056675987354cb114547463d2a9cd8777a8002d\",\"license\":\"BUSL-1.1\"},\"contracts/swappers/Liquidations/UsdceAvaxSwapperV3.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity 0.8.10;\\r\\n\\r\\nimport \\\"@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol\\\";\\r\\nimport \\\"../../interfaces/ISwapperGeneric.sol\\\";\\r\\nimport \\\"../../interfaces/IBentoBoxV1.sol\\\";\\r\\nimport \\\"../../interfaces/platypus/IPlatypusRouter01.sol\\\";\\r\\n\\r\\n/// @notice Joe USDCE.e/WAVAX swapper using Platypus for swapping USDCE.e to MIM\\r\\ncontract UsdceAvaxSwapperV3 is ISwapperGeneric {\\r\\n    IBentoBoxV1 public immutable DEGENBOX;\\r\\n\\r\\n    IUniswapV2Pair public constant USDCEAVAX = IUniswapV2Pair(0xA389f9430876455C36478DeEa9769B7Ca4E3DDB1);\\r\\n    IPlatypusRouter01 public constant PLATYPUS_ROUTER = IPlatypusRouter01(0x73256EC7575D999C360c1EeC118ECbEFd8DA7D12);\\r\\n\\r\\n    IERC20 public constant WAVAX = IERC20(0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7);\\r\\n    IERC20 public constant MIM = IERC20(0x130966628846BFd36ff31a822705796e8cb8C18D);\\r\\n    IERC20 public constant USDC = IERC20(0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E);\\r\\n    IERC20 public constant USDCE = IERC20(0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664);\\r\\n\\r\\n    constructor(IBentoBoxV1 _DEGENBOX) {\\r\\n        DEGENBOX = _DEGENBOX;\\r\\n        USDCE.approve(address(PLATYPUS_ROUTER), type(uint256).max);\\r\\n        MIM.approve(address(_DEGENBOX), type(uint256).max);\\r\\n    }\\r\\n\\r\\n    // given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset\\r\\n    function _getAmountOut(\\r\\n        uint256 amountIn,\\r\\n        uint256 reserveIn,\\r\\n        uint256 reserveOut\\r\\n    ) internal pure returns (uint256 amountOut) {\\r\\n        uint256 amountInWithFee = amountIn * 997;\\r\\n        uint256 numerator = amountInWithFee * reserveOut;\\r\\n        uint256 denominator = (reserveIn * 1000) + amountInWithFee;\\r\\n        amountOut = numerator / denominator;\\r\\n    }\\r\\n\\r\\n    // Swaps to a flexible amount, from an exact input amount\\r\\n    /// @inheritdoc ISwapperGeneric\\r\\n    function swap(\\r\\n        IERC20,\\r\\n        IERC20,\\r\\n        address recipient,\\r\\n        uint256 shareToMin,\\r\\n        uint256 shareFrom\\r\\n    ) public override returns (uint256 extraShare, uint256 shareReturned) {\\r\\n        (uint256 amountFrom, ) = DEGENBOX.withdraw(IERC20(address(USDCEAVAX)), address(this), address(this), 0, shareFrom);\\r\\n        USDCEAVAX.transfer(address(USDCEAVAX), amountFrom);\\r\\n        (uint256 usdceAmount, uint256 avaxAmount) = USDCEAVAX.burn(address(this));\\r\\n        uint256 mimAmount;\\r\\n\\r\\n        // WAVAX -> USDC.e\\r\\n        (uint256 reserve0, uint256 reserve1, ) = USDCEAVAX.getReserves();\\r\\n        uint256 usdceFromAvax = _getAmountOut(avaxAmount, reserve1, reserve0);\\r\\n        WAVAX.transfer(address(USDCEAVAX), avaxAmount);\\r\\n        USDCEAVAX.swap(usdceFromAvax, 0, address(this), new bytes(0));\\r\\n        usdceAmount += usdceFromAvax;\\r\\n\\r\\n        {\\r\\n            // USDC.e -> MIM\\r\\n            address[] memory tokenPath = new address[](3);\\r\\n            tokenPath[0] = address(USDCE);\\r\\n            tokenPath[1] = address(USDC);\\r\\n            tokenPath[2] = address(MIM);\\r\\n            address[] memory poolPath = new address[](2);\\r\\n            poolPath[0] = address(0x66357dCaCe80431aee0A7507e2E361B7e2402370); // USDC -> MIM pool\\r\\n            poolPath[1] = address(0x30C30d826be87Cd0A4b90855C2F38f7FcfE4eaA7); // USDC.e -> USDC pool\\r\\n\\r\\n            (mimAmount, ) = PLATYPUS_ROUTER.swapTokensForTokens(tokenPath, poolPath, usdceAmount, 0, address(this), type(uint256).max);\\r\\n        }\\r\\n\\r\\n        (, shareReturned) = DEGENBOX.deposit(MIM, address(this), recipient, mimAmount, 0);\\r\\n        extraShare = shareReturned - shareToMin;\\r\\n    }\\r\\n\\r\\n    // Swaps to an exact amount, from a flexible input amount\\r\\n    /// @inheritdoc ISwapperGeneric\\r\\n    function swapExact(\\r\\n        IERC20,\\r\\n        IERC20,\\r\\n        address,\\r\\n        address,\\r\\n        uint256,\\r\\n        uint256\\r\\n    ) public pure override returns (uint256 shareUsed, uint256 shareReturned) {\\r\\n        return (0, 0);\\r\\n    }\\r\\n}\\r\\n\",\"keccak256\":\"0x056b3830afbdcb17a984ef507860f908dc2b3c6d6366239a3ec4e98003aaf526\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60a060405234801561001057600080fd5b50604051610e20380380610e2083398101604081905261002f9161015b565b6001600160a01b03811660805260405163095ea7b360e01b81527373256ec7575d999c360c1eec118ecbefd8da7d126004820152600019602482015273a7d7079b0fead91f3e65f86e8915cb59c1a4c6649063095ea7b3906044016020604051808303816000875af11580156100a9573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906100cd919061018b565b5060405163095ea7b360e01b81526001600160a01b0382166004820152600019602482015273130966628846bfd36ff31a822705796e8cb8c18d9063095ea7b3906044016020604051808303816000875af1158015610130573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610154919061018b565b50506101ad565b60006020828403121561016d57600080fd5b81516001600160a01b038116811461018457600080fd5b9392505050565b60006020828403121561019d57600080fd5b8151801515811461018457600080fd5b608051610c4a6101d66000396000818161019d0152818161022001526107830152610c4a6000f3fe608060405234801561001057600080fd5b50600436106100a35760003560e01c806389a3027111610076578063daec383d1161005b578063daec383d1461017d578063e0bc66b814610198578063e343fe12146101bf57600080fd5b806389a302711461014757806390f760981461016257600080fd5b8063195187e1146100a85780632de7c259146100e05780634622be90146100fb57806373b295c21461012c575b600080fd5b6100c373a7d7079b0fead91f3e65f86e8915cb59c1a4c66481565b6040516001600160a01b0390911681526020015b60405180910390f35b6100c37373256ec7575d999c360c1eec118ecbefd8da7d1281565b6101176101093660046108e3565b600080965096945050505050565b604080519283526020830191909152016100d7565b6100c373b31f66aa3c1e785363f0875a1b74e27b85fd66c781565b6100c373b97ef9ef8734c71904d8002f8b6bc66dd9c48a6e81565b6100c373a389f9430876455c36478deea9769b7ca4e3ddb181565b6100c373130966628846bfd36ff31a822705796e8cb8c18d81565b6100c37f000000000000000000000000000000000000000000000000000000000000000081565b6101176101cd366004610951565b60405163097da6d360e41b815273a389f9430876455c36478deea9769b7ca4e3ddb16004820152306024820181905260448201526000606482018190526084820183905290819081906001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016906397da6d309060a40160408051808303816000875af1158015610268573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061028c91906109ac565b5060405163a9059cbb60e01b815273a389f9430876455c36478deea9769b7ca4e3ddb1600482018190526024820183905291925063a9059cbb906044016020604051808303816000875af11580156102e8573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061030c91906109d0565b5060405163226bf2d160e21b8152306004820152600090819073a389f9430876455c36478deea9769b7ca4e3ddb1906389afcb449060240160408051808303816000875af1158015610362573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061038691906109ac565b91509150600080600073a389f9430876455c36478deea9769b7ca4e3ddb16001600160a01b0316630902f1ac6040518163ffffffff1660e01b8152600401606060405180830381865afa1580156103e1573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104059190610a1c565b506dffffffffffffffffffffffffffff1691506dffffffffffffffffffffffffffff169150600061043785838561087c565b60405163a9059cbb60e01b815273a389f9430876455c36478deea9769b7ca4e3ddb160048201526024810187905290915073b31f66aa3c1e785363f0875a1b74e27b85fd66c79063a9059cbb906044016020604051808303816000875af11580156104a6573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104ca91906109d0565b50604080516000808252602082019283905263022c0d9f60e01b90925273a389f9430876455c36478deea9769b7ca4e3ddb19163022c0d9f91610514918591309060248101610a6c565b600060405180830381600087803b15801561052e57600080fd5b505af1158015610542573d6000803e3d6000fd5b5050505080866105529190610af6565b60408051600380825260808201909252919750600091906020820160608036833701905050905073a7d7079b0fead91f3e65f86e8915cb59c1a4c664816000815181106105a1576105a1610b0e565b60200260200101906001600160a01b031690816001600160a01b03168152505073b97ef9ef8734c71904d8002f8b6bc66dd9c48a6e816001815181106105e9576105e9610b0e565b60200260200101906001600160a01b031690816001600160a01b03168152505073130966628846bfd36ff31a822705796e8cb8c18d8160028151811061063157610631610b0e565b6001600160a01b039290921660209283029190910182015260408051600280825260608201835260009391929091830190803683370190505090507366357dcace80431aee0a7507e2e361b7e24023708160008151811061069457610694610b0e565b60200260200101906001600160a01b031690816001600160a01b0316815250507330c30d826be87cd0a4b90855c2f38f7fcfe4eaa7816001815181106106dc576106dc610b0e565b6001600160a01b03909216602092830291909101909101526040516321579b7960e01b81527373256ec7575d999c360c1eec118ecbefd8da7d12906321579b799061073890859085908d90600090309060001990600401610b68565b60408051808303816000875af1158015610756573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061077a91906109ac565b508096505050507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166302b9446c73130966628846bfd36ff31a822705796e8cb8c18d308f8860006040518663ffffffff1660e01b81526004016108199594939291906001600160a01b03958616815293851660208501529190931660408301526060820192909252608081019190915260a00190565b60408051808303816000875af1158015610837573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061085b91906109ac565b985061086990508b89610bbc565b9850505050505050509550959350505050565b60008061088b856103e5610bd3565b905060006108998483610bd3565b90506000826108aa876103e8610bd3565b6108b49190610af6565b90506108c08183610bf2565b979650505050505050565b6001600160a01b03811681146108e057600080fd5b50565b60008060008060008060c087890312156108fc57600080fd5b8635610907816108cb565b95506020870135610917816108cb565b94506040870135610927816108cb565b93506060870135610937816108cb565b9598949750929560808101359460a0909101359350915050565b600080600080600060a0868803121561096957600080fd5b8535610974816108cb565b94506020860135610984816108cb565b93506040860135610994816108cb565b94979396509394606081013594506080013592915050565b600080604083850312156109bf57600080fd5b505080516020909101519092909150565b6000602082840312156109e257600080fd5b815180151581146109f257600080fd5b9392505050565b80516dffffffffffffffffffffffffffff81168114610a1757600080fd5b919050565b600080600060608486031215610a3157600080fd5b610a3a846109f9565b9250610a48602085016109f9565b9150604084015163ffffffff81168114610a6157600080fd5b809150509250925092565b8481526000602085818401526001600160a01b038516604084015260806060840152835180608085015260005b81811015610ab55785810183015185820160a001528201610a99565b81811115610ac757600060a083870101525b50601f01601f19169290920160a0019695505050505050565b634e487b7160e01b600052601160045260246000fd5b60008219821115610b0957610b09610ae0565b500190565b634e487b7160e01b600052603260045260246000fd5b600081518084526020808501945080840160005b83811015610b5d5781516001600160a01b031687529582019590820190600101610b38565b509495945050505050565b60c081526000610b7b60c0830189610b24565b8281036020840152610b8d8189610b24565b9150508560408301528460608301526001600160a01b03841660808301528260a0830152979650505050505050565b600082821015610bce57610bce610ae0565b500390565b6000816000190483118215151615610bed57610bed610ae0565b500290565b600082610c0f57634e487b7160e01b600052601260045260246000fd5b50049056fea2646970667358221220d1383058589f19731ccb8f29a8e973e3ca179fee538ec16c3618aa8cd8a6b9ab64736f6c634300080a0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100a35760003560e01c806389a3027111610076578063daec383d1161005b578063daec383d1461017d578063e0bc66b814610198578063e343fe12146101bf57600080fd5b806389a302711461014757806390f760981461016257600080fd5b8063195187e1146100a85780632de7c259146100e05780634622be90146100fb57806373b295c21461012c575b600080fd5b6100c373a7d7079b0fead91f3e65f86e8915cb59c1a4c66481565b6040516001600160a01b0390911681526020015b60405180910390f35b6100c37373256ec7575d999c360c1eec118ecbefd8da7d1281565b6101176101093660046108e3565b600080965096945050505050565b604080519283526020830191909152016100d7565b6100c373b31f66aa3c1e785363f0875a1b74e27b85fd66c781565b6100c373b97ef9ef8734c71904d8002f8b6bc66dd9c48a6e81565b6100c373a389f9430876455c36478deea9769b7ca4e3ddb181565b6100c373130966628846bfd36ff31a822705796e8cb8c18d81565b6100c37f000000000000000000000000000000000000000000000000000000000000000081565b6101176101cd366004610951565b60405163097da6d360e41b815273a389f9430876455c36478deea9769b7ca4e3ddb16004820152306024820181905260448201526000606482018190526084820183905290819081906001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016906397da6d309060a40160408051808303816000875af1158015610268573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061028c91906109ac565b5060405163a9059cbb60e01b815273a389f9430876455c36478deea9769b7ca4e3ddb1600482018190526024820183905291925063a9059cbb906044016020604051808303816000875af11580156102e8573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061030c91906109d0565b5060405163226bf2d160e21b8152306004820152600090819073a389f9430876455c36478deea9769b7ca4e3ddb1906389afcb449060240160408051808303816000875af1158015610362573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061038691906109ac565b91509150600080600073a389f9430876455c36478deea9769b7ca4e3ddb16001600160a01b0316630902f1ac6040518163ffffffff1660e01b8152600401606060405180830381865afa1580156103e1573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104059190610a1c565b506dffffffffffffffffffffffffffff1691506dffffffffffffffffffffffffffff169150600061043785838561087c565b60405163a9059cbb60e01b815273a389f9430876455c36478deea9769b7ca4e3ddb160048201526024810187905290915073b31f66aa3c1e785363f0875a1b74e27b85fd66c79063a9059cbb906044016020604051808303816000875af11580156104a6573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104ca91906109d0565b50604080516000808252602082019283905263022c0d9f60e01b90925273a389f9430876455c36478deea9769b7ca4e3ddb19163022c0d9f91610514918591309060248101610a6c565b600060405180830381600087803b15801561052e57600080fd5b505af1158015610542573d6000803e3d6000fd5b5050505080866105529190610af6565b60408051600380825260808201909252919750600091906020820160608036833701905050905073a7d7079b0fead91f3e65f86e8915cb59c1a4c664816000815181106105a1576105a1610b0e565b60200260200101906001600160a01b031690816001600160a01b03168152505073b97ef9ef8734c71904d8002f8b6bc66dd9c48a6e816001815181106105e9576105e9610b0e565b60200260200101906001600160a01b031690816001600160a01b03168152505073130966628846bfd36ff31a822705796e8cb8c18d8160028151811061063157610631610b0e565b6001600160a01b039290921660209283029190910182015260408051600280825260608201835260009391929091830190803683370190505090507366357dcace80431aee0a7507e2e361b7e24023708160008151811061069457610694610b0e565b60200260200101906001600160a01b031690816001600160a01b0316815250507330c30d826be87cd0a4b90855c2f38f7fcfe4eaa7816001815181106106dc576106dc610b0e565b6001600160a01b03909216602092830291909101909101526040516321579b7960e01b81527373256ec7575d999c360c1eec118ecbefd8da7d12906321579b799061073890859085908d90600090309060001990600401610b68565b60408051808303816000875af1158015610756573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061077a91906109ac565b508096505050507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166302b9446c73130966628846bfd36ff31a822705796e8cb8c18d308f8860006040518663ffffffff1660e01b81526004016108199594939291906001600160a01b03958616815293851660208501529190931660408301526060820192909252608081019190915260a00190565b60408051808303816000875af1158015610837573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061085b91906109ac565b985061086990508b89610bbc565b9850505050505050509550959350505050565b60008061088b856103e5610bd3565b905060006108998483610bd3565b90506000826108aa876103e8610bd3565b6108b49190610af6565b90506108c08183610bf2565b979650505050505050565b6001600160a01b03811681146108e057600080fd5b50565b60008060008060008060c087890312156108fc57600080fd5b8635610907816108cb565b95506020870135610917816108cb565b94506040870135610927816108cb565b93506060870135610937816108cb565b9598949750929560808101359460a0909101359350915050565b600080600080600060a0868803121561096957600080fd5b8535610974816108cb565b94506020860135610984816108cb565b93506040860135610994816108cb565b94979396509394606081013594506080013592915050565b600080604083850312156109bf57600080fd5b505080516020909101519092909150565b6000602082840312156109e257600080fd5b815180151581146109f257600080fd5b9392505050565b80516dffffffffffffffffffffffffffff81168114610a1757600080fd5b919050565b600080600060608486031215610a3157600080fd5b610a3a846109f9565b9250610a48602085016109f9565b9150604084015163ffffffff81168114610a6157600080fd5b809150509250925092565b8481526000602085818401526001600160a01b038516604084015260806060840152835180608085015260005b81811015610ab55785810183015185820160a001528201610a99565b81811115610ac757600060a083870101525b50601f01601f19169290920160a0019695505050505050565b634e487b7160e01b600052601160045260246000fd5b60008219821115610b0957610b09610ae0565b500190565b634e487b7160e01b600052603260045260246000fd5b600081518084526020808501945080840160005b83811015610b5d5781516001600160a01b031687529582019590820190600101610b38565b509495945050505050565b60c081526000610b7b60c0830189610b24565b8281036020840152610b8d8189610b24565b9150508560408301528460608301526001600160a01b03841660808301528260a0830152979650505050505050565b600082821015610bce57610bce610ae0565b500390565b6000816000190483118215151615610bed57610bed610ae0565b500290565b600082610c0f57634e487b7160e01b600052601260045260246000fd5b50049056fea2646970667358221220d1383058589f19731ccb8f29a8e973e3ca179fee538ec16c3618aa8cd8a6b9ab64736f6c634300080a0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "swap(address,address,address,uint256,uint256)": {
+        "notice": "Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper. Swaps it for at least 'amountToMin' of token 'to'. Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer. Returns the amount of tokens 'to' transferred to BentoBox. (The BentoBox skim function will be used by the caller to get the swapped funds)."
+      },
+      "swapExact(address,address,address,address,uint256,uint256)": {
+        "notice": "Calculates the amount of token 'from' needed to complete the swap (amountFrom), this should be less than or equal to amountFromMax. Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper. Swaps it for exactly 'exactAmountTo' of token 'to'. Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer. Transfers allocated, but unused 'from' tokens within the BentoBox to 'refundTo' (amountFromMax - amountFrom). Returns the amount of 'from' tokens withdrawn from BentoBox (amountFrom). (The BentoBox skim function will be used by the caller to get the swapped funds)."
+      }
+    },
+    "notice": "Joe USDCE.e/WAVAX swapper using Platypus for swapping USDCE.e to MIM",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}

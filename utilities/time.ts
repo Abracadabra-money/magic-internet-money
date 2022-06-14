@@ -22,12 +22,8 @@ export async function latest() {
   return BigNumber.from(block.timestamp)
 }
 
-export async function advanceTimeAndBlock(time) {
-  await advanceTime(time)
-  await advanceBlock()
-}
-
 export async function advanceTime(time) {
+  time = parseInt(time.toString());
   await ethers.provider.send("evm_increaseTime", [time])
   await advanceBlock()
 }

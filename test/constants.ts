@@ -1,2 +1,106 @@
 export const xMerlin = "0xfddfE525054efaAD204600d00CA86ADb1Cc2ea8a";
 export const xCalibur = "0xfB3485c2e209A5cfBDC1447674256578f1A80eE3";
+
+export const Constants = {
+  mainnet: {
+    cauldronV3: "0x3E2a2BC69E5C22A8DA4056B413621D1820Eb493E",
+    cauldronV3Whitelisted: "0xe0d2007F6F2A71B90143D6667257d95643183F2b",
+    degenBox: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
+    multiSig: "0x5f0DeE98360d8200b20812e174d139A1a633EDd2",
+    dai: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+    mim: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
+    spell: "0x090185f2135308BaD17527004364eBcC2D37e5F6",
+    ust: "0xa47c8bf37f92aBed4A126BDA807A7b7498661acD",
+    usdc: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    usdt: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+    stargate: {
+      stg: "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6",
+      router: "0x8731d54E9D02c286767d56ac03e8037C07e01e98",
+      usdcPool: "0xdf0770dF86a8034b3EFEf0A1Bb3c889B8332FF56",
+      usdtPool: "0x38EA452219524Bb87e18dE1C24D3bB59510BD783",
+    },
+    curve: {
+      mim3Crv: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
+    },
+    yearn: {
+      yvSTETHc: "0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E",
+    },
+    aggregators: {
+      oneInchV4Router: "0x1111111254fb6c44bac0bed2854e76f90643097d",
+      zeroXExchangProxy: "0xDef1C0ded9bec7F1a1670819833240f027b25EfF",
+    },
+  },
+
+  arbitrum: {
+    cauldronV3: "0x233332a01Ebf20f770883ebff68374b015AccB9C",
+    degenBox: "0x74c764D41B77DBbb4fe771daB1939B00b146894A",
+    mim: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
+    usdc: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+    usdt: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+    stargate: {
+      stg: "0x6694340fc020c5E6B96567843da2df01b2CE1eb6",
+      router: "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614",
+      usdcPool: "0x892785f33CdeE22A30AEF750F285E18c18040c3e",
+      usdtPool: "0xB6CfcF89a7B22988bfC96632aC2A9D6daB60d641",
+    },
+    curve: {
+      mim2crvPool: "0x30dF229cefa463e991e29D42DB0bae2e122B2AC7",
+    },
+  },
+
+  avalanche: {
+    cauldronV3: "0x177a24B427876F61983CCe0dD37608611e7de3f7",
+    cauldronV31_Limone: "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75",
+    whitelistedCauldronV3: "0xE8681a8C8d8E24b65526C2f94Fd5eF9D3ec18726",
+    degenBox: "0x1fC83f75499b7620d53757f0b01E2ae626aAE530",
+    limone: "0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4",
+    mim: "0x130966628846BFd36ff31a822705796e8cb8C18D",
+    spell: "0xCE1bFFBD5374Dac86a2893119683F4911a2F7814",
+    ust: "0xb599c3590F42f8F995ECfa0f85D2980B76862fc1",
+    usdt: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+    usdte: "0xc7198437980c041c805A1EDcbA50c1Ce5db95118",
+    usdc: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+    usdce: "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664",
+    wavax: "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7",
+    savax: "0x2b2c81e08f1af8835a78bb2a90ae924ace0ea4be",
+    chainlink: {
+      savax: "0x2854Ca10a54800e15A2a25cFa52567166434Ff0a",
+      wavax: "0x0a77230d17318075983913bc2145db16c7366156",
+    },
+    traderjoe: {
+      savaxWavax: "0x4b946c91C2B1a7d7C40FB3C130CdfBaf8389094d",
+      router: "0x60aE616a2155Ee3d9A68541Ba4544862310933d4",
+    },
+    platypus: {
+      router: "0x73256EC7575D999C360c1EeC118ECbEFd8DA7D12",
+    },
+    stargate: {
+      stg: "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+      router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd",
+      usdcPool: "0x1205f31718499dBf1fCa446663B532Ef87481fe1",
+      usdtPool: "0x29e38769f23701A2e4A8Ef0492e19dA4604Be62c",
+    },
+    aggregators: {
+      zeroXExchangProxy: "0xDef1C0ded9bec7F1a1670819833240f027b25EfF",
+    },
+  },
+  fantom: {
+    cauldronV3Limone: "0xAcdd6e28b7440fe17EeFD927337480DD1Ea7A97b",
+    limone: "0xc7a161Cfd0e133d289B13692b636B8e8B5CD8d8c",
+    mim: "0x82f0B8B456c1A451378467398982d4834b6829c1",
+    wftm: "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83",
+    usdc: "0x04068DA6C83AFCFA0e13ba15A6696662335D5B75",
+    fusdt: "0x049d68029688eAbF473097a2fC38ef61633A3C7A",
+    curve: {
+      mim3poolv2: "0x2dd7C9371965472E5A5fD28fbE165007c61439E1",
+    },
+    spiritswap: {
+      router: "0x16327E3FbDaCA3bcF7E38F5Af2599D2DDc33aE52",
+      fUSDTUSDC: "0xe7F86CEf8FEf60ce5050899D1F8e465C00D04a79",
+    },
+    chainlink: {
+      usdt: "0xF64b636c5dFe1d3555A847341cDC449f612307d0",
+      usdc: "0x2553f4eeb82d5A26427b8d1106C51499CBa5D99c",
+    },
+  },
+};

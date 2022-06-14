@@ -40,9 +40,9 @@ const config: HardhatUserConfig = {
       ropsten: process.env.ETHERSCAN_TOKEN,
       kovan: process.env.ETHERSCAN_TOKEN,
       optimisticEthereum: process.env.ETHERSCAN_TOKEN,
-      arbitrumOne: process.env.ETHERSCAN_TOKEN,
-      avalanche: process.env.SNOWTRACE_TOKEN,
-      opera: process.env.FTMSCAN_TOKEN,
+      arbitrumOne: process.env.ARBISCAN_TOKEN,
+      avalanche: process.env.ETHERSCAN_TOKEN,
+      opera: process.env.ETHERSCAN_TOKEN,
       bsc: process.env.BSCSCAN_TOKEN,
     },
   },
@@ -176,11 +176,13 @@ const config: HardhatUserConfig = {
       tags: ["staging"],
     },
     polygon: {
-      url: "https://rpc-mainnet.maticvigil.com",
+      url: "https://rpc-mainnet.matic.quiknode.pro",
       accounts,
       chainId: 137,
       live: true,
       saveDeployments: true,
+      gas: 4100000,
+      gasPrice: 100000000000
     },
     xdai: {
       url: "https://rpc.xdaichain.com",
@@ -206,12 +208,8 @@ const config: HardhatUserConfig = {
     },
   },
   mocha: {
-    timeout: 40000,
+    timeout: 500000,
     bail: true,
-  },
-  tenderly: {
-    project: process.env.TENDERLY_PROJECT || "project",
-    username: process.env.TENDERLY_USERNAME || "",
   },
   solidity: {
     compilers: [
@@ -220,21 +218,45 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200,
+            runs: 690,
           },
         },
       },
       {
         version: "0.8.4",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 690,
+          },
+        },
       },
       {
         version: "0.8.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 690,
+          },
+        },
       },
       {
         version: "0.8.7",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 690,
+          },
+        },
       },
       {
         version: "0.8.9",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 690,
+          },
+        },
       },
       {
         version: "0.8.10",
@@ -247,6 +269,12 @@ const config: HardhatUserConfig = {
       },
       {
         version: "0.7.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 690,
+          },
+        },
       },
     ],
     overrides: {
@@ -259,30 +287,39 @@ const config: HardhatUserConfig = {
           },
         },
       },
-      "@uniswap/v3-core/contracts/libraries/FullMath.sol": {
-        version: "0.7.6",
+      "contracts/CauldronV2Multichain.sol": {
+        version: "0.6.12",
         settings: {
           optimizer: {
             enabled: true,
-            runs: 9000,
+            runs: 999999,
           },
         },
       },
-      "@uniswap/v3-core/contracts/libraries/TickMath.sol": {
-        version: "0.7.6",
+      "contracts/CauldronV3.sol": {
+        version: "0.6.12",
         settings: {
           optimizer: {
             enabled: true,
-            runs: 9000,
+            runs: 999999,
           },
         },
       },
-      "@uniswap/v3-periphery/contracts/libraries/PoolAddress.sol": {
-        version: "0.7.6",
+      "contracts/WhitelistedCauldronV3.sol": {
+        version: "0.6.12",
         settings: {
           optimizer: {
             enabled: true,
-            runs: 9000,
+            runs: 999999,
+          },
+        },
+      },
+      "contracts/CauldronV3_1.sol": {
+        version: "0.6.12",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 999999,
           },
         },
       },
@@ -292,231 +329,6 @@ const config: HardhatUserConfig = {
           optimizer: {
             enabled: true,
             runs: 9000,
-          },
-        },
-      },
-      "contracts/KashiPair.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 1,
-          },
-        },
-      },
-      "contracts/mocks/KashiPairMock.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 1,
-          },
-        },
-      },
-      "contracts/swappers/Leverage/AGLDLevSwapper.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 9000,
-          },
-        },
-      },
-      "contracts/swappers/Liquidations/AGLDSwapper.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 9000,
-          },
-        },
-      },
-      "contracts-flat/DegenBox.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-      "contracts-flat/KashiPairMediumRiskV2.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 350,
-          },
-        },
-      },
-      "contracts-flat/CauldronV2Multichain.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 350,
-          },
-        },
-      },
-      "contracts-flat/BentoBoxFlat.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-      "contracts-flat/YearnChainlinkOracleV1.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-      "contracts-flat/YearnChainlinkOracleV2.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-      "contracts-flat/sSpellFlat.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-      "contracts-flat/MagicInternetMoneyFlat.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-      "contracts-flat/MinimalTimeLockFlat.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-      "contracts-flat/CauldronV2CheckpointV1.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 350,
-          },
-        },
-      },
-      "contracts-flat/CauldronMediumRiskV1.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 350,
-          },
-        },
-      },
-      "contracts-flat/CauldronLowRiskV1.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 350,
-          },
-        },
-      },
-      "contracts-flat/KashiPairFlat.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 350,
-          },
-        },
-      },
-      "contracts-flat/SushiSwapSwapperFlat.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-      "contracts-flat/PeggedOracleFlat.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-      "contracts-flat/SimpleSLPTWAP0OracleFlat.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-      "contracts-flat/SimpleSLPTWAP1OracleFlat.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-      "contracts-flat/ChainlinkOracleFlat.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-      "contracts-flat/ChainlinkOracleV2Flat.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-      "contracts-flat/CompoundOracle.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-      "contracts-flat/BoringHelperFlat.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
           },
         },
       },

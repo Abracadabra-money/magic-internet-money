@@ -10,16 +10,16 @@ interface IAggregator {
 
 interface IERC20 {
     function totalSupply() external view returns (uint256);
+
     function balanceOf(address account) external view returns (uint256);
 }
 
 contract BNBOracle is IOracle {
-    IAggregator constant public BNBUSD = IAggregator(0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE);
+    IAggregator public constant BNBUSD = IAggregator(0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE);
 
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get() internal view returns (uint256) {
-
         return 1e26 / uint256(BNBUSD.latestAnswer());
     }
 

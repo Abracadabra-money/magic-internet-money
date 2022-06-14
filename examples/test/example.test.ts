@@ -1,9 +1,9 @@
 /* eslint-disable prefer-const */
-import { ethers, network, deployments, getNamedAccounts, artifacts } from "hardhat";
+import hre, { ethers, network, deployments, getNamedAccounts, artifacts } from "hardhat";
 import { expect } from "chai";
 import { BigNumberish } from "ethers";
 
-import { advanceTime, getBigNumber, impersonate } from "../../utilities";
+import { advanceTime, ChainId, getBigNumber, impersonate } from "../../utilities";
 import { Cauldron } from "../../typechain";
 
 const maybe = (process.env.ETHEREUM_RPC_URL || process.env.INFURA_API_KEY) ? describe : describe.skip;
@@ -25,6 +25,8 @@ maybe("Test Example", async () => {
         },
       ],
     })
+
+    hre.getChainId = () => Promise.resolve(ChainId.Mainnet.toString());
 
     await deployments.fixture(['Cauldron']);
     const {deployer} = await getNamedAccounts();

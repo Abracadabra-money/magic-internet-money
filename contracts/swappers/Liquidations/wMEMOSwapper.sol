@@ -57,7 +57,7 @@ contract wMEMOSwapper is ISwapper {
         amountOut = numerator / denominator;
     }
 
-    // Given an output amount of an asset and pair reserves, returns a required input amount of the other asset
+    // Given an outpxut amount of an asset and pair reserves, returns a required input amount of the other asset
     function getAmountIn(
         uint256 amountOut,
         uint256 reserveIn,
@@ -78,8 +78,7 @@ contract wMEMOSwapper is ISwapper {
         uint256 shareFrom
     ) public override returns (uint256 extraShare, uint256 shareReturned) {
         
-        (uint256 amountFrom, ) = bentoBox.withdraw(fromToken, address(this), address(this), 0, shareFrom);
-
+        (uint256 amountFrom, ) = bentoBox.withdraw(fromToken, address(this), address(WMEMO_MIM), 0, shareFrom);
 
         (address token0, ) = UniswapV2Library.sortTokens(address(WMEMO), address(WMEMO_MIM));
 

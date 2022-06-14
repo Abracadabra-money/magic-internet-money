@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.6.12;
+
 import "../interfaces/IOracle.sol";
 import "@boringcrypto/boring-solidity/contracts/interfaces/IERC20.sol";
 import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
 
 /// @title ProxyOracle
 /// @author 0xMerlin
-/// @notice Oracle used for getting the price of xSUSHI based on Chainlink
+/// @notice Oracle used for getting the price of an oracle implementation
 contract ProxyOracle is IOracle, BoringOwnable {
-
     IOracle public oracleImplementation;
 
     event LogOracleImplementationChange(IOracle indexed oldOracle, IOracle indexed newOracle);
 
-    constructor() public {
-    }
+    constructor() public {}
 
     function changeOracleImplementation(IOracle newOracle) external onlyOwner {
         IOracle oldOracle = oracleImplementation;

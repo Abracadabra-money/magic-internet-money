@@ -1,0 +1,225 @@
+{
+  "address": "0xdb3A46896d2855e7932fC8Ea5A8465Fd07F7Fb57",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "DAI",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DAI_VAULT",
+      "outputs": [
+        {
+          "internalType": "contract IYearnVault",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DEGENBOX",
+      "outputs": [
+        {
+          "internalType": "contract IBentoBoxV1",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIM",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIM3POOL",
+      "outputs": [
+        {
+          "internalType": "contract CurvePool",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareToMin",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareFrom",
+          "type": "uint256"
+        }
+      ],
+      "name": "swap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "extraShare",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareReturned",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "swapExact",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "shareUsed",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareReturned",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xd5e665984fb16b583e67b70d1a5c2a9a279068044a22283282d8e1f7ea1bf69c",
+  "receipt": {
+    "to": null,
+    "from": "0xfB3485c2e209A5cfBDC1447674256578f1A80eE3",
+    "contractAddress": "0xdb3A46896d2855e7932fC8Ea5A8465Fd07F7Fb57",
+    "transactionIndex": 27,
+    "gasUsed": "384578",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000200000000000200000004000000008000000000000000000000000000000000000000010000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000010000000000000000000000000000000000000000010000000000000000000",
+    "blockHash": "0x3dc75f766350fca77ec9bfec396553beb2798bbc0604a1d9e5794d39af7894d8",
+    "transactionHash": "0xd5e665984fb16b583e67b70d1a5c2a9a279068044a22283282d8e1f7ea1bf69c",
+    "logs": [
+      {
+        "transactionIndex": 27,
+        "blockNumber": 14571652,
+        "transactionHash": "0xd5e665984fb16b583e67b70d1a5c2a9a279068044a22283282d8e1f7ea1bf69c",
+        "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        "topics": [
+          "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+          "0x000000000000000000000000db3a46896d2855e7932fc8ea5a8465fd07f7fb57",
+          "0x0000000000000000000000005a6a4d54456819380173272a5e8e9b9904bdf41b"
+        ],
+        "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "logIndex": 87,
+        "blockHash": "0x3dc75f766350fca77ec9bfec396553beb2798bbc0604a1d9e5794d39af7894d8"
+      }
+    ],
+    "blockNumber": 14571652,
+    "cumulativeGasUsed": "3539383",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "solcInputHash": "c0a3f642a318782e249b87d784f0b6ef",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.10+commit.fc410830\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"DAI\",\"outputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DAI_VAULT\",\"outputs\":[{\"internalType\":\"contract IYearnVault\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DEGENBOX\",\"outputs\":[{\"internalType\":\"contract IBentoBoxV1\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MIM\",\"outputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MIM3POOL\",\"outputs\":[{\"internalType\":\"contract CurvePool\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"shareToMin\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"shareFrom\",\"type\":\"uint256\"}],\"name\":\"swap\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"extraShare\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"shareReturned\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"swapExact\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"shareUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"shareReturned\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"swap(address,address,address,uint256,uint256)\":{\"notice\":\"Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper. Swaps it for at least 'amountToMin' of token 'to'. Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer. Returns the amount of tokens 'to' transferred to BentoBox. (The BentoBox skim function will be used by the caller to get the swapped funds).\"},\"swapExact(address,address,address,address,uint256,uint256)\":{\"notice\":\"Calculates the amount of token 'from' needed to complete the swap (amountFrom), this should be less than or equal to amountFromMax. Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper. Swaps it for exactly 'exactAmountTo' of token 'to'. Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer. Transfers allocated, but unused 'from' tokens within the BentoBox to 'refundTo' (amountFromMax - amountFrom). Returns the amount of 'from' tokens withdrawn from BentoBox (amountFrom). (The BentoBox skim function will be used by the caller to get the swapped funds).\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/swappers/Liquidations/YVDAISwapper.sol\":\"YVDAISwapper\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":690},\"remappings\":[]},\"sources\":{\"contracts/interfaces/IBentoBoxV1.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\nimport \\\"./IERC20.sol\\\";\\r\\n\\r\\ninterface IBentoBoxV1 {\\r\\n    function toAmount(\\r\\n        address _token,\\r\\n        uint256 _share,\\r\\n        bool _roundUp\\r\\n    ) external view returns (uint256);\\r\\n\\r\\n    function withdraw(\\r\\n        IERC20 token,\\r\\n        address from,\\r\\n        address to,\\r\\n        uint256 amount,\\r\\n        uint256 share\\r\\n    ) external returns (uint256, uint256);\\r\\n\\r\\n    function deposit(\\r\\n        IERC20 token,\\r\\n        address from,\\r\\n        address to,\\r\\n        uint256 amount,\\r\\n        uint256 share\\r\\n    ) external returns (uint256, uint256);\\r\\n\\r\\n    function deploy(\\r\\n        address masterContract,\\r\\n        bytes calldata data,\\r\\n        bool useCreate2\\r\\n    ) external payable returns (address cloneAddress);\\r\\n\\r\\n    function setMasterContractApproval(\\r\\n        address user,\\r\\n        address masterContract,\\r\\n        bool approved,\\r\\n        uint8 v,\\r\\n        bytes32 r,\\r\\n        bytes32 s\\r\\n    ) external;\\r\\n\\r\\n    function balanceOf(IERC20, address) external view returns (uint256);\\r\\n\\r\\n    function totals(IERC20) external view returns (uint256 elastic, uint256 base);\\r\\n\\r\\n    function flashLoan(\\r\\n        address borrower,\\r\\n        address receiver,\\r\\n        IERC20 token,\\r\\n        uint256 amount,\\r\\n        bytes calldata data\\r\\n    ) external;\\r\\n\\r\\n    function toShare(\\r\\n        address token,\\r\\n        uint256 amount,\\r\\n        bool roundUp\\r\\n    ) external view returns (uint256 share);\\r\\n}\\r\\n\",\"keccak256\":\"0x162ac427f9c6863f3b0e5a7963f98587e623cbf58fb8673012d538cc3b0dd0cc\",\"license\":\"MIT\"},\"contracts/interfaces/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface IERC20 {\\r\\n    function totalSupply() external view returns (uint256);\\r\\n\\r\\n    function balanceOf(address account) external view returns (uint256);\\r\\n\\r\\n    function allowance(address owner, address spender) external view returns (uint256);\\r\\n\\r\\n    function approve(address spender, uint256 amount) external returns (bool);\\r\\n\\r\\n    function transfer(address recipient, uint256 amount) external returns (bool);\\r\\n\\r\\n    function transferFrom(\\r\\n        address sender,\\r\\n        address recipient,\\r\\n        uint256 amount\\r\\n    ) external returns (bool);\\r\\n\\r\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\r\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\r\\n\\r\\n    /// @notice EIP 2612\\r\\n    function permit(\\r\\n        address owner,\\r\\n        address spender,\\r\\n        uint256 value,\\r\\n        uint256 deadline,\\r\\n        uint8 v,\\r\\n        bytes32 r,\\r\\n        bytes32 s\\r\\n    ) external;\\r\\n}\\r\\n\",\"keccak256\":\"0x33e3d42a9bc583e9d2732a4c71bddebd883199abe927faef674c60463a459730\",\"license\":\"MIT\"},\"contracts/interfaces/ISwapperGeneric.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >= 0.6.12;\\r\\n\\r\\nimport \\\"./IERC20.sol\\\";\\r\\n\\r\\ninterface ISwapperGeneric {\\r\\n    /// @notice Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper.\\r\\n    /// Swaps it for at least 'amountToMin' of token 'to'.\\r\\n    /// Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer.\\r\\n    /// Returns the amount of tokens 'to' transferred to BentoBox.\\r\\n    /// (The BentoBox skim function will be used by the caller to get the swapped funds).\\r\\n    function swap(\\r\\n        IERC20 fromToken,\\r\\n        IERC20 toToken,\\r\\n        address recipient,\\r\\n        uint256 shareToMin,\\r\\n        uint256 shareFrom\\r\\n    ) external returns (uint256 extraShare, uint256 shareReturned);\\r\\n\\r\\n    /// @notice Calculates the amount of token 'from' needed to complete the swap (amountFrom),\\r\\n    /// this should be less than or equal to amountFromMax.\\r\\n    /// Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper.\\r\\n    /// Swaps it for exactly 'exactAmountTo' of token 'to'.\\r\\n    /// Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer.\\r\\n    /// Transfers allocated, but unused 'from' tokens within the BentoBox to 'refundTo' (amountFromMax - amountFrom).\\r\\n    /// Returns the amount of 'from' tokens withdrawn from BentoBox (amountFrom).\\r\\n    /// (The BentoBox skim function will be used by the caller to get the swapped funds).\\r\\n    function swapExact(\\r\\n        IERC20 fromToken,\\r\\n        IERC20 toToken,\\r\\n        address recipient,\\r\\n        address refundTo,\\r\\n        uint256 shareFromSupplied,\\r\\n        uint256 shareToExact\\r\\n    ) external returns (uint256 shareUsed, uint256 shareReturned);\\r\\n}\\r\\n\",\"keccak256\":\"0xa570144cf506e407d9f9283278509e24015e69e15f0017f9ea7d3fe4b870b13e\",\"license\":\"MIT\"},\"contracts/interfaces/curve/ICurvePool.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\n// solhint-disable func-name-mixedcase, var-name-mixedcase\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface CurvePool {\\r\\n    function exchange_underlying(\\r\\n        int128 i,\\r\\n        int128 j,\\r\\n        uint256 dx,\\r\\n        uint256 min_dy,\\r\\n        address receiver\\r\\n    ) external returns (uint256);\\r\\n\\r\\n    function exchange(\\r\\n        int128 i,\\r\\n        int128 j,\\r\\n        uint256 dx,\\r\\n        uint256 min_dy,\\r\\n        address receiver\\r\\n    ) external returns (uint256);\\r\\n\\r\\n    function exchange(\\r\\n        uint256 i,\\r\\n        uint256 j,\\r\\n        uint256 dx,\\r\\n        uint256 min_dy\\r\\n    ) external returns (uint256);\\r\\n\\r\\n    function get_dy_underlying(\\r\\n        int128 i,\\r\\n        int128 j,\\r\\n        uint256 dx\\r\\n    ) external view returns (uint256);\\r\\n\\r\\n    function get_dy(\\r\\n        int128 i,\\r\\n        int128 j,\\r\\n        uint256 dx\\r\\n    ) external view returns (uint256);\\r\\n\\r\\n    function approve(address _spender, uint256 _value) external returns (bool);\\r\\n\\r\\n    function add_liquidity(uint256[2] memory amounts, uint256 _min_mint_amount) external;\\r\\n\\r\\n    function add_liquidity(uint256[3] memory amounts, uint256 _min_mint_amount) external;\\r\\n\\r\\n    function add_liquidity(uint256[4] memory amounts, uint256 _min_mint_amount) external;\\r\\n\\r\\n    function remove_liquidity_one_coin(\\r\\n        uint256 tokenAmount,\\r\\n        int128 i,\\r\\n        uint256 min_amount\\r\\n    ) external returns (uint256);\\r\\n\\r\\n    function remove_liquidity_one_coin(\\r\\n        uint256 tokenAmount,\\r\\n        uint256 i,\\r\\n        uint256 min_amount\\r\\n    ) external returns (uint256);\\r\\n\\r\\n    function remove_liquidity_one_coin(\\r\\n        uint256 tokenAmount,\\r\\n        int128 i,\\r\\n        uint256 min_amount,\\r\\n        address receiver\\r\\n    ) external returns (uint256);\\r\\n}\\r\\n\",\"keccak256\":\"0x93216b95006cd4cc2359e1cababd9eab4fdc53ca1618a71d37b788d381b0d4a4\",\"license\":\"MIT\"},\"contracts/interfaces/yearn/IYearnVault.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface IYearnVault {\\r\\n    function withdraw() external returns (uint256);\\r\\n    function deposit(uint256 amount, address recipient) external returns (uint256);\\r\\n}\",\"keccak256\":\"0x9a70e73b08eb86dbfb575f1ecb73ade48482df42e065b8cd2b4135d26560f09f\",\"license\":\"MIT\"},\"contracts/swappers/Liquidations/YVDAISwapper.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\n// solhint-disable func-name-mixedcase, var-name-mixedcase\\r\\npragma solidity 0.8.10;\\r\\n\\r\\nimport \\\"../../interfaces/IBentoBoxV1.sol\\\";\\r\\nimport \\\"../../interfaces/curve/ICurvePool.sol\\\";\\r\\nimport \\\"../../interfaces/yearn/IYearnVault.sol\\\";\\r\\nimport \\\"../../interfaces/ISwapperGeneric.sol\\\";\\r\\n\\r\\ncontract YVDAISwapper is ISwapperGeneric {\\r\\n    IBentoBoxV1 public constant DEGENBOX = IBentoBoxV1(0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce);\\r\\n    CurvePool public constant MIM3POOL = CurvePool(0x5a6A4D54456819380173272A5E8E9B9904BdF41B);\\r\\n    IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);\\r\\n    IERC20 public constant MIM = IERC20(0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3);\\r\\n    IYearnVault public constant DAI_VAULT = IYearnVault(0xdA816459F1AB5631232FE5e97a05BBBb94970c95);\\r\\n\\r\\n    constructor() {\\r\\n        DAI.approve(address(MIM3POOL), type(uint256).max);\\r\\n    }\\r\\n\\r\\n    // Swaps to a flexible amount, from an exact input amount\\r\\n    /// @inheritdoc ISwapperGeneric\\r\\n    function swap(\\r\\n        IERC20,\\r\\n        IERC20,\\r\\n        address recipient,\\r\\n        uint256 shareToMin,\\r\\n        uint256 shareFrom\\r\\n    ) public override returns (uint256 extraShare, uint256 shareReturned) {\\r\\n        DEGENBOX.withdraw(IERC20(address(DAI_VAULT)), address(this), address(this), 0, shareFrom);\\r\\n\\r\\n        // yvDAI -> DAI\\r\\n        uint256 amount = DAI_VAULT.withdraw();\\r\\n\\r\\n        // DAI -> MIM\\r\\n        amount = MIM3POOL.exchange_underlying(1, 0, amount, 0, address(DEGENBOX));\\r\\n\\r\\n        (, shareReturned) = DEGENBOX.deposit(MIM, address(DEGENBOX), recipient, amount, 0);\\r\\n        extraShare = shareReturned - shareToMin;\\r\\n    }\\r\\n\\r\\n    // Swaps to an exact amount, from a flexible input amount\\r\\n    /// @inheritdoc ISwapperGeneric\\r\\n    function swapExact(\\r\\n        IERC20,\\r\\n        IERC20,\\r\\n        address,\\r\\n        address,\\r\\n        uint256,\\r\\n        uint256\\r\\n    ) public pure override returns (uint256 shareUsed, uint256 shareReturned) {\\r\\n        return (1, 1);\\r\\n    }\\r\\n}\\r\\n\",\"keccak256\":\"0xee08e55538ce8319f56bdaa02a9ea54aa4e910b30e91c219b5e58033ca04dadc\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5060405163095ea7b360e01b8152735a6a4d54456819380173272a5e8e9b9904bdf41b60048201526000196024820152736b175474e89094c44da98b954eedeac495271d0f9063095ea7b3906044016020604051808303816000875af115801561007e573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906100a291906100a8565b506100d1565b6000602082840312156100ba57600080fd5b815180151581146100ca57600080fd5b9392505050565b610572806100e06000396000f3fe608060405234801561001057600080fd5b506004361061007d5760003560e01c8063e088c67c1161005b578063e088c67c14610106578063e0bab4c414610121578063e0bc66b81461013c578063e343fe121461015757600080fd5b806322a88c09146100825780634622be90146100ba578063daec383d146100eb575b600080fd5b61009d735a6a4d54456819380173272a5e8e9b9904bdf41b81565b6040516001600160a01b0390911681526020015b60405180910390f35b6100d66100c8366004610411565b600180965096945050505050565b604080519283526020830191909152016100b1565b61009d7399d8a9c45b2eca8864373a26d1459e3dff1e17f381565b61009d73da816459f1ab5631232fe5e97a05bbbb94970c9581565b61009d736b175474e89094c44da98b954eedeac495271d0f81565b61009d73d96f48665a1410c0cd669a88898eca36b9fc2cce81565b6100d661016536600461047f565b60405163097da6d360e41b815273da816459f1ab5631232fe5e97a05bbbb94970c956004820152306024820181905260448201526000606482018190526084820183905290819073d96f48665a1410c0cd669a88898eca36b9fc2cce906397da6d309060a40160408051808303816000875af11580156101e9573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061020d91906104da565b5050600073da816459f1ab5631232fe5e97a05bbbb94970c956001600160a01b0316633ccfd60b6040518163ffffffff1660e01b81526004016020604051808303816000875af1158015610265573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061028991906104fe565b6040516322770cc360e11b81526001600482015260006024820181905260448201839052606482015273d96f48665a1410c0cd669a88898eca36b9fc2cce6084820152909150735a6a4d54456819380173272a5e8e9b9904bdf41b906344ee19869060a4016020604051808303816000875af115801561030d573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061033191906104fe565b60405162ae511b60e21b81527399d8a9c45b2eca8864373a26d1459e3dff1e17f3600482015273d96f48665a1410c0cd669a88898eca36b9fc2cce602482018190526001600160a01b038916604483015260648201839052600060848301529192506302b9446c9060a40160408051808303816000875af11580156103ba573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103de91906104da565b92506103ec90508583610517565b9250509550959350505050565b6001600160a01b038116811461040e57600080fd5b50565b60008060008060008060c0878903121561042a57600080fd5b8635610435816103f9565b95506020870135610445816103f9565b94506040870135610455816103f9565b93506060870135610465816103f9565b9598949750929560808101359460a0909101359350915050565b600080600080600060a0868803121561049757600080fd5b85356104a2816103f9565b945060208601356104b2816103f9565b935060408601356104c2816103f9565b94979396509394606081013594506080013592915050565b600080604083850312156104ed57600080fd5b505080516020909101519092909150565b60006020828403121561051057600080fd5b5051919050565b60008282101561053757634e487b7160e01b600052601160045260246000fd5b50039056fea2646970667358221220414ebcbf7cb02bd07aed327bd48867bf0c2c75351f71ca3c9ae347e2cf932c5b64736f6c634300080a0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061007d5760003560e01c8063e088c67c1161005b578063e088c67c14610106578063e0bab4c414610121578063e0bc66b81461013c578063e343fe121461015757600080fd5b806322a88c09146100825780634622be90146100ba578063daec383d146100eb575b600080fd5b61009d735a6a4d54456819380173272a5e8e9b9904bdf41b81565b6040516001600160a01b0390911681526020015b60405180910390f35b6100d66100c8366004610411565b600180965096945050505050565b604080519283526020830191909152016100b1565b61009d7399d8a9c45b2eca8864373a26d1459e3dff1e17f381565b61009d73da816459f1ab5631232fe5e97a05bbbb94970c9581565b61009d736b175474e89094c44da98b954eedeac495271d0f81565b61009d73d96f48665a1410c0cd669a88898eca36b9fc2cce81565b6100d661016536600461047f565b60405163097da6d360e41b815273da816459f1ab5631232fe5e97a05bbbb94970c956004820152306024820181905260448201526000606482018190526084820183905290819073d96f48665a1410c0cd669a88898eca36b9fc2cce906397da6d309060a40160408051808303816000875af11580156101e9573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061020d91906104da565b5050600073da816459f1ab5631232fe5e97a05bbbb94970c956001600160a01b0316633ccfd60b6040518163ffffffff1660e01b81526004016020604051808303816000875af1158015610265573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061028991906104fe565b6040516322770cc360e11b81526001600482015260006024820181905260448201839052606482015273d96f48665a1410c0cd669a88898eca36b9fc2cce6084820152909150735a6a4d54456819380173272a5e8e9b9904bdf41b906344ee19869060a4016020604051808303816000875af115801561030d573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061033191906104fe565b60405162ae511b60e21b81527399d8a9c45b2eca8864373a26d1459e3dff1e17f3600482015273d96f48665a1410c0cd669a88898eca36b9fc2cce602482018190526001600160a01b038916604483015260648201839052600060848301529192506302b9446c9060a40160408051808303816000875af11580156103ba573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103de91906104da565b92506103ec90508583610517565b9250509550959350505050565b6001600160a01b038116811461040e57600080fd5b50565b60008060008060008060c0878903121561042a57600080fd5b8635610435816103f9565b95506020870135610445816103f9565b94506040870135610455816103f9565b93506060870135610465816103f9565b9598949750929560808101359460a0909101359350915050565b600080600080600060a0868803121561049757600080fd5b85356104a2816103f9565b945060208601356104b2816103f9565b935060408601356104c2816103f9565b94979396509394606081013594506080013592915050565b600080604083850312156104ed57600080fd5b505080516020909101519092909150565b60006020828403121561051057600080fd5b5051919050565b60008282101561053757634e487b7160e01b600052601160045260246000fd5b50039056fea2646970667358221220414ebcbf7cb02bd07aed327bd48867bf0c2c75351f71ca3c9ae347e2cf932c5b64736f6c634300080a0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "swap(address,address,address,uint256,uint256)": {
+        "notice": "Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper. Swaps it for at least 'amountToMin' of token 'to'. Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer. Returns the amount of tokens 'to' transferred to BentoBox. (The BentoBox skim function will be used by the caller to get the swapped funds)."
+      },
+      "swapExact(address,address,address,address,uint256,uint256)": {
+        "notice": "Calculates the amount of token 'from' needed to complete the swap (amountFrom), this should be less than or equal to amountFromMax. Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper. Swaps it for exactly 'exactAmountTo' of token 'to'. Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer. Transfers allocated, but unused 'from' tokens within the BentoBox to 'refundTo' (amountFromMax - amountFrom). Returns the amount of 'from' tokens withdrawn from BentoBox (amountFrom). (The BentoBox skim function will be used by the caller to get the swapped funds)."
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}

@@ -9,12 +9,11 @@ interface IAggregator {
 }
 
 contract USTOracle is IOracle {
-    IAggregator constant public UST = IAggregator(0x8b6d9085f310396C6E4f0012783E9f850eaa8a82);
+    IAggregator public constant UST = IAggregator(0x8b6d9085f310396C6E4f0012783E9f850eaa8a82);
 
     // Calculates the lastest exchange rate
     // Uses both divide and multiply only for tokens not supported directly by Chainlink, for example MKR/USD
     function _get() internal view returns (uint256) {
-
         uint256 ustPrice = uint256(UST.latestAnswer());
 
         return 1e26 / ustPrice;
