@@ -676,7 +676,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
 
         Rebase memory bentoBoxTotals = bentoBox.totals(asset);
 
-        totalShare = bentoBoxTotals.toBase(totalAmount, false);
+        totalShare = bentoBoxTotals.toBase(totalAmount, true);
         feeShare = bentoBoxTotals.toBase(fee, false);
         lender = loan.lender;
     }
@@ -898,7 +898,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
             } else if (action == ACTION_GET_SHARES_DUE) {
                 uint256 tokenId = abi.decode(datas[i], (uint256));
                 result[1] = _getAmountDue(tokenId);
-                result[0] = bentoBox.toShare(asset, result[1], false);
+                result[0] = bentoBox.toShare(asset, result[1], true);
             } else if (action == ACTION_REPAY) {
                 uint256 tokenId;
                 uint256 totalShare;

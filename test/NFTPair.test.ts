@@ -823,7 +823,7 @@ describe("NFT Pair", async () => {
       // an excess left; skimming is really only suitable for contracts that
       // can calculate the exact repayment needed:
       const exactAmount = params.valuation.add(await pair.calculateInterest(params.valuation, interval, params.annualInterestBPS));
-      // The contract rounds down; we round up and add a little:
+      // We round up, like the contract, and add a little for good measure:
       const closeToShare = exactAmount.mul(9).add(19).div(20);
       const enoughShare = closeToShare.add(getBigNumber(1337, 8));
 
