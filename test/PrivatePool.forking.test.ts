@@ -1,10 +1,4 @@
-import {
-  ethers,
-  network,
-  deployments,
-  getNamedAccounts,
-  artifacts,
-} from "hardhat";
+import { ethers, network, deployments, getNamedAccounts, artifacts } from "hardhat";
 import { expect } from "chai";
 import { BigNumberish, Signer } from "ethers";
 import _ from "lodash";
@@ -42,17 +36,28 @@ const typeDefaults = {
 // These rely on JS/TS iterating over the keys in the order they were defined:
 const initTypeString = _.map(initTypes, (t, name) => `${t} ${name}`).join(", ");
 const encodeInitData = (kvs) =>
-  ethers.utils.defaultAbiCoder.encode(
-    [`tuple(${initTypeString})`],
-    [_.mapValues(initTypes, (t, k) => kvs[k] || typeDefaults[t] || 0)]
-  );
+  ethers.utils.defaultAbiCoder.encode([`tuple(${initTypeString})`], [_.mapValues(initTypes, (t, k) => kvs[k] || typeDefaults[t] || 0)]);
 
 const getSignerFor = async (addr) => {
   await impersonate(addr);
   return ethers.getSigner(addr);
 };
 
-describe("Private Lending Pool - Forked Mainnet", async () => {
+interface IPartialDeployParams {
+  lender?: string;
+  borrowers?: string[];
+  collateral?: string;
+  asset?: string;
+  oracle?: string;
+  INTEREST_PER_SECOND: BigNumberish;
+  COLLATERALIZATION_RATE_BPS: number;
+  LIQUIDATION_MULTIPLIER_BPS: number;
+  BORROW_OPENING_FEE_BPS: number;
+}
+
+const maybe = process.env.FORKING === "true" && (process.env.ETHEREUM_RPC_URL || process.env.INFURA_API_KEY) ? describe : describe.skip;
+
+maybe("Private Lending Pool - Forked Mainnet", async () => {
   let snapshotId;
   let masterContract: PrivatePool;
   let bentoBox: BentoBoxV1;
@@ -61,16 +66,14 @@ describe("Private Lending Pool - Forked Mainnet", async () => {
   let usdcWhale: Signer;
   let generalWhale: Signer;
 
-  const deployPair = async (initSettings) => {
-    const deployTx = await bentoBox
-      .deploy(masterContract.address, encodeInitData(initSettings), false)
-      .then((tx) => tx.wait());
-    const [deployEvent] = deployTx.events;
-    expect(deployEvent.eventSignature).to.equal(
-      "LogDeploy(address,bytes,address)"
-    );
-    const { cloneAddress } = deployEvent.args;
-    return ethers.getContractAt<PrivatePool>("PrivatePool", cloneAddress);
+  const deployPair = async (initSettings: IPartialDeployParams) => {
+    const deployTx = await bentoBox.deploy(masterContract.address, encodeInitData(initSettings), false).then((tx) => tx.wait());
+    for (const e of deployTx.events ?? []) {
+      if (e.eventSignature == "LogDeploy(address,bytes,address)") {
+        return ethers.getContractAt<PrivatePool>("PrivatePool", e.args?.cloneAddress);
+      }
+    }
+    throw new Error("Deploy event not found"); // (For the typechecker..)
   };
 
   before(async () => {
@@ -80,9 +83,7 @@ describe("Private Lending Pool - Forked Mainnet", async () => {
       params: [
         {
           forking: {
-            jsonRpcUrl:
-              process.env.ETHEREUM_RPC_URL ||
-              `https://eth-mainnet.alchemyapi.io/v2/${alchemyKey}`,
+            jsonRpcUrl: process.env.ETHEREUM_RPC_URL || `https://eth-mainnet.alchemyapi.io/v2/${alchemyKey}`,
             blockNumber: 13715035,
           },
         },
@@ -91,10 +92,7 @@ describe("Private Lending Pool - Forked Mainnet", async () => {
 
     await deployments.fixture(["PrivatePool"]);
     masterContract = await ethers.getContract<PrivatePool>("PrivatePool");
-    bentoBox = await ethers.getContractAt<BentoBoxV1>(
-      "BentoBoxV1",
-      await masterContract.bentoBox()
-    );
+    bentoBox = await ethers.getContractAt<BentoBoxV1>("BentoBoxV1", await masterContract.bentoBox());
 
     const sevenPercentAnnually = getBigNumber(7).div(100 * 3600 * 24 * 365);
     pairContract = await deployPair({
@@ -133,6 +131,10 @@ describe("Private Lending Pool - Forked Mainnet", async () => {
       await expect(
         deployPair({
           collateral: ZERO_ADDR,
+          LIQUIDATION_MULTIPLIER_BPS: 9_999,
+          COLLATERALIZATION_RATE_BPS: 10_001,
+          INTEREST_PER_SECOND: getBigNumber(7).div(100 * 3600 * 24 * 365),
+          BORROW_OPENING_FEE_BPS: 10,
         })
       ).to.be.revertedWith("PrivatePool: bad pair");
 
@@ -140,6 +142,9 @@ describe("Private Lending Pool - Forked Mainnet", async () => {
         deployPair({
           collateral: WETH9,
           LIQUIDATION_MULTIPLIER_BPS: 9_999,
+          COLLATERALIZATION_RATE_BPS: 10_001,
+          INTEREST_PER_SECOND: getBigNumber(7).div(100 * 3600 * 24 * 365),
+          BORROW_OPENING_FEE_BPS: 10,
         })
       ).to.be.revertedWith("PrivatePool: negative liquidation bonus");
 
@@ -148,14 +153,14 @@ describe("Private Lending Pool - Forked Mainnet", async () => {
           collateral: WETH9,
           LIQUIDATION_MULTIPLIER_BPS: 10_000,
           COLLATERALIZATION_RATE_BPS: 10_001,
+          INTEREST_PER_SECOND: getBigNumber(7).div(100 * 3600 * 24 * 365),
+          BORROW_OPENING_FEE_BPS: 10,
         })
       ).to.be.revertedWith("PrivatePool: bad collateralization rate");
     });
 
     it("Should refuse to initialize twice", async () => {
-      await expect(pairContract.init(encodeInitData({}))).to.be.revertedWith(
-        "PrivatePool: already initialized"
-      );
+      await expect(pairContract.init(encodeInitData({}))).to.be.revertedWith("PrivatePool: already initialized");
     });
   });
 });
