@@ -25,6 +25,12 @@ const ParametersPerChain = {
     mim: Constants.fantom.mim,
     owner: xMerlin,
   },
+  [ChainId.Arbitrum]: {
+    deploymentName: "CauldronV3_1MCArbitrum",
+    degenBox: Constants.arbitrum.degenBox,
+    mim: Constants.arbitrum.mim,
+    owner: xMerlin,
+  },
 };
 
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
