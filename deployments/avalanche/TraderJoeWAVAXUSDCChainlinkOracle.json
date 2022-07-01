@@ -1,0 +1,217 @@
+{
+  "address": "0x9ab1A92D2877A5EFbf42885159122556edD39A32",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IUniswapV2Pair",
+          "name": "pair_",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IAggregator",
+          "name": "tokenOracle_",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "WAD",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "latestAnswer",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "latestRoundData",
+      "outputs": [
+        {
+          "internalType": "uint80",
+          "name": "",
+          "type": "uint80"
+        },
+        {
+          "internalType": "int256",
+          "name": "",
+          "type": "int256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint80",
+          "name": "",
+          "type": "uint80"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "oracleDecimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pair",
+      "outputs": [
+        {
+          "internalType": "contract IUniswapV2Pair",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "token0Decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "token1Decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "tokenOracle",
+      "outputs": [
+        {
+          "internalType": "contract IAggregator",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x8604b44f9cd241aeeb2e1c8025caa7752e76bcd57e1083d69b35698b02921e1a",
+  "receipt": {
+    "to": null,
+    "from": "0xfB3485c2e209A5cfBDC1447674256578f1A80eE3",
+    "contractAddress": "0x9ab1A92D2877A5EFbf42885159122556edD39A32",
+    "transactionIndex": 3,
+    "gasUsed": "608372",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xcaf9673d0f672c30726f9ea98f26743eab9be7159dd979e77f83c310e5794c42",
+    "transactionHash": "0x8604b44f9cd241aeeb2e1c8025caa7752e76bcd57e1083d69b35698b02921e1a",
+    "logs": [],
+    "blockNumber": 16761596,
+    "cumulativeGasUsed": "881323",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0xf4003F4efBE8691B60249E6afbD307aBE7758adb",
+    "0x588d402C868aDD9053f8F0098c2DC3443c991d17"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "13399da6a3fa025ace53173b726b30bd",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.10+commit.fc410830\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IUniswapV2Pair\",\"name\":\"pair_\",\"type\":\"address\"},{\"internalType\":\"contract IAggregator\",\"name\":\"tokenOracle_\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"WAD\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"latestAnswer\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"latestRoundData\",\"outputs\":[{\"internalType\":\"uint80\",\"name\":\"\",\"type\":\"uint80\"},{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint80\",\"name\":\"\",\"type\":\"uint80\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"oracleDecimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pair\",\"outputs\":[{\"internalType\":\"contract IUniswapV2Pair\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"token0Decimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"token1Decimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"tokenOracle\",\"outputs\":[{\"internalType\":\"contract IAggregator\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"BoringCrypto, 0xCalibur\",\"details\":\"Optimized version based on https://blog.alphafinance.io/fair-lp-token-pricing/\",\"kind\":\"dev\",\"methods\":{\"constructor\":{\"params\":{\"pair_\":\"The UniswapV2 compatible pair address\",\"tokenOracle_\":\"The token price 1 lp should be denominated with.\"}},\"latestAnswer()\":{\"returns\":{\"_0\":\"the price of 1 lp in token price Example: - For 1 AVAX = $82 - Total LP Value is: $160,000,000 - LP supply is 8.25 - latestAnswer() returns 234420638348190662349201 / 1e18 = 234420.63 AVAX - 1 LP = 234420.63 AVAX => 234420.63 * 8.25 * 82 = \\u2248$160,000,000\"}}},\"title\":\"LPChainlinkOracleV2\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"latestAnswer()\":{\"notice\":\"Calculates the lastest exchange rate\"}},\"notice\":\"Oracle used for getting the price of an LP token denominated in tokenOracle.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/oracles/LPChainlinkOracle.sol\":\"LPChainlinkOracle\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":690},\"remappings\":[]},\"sources\":{\"@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol\":{\"content\":\"// SPDX-License-Identifier: GPL-3.0\\n\\npragma solidity >=0.5.0;\\n\\ninterface IUniswapV2Pair {\\n    event Approval(address indexed owner, address indexed spender, uint value);\\n    event Transfer(address indexed from, address indexed to, uint value);\\n\\n    function name() external pure returns (string memory);\\n    function symbol() external pure returns (string memory);\\n    function decimals() external pure returns (uint8);\\n    function totalSupply() external view returns (uint);\\n    function balanceOf(address owner) external view returns (uint);\\n    function allowance(address owner, address spender) external view returns (uint);\\n\\n    function approve(address spender, uint value) external returns (bool);\\n    function transfer(address to, uint value) external returns (bool);\\n    function transferFrom(address from, address to, uint value) external returns (bool);\\n\\n    function DOMAIN_SEPARATOR() external view returns (bytes32);\\n    function PERMIT_TYPEHASH() external pure returns (bytes32);\\n    function nonces(address owner) external view returns (uint);\\n\\n    function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;\\n\\n    event Mint(address indexed sender, uint amount0, uint amount1);\\n    event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);\\n    event Swap(\\n        address indexed sender,\\n        uint amount0In,\\n        uint amount1In,\\n        uint amount0Out,\\n        uint amount1Out,\\n        address indexed to\\n    );\\n    event Sync(uint112 reserve0, uint112 reserve1);\\n\\n    function MINIMUM_LIQUIDITY() external pure returns (uint);\\n    function factory() external view returns (address);\\n    function token0() external view returns (address);\\n    function token1() external view returns (address);\\n    function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);\\n    function price0CumulativeLast() external view returns (uint);\\n    function price1CumulativeLast() external view returns (uint);\\n    function kLast() external view returns (uint);\\n\\n    function mint(address to) external returns (uint liquidity);\\n    function burn(address to) external returns (uint amount0, uint amount1);\\n    function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external;\\n    function skim(address to) external;\\n    function sync() external;\\n\\n    function initialize(address, address) external;\\n}\",\"keccak256\":\"0x08f9a63b34855eec941be8d36a04424f1a1725a2c030373fcef3afeb480ca385\",\"license\":\"GPL-3.0\"},\"contracts/interfaces/IAggregator.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface IAggregator {\\r\\n    function decimals() external view returns (uint8);\\r\\n\\r\\n    function latestAnswer() external view returns (int256 answer);\\r\\n\\r\\n    function latestRoundData()\\r\\n        external\\r\\n        view\\r\\n        returns (\\r\\n            uint80 roundId,\\r\\n            int256 answer,\\r\\n            uint256 startedAt,\\r\\n            uint256 updatedAt,\\r\\n            uint80 answeredInRound\\r\\n        );\\r\\n}\\r\\n\",\"keccak256\":\"0xf262d8b896ece8fa15ea14e7851b2c7e013b548bd9f1d2700e44919376d02259\",\"license\":\"MIT\"},\"contracts/interfaces/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface IERC20 {\\r\\n    function decimals() external view returns (uint8);\\r\\n\\r\\n    function totalSupply() external view returns (uint256);\\r\\n\\r\\n    function balanceOf(address account) external view returns (uint256);\\r\\n\\r\\n    function allowance(address owner, address spender) external view returns (uint256);\\r\\n\\r\\n    function approve(address spender, uint256 amount) external returns (bool);\\r\\n\\r\\n    function transfer(address recipient, uint256 amount) external returns (bool);\\r\\n\\r\\n    function transferFrom(\\r\\n        address sender,\\r\\n        address recipient,\\r\\n        uint256 amount\\r\\n    ) external returns (bool);\\r\\n\\r\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\r\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\r\\n\\r\\n    /// @notice EIP 2612\\r\\n    function permit(\\r\\n        address owner,\\r\\n        address spender,\\r\\n        uint256 value,\\r\\n        uint256 deadline,\\r\\n        uint8 v,\\r\\n        bytes32 r,\\r\\n        bytes32 s\\r\\n    ) external;\\r\\n}\\r\\n\",\"keccak256\":\"0x051f26454648a09bf39bed672a6a7aa9b5bc7b3f74822de5e743beef94428c52\",\"license\":\"MIT\"},\"contracts/libraries/Babylonian.sol\":{\"content\":\"// SPDX-License-Identifier: GPL-3.0-or-later\\r\\n\\r\\npragma solidity >=0.8.4;\\r\\n\\r\\n/// @notice Babylonian method (https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method).\\r\\nlibrary Babylonian {\\r\\n    // computes square roots using the babylonian method\\r\\n    // credit for this implementation goes to\\r\\n    // https://github.com/abdk-consulting/abdk-libraries-solidity/blob/master/ABDKMath64x64.sol#L687\\r\\n    function sqrt(uint256 x) internal pure returns (uint256) {\\r\\n        if (x == 0) return 0;\\r\\n        // this block is equivalent to r = uint256(1) << (BitMath.mostSignificantBit(x) / 2);\\r\\n        // however that code costs significantly more gas\\r\\n        uint256 xx = x;\\r\\n        uint256 r = 1;\\r\\n        if (xx >= 0x100000000000000000000000000000000) {\\r\\n            xx >>= 128;\\r\\n            r <<= 64;\\r\\n        }\\r\\n        if (xx >= 0x10000000000000000) {\\r\\n            xx >>= 64;\\r\\n            r <<= 32;\\r\\n        }\\r\\n        if (xx >= 0x100000000) {\\r\\n            xx >>= 32;\\r\\n            r <<= 16;\\r\\n        }\\r\\n        if (xx >= 0x10000) {\\r\\n            xx >>= 16;\\r\\n            r <<= 8;\\r\\n        }\\r\\n        if (xx >= 0x100) {\\r\\n            xx >>= 8;\\r\\n            r <<= 4;\\r\\n        }\\r\\n        if (xx >= 0x10) {\\r\\n            xx >>= 4;\\r\\n            r <<= 2;\\r\\n        }\\r\\n        if (xx >= 0x8) {\\r\\n            r <<= 1;\\r\\n        }\\r\\n        r = (r + x / r) >> 1;\\r\\n        r = (r + x / r) >> 1;\\r\\n        r = (r + x / r) >> 1;\\r\\n        r = (r + x / r) >> 1;\\r\\n        r = (r + x / r) >> 1;\\r\\n        r = (r + x / r) >> 1;\\r\\n        r = (r + x / r) >> 1; // Seven iterations should be enough\\r\\n        uint256 r1 = x / r;\\r\\n        return (r < r1 ? r : r1);\\r\\n    }\\r\\n}\\r\\n\",\"keccak256\":\"0xfdbe64ff139295d3a3f80e8f10aa93c49b5f362d61423f0f5613c3f0a392e569\",\"license\":\"GPL-3.0-or-later\"},\"contracts/oracles/LPChainlinkOracle.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity 0.8.10;\\r\\n\\r\\nimport \\\"@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol\\\";\\r\\nimport \\\"../interfaces/IAggregator.sol\\\";\\r\\nimport \\\"../interfaces/IERC20.sol\\\";\\r\\nimport \\\"../libraries/Babylonian.sol\\\";\\r\\n\\r\\n/// @title LPChainlinkOracleV2\\r\\n/// @author BoringCrypto, 0xCalibur\\r\\n/// @notice Oracle used for getting the price of an LP token denominated in tokenOracle.\\r\\n/// @dev Optimized version based on https://blog.alphafinance.io/fair-lp-token-pricing/\\r\\ncontract LPChainlinkOracle is IAggregator {\\r\\n    IUniswapV2Pair public immutable pair;\\r\\n    IAggregator public immutable tokenOracle;\\r\\n    uint8 public immutable token0Decimals;\\r\\n    uint8 public immutable token1Decimals;\\r\\n    uint8 public immutable oracleDecimals;\\r\\n\\r\\n    uint256 public constant WAD = 18;\\r\\n\\r\\n    /// @param pair_ The UniswapV2 compatible pair address\\r\\n    /// @param tokenOracle_ The token price 1 lp should be denominated with.\\r\\n    constructor(IUniswapV2Pair pair_, IAggregator tokenOracle_) {\\r\\n        pair = pair_;\\r\\n        tokenOracle = tokenOracle_;\\r\\n\\r\\n        token0Decimals = IERC20(pair_.token0()).decimals();\\r\\n        token1Decimals = IERC20(pair_.token1()).decimals();\\r\\n\\r\\n        oracleDecimals = tokenOracle_.decimals();\\r\\n    }\\r\\n\\r\\n    function decimals() external pure override returns (uint8) {\\r\\n        return 18;\\r\\n    }\\r\\n\\r\\n    /// Calculates the lastest exchange rate\\r\\n    /// @return the price of 1 lp in token price\\r\\n    /// Example:\\r\\n    /// - For 1 AVAX = $82\\r\\n    /// - Total LP Value is: $160,000,000\\r\\n    /// - LP supply is 8.25\\r\\n    /// - latestAnswer() returns 234420638348190662349201 / 1e18 = 234420.63 AVAX\\r\\n    /// - 1 LP = 234420.63 AVAX => 234420.63 * 8.25 * 82 = \\u2248$160,000,000\\r\\n    function latestAnswer() public view override returns (int256) {\\r\\n        (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(pair).getReserves();\\r\\n        uint256 totalSupply = pair.totalSupply();\\r\\n\\r\\n        uint256 normalizedReserve0 = reserve0 * (10**(WAD - token0Decimals));\\r\\n        uint256 normalizedReserve1 = reserve1 * (10**(WAD - token1Decimals));\\r\\n\\r\\n        uint256 k = normalizedReserve0 * normalizedReserve1;\\r\\n        (, int256 priceFeed, , , ) = tokenOracle.latestRoundData();\\r\\n\\r\\n        uint256 normalizedPriceFeed = uint256(priceFeed) * (10**(WAD - oracleDecimals));\\r\\n\\r\\n        uint256 totalValue = uint256(Babylonian.sqrt((k / 1e18) * normalizedPriceFeed)) * 2;\\r\\n        return int256((totalValue * 1e18) / totalSupply);\\r\\n    }\\r\\n\\r\\n    function latestRoundData()\\r\\n        external\\r\\n        view\\r\\n        returns (\\r\\n            uint80,\\r\\n            int256,\\r\\n            uint256,\\r\\n            uint256,\\r\\n            uint80\\r\\n        )\\r\\n    {\\r\\n        return (0, latestAnswer(), 0, 0, 0);\\r\\n    }\\r\\n}\\r\\n\",\"keccak256\":\"0xb546a31e85f1f9b5a799966c5e2ba9013dc911f2d642308523805a9d28f6b8a8\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x6101206040523480156200001257600080fd5b5060405162000cd338038062000cd3833981016040819052620000359162000282565b6001600160a01b03808316608081905290821660a05260408051630dfe168160e01b81529051630dfe1681916004808201926020929091908290030181865afa15801562000087573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190620000ad9190620002c1565b6001600160a01b031663313ce5676040518163ffffffff1660e01b8152600401602060405180830381865afa158015620000eb573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190620001119190620002e8565b60ff1660c08160ff1681525050816001600160a01b031663d21220a76040518163ffffffff1660e01b8152600401602060405180830381865afa1580156200015d573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190620001839190620002c1565b6001600160a01b031663313ce5676040518163ffffffff1660e01b8152600401602060405180830381865afa158015620001c1573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190620001e79190620002e8565b60ff1660e08160ff1681525050806001600160a01b031663313ce5676040518163ffffffff1660e01b8152600401602060405180830381865afa15801562000233573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190620002599190620002e8565b60ff1661010052506200030d9050565b6001600160a01b03811681146200027f57600080fd5b50565b600080604083850312156200029657600080fd5b8251620002a38162000269565b6020840151909250620002b68162000269565b809150509250929050565b600060208284031215620002d457600080fd5b8151620002e18162000269565b9392505050565b600060208284031215620002fb57600080fd5b815160ff81168114620002e157600080fd5b60805160a05160c05160e051610100516109586200037b6000396000818161019d015261045a01526000818160ad0152610380015260008181610176015261033901526000818161011001526103d001526000818161014f0152818161020501526102ae01526109586000f3fe608060405234801561001057600080fd5b50600436106100a35760003560e01c80636c5ec25c11610076578063b31ac6e21161005b578063b31ac6e214610171578063e68b52e714610198578063feaf968c146101bf57600080fd5b80636c5ec25c1461010b578063a8aa1b311461014a57600080fd5b80630b77884d146100a8578063313ce567146100e657806350d25bcd146100ed5780636a14602414610103575b600080fd5b6100cf7f000000000000000000000000000000000000000000000000000000000000000081565b60405160ff90911681526020015b60405180910390f35b60126100cf565b6100f56101fe565b6040519081526020016100dd565b6100f5601281565b6101327f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b0390911681526020016100dd565b6101327f000000000000000000000000000000000000000000000000000000000000000081565b6100cf7f000000000000000000000000000000000000000000000000000000000000000081565b6100cf7f000000000000000000000000000000000000000000000000000000000000000081565b6101c76104fe565b6040805169ffffffffffffffffffff968716815260208101959095528401929092526060830152909116608082015260a0016100dd565b60008060007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316630902f1ac6040518163ffffffff1660e01b8152600401606060405180830381865afa158015610261573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061028591906106d0565b506dffffffffffffffffffffffffffff1691506dffffffffffffffffffffffffffff16915060007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166318160ddd6040518163ffffffff1660e01b8152600401602060405180830381865afa15801561030a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061032e9190610720565b9050600061036060ff7f000000000000000000000000000000000000000000000000000000000000000016601261074f565b61036b90600a61084c565b610375908561085f565b905060006103a760ff7f000000000000000000000000000000000000000000000000000000000000000016601261074f565b6103b290600a61084c565b6103bc908561085f565b905060006103ca828461085f565b905060007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031663feaf968c6040518163ffffffff1660e01b815260040160a060405180830381865afa15801561042c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104509190610898565b50505091505060007f000000000000000000000000000000000000000000000000000000000000000060ff166012610488919061074f565b61049390600a61084c565b61049d908361085f565b905060006104c6826104b7670de0b6b3a7640000876108e8565b6104c1919061085f565b610522565b6104d190600261085f565b9050866104e682670de0b6b3a764000061085f565b6104f091906108e8565b995050505050505050505090565b60008060008060008061050f6101fe565b9096909550600094508493508392509050565b60008161053157506000919050565b81600170010000000000000000000000000000000082106105575760809190911c9060401b5b6801000000000000000082106105725760409190911c9060201b5b64010000000082106105895760209190911c9060101b5b62010000821061059e5760109190911c9060081b5b61010082106105b25760089190911c9060041b5b601082106105c55760049190911c9060021b5b600882106105d15760011b5b60016105dd82866108e8565b6105e7908361090a565b901c905060016105f782866108e8565b610601908361090a565b901c9050600161061182866108e8565b61061b908361090a565b901c9050600161062b82866108e8565b610635908361090a565b901c9050600161064582866108e8565b61064f908361090a565b901c9050600161065f82866108e8565b610669908361090a565b901c9050600161067982866108e8565b610683908361090a565b901c9050600061069382866108e8565b90508082106106a257806106a4565b815b95945050505050565b80516dffffffffffffffffffffffffffff811681146106cb57600080fd5b919050565b6000806000606084860312156106e557600080fd5b6106ee846106ad565b92506106fc602085016106ad565b9150604084015163ffffffff8116811461071557600080fd5b809150509250925092565b60006020828403121561073257600080fd5b5051919050565b634e487b7160e01b600052601160045260246000fd5b60008282101561076157610761610739565b500390565b600181815b808511156107a157816000190482111561078757610787610739565b8085161561079457918102915b93841c939080029061076b565b509250929050565b6000826107b857506001610846565b816107c557506000610846565b81600181146107db57600281146107e557610801565b6001915050610846565b60ff8411156107f6576107f6610739565b50506001821b610846565b5060208310610133831016604e8410600b8410161715610824575081810a610846565b61082e8383610766565b806000190482111561084257610842610739565b0290505b92915050565b600061085883836107a9565b9392505050565b600081600019048311821515161561087957610879610739565b500290565b805169ffffffffffffffffffff811681146106cb57600080fd5b600080600080600060a086880312156108b057600080fd5b6108b98661087e565b94506020860151935060408601519250606086015191506108dc6080870161087e565b90509295509295909350565b60008261090557634e487b7160e01b600052601260045260246000fd5b500490565b6000821982111561091d5761091d610739565b50019056fea2646970667358221220cb54282f0da72e8fd3e965086687cb60dbffb7c2cb5458996db2f8bfebb59e5864736f6c634300080a0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100a35760003560e01c80636c5ec25c11610076578063b31ac6e21161005b578063b31ac6e214610171578063e68b52e714610198578063feaf968c146101bf57600080fd5b80636c5ec25c1461010b578063a8aa1b311461014a57600080fd5b80630b77884d146100a8578063313ce567146100e657806350d25bcd146100ed5780636a14602414610103575b600080fd5b6100cf7f000000000000000000000000000000000000000000000000000000000000000081565b60405160ff90911681526020015b60405180910390f35b60126100cf565b6100f56101fe565b6040519081526020016100dd565b6100f5601281565b6101327f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b0390911681526020016100dd565b6101327f000000000000000000000000000000000000000000000000000000000000000081565b6100cf7f000000000000000000000000000000000000000000000000000000000000000081565b6100cf7f000000000000000000000000000000000000000000000000000000000000000081565b6101c76104fe565b6040805169ffffffffffffffffffff968716815260208101959095528401929092526060830152909116608082015260a0016100dd565b60008060007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316630902f1ac6040518163ffffffff1660e01b8152600401606060405180830381865afa158015610261573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061028591906106d0565b506dffffffffffffffffffffffffffff1691506dffffffffffffffffffffffffffff16915060007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166318160ddd6040518163ffffffff1660e01b8152600401602060405180830381865afa15801561030a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061032e9190610720565b9050600061036060ff7f000000000000000000000000000000000000000000000000000000000000000016601261074f565b61036b90600a61084c565b610375908561085f565b905060006103a760ff7f000000000000000000000000000000000000000000000000000000000000000016601261074f565b6103b290600a61084c565b6103bc908561085f565b905060006103ca828461085f565b905060007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031663feaf968c6040518163ffffffff1660e01b815260040160a060405180830381865afa15801561042c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104509190610898565b50505091505060007f000000000000000000000000000000000000000000000000000000000000000060ff166012610488919061074f565b61049390600a61084c565b61049d908361085f565b905060006104c6826104b7670de0b6b3a7640000876108e8565b6104c1919061085f565b610522565b6104d190600261085f565b9050866104e682670de0b6b3a764000061085f565b6104f091906108e8565b995050505050505050505090565b60008060008060008061050f6101fe565b9096909550600094508493508392509050565b60008161053157506000919050565b81600170010000000000000000000000000000000082106105575760809190911c9060401b5b6801000000000000000082106105725760409190911c9060201b5b64010000000082106105895760209190911c9060101b5b62010000821061059e5760109190911c9060081b5b61010082106105b25760089190911c9060041b5b601082106105c55760049190911c9060021b5b600882106105d15760011b5b60016105dd82866108e8565b6105e7908361090a565b901c905060016105f782866108e8565b610601908361090a565b901c9050600161061182866108e8565b61061b908361090a565b901c9050600161062b82866108e8565b610635908361090a565b901c9050600161064582866108e8565b61064f908361090a565b901c9050600161065f82866108e8565b610669908361090a565b901c9050600161067982866108e8565b610683908361090a565b901c9050600061069382866108e8565b90508082106106a257806106a4565b815b95945050505050565b80516dffffffffffffffffffffffffffff811681146106cb57600080fd5b919050565b6000806000606084860312156106e557600080fd5b6106ee846106ad565b92506106fc602085016106ad565b9150604084015163ffffffff8116811461071557600080fd5b809150509250925092565b60006020828403121561073257600080fd5b5051919050565b634e487b7160e01b600052601160045260246000fd5b60008282101561076157610761610739565b500390565b600181815b808511156107a157816000190482111561078757610787610739565b8085161561079457918102915b93841c939080029061076b565b509250929050565b6000826107b857506001610846565b816107c557506000610846565b81600181146107db57600281146107e557610801565b6001915050610846565b60ff8411156107f6576107f6610739565b50506001821b610846565b5060208310610133831016604e8410600b8410161715610824575081810a610846565b61082e8383610766565b806000190482111561084257610842610739565b0290505b92915050565b600061085883836107a9565b9392505050565b600081600019048311821515161561087957610879610739565b500290565b805169ffffffffffffffffffff811681146106cb57600080fd5b600080600080600060a086880312156108b057600080fd5b6108b98661087e565b94506020860151935060408601519250606086015191506108dc6080870161087e565b90509295509295909350565b60008261090557634e487b7160e01b600052601260045260246000fd5b500490565b6000821982111561091d5761091d610739565b50019056fea2646970667358221220cb54282f0da72e8fd3e965086687cb60dbffb7c2cb5458996db2f8bfebb59e5864736f6c634300080a0033",
+  "devdoc": {
+    "author": "BoringCrypto, 0xCalibur",
+    "details": "Optimized version based on https://blog.alphafinance.io/fair-lp-token-pricing/",
+    "kind": "dev",
+    "methods": {
+      "constructor": {
+        "params": {
+          "pair_": "The UniswapV2 compatible pair address",
+          "tokenOracle_": "The token price 1 lp should be denominated with."
+        }
+      },
+      "latestAnswer()": {
+        "returns": {
+          "_0": "the price of 1 lp in token price Example: - For 1 AVAX = $82 - Total LP Value is: $160,000,000 - LP supply is 8.25 - latestAnswer() returns 234420638348190662349201 / 1e18 = 234420.63 AVAX - 1 LP = 234420.63 AVAX => 234420.63 * 8.25 * 82 = ≈$160,000,000"
+        }
+      }
+    },
+    "title": "LPChainlinkOracleV2",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "latestAnswer()": {
+        "notice": "Calculates the lastest exchange rate"
+      }
+    },
+    "notice": "Oracle used for getting the price of an LP token denominated in tokenOracle.",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
