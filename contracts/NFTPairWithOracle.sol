@@ -26,7 +26,7 @@ import "@boringcrypto/boring-solidity/contracts/interfaces/IMasterContract.sol";
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
 import "@sushiswap/bentobox-sdk/contracts/IBentoBoxV1.sol";
 import "./interfaces/IERC721.sol";
-import "./interfaces/ILendingClubWithOracle.sol";
+import "./interfaces/ILendingClub.sol";
 import "./interfaces/INFTBuyer.sol";
 import "./interfaces/INFTSeller.sol";
 import "./interfaces/INFTPairWithOracle.sol";
@@ -463,7 +463,17 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
         SignatureParams memory signature
     ) private {
         if (signature.v == 0 && signature.r == bytes32(0) && signature.s == bytes32(0)) {
-            require(ILendingClubWithOracle(lender).willLend(tokenId, params), "NFTPair: LendingClub refused");
+            require(
+                ILendingClub(lender).willLend(
+                    tokenId,
+                    params.valuation,
+                    params.duration,
+                    params.annualInterestBPS,
+                    params.ltvBPS,
+                    address(params.oracle)
+                ),
+                "NFTPair: LendingClub refused"
+            );
         } else {
             require(block.timestamp <= signature.deadline, "NFTPair: signature expired");
             uint256 nonce = nonces[lender]++;
