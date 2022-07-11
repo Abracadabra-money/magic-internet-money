@@ -211,10 +211,6 @@ const config: HardhatUserConfig = {
     timeout: 500000,
     bail: true,
   },
-  tenderly: {
-    project: process.env.TENDERLY_PROJECT || "project",
-    username: process.env.TENDERLY_USERNAME || "",
-  },
   solidity: {
     compilers: [
       {
@@ -327,42 +323,6 @@ const config: HardhatUserConfig = {
           },
         },
       },
-      "@uniswap/v3-core/contracts/libraries/FullMath.sol": {
-        version: "0.7.6",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 9000,
-          },
-        },
-      },
-      "@uniswap/v3-periphery/contracts/libraries/LiquidityAmounts.sol": {
-        version: "0.7.6",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 9000,
-          },
-        },
-      },
-      "@uniswap/v3-core/contracts/libraries/TickMath.sol": {
-        version: "0.7.6",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 9000,
-          },
-        },
-      },
-      "@uniswap/v3-periphery/contracts/libraries/PoolAddress.sol": {
-        version: "0.7.6",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 9000,
-          },
-        },
-      },
       "contracts/SpellPower.sol": {
         version: "0.8.6",
         settings: {
@@ -372,42 +332,6 @@ const config: HardhatUserConfig = {
           },
         },
       },
-      "contracts/KashiPair.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 1,
-          },
-        },
-      },
-      "contracts/mocks/KashiPairMock.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 1,
-          },
-        },
-      },
-      "contracts/swappers/Leverage/AGLDLevSwapper.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 9000,
-          },
-        },
-      },
-      "contracts/swappers/Liquidations/AGLDSwapper.sol": {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 9000,
-          },
-        },
-      }
     },
   },
 };

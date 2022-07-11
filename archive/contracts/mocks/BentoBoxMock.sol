@@ -12,4 +12,9 @@ contract BentoBoxMock is BentoBoxV1 {
         token.safeTransferFrom(msg.sender, address(this), amount);
         totals[token].addElastic(amount);
     }
+
+    function takeLoss(IERC20 token, uint256 amount) public {
+        token.safeTransfer(msg.sender, amount);
+        totals[token].subElastic(amount);
+    }
 }

@@ -224,5 +224,6 @@ export async function deployLPOracle(name: string, desc: string, lp: string, tok
   return ProxyOracle;
 }
 
-export * from "./time";
+export * from "./time"
+export * from "./math"
 export * from "./whitelistedMerkle";
