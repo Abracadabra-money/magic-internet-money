@@ -1,0 +1,397 @@
+{
+  "address": "0xF8B72e847e648BC87c8269FE258cbe908Fa2A71d",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "contract IOracle",
+          "name": "oldOracle",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "contract IOracle",
+          "name": "newOracle",
+          "type": "address"
+        }
+      ],
+      "name": "LogOracleImplementationChange",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IOracle",
+          "name": "newOracle",
+          "type": "address"
+        }
+      ],
+      "name": "changeOracleImplementation",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "claimOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "get",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "oracleImplementation",
+      "outputs": [
+        {
+          "internalType": "contract IOracle",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "peek",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "peekSpot",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "rate",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pendingOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "symbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "direct",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "renounce",
+          "type": "bool"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xb9932918b5a9b6014e5815d971a81d7df9fdd5cdf9bc2c4ecd49f2f8f2532d5b",
+  "receipt": {
+    "to": null,
+    "from": "0xfB3485c2e209A5cfBDC1447674256578f1A80eE3",
+    "contractAddress": "0xF8B72e847e648BC87c8269FE258cbe908Fa2A71d",
+    "transactionIndex": 3,
+    "gasUsed": "611170",
+    "logsBloom": "0x00000000000000400000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000400002000000200000020000000000000000000800000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x42d018ca39e94411e015591b673a9547c24b44ea2a9bdddd752e7a75f447a916",
+    "transactionHash": "0xb9932918b5a9b6014e5815d971a81d7df9fdd5cdf9bc2c4ecd49f2f8f2532d5b",
+    "logs": [
+      {
+        "transactionIndex": 3,
+        "blockNumber": 16761452,
+        "transactionHash": "0xb9932918b5a9b6014e5815d971a81d7df9fdd5cdf9bc2c4ecd49f2f8f2532d5b",
+        "address": "0xF8B72e847e648BC87c8269FE258cbe908Fa2A71d",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000fb3485c2e209a5cfbdc1447674256578f1a80ee3"
+        ],
+        "data": "0x",
+        "logIndex": 5,
+        "blockHash": "0x42d018ca39e94411e015591b673a9547c24b44ea2a9bdddd752e7a75f447a916"
+      }
+    ],
+    "blockNumber": 16761452,
+    "cumulativeGasUsed": "817158",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "c6eec116dfbfa84438aeaaf3930f345f",
+  "metadata": "{\"compiler\":{\"version\":\"0.6.12+commit.27d51765\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"contract IOracle\",\"name\":\"oldOracle\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"contract IOracle\",\"name\":\"newOracle\",\"type\":\"address\"}],\"name\":\"LogOracleImplementationChange\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"contract IOracle\",\"name\":\"newOracle\",\"type\":\"address\"}],\"name\":\"changeOracleImplementation\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"claimOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"get\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"name\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"oracleImplementation\",\"outputs\":[{\"internalType\":\"contract IOracle\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"peek\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"peekSpot\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"rate\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pendingOwner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"symbol\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"direct\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"renounce\",\"type\":\"bool\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"0xMerlin\",\"kind\":\"dev\",\"methods\":{\"get(bytes)\":{\"params\":{\"data\":\"Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\"},\"returns\":{\"_0\":\"success if no valid (recent) rate is available, return false else true.\",\"_1\":\"rate The rate of the requested asset / pair / pool.\"}},\"name(bytes)\":{\"params\":{\"data\":\"Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\"},\"returns\":{\"_0\":\"(string) A human readable name about this oracle.\"}},\"peek(bytes)\":{\"params\":{\"data\":\"Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\"},\"returns\":{\"_0\":\"success if no valid (recent) rate is available, return false else true.\",\"_1\":\"rate The rate of the requested asset / pair / pool.\"}},\"peekSpot(bytes)\":{\"params\":{\"data\":\"Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\"},\"returns\":{\"rate\":\"The rate of the requested asset / pair / pool.\"}},\"symbol(bytes)\":{\"params\":{\"data\":\"Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\"},\"returns\":{\"_0\":\"(string) A human readable symbol name about this oracle.\"}},\"transferOwnership(address,bool,bool)\":{\"params\":{\"direct\":\"True if `newOwner` should be set immediately. False if `newOwner` needs to use `claimOwnership`.\",\"newOwner\":\"Address of the new owner.\",\"renounce\":\"Allows the `newOwner` to be `address(0)` if `direct` and `renounce` is True. Has no effect otherwise.\"}}},\"title\":\"ProxyOracle\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"claimOwnership()\":{\"notice\":\"Needs to be called by `pendingOwner` to claim ownership.\"},\"get(bytes)\":{\"notice\":\"Get the latest exchange rate.\"},\"name(bytes)\":{\"notice\":\"Returns a human readable name about this oracle.\"},\"peek(bytes)\":{\"notice\":\"Check the last exchange rate without any state changes.\"},\"peekSpot(bytes)\":{\"notice\":\"Check the current spot exchange rate without any state changes. For oracles like TWAP this will be different from peek().\"},\"symbol(bytes)\":{\"notice\":\"Returns a human readable (short) name about this oracle.\"},\"transferOwnership(address,bool,bool)\":{\"notice\":\"Transfers ownership to `newOwner`. Either directly or claimable by the new pending owner. Can only be invoked by the current `owner`.\"}},\"notice\":\"Oracle used for getting the price of an oracle implementation\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/oracles/ProxyOracle.sol\":\"ProxyOracle\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":690},\"remappings\":[]},\"sources\":{\"@boringcrypto/boring-solidity/contracts/BoringOwnable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.6.12;\\n\\n// Audit on 5-Jan-2021 by Keno and BoringCrypto\\n// Source: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol + Claimable.sol\\n// Edited by BoringCrypto\\n\\ncontract BoringOwnableData {\\n    address public owner;\\n    address public pendingOwner;\\n}\\n\\ncontract BoringOwnable is BoringOwnableData {\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /// @notice `owner` defaults to msg.sender on construction.\\n    constructor() public {\\n        owner = msg.sender;\\n        emit OwnershipTransferred(address(0), msg.sender);\\n    }\\n\\n    /// @notice Transfers ownership to `newOwner`. Either directly or claimable by the new pending owner.\\n    /// Can only be invoked by the current `owner`.\\n    /// @param newOwner Address of the new owner.\\n    /// @param direct True if `newOwner` should be set immediately. False if `newOwner` needs to use `claimOwnership`.\\n    /// @param renounce Allows the `newOwner` to be `address(0)` if `direct` and `renounce` is True. Has no effect otherwise.\\n    function transferOwnership(\\n        address newOwner,\\n        bool direct,\\n        bool renounce\\n    ) public onlyOwner {\\n        if (direct) {\\n            // Checks\\n            require(newOwner != address(0) || renounce, \\\"Ownable: zero address\\\");\\n\\n            // Effects\\n            emit OwnershipTransferred(owner, newOwner);\\n            owner = newOwner;\\n            pendingOwner = address(0);\\n        } else {\\n            // Effects\\n            pendingOwner = newOwner;\\n        }\\n    }\\n\\n    /// @notice Needs to be called by `pendingOwner` to claim ownership.\\n    function claimOwnership() public {\\n        address _pendingOwner = pendingOwner;\\n\\n        // Checks\\n        require(msg.sender == _pendingOwner, \\\"Ownable: caller != pending owner\\\");\\n\\n        // Effects\\n        emit OwnershipTransferred(owner, _pendingOwner);\\n        owner = _pendingOwner;\\n        pendingOwner = address(0);\\n    }\\n\\n    /// @notice Only allows the `owner` to execute the function.\\n    modifier onlyOwner() {\\n        require(msg.sender == owner, \\\"Ownable: caller is not the owner\\\");\\n        _;\\n    }\\n}\\n\",\"keccak256\":\"0xbde1619421fef865bf5f5f806e319900fb862e27f0aef6e0878e93f04f477601\",\"license\":\"MIT\"},\"@boringcrypto/boring-solidity/contracts/interfaces/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.6.12;\\n\\ninterface IERC20 {\\n    function totalSupply() external view returns (uint256);\\n\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /// @notice EIP 2612\\n    function permit(\\n        address owner,\\n        address spender,\\n        uint256 value,\\n        uint256 deadline,\\n        uint8 v,\\n        bytes32 r,\\n        bytes32 s\\n    ) external;\\n}\\n\",\"keccak256\":\"0xf0da35541d6ae9e3c12fdd7c8d5d9584c56f9ac50d062efb8ca353ebd6ffd47d\",\"license\":\"MIT\"},\"contracts/interfaces/IOracle.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface IOracle {\\r\\n    /// @notice Get the latest exchange rate.\\r\\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\\r\\n    /// For example:\\r\\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\\r\\n    /// @return success if no valid (recent) rate is available, return false else true.\\r\\n    /// @return rate The rate of the requested asset / pair / pool.\\r\\n    function get(bytes calldata data) external returns (bool success, uint256 rate);\\r\\n\\r\\n    /// @notice Check the last exchange rate without any state changes.\\r\\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\\r\\n    /// For example:\\r\\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\\r\\n    /// @return success if no valid (recent) rate is available, return false else true.\\r\\n    /// @return rate The rate of the requested asset / pair / pool.\\r\\n    function peek(bytes calldata data) external view returns (bool success, uint256 rate);\\r\\n\\r\\n    /// @notice Check the current spot exchange rate without any state changes. For oracles like TWAP this will be different from peek().\\r\\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\\r\\n    /// For example:\\r\\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\\r\\n    /// @return rate The rate of the requested asset / pair / pool.\\r\\n    function peekSpot(bytes calldata data) external view returns (uint256 rate);\\r\\n\\r\\n    /// @notice Returns a human readable (short) name about this oracle.\\r\\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\\r\\n    /// For example:\\r\\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\\r\\n    /// @return (string) A human readable symbol name about this oracle.\\r\\n    function symbol(bytes calldata data) external view returns (string memory);\\r\\n\\r\\n    /// @notice Returns a human readable name about this oracle.\\r\\n    /// @param data Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle.\\r\\n    /// For example:\\r\\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\\r\\n    /// @return (string) A human readable name about this oracle.\\r\\n    function name(bytes calldata data) external view returns (string memory);\\r\\n}\\r\\n\",\"keccak256\":\"0x724e4079842c80db8202bbd75fd9ccee057012cf82f5615898f76ce550ff7f46\",\"license\":\"MIT\"},\"contracts/oracles/ProxyOracle.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity ^0.6.12;\\r\\n\\r\\nimport \\\"../interfaces/IOracle.sol\\\";\\r\\nimport \\\"@boringcrypto/boring-solidity/contracts/interfaces/IERC20.sol\\\";\\r\\nimport \\\"@boringcrypto/boring-solidity/contracts/BoringOwnable.sol\\\";\\r\\n\\r\\n/// @title ProxyOracle\\r\\n/// @author 0xMerlin\\r\\n/// @notice Oracle used for getting the price of an oracle implementation\\r\\ncontract ProxyOracle is IOracle, BoringOwnable {\\r\\n    IOracle public oracleImplementation;\\r\\n\\r\\n    event LogOracleImplementationChange(IOracle indexed oldOracle, IOracle indexed newOracle);\\r\\n\\r\\n    constructor() public {}\\r\\n\\r\\n    function changeOracleImplementation(IOracle newOracle) external onlyOwner {\\r\\n        IOracle oldOracle = oracleImplementation;\\r\\n        oracleImplementation = newOracle;\\r\\n        emit LogOracleImplementationChange(oldOracle, newOracle);\\r\\n    }\\r\\n\\r\\n    // Get the latest exchange rate\\r\\n    /// @inheritdoc IOracle\\r\\n    function get(bytes calldata data) public override returns (bool, uint256) {\\r\\n        return oracleImplementation.get(data);\\r\\n    }\\r\\n\\r\\n    // Check the last exchange rate without any state changes\\r\\n    /// @inheritdoc IOracle\\r\\n    function peek(bytes calldata data) public view override returns (bool, uint256) {\\r\\n        return oracleImplementation.peek(data);\\r\\n    }\\r\\n\\r\\n    // Check the current spot exchange rate without any state changes\\r\\n    /// @inheritdoc IOracle\\r\\n    function peekSpot(bytes calldata data) external view override returns (uint256 rate) {\\r\\n        return oracleImplementation.peekSpot(data);\\r\\n    }\\r\\n\\r\\n    /// @inheritdoc IOracle\\r\\n    function name(bytes calldata) public view override returns (string memory) {\\r\\n        return \\\"Proxy Oracle\\\";\\r\\n    }\\r\\n\\r\\n    /// @inheritdoc IOracle\\r\\n    function symbol(bytes calldata) public view override returns (string memory) {\\r\\n        return \\\"Proxy\\\";\\r\\n    }\\r\\n}\\r\\n\",\"keccak256\":\"0x0337455315b0c2a6afe44168ac40df82bbd14f1619720d3bd731c591f2f804a6\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50600080546001600160a01b0319163390811782556040519091907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908290a36109a98061005f6000396000f3fe608060405234801561001057600080fd5b50600436106100c95760003560e01c8063cb19341011610081578063d6d7d5251161005b578063d6d7d52514610337578063e30c3978146103c2578063eeb8a8d3146103ca576100c9565b8063cb1934101461023d578063d39bbef014610245578063d568866c146102c7576100c9565b8063784ce806116100b2578063784ce8061461010e5780638da5cb5b14610134578063c699c4d614610158576100c9565b8063078dfbe7146100ce5780634e71e0c814610106575b600080fd5b610104600480360360608110156100e457600080fd5b506001600160a01b0381351690602081013515159060400135151561043a565b005b61010461058a565b6101046004803603602081101561012457600080fd5b50356001600160a01b031661064c565b61013c6106fd565b604080516001600160a01b039092168252519081900360200190f35b6101c86004803603602081101561016e57600080fd5b81019060208101813564010000000081111561018957600080fd5b82018360208201111561019b57600080fd5b803590602001918460018302840111640100000000831117156101bd57600080fd5b50909250905061070c565b6040805160208082528351818301528351919283929083019185019080838360005b838110156102025781810151838201526020016101ea565b50505050905090810190601f16801561022f5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b61013c61072d565b6102b56004803603602081101561025b57600080fd5b81019060208101813564010000000081111561027657600080fd5b82018360208201111561028857600080fd5b803590602001918460018302840111640100000000831117156102aa57600080fd5b50909250905061073c565b60408051918252519081900360200190f35b6101c8600480360360208110156102dd57600080fd5b8101906020810181356401000000008111156102f857600080fd5b82018360208201111561030a57600080fd5b8035906020019184600183028401116401000000008311171561032c57600080fd5b5090925090506107e5565b6103a76004803603602081101561034d57600080fd5b81019060208101813564010000000081111561036857600080fd5b82018360208201111561037a57600080fd5b8035906020019184600183028401116401000000008311171561039c57600080fd5b50909250905061081e565b60408051921515835260208301919091528051918290030190f35b61013c6108d7565b6103a7600480360360208110156103e057600080fd5b8101906020810181356401000000008111156103fb57600080fd5b82018360208201111561040d57600080fd5b8035906020019184600183028401116401000000008311171561042f57600080fd5b5090925090506108e6565b6000546001600160a01b03163314610499576040805162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572604482015290519081900360640190fd5b8115610569576001600160a01b0383161515806104b35750805b610504576040805162461bcd60e51b815260206004820152601560248201527f4f776e61626c653a207a65726f20616464726573730000000000000000000000604482015290519081900360640190fd5b600080546040516001600160a01b03808716939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b0385166001600160a01b031991821617909155600180549091169055610585565b600180546001600160a01b0319166001600160a01b0385161790555b505050565b6001546001600160a01b03163381146105ea576040805162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c657220213d2070656e64696e67206f776e6572604482015290519081900360640190fd5b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b039092166001600160a01b0319928316179055600180549091169055565b6000546001600160a01b031633146106ab576040805162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572604482015290519081900360640190fd5b600280546001600160a01b038381166001600160a01b0319831681179093556040519116919082907f8e0352ee1de57032a7c8ddf4cb1daa3ff929d0a8534e42a124811b2fa033cccd90600090a35050565b6000546001600160a01b031681565b505060408051808201909152600581526450726f787960d81b602082015290565b6002546001600160a01b031681565b600254604051630d39bbef60e41b8152602060048201908152602482018490526000926001600160a01b03169163d39bbef09186918691908190604401848480828437600083820152604051601f909101601f191690920195506020945090925050508083038186803b1580156107b257600080fd5b505afa1580156107c6573d6000803e3d6000fd5b505050506040513d60208110156107dc57600080fd5b50519392505050565b505060408051808201909152600c81527f50726f7879204f7261636c650000000000000000000000000000000000000000602082015290565b60025460405163d6d7d52560e01b81526020600482019081526024820184905260009283926001600160a01b039091169163d6d7d52591879187918190604401848480828437600081840152601f19601f82011690508083019250505093505050506040805180830381600087803b15801561089957600080fd5b505af11580156108ad573d6000803e3d6000fd5b505050506040513d60408110156108c357600080fd5b508051602090910151909590945092505050565b6001546001600160a01b031681565b60025460405163eeb8a8d360e01b81526020600482019081526024820184905260009283926001600160a01b039091169163eeb8a8d39187918791819060440184848082843760008382015260408051601f909201601f1916909301965091945090925050508083038186803b15801561095f57600080fd5b505afa1580156108ad573d6000803e3d6000fdfea264697066735822122044f743a8c733a197e01ce2780b0701db410f1d6162ad1211118ed1dafb29e58464736f6c634300060c0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100c95760003560e01c8063cb19341011610081578063d6d7d5251161005b578063d6d7d52514610337578063e30c3978146103c2578063eeb8a8d3146103ca576100c9565b8063cb1934101461023d578063d39bbef014610245578063d568866c146102c7576100c9565b8063784ce806116100b2578063784ce8061461010e5780638da5cb5b14610134578063c699c4d614610158576100c9565b8063078dfbe7146100ce5780634e71e0c814610106575b600080fd5b610104600480360360608110156100e457600080fd5b506001600160a01b0381351690602081013515159060400135151561043a565b005b61010461058a565b6101046004803603602081101561012457600080fd5b50356001600160a01b031661064c565b61013c6106fd565b604080516001600160a01b039092168252519081900360200190f35b6101c86004803603602081101561016e57600080fd5b81019060208101813564010000000081111561018957600080fd5b82018360208201111561019b57600080fd5b803590602001918460018302840111640100000000831117156101bd57600080fd5b50909250905061070c565b6040805160208082528351818301528351919283929083019185019080838360005b838110156102025781810151838201526020016101ea565b50505050905090810190601f16801561022f5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b61013c61072d565b6102b56004803603602081101561025b57600080fd5b81019060208101813564010000000081111561027657600080fd5b82018360208201111561028857600080fd5b803590602001918460018302840111640100000000831117156102aa57600080fd5b50909250905061073c565b60408051918252519081900360200190f35b6101c8600480360360208110156102dd57600080fd5b8101906020810181356401000000008111156102f857600080fd5b82018360208201111561030a57600080fd5b8035906020019184600183028401116401000000008311171561032c57600080fd5b5090925090506107e5565b6103a76004803603602081101561034d57600080fd5b81019060208101813564010000000081111561036857600080fd5b82018360208201111561037a57600080fd5b8035906020019184600183028401116401000000008311171561039c57600080fd5b50909250905061081e565b60408051921515835260208301919091528051918290030190f35b61013c6108d7565b6103a7600480360360208110156103e057600080fd5b8101906020810181356401000000008111156103fb57600080fd5b82018360208201111561040d57600080fd5b8035906020019184600183028401116401000000008311171561042f57600080fd5b5090925090506108e6565b6000546001600160a01b03163314610499576040805162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572604482015290519081900360640190fd5b8115610569576001600160a01b0383161515806104b35750805b610504576040805162461bcd60e51b815260206004820152601560248201527f4f776e61626c653a207a65726f20616464726573730000000000000000000000604482015290519081900360640190fd5b600080546040516001600160a01b03808716939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b0385166001600160a01b031991821617909155600180549091169055610585565b600180546001600160a01b0319166001600160a01b0385161790555b505050565b6001546001600160a01b03163381146105ea576040805162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c657220213d2070656e64696e67206f776e6572604482015290519081900360640190fd5b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b039092166001600160a01b0319928316179055600180549091169055565b6000546001600160a01b031633146106ab576040805162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572604482015290519081900360640190fd5b600280546001600160a01b038381166001600160a01b0319831681179093556040519116919082907f8e0352ee1de57032a7c8ddf4cb1daa3ff929d0a8534e42a124811b2fa033cccd90600090a35050565b6000546001600160a01b031681565b505060408051808201909152600581526450726f787960d81b602082015290565b6002546001600160a01b031681565b600254604051630d39bbef60e41b8152602060048201908152602482018490526000926001600160a01b03169163d39bbef09186918691908190604401848480828437600083820152604051601f909101601f191690920195506020945090925050508083038186803b1580156107b257600080fd5b505afa1580156107c6573d6000803e3d6000fd5b505050506040513d60208110156107dc57600080fd5b50519392505050565b505060408051808201909152600c81527f50726f7879204f7261636c650000000000000000000000000000000000000000602082015290565b60025460405163d6d7d52560e01b81526020600482019081526024820184905260009283926001600160a01b039091169163d6d7d52591879187918190604401848480828437600081840152601f19601f82011690508083019250505093505050506040805180830381600087803b15801561089957600080fd5b505af11580156108ad573d6000803e3d6000fd5b505050506040513d60408110156108c357600080fd5b508051602090910151909590945092505050565b6001546001600160a01b031681565b60025460405163eeb8a8d360e01b81526020600482019081526024820184905260009283926001600160a01b039091169163eeb8a8d39187918791819060440184848082843760008382015260408051601f909201601f1916909301965091945090925050508083038186803b15801561095f57600080fd5b505afa1580156108ad573d6000803e3d6000fdfea264697066735822122044f743a8c733a197e01ce2780b0701db410f1d6162ad1211118ed1dafb29e58464736f6c634300060c0033",
+  "devdoc": {
+    "author": "0xMerlin",
+    "kind": "dev",
+    "methods": {
+      "get(bytes)": {
+        "params": {
+          "data": "Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));"
+        },
+        "returns": {
+          "_0": "success if no valid (recent) rate is available, return false else true.",
+          "_1": "rate The rate of the requested asset / pair / pool."
+        }
+      },
+      "name(bytes)": {
+        "params": {
+          "data": "Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));"
+        },
+        "returns": {
+          "_0": "(string) A human readable name about this oracle."
+        }
+      },
+      "peek(bytes)": {
+        "params": {
+          "data": "Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));"
+        },
+        "returns": {
+          "_0": "success if no valid (recent) rate is available, return false else true.",
+          "_1": "rate The rate of the requested asset / pair / pool."
+        }
+      },
+      "peekSpot(bytes)": {
+        "params": {
+          "data": "Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));"
+        },
+        "returns": {
+          "rate": "The rate of the requested asset / pair / pool."
+        }
+      },
+      "symbol(bytes)": {
+        "params": {
+          "data": "Usually abi encoded, implementation specific data that contains information and arguments to & about the oracle. For example: (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));"
+        },
+        "returns": {
+          "_0": "(string) A human readable symbol name about this oracle."
+        }
+      },
+      "transferOwnership(address,bool,bool)": {
+        "params": {
+          "direct": "True if `newOwner` should be set immediately. False if `newOwner` needs to use `claimOwnership`.",
+          "newOwner": "Address of the new owner.",
+          "renounce": "Allows the `newOwner` to be `address(0)` if `direct` and `renounce` is True. Has no effect otherwise."
+        }
+      }
+    },
+    "title": "ProxyOracle",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "claimOwnership()": {
+        "notice": "Needs to be called by `pendingOwner` to claim ownership."
+      },
+      "get(bytes)": {
+        "notice": "Get the latest exchange rate."
+      },
+      "name(bytes)": {
+        "notice": "Returns a human readable name about this oracle."
+      },
+      "peek(bytes)": {
+        "notice": "Check the last exchange rate without any state changes."
+      },
+      "peekSpot(bytes)": {
+        "notice": "Check the current spot exchange rate without any state changes. For oracles like TWAP this will be different from peek()."
+      },
+      "symbol(bytes)": {
+        "notice": "Returns a human readable (short) name about this oracle."
+      },
+      "transferOwnership(address,bool,bool)": {
+        "notice": "Transfers ownership to `newOwner`. Either directly or claimable by the new pending owner. Can only be invoked by the current `owner`."
+      }
+    },
+    "notice": "Oracle used for getting the price of an oracle implementation",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 118,
+        "contract": "contracts/oracles/ProxyOracle.sol:ProxyOracle",
+        "label": "owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 120,
+        "contract": "contracts/oracles/ProxyOracle.sol:ProxyOracle",
+        "label": "pendingOwner",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_address"
+      },
+      {
+        "astId": 8859,
+        "contract": "contracts/oracles/ProxyOracle.sol:ProxyOracle",
+        "label": "oracleImplementation",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_contract(IOracle)5890"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_contract(IOracle)5890": {
+        "encoding": "inplace",
+        "label": "contract IOracle",
+        "numberOfBytes": "20"
+      }
+    }
+  }
+}
