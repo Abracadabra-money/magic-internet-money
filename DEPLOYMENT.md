@@ -242,26 +242,30 @@
 
 ## Arbitrum
 
+| Contract | Address                                    |
+| -------- | ------------------------------------------ |
+| DegenBox | 0x7C8FeF8eA9b1fE46A7689bfb8149341C90431D38 |
+
 ## Cauldron MasterContracts
 
-| Contract                  | Address                                    |
-| ------------------------- | ------------------------------------------ |
-| CauldronV3 MasterContract | 0x233332a01Ebf20f770883ebff68374b015AccB9C |
+| Contract                    | Address                                    |
+| --------------------------- | ------------------------------------------ |
+| CauldronV3.1 MasterContract | 0xd98bfb05DD6aa37BA5624479Eb4264de9a3384Ee |
 
 ### Cauldrons
 
 | Contract                        | Address                                    |
 | ------------------------------- | ------------------------------------------ | ---------------------------------------- |
 | **Stargate USDC**               |                                            |                                          |
-| StargateArbitrumUsdcCauldron    | 0x5170f2037a1F63D2A40cb3585a73292762ddFfEC | 95% LTV 0% initial 0% Interest, 0.5% fee |
+| StargateArbitrumUsdcCauldron    | 0x5B03811a1c42bE81a25410576ecff52323b82580 | 95% LTV 0% initial 0% Interest, 0.5% fee |
 | StargateArbitrumUsdcProxyOracle | 0x0D52048451207106184f0423cAF055aE24a5A38A |                                          |
-| StargateArbitrumUsdcSwapper     | 0x4C44B16422c4cd58a37aAD4Fc3b8b376393a91dC | Liquidation Swapper                      |
-| StargateArbitrumUsdcLevSwapper  | 0xDfa94F2CE5bC1961F2604338F97F468592CA293D | Leverage Swapper                         |
+| StargateArbitrumUsdcSwapper     | 0x85E8A3087C90992BAdD74BE44F18626b2359F490 | Liquidation Swapper                      |
+| StargateArbitrumUsdcLevSwapper  | 0x14D6dF05Ce338f8b32491532E9E0b23838AD213E | Leverage Swapper                         |
 | **Stargate USDT**               |                                            |                                          |
-| StargateArbitrumUsdtCauldron    | 0xB22D606676870c6116ED68757f18622060eaaf9e | 95% LTV 0% initial 0% Interest, 0.5% fee |
+| StargateArbitrumUsdtCauldron    | 0x00913e4d92D5f17778f69Ca18eF2906f2749964b | 95% LTV 0% initial 0% Interest, 0.5% fee |
 | StargateArbitrumUsdtProxyOracle | 0xD6b8bd85A9593cb47c8C15C95bbF3e593c5Dc591 |                                          |
-| StargateArbitrumUsdtSwapper     | 0x56e8004C16b3caD2038c10EA9469f7bad765Be85 | Liquidation Swapper                      |
-| StargateArbitrumUsdtLevSwapper  | 0xa64B73699Cc7334810E382A4C09CAEc53636Ab96 | Leverage Swapper                         |
+| StargateArbitrumUsdtSwapper     | 0x2906ae98fdAf225a697a09158D10843A89CF0FC5 | Liquidation Swapper                      |
+| StargateArbitrumUsdtLevSwapper  | 0xa6247E6FbA04354AfD4D688De946AE1370b3C15E | Leverage Swapper                         |
 
 # Oracles
 
