@@ -86,9 +86,12 @@ export const setDeploymentSupportedChains = (supportedChains: string[], deployFu
 };
 
 export async function wrappedDeploy<T extends Contract>(name: string, options: DeployOptions): Promise<T> {
-  await hre.deployments.deploy(name, options);
+  const deployment = await hre.deployments.deploy(name, options);
   const contract = await ethers.getContract<T>(name);
-  await verifyContract(name, contract.address, options.args || []);
+
+  if (deployment.newlyDeployed) {
+    await verifyContract(name, contract.address, options.args || []);
+  }
 
   return contract;
 }

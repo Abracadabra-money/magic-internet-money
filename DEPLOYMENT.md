@@ -16,6 +16,12 @@
 | CurveVoter      | 0x49640905aAE77308f1D35f370efd5c08a790f1cc |
 | RewardHarvester | 0xE685a35347ddC8D58ed2838a291c8a66d5BdB0ca |
 
+### Stargate MIM Pool
+
+| Contract                 | Address                                    |
+| ------------------------ | ------------------------------------------ |
+| MainnetStargateLpMimPool | 0x185697868e26c2Ec5b6b86504dB2F2d390f54720 |
+
 ### Cauldrons
 
 | Contract                        | Address                                    | Note                                       |
@@ -47,12 +53,12 @@
 | **Stargate USDC**               |                                            |                                            |
 | StargateEthereumUsdcCauldron    | 0xd31E19A0574dBF09310c3B06f3416661B4Dc7324 | 95% LTV 0% initial 0% Interest, 0.5% fee   |
 | StargateEthereumUsdcProxyOracle | 0x16495612e7b35bbc8c672cd76de83bcc81774552 | Using StargateEthereumUsdcLPOracleV1       |
-| StargateEthereumUsdcSwapper     | 0x267A1D1Cf03E7514254eDDE262d229D02fF56a7D | Liquidation Swapper                        |
+| StargateEthereumUsdcSwapperV2   | 0x727f7302c6F5FCE0464F77735b84B2d192b0C89E | Liquidation Swapper                        |
 | StargateEthereumUsdcLevSwapper  | 0xEdEa4518796EA45dFc38D78D9B8b9e070436AD51 | Leverage Swapper                           |
 | **Stargate USDT**               |                                            |                                            |
 | StargateEthereumUsdtCauldron    | 0xc6B2b3fE7c3D7a6f823D9106E22e66660709001e | 95% LTV 0% initial 0% Interest, 0.5% fee   |
 | StargateEthereumUsdtProxyOracle | 0xaBB326cD92b0e48fa6dfC54d69Cd1750a1007a97 | Using StargateEthereumUsdtLPOracleV1       |
-| StargateEthereumUsdtSwapper     | 0x8e266f8310E047B9900b60132E4767FfDD0878bC | Liquidation Swapper                        |
+| StargateEthereumUsdtSwapperV2   | 0xc99A4863173Ef52CCB7EA05440da0e37bA39c139 | Liquidation Swapper                        |
 | StargateEthereumUsdtLevSwapper  | 0x1E188DD74adf8CC95c98714407e88a4a99b759A5 | Leverage Swapper                           |
 
 ### Popsicle Cauldrons
@@ -173,10 +179,10 @@
 
 ## Cauldron MasterContracts
 
-| Contract                         | Address                                    |
+| Contract                         | Address                                    |                                          |
 | -------------------------------- | ------------------------------------------ | ---------------------------------------- |
-| CauldronV3                       | 0x177a24B427876F61983CCe0dD37608611e7de3f7 |
-| WhitelistedCauldronV3            | 0xE8681a8C8d8E24b65526C2f94Fd5eF9D3ec18726 |
+| CauldronV3                       | 0x177a24B427876F61983CCe0dD37608611e7de3f7 |                                          |
+| WhitelistedCauldronV3            | 0xE8681a8C8d8E24b65526C2f94Fd5eF9D3ec18726 |                                          |
 | **Stargate USDC**                |                                            |                                          |
 | StargateAvalancheUsdcCauldron    | 0xF6BB4627A86CE4AC6d748d4F69856980A305EC99 | 95% LTV 0% initial 0% Interest, 0.5% fee |
 | StargateAvalancheUsdcProxyOracle | 0xb69c154030ce89340cdceca8eed93283499a8276 |                                          |
