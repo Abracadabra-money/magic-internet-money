@@ -1,0 +1,636 @@
+{
+  "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "status",
+          "type": "bool"
+        }
+      ],
+      "name": "LogAbraOwned",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "LogAbraOwnerTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "MIM_OPS",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "SUSHI_OPS",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "abraOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "claimOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "handOverControl",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "isAbraOwned",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pendingOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "relinquishToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "newStrategy",
+          "type": "address"
+        }
+      ],
+      "name": "setStrategy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "newStrategy",
+          "type": "address"
+        }
+      ],
+      "name": "setStrategyAbraCoin",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "targetPercentage",
+          "type": "uint64"
+        }
+      ],
+      "name": "setStrategyTargetPercentage",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "targetPercentage",
+          "type": "uint64"
+        }
+      ],
+      "name": "setStrategyTargetPercentageAbraCoin",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferAbraOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "direct",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "renounce",
+          "type": "bool"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "masterContract",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "approved",
+          "type": "bool"
+        }
+      ],
+      "name": "whitelistMasterContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+  "receipt": {
+    "to": null,
+    "from": "0xb4EfdA6DAf5ef75D08869A0f9C0213278fb43b6C",
+    "contractAddress": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+    "transactionIndex": 196,
+    "gasUsed": "1137564",
+    "logsBloom": "0x8004000000000000000000000000401000000000000000000a80000000000010000000000000001000000000000018000000080001000000000000000004082000000500000020290000000000000010000100080000000000000000010000000000002002000000002000080000080000000000010000020000200000000040000000200000000020000000000000000000000000000000000000000000a001000000080008000080000000001000004100000000200000040000000100800900400000000000000004000000010000808400000000000000800000000020000009000000000000080000000080000000004000000000000000000000000000",
+    "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8",
+    "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+    "logs": [
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000b4efda6daf5ef75d08869a0f9c0213278fb43b6c"
+        ],
+        "data": "0x",
+        "logIndex": 329,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0xc7ed871317bed7e986e648956511a4330f962499d7766d3c92cfacb500207e87",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000df2c270f610dc35d8ffda5b453e74db5471e126b"
+        ],
+        "data": "0x",
+        "logIndex": 330,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000",
+          "0x00000000000000000000000099d8a9c45b2eca8864373a26d1459e3dff1e17f3"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 331,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000",
+          "0x0000000000000000000000004e15361fd6b4bb609fa63c81a2be19d873717870"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 332,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000",
+          "0x00000000000000000000000027b7b1ad7288079a66d12350c828d3c00a6f07d7"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 333,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000",
+          "0x000000000000000000000000dcd90c7f6324cfa40d7169ef80b12031770b4325"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 334,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000",
+          "0x0000000000000000000000005f18c75abdae578b483e5f43f12a39cf75b973a9"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 335,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000",
+          "0x0000000000000000000000007da96a3891add058ada2e826306d812c638d87a7"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 336,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000",
+          "0x000000000000000000000000a258c4606ca8206d8aa700ce2143d7db854d168c"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 337,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000",
+          "0x0000000000000000000000005958a8db7dfe0cc49382209069b00f54e17929c2"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 338,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000",
+          "0x00000000000000000000000095ad61b0a150d79219dcf64e1e6cc01f0b64c4ce"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 339,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000",
+          "0x000000000000000000000000b65ede134521f0efd4e943c835f450137dc6e83e"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 340,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000",
+          "0x00000000000000000000000050d1c9771902476076ecfc8b2a83ad6b9355a4c9"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 341,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000",
+          "0x000000000000000000000000090185f2135308bad17527004364ebcc2d37e5f6"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 342,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000",
+          "0x00000000000000000000000026fa3fffb6efe8c1e69103acb4044c26b9a106a9"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 343,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000",
+          "0x0000000000000000000000003ba207c25a278524e1cc7faaea950753049072a4"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 344,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      },
+      {
+        "transactionIndex": 196,
+        "blockNumber": 14606378,
+        "transactionHash": "0x55de55e845b580bfb4fcd3223162d9ace21c7fedc20af30f2ea41d537fda4698",
+        "address": "0xB9b55dB94eb5581D7716235F5F55156f73878211",
+        "topics": [
+          "0x0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000",
+          "0x000000000000000000000000dbdb4d16eda451d0503b854cf79d55697f90c8df"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 345,
+        "blockHash": "0x352e2bc8d8abbc06bebc75215f542159f9b6a5ba9fee3f953d71ead852a9c6f8"
+      }
+    ],
+    "blockNumber": 14606378,
+    "cumulativeGasUsed": "16768017",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "5baf6dbd63d33c1031542c1a26b3e337",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.10+commit.fc410830\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"status\",\"type\":\"bool\"}],\"name\":\"LogAbraOwned\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"LogAbraOwnerTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"MIM_OPS\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"SUSHI_OPS\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"abraOwner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"claimOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"handOverControl\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"isAbraOwned\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pendingOwner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"relinquishToken\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"newStrategy\",\"type\":\"address\"}],\"name\":\"setStrategy\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"newStrategy\",\"type\":\"address\"}],\"name\":\"setStrategyAbraCoin\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint64\",\"name\":\"targetPercentage\",\"type\":\"uint64\"}],\"name\":\"setStrategyTargetPercentage\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint64\",\"name\":\"targetPercentage\",\"type\":\"uint64\"}],\"name\":\"setStrategyTargetPercentageAbraCoin\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferAbraOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"direct\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"renounce\",\"type\":\"bool\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"masterContract\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"whitelistMasterContract\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"transferOwnership(address,bool,bool)\":{\"params\":{\"direct\":\"True if `newOwner` should be set immediately. False if `newOwner` needs to use `claimOwnership`.\",\"newOwner\":\"Address of the new owner.\",\"renounce\":\"Allows the `newOwner` to be `address(0)` if `direct` and `renounce` is True. Has no effect otherwise.\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"claimOwnership()\":{\"notice\":\"Needs to be called by `pendingOwner` to claim ownership.\"},\"transferOwnership(address,bool,bool)\":{\"notice\":\"Transfers ownership to `newOwner`. Either directly or claimable by the new pending owner. Can only be invoked by the current `owner`.\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/BentoBoxOwner.sol\":\"BentoBoxOwner\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":690},\"remappings\":[]},\"sources\":{\"contracts/BentoBoxOwner.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.10;\\nimport \\\"./libraries/BoringOwnable.sol\\\";\\n\\ninterface IBentoBox {\\n    function toAmount(address token, uint256 share, bool roundUp) external view returns (uint256 amount);\\n    function toShare(address token, uint256 amount, bool roundUp) external view returns (uint256 share);\\n    function balanceOf(address token, address owner) external view returns (uint256 share);\\n    function setStrategy(address token, address newStrategy) external;\\n    function setStrategyTargetPercentage(address token, uint64 targetPercentage_) external;\\n    function whitelistMasterContract(address masterContract, bool approved) external;\\n}\\n\\ncontract BentoBoxOwner is BoringOwnable {\\n    event LogAbraOwned (address indexed token, bool status);\\n    event LogAbraOwnerTransferred (address indexed oldOwner, address indexed newOwner);\\n    mapping (address => bool) public isAbraOwned;\\n\\n    address public abraOwner;\\n\\n    address public constant MIM_OPS = 0xDF2C270f610Dc35d8fFDA5B453E74db5471E126B;\\n    address public constant SUSHI_OPS = 0x19B3Eb3Af5D93b77a5619b047De0EED7115A19e7;\\n\\n    IBentoBox private constant bentoBox = IBentoBox(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);\\n\\n    constructor () {\\n        abraOwner = MIM_OPS;\\n        emit LogAbraOwnerTransferred(address(0), MIM_OPS);\\n        owner = SUSHI_OPS;\\n\\n        address[15] memory ABRA_COINS = \\n        [\\n            0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3, \\n            0x4E15361FD6b4BB609Fa63C81A2be19d873717870, \\n            0x27b7b1ad7288079A66d12350c828D3C00A6F07d7, \\n            0xdCD90C7f6324cfa40d7169ef80b12031770B4325,\\n            0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9,\\n            0x7Da96a3891Add058AdA2E826306D812C638D87a7,\\n            0xa258C4606Ca8206D8aA700cE2143D7db854D168c,\\n            0x5958A8DB7dfE0CC49382209069b00F54e17929C2,\\n            0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE,\\n            0xB65eDE134521F0EFD4E943c835F450137dC6E83e,\\n            0x50D1c9771902476076eCFc8B2A83Ad6b9355a4c9,\\n            0x090185f2135308BaD17527004364eBcC2D37e5F6,\\n            0x26FA3fFFB6EfE8c1E69103aCb4044C26B9A106a9,\\n            0x3Ba207c25A278524e1cC7FaAea950753049072A4,\\n            0xdBdb4d16EdA451D0503b854CF79D55697F90c8DF\\n        ];\\n\\n        uint256 length = ABRA_COINS.length;\\n\\n        for (uint i; i < length; i++) {\\n            isAbraOwned[ABRA_COINS[i]] = true;\\n            emit LogAbraOwned(ABRA_COINS[i], true);\\n        }\\n    }\\n\\n    modifier onlyAbra {\\n        require(msg.sender == abraOwner, \\\"NOT ABRA\\\");\\n        _;\\n    }\\n\\n    function transferAbraOwner(address newOwner) external onlyAbra {\\n        address oldOwner = abraOwner;\\n        abraOwner = newOwner;\\n        emit LogAbraOwnerTransferred(oldOwner, newOwner);\\n    }\\n\\n    function setStrategyAbraCoin(address token, address newStrategy) external onlyAbra {\\n        require(isAbraOwned[token], \\\"Not Owned by Abra\\\");\\n        bentoBox.setStrategy(token, newStrategy);\\n    }\\n\\n    function setStrategyTargetPercentageAbraCoin(address token, uint64 targetPercentage) external onlyAbra {\\n        require(isAbraOwned[token], \\\"Not Owned by Abra\\\");\\n        bentoBox.setStrategyTargetPercentage(token, targetPercentage);\\n    }\\n\\n    function relinquishToken(address token) external onlyAbra {\\n        isAbraOwned[token] = false;\\n        emit LogAbraOwned(token, false);\\n    }\\n\\n    function handOverControl(address token) external onlyOwner {\\n        isAbraOwned[token] = true;\\n        emit LogAbraOwned(token, true);\\n    }\\n\\n    function setStrategy(address token, address newStrategy) external onlyOwner {\\n        require(!isAbraOwned[token], \\\"Token Owned by Abra\\\");\\n        bentoBox.setStrategy(token, newStrategy);\\n    }\\n\\n    function setStrategyTargetPercentage(address token, uint64 targetPercentage) external onlyOwner {\\n        require(!isAbraOwned[token], \\\"Token Owned by Abra\\\"); \\n        bentoBox.setStrategyTargetPercentage(token, targetPercentage);\\n    }\\n\\n    function whitelistMasterContract(address masterContract, bool approved) external onlyOwner {\\n        bentoBox.whitelistMasterContract(masterContract, approved);\\n    }\\n}\",\"keccak256\":\"0xb6683f6fad773c7fc3e945e7ab7ba4cf9bbf2aa50100a4ae5c843a63c3eef500\",\"license\":\"MIT\"},\"contracts/libraries/BoringOwnable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity >=0.6.12;\\n\\n// Audit on 5-Jan-2021 by Keno and BoringCrypto\\n// Source: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol + Claimable.sol\\n// Edited by BoringCrypto\\n\\ncontract BoringOwnableData {\\n    address public owner;\\n    address public pendingOwner;\\n}\\n\\ncontract BoringOwnable is BoringOwnableData {\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /// @notice `owner` defaults to msg.sender on construction.\\n    constructor() {\\n        owner = msg.sender;\\n        emit OwnershipTransferred(address(0), msg.sender);\\n    }\\n\\n    /// @notice Transfers ownership to `newOwner`. Either directly or claimable by the new pending owner.\\n    /// Can only be invoked by the current `owner`.\\n    /// @param newOwner Address of the new owner.\\n    /// @param direct True if `newOwner` should be set immediately. False if `newOwner` needs to use `claimOwnership`.\\n    /// @param renounce Allows the `newOwner` to be `address(0)` if `direct` and `renounce` is True. Has no effect otherwise.\\n    function transferOwnership(\\n        address newOwner,\\n        bool direct,\\n        bool renounce\\n    ) public onlyOwner {\\n        if (direct) {\\n            // Checks\\n            require(newOwner != address(0) || renounce, \\\"Ownable: zero address\\\");\\n\\n            // Effects\\n            emit OwnershipTransferred(owner, newOwner);\\n            owner = newOwner;\\n            pendingOwner = address(0);\\n        } else {\\n            // Effects\\n            pendingOwner = newOwner;\\n        }\\n    }\\n\\n    /// @notice Needs to be called by `pendingOwner` to claim ownership.\\n    function claimOwnership() public {\\n        address _pendingOwner = pendingOwner;\\n\\n        // Checks\\n        require(msg.sender == _pendingOwner, \\\"Ownable: caller != pending owner\\\");\\n\\n        // Effects\\n        emit OwnershipTransferred(owner, _pendingOwner);\\n        owner = _pendingOwner;\\n        pendingOwner = address(0);\\n    }\\n\\n    /// @notice Only allows the `owner` to execute the function.\\n    modifier onlyOwner() {\\n        require(msg.sender == owner, \\\"Ownable: caller is not the owner\\\");\\n        _;\\n    }\\n}\",\"keccak256\":\"0x2da850128806ffcf4a5910538f76e56d4f315b643af5ebeb6e4c8ca2a21c5408\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50600080546001600160a01b0319163390811782556040519091907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908290a3600380546001600160a01b03191673df2c270f610dc35d8ffda5b453e74db5471e126b9081179091556040516000907fc7ed871317bed7e986e648956511a4330f962499d7766d3c92cfacb500207e87908290a3600080546001600160a01b0319167319b3eb3af5d93b77a5619b047de0eed7115a19e7178155604080516101e0810182527399d8a9c45b2eca8864373a26d1459e3dff1e17f38152734e15361fd6b4bb609fa63c81a2be19d87371787060208201527327b7b1ad7288079a66d12350c828d3c00a6f07d79181019190915273dcd90c7f6324cfa40d7169ef80b12031770b43256060820152735f18c75abdae578b483e5f43f12a39cf75b973a96080820152737da96a3891add058ada2e826306d812c638d87a760a082015273a258c4606ca8206d8aa700ce2143d7db854d168c60c0820152735958a8db7dfe0cc49382209069b00f54e17929c260e08201527395ad61b0a150d79219dcf64e1e6cc01f0b64c4ce61010082015273b65ede134521f0efd4e943c835f450137dc6e83e6101208201527350d1c9771902476076ecfc8b2a83ad6b9355a4c961014082015273090185f2135308bad17527004364ebcc2d37e5f66101608201527326fa3fffb6efe8c1e69103acb4044c26b9a106a9610180820152733ba207c25a278524e1cc7faaea950753049072a46101a082015273dbdb4d16eda451d0503b854cf79d55697f90c8df6101c082015290600f905b81811015610330576001600260008584600f811061028657610286610338565b60200201516001600160a01b03166001600160a01b0316815260200190815260200160002060006101000a81548160ff0219169083151502179055508281600f81106102d4576102d4610338565b60200201516001600160a01b03167f0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d0006001604051610316911515815260200190565b60405180910390a2806103288161034e565b915050610266565b505050610377565b634e487b7160e01b600052603260045260246000fd5b600060001982141561037057634e487b7160e01b600052601160045260246000fd5b5060010190565b610c01806103866000396000f3fe608060405234801561001057600080fd5b50600436106101005760003560e01c806372cb5d9711610097578063cf8d6fa811610066578063cf8d6fa814610225578063d4caa0ee14610238578063e30c397814610253578063fc9d8f771461026657600080fd5b806372cb5d97146101d9578063733a9d7c146101ec57806377157d73146101ff5780638da5cb5b1461021257600080fd5b806346ce3955116100d357806346ce3955146101535780634a3f9a0c146101665780634e71e0c81461019e57806351bb6637146101a657600080fd5b8063078dfbe714610105578063270c972d1461011a57806338061db41461012d5780633e2a9d4e14610140575b600080fd5b610118610113366004610ac5565b610279565b005b610118610128366004610b08565b6103c5565b61011861013b366004610b3b565b6104e0565b61011861014e366004610b5d565b610577565b610118610161366004610b3b565b61068a565b6101817319b3eb3af5d93b77a5619b047de0eed7115a19e781565b6040516001600160a01b0390911681526020015b60405180910390f35b610118610725565b6101c96101b4366004610b3b565b60026020526000908152604090205460ff1681565b6040519015158152602001610195565b6101186101e7366004610b08565b6107e2565b6101186101fa366004610ba1565b6108a5565b61011861020d366004610b3b565b610947565b600054610181906001600160a01b031681565b600354610181906001600160a01b031681565b61018173df2c270f610dc35d8ffda5b453e74db5471e126b81565b600154610181906001600160a01b031681565b610118610274366004610b5d565b6109f8565b6000546001600160a01b031633146102d85760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e657260448201526064015b60405180910390fd5b81156103a3576001600160a01b0383161515806102f25750805b61033e5760405162461bcd60e51b815260206004820152601560248201527f4f776e61626c653a207a65726f2061646472657373000000000000000000000060448201526064016102cf565b600080546040516001600160a01b03808716939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b0385166001600160a01b031991821617909155600180549091169055505050565b600180546001600160a01b0385166001600160a01b0319909116179055505050565b6003546001600160a01b0316331461040a5760405162461bcd60e51b81526020600482015260086024820152674e4f54204142524160c01b60448201526064016102cf565b6001600160a01b03821660009081526002602052604090205460ff166104665760405162461bcd60e51b81526020600482015260116024820152704e6f74204f776e6564206279204162726160781b60448201526064016102cf565b6040516372cb5d9760e01b81526001600160a01b0380841660048301528216602482015273f5bce5077908a1b7370b9ae04adc565ebd643966906372cb5d97906044015b600060405180830381600087803b1580156104c457600080fd5b505af11580156104d8573d6000803e3d6000fd5b505050505050565b6003546001600160a01b031633146105255760405162461bcd60e51b81526020600482015260086024820152674e4f54204142524160c01b60448201526064016102cf565b600380546001600160a01b038381166001600160a01b0319831681179093556040519116919082907fc7ed871317bed7e986e648956511a4330f962499d7766d3c92cfacb500207e8790600090a35050565b6000546001600160a01b031633146105d15760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e657260448201526064016102cf565b6001600160a01b03821660009081526002602052604090205460ff161561063a5760405162461bcd60e51b815260206004820152601360248201527f546f6b656e204f776e656420627920416272610000000000000000000000000060448201526064016102cf565b604051631f154ea760e11b81526001600160a01b038316600482015267ffffffffffffffff8216602482015273f5bce5077908a1b7370b9ae04adc565ebd64396690633e2a9d4e906044016104aa565b6003546001600160a01b031633146106cf5760405162461bcd60e51b81526020600482015260086024820152674e4f54204142524160c01b60448201526064016102cf565b6001600160a01b0381166000818152600260209081526040808320805460ff19169055519182527f0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d00091015b60405180910390a250565b6001546001600160a01b03163381146107805760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c657220213d2070656e64696e67206f776e657260448201526064016102cf565b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b039092166001600160a01b0319928316179055600180549091169055565b6000546001600160a01b0316331461083c5760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e657260448201526064016102cf565b6001600160a01b03821660009081526002602052604090205460ff16156104665760405162461bcd60e51b815260206004820152601360248201527f546f6b656e204f776e656420627920416272610000000000000000000000000060448201526064016102cf565b6000546001600160a01b031633146108ff5760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e657260448201526064016102cf565b604051631ccea75f60e21b81526001600160a01b0383166004820152811515602482015273f5bce5077908a1b7370b9ae04adc565ebd6439669063733a9d7c906044016104aa565b6000546001600160a01b031633146109a15760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e657260448201526064016102cf565b6001600160a01b038116600081815260026020908152604091829020805460ff1916600190811790915591519182527f0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000910161071a565b6003546001600160a01b03163314610a3d5760405162461bcd60e51b81526020600482015260086024820152674e4f54204142524160c01b60448201526064016102cf565b6001600160a01b03821660009081526002602052604090205460ff1661063a5760405162461bcd60e51b81526020600482015260116024820152704e6f74204f776e6564206279204162726160781b60448201526064016102cf565b80356001600160a01b0381168114610ab057600080fd5b919050565b80358015158114610ab057600080fd5b600080600060608486031215610ada57600080fd5b610ae384610a99565b9250610af160208501610ab5565b9150610aff60408501610ab5565b90509250925092565b60008060408385031215610b1b57600080fd5b610b2483610a99565b9150610b3260208401610a99565b90509250929050565b600060208284031215610b4d57600080fd5b610b5682610a99565b9392505050565b60008060408385031215610b7057600080fd5b610b7983610a99565b9150602083013567ffffffffffffffff81168114610b9657600080fd5b809150509250929050565b60008060408385031215610bb457600080fd5b610bbd83610a99565b9150610b3260208401610ab556fea2646970667358221220672ee5b2c1d2b3bac095d5112742a6cb8e7ce3160fb6612bee7c701f1d991fd764736f6c634300080a0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106101005760003560e01c806372cb5d9711610097578063cf8d6fa811610066578063cf8d6fa814610225578063d4caa0ee14610238578063e30c397814610253578063fc9d8f771461026657600080fd5b806372cb5d97146101d9578063733a9d7c146101ec57806377157d73146101ff5780638da5cb5b1461021257600080fd5b806346ce3955116100d357806346ce3955146101535780634a3f9a0c146101665780634e71e0c81461019e57806351bb6637146101a657600080fd5b8063078dfbe714610105578063270c972d1461011a57806338061db41461012d5780633e2a9d4e14610140575b600080fd5b610118610113366004610ac5565b610279565b005b610118610128366004610b08565b6103c5565b61011861013b366004610b3b565b6104e0565b61011861014e366004610b5d565b610577565b610118610161366004610b3b565b61068a565b6101817319b3eb3af5d93b77a5619b047de0eed7115a19e781565b6040516001600160a01b0390911681526020015b60405180910390f35b610118610725565b6101c96101b4366004610b3b565b60026020526000908152604090205460ff1681565b6040519015158152602001610195565b6101186101e7366004610b08565b6107e2565b6101186101fa366004610ba1565b6108a5565b61011861020d366004610b3b565b610947565b600054610181906001600160a01b031681565b600354610181906001600160a01b031681565b61018173df2c270f610dc35d8ffda5b453e74db5471e126b81565b600154610181906001600160a01b031681565b610118610274366004610b5d565b6109f8565b6000546001600160a01b031633146102d85760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e657260448201526064015b60405180910390fd5b81156103a3576001600160a01b0383161515806102f25750805b61033e5760405162461bcd60e51b815260206004820152601560248201527f4f776e61626c653a207a65726f2061646472657373000000000000000000000060448201526064016102cf565b600080546040516001600160a01b03808716939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b0385166001600160a01b031991821617909155600180549091169055505050565b600180546001600160a01b0385166001600160a01b0319909116179055505050565b6003546001600160a01b0316331461040a5760405162461bcd60e51b81526020600482015260086024820152674e4f54204142524160c01b60448201526064016102cf565b6001600160a01b03821660009081526002602052604090205460ff166104665760405162461bcd60e51b81526020600482015260116024820152704e6f74204f776e6564206279204162726160781b60448201526064016102cf565b6040516372cb5d9760e01b81526001600160a01b0380841660048301528216602482015273f5bce5077908a1b7370b9ae04adc565ebd643966906372cb5d97906044015b600060405180830381600087803b1580156104c457600080fd5b505af11580156104d8573d6000803e3d6000fd5b505050505050565b6003546001600160a01b031633146105255760405162461bcd60e51b81526020600482015260086024820152674e4f54204142524160c01b60448201526064016102cf565b600380546001600160a01b038381166001600160a01b0319831681179093556040519116919082907fc7ed871317bed7e986e648956511a4330f962499d7766d3c92cfacb500207e8790600090a35050565b6000546001600160a01b031633146105d15760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e657260448201526064016102cf565b6001600160a01b03821660009081526002602052604090205460ff161561063a5760405162461bcd60e51b815260206004820152601360248201527f546f6b656e204f776e656420627920416272610000000000000000000000000060448201526064016102cf565b604051631f154ea760e11b81526001600160a01b038316600482015267ffffffffffffffff8216602482015273f5bce5077908a1b7370b9ae04adc565ebd64396690633e2a9d4e906044016104aa565b6003546001600160a01b031633146106cf5760405162461bcd60e51b81526020600482015260086024820152674e4f54204142524160c01b60448201526064016102cf565b6001600160a01b0381166000818152600260209081526040808320805460ff19169055519182527f0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d00091015b60405180910390a250565b6001546001600160a01b03163381146107805760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c657220213d2070656e64696e67206f776e657260448201526064016102cf565b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b039092166001600160a01b0319928316179055600180549091169055565b6000546001600160a01b0316331461083c5760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e657260448201526064016102cf565b6001600160a01b03821660009081526002602052604090205460ff16156104665760405162461bcd60e51b815260206004820152601360248201527f546f6b656e204f776e656420627920416272610000000000000000000000000060448201526064016102cf565b6000546001600160a01b031633146108ff5760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e657260448201526064016102cf565b604051631ccea75f60e21b81526001600160a01b0383166004820152811515602482015273f5bce5077908a1b7370b9ae04adc565ebd6439669063733a9d7c906044016104aa565b6000546001600160a01b031633146109a15760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e657260448201526064016102cf565b6001600160a01b038116600081815260026020908152604091829020805460ff1916600190811790915591519182527f0b8ec0311021d33bef7bfc8c4f999291a6cee0fd30792908f7fec629a351d000910161071a565b6003546001600160a01b03163314610a3d5760405162461bcd60e51b81526020600482015260086024820152674e4f54204142524160c01b60448201526064016102cf565b6001600160a01b03821660009081526002602052604090205460ff1661063a5760405162461bcd60e51b81526020600482015260116024820152704e6f74204f776e6564206279204162726160781b60448201526064016102cf565b80356001600160a01b0381168114610ab057600080fd5b919050565b80358015158114610ab057600080fd5b600080600060608486031215610ada57600080fd5b610ae384610a99565b9250610af160208501610ab5565b9150610aff60408501610ab5565b90509250925092565b60008060408385031215610b1b57600080fd5b610b2483610a99565b9150610b3260208401610a99565b90509250929050565b600060208284031215610b4d57600080fd5b610b5682610a99565b9392505050565b60008060408385031215610b7057600080fd5b610b7983610a99565b9150602083013567ffffffffffffffff81168114610b9657600080fd5b809150509250929050565b60008060408385031215610bb457600080fd5b610bbd83610a99565b9150610b3260208401610ab556fea2646970667358221220672ee5b2c1d2b3bac095d5112742a6cb8e7ce3160fb6612bee7c701f1d991fd764736f6c634300080a0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "transferOwnership(address,bool,bool)": {
+        "params": {
+          "direct": "True if `newOwner` should be set immediately. False if `newOwner` needs to use `claimOwnership`.",
+          "newOwner": "Address of the new owner.",
+          "renounce": "Allows the `newOwner` to be `address(0)` if `direct` and `renounce` is True. Has no effect otherwise."
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "claimOwnership()": {
+        "notice": "Needs to be called by `pendingOwner` to claim ownership."
+      },
+      "transferOwnership(address,bool,bool)": {
+        "notice": "Transfers ownership to `newOwner`. Either directly or claimable by the new pending owner. Can only be invoked by the current `owner`."
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 6583,
+        "contract": "contracts/BentoBoxOwner.sol:BentoBoxOwner",
+        "label": "owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 6585,
+        "contract": "contracts/BentoBoxOwner.sol:BentoBoxOwner",
+        "label": "pendingOwner",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_address"
+      },
+      {
+        "astId": 3510,
+        "contract": "contracts/BentoBoxOwner.sol:BentoBoxOwner",
+        "label": "isAbraOwned",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_mapping(t_address,t_bool)"
+      },
+      {
+        "astId": 3512,
+        "contract": "contracts/BentoBoxOwner.sol:BentoBoxOwner",
+        "label": "abraOwner",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_address"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      }
+    }
+  }
+}
