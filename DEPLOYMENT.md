@@ -227,6 +227,15 @@
 | -------- | ------------------------------------------ | ---- |
 | DegenBox | 0xB734c264F83E39Ef6EC200F99550779998cC812d |      |
 
+## Optimism
+
+| Contract                               | Address                                    | Note |
+| -------------------------------------- | ------------------------------------------ | ---- |
+| DegenBox                               | 0x233332a01Ebf20f770883ebff68374b015AccB9C |      |
+| CauldronV3_1MC_DegenBox MasterContract | 0xAcdd6e28b7440fe17EeFD927337480DD1Ea7A97b |      |
+| Limone                                 | 0xB3f5c7D0Ac3944a9d9A9623D6B50bCeA85A26753 |      |
+| CauldronV3_1MC_Limone MasterContract   | 0xc7a161Cfd0e133d289B13692b636B8e8B5CD8d8c |      |
+
 ## Polygon
 
 | Contract                            | Address                                    | Note |

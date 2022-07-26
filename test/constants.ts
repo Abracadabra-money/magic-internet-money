@@ -103,4 +103,12 @@ export const Constants = {
       usdc: "0x2553f4eeb82d5A26427b8d1106C51499CBa5D99c",
     },
   },
+  optimism: {
+    degenBox: "0x233332a01Ebf20f770883ebff68374b015AccB9C",
+    limone: "0xB3f5c7D0Ac3944a9d9A9623D6B50bCeA85A26753",
+    mim: "0xB153FB3d196A8eB25522705560ac152eeEc57901",
+    weth: "0x4200000000000000000000000000000000000006",
+    cauldronV31_DegenBox: "0xAcdd6e28b7440fe17EeFD927337480DD1Ea7A97b",
+    cauldronV31_Limone: "0xc7a161Cfd0e133d289B13692b636B8e8B5CD8d8c",
+  }
 };

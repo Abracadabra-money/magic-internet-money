@@ -206,6 +206,13 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ["staging"],
     },
+    optimism: {
+      url: 'https://mainnet.optimism.io',
+      accounts,
+      chainId: 10,
+      live: true,
+      saveDeployments: true,
+    },
   },
   mocha: {
     timeout: 500000,
