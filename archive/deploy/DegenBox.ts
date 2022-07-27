@@ -1,9 +1,9 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, network } from "hardhat";
-import { ChainId, setDeploymentSupportedChains } from "../utilities";
-import { xMerlin } from "../test/constants";
-import { BentoBoxV1 } from "../typechain";
+import { ChainId, setDeploymentSupportedChains, wrappedDeploy } from "../utilities";
+import { Constants, xMerlin } from "../test/constants";
+import { DegenBox } from "../typechain";
 
 const ParametersPerChain = {
   [ChainId.Boba]: {
@@ -18,27 +18,28 @@ const ParametersPerChain = {
     weth: "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
     owner: xMerlin,
   },
+  [ChainId.Arbitrum]: {
+    weth: Constants.arbitrum.weth,
+    owner: xMerlin,
+  },
 };
 
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-
   const { deployer } = await getNamedAccounts();
   const chainId = await hre.getChainId();
   const parameters = ParametersPerChain[parseInt(chainId)];
 
-  await deploy("DegenBox", {
+
+  const DegenBox =  await wrappedDeploy<DegenBox>("DegenBox", {
     from: deployer,
     args: [parameters.weth],
     log: true,
     deterministicDeployment: false,
   });
 
-  const BentoBoxV1 = await ethers.getContract<BentoBoxV1>("DegenBox");
-
-  if ((await BentoBoxV1.owner()) != parameters.owner && network.name !== "hardhat") {
-    await BentoBoxV1.transferOwnership(parameters.owner, true, false);
+  if ((await DegenBox.owner()) != parameters.owner && network.name !== "hardhat") {
+    await (await DegenBox.transferOwnership(parameters.owner, true, false)).wait();
   }
 };
 

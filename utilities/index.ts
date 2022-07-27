@@ -1,5 +1,5 @@
 import { ParamType } from "@ethersproject/abi";
-import { BigNumber, Contract } from "ethers";
+import { BaseContract, BigNumber, Contract } from "ethers";
 import { DeployFunction, DeployOptions } from "hardhat-deploy/types";
 import hre, { deployments, ethers, network } from "hardhat";
 import { AggregatorV3Interface, DegenBox, IAggregator, InvertedLPOracle, ProxyOracle } from "../typechain";
@@ -87,9 +87,12 @@ export const setDeploymentSupportedChains = (supportedChains: string[], deployFu
 };
 
 export async function wrappedDeploy<T extends Contract>(name: string, options: DeployOptions): Promise<T> {
-  await hre.deployments.deploy(name, options);
+  const deployment = await hre.deployments.deploy(name, options);
   const contract = await ethers.getContract<T>(name);
-  await verifyContract(name, contract.address, options.args || []);
+
+  if (deployment.newlyDeployed) {
+    await verifyContract(name, contract.address, options.args || []);
+  }
 
   return contract;
 }
@@ -177,9 +180,14 @@ export async function deployCauldron<T extends Contract>(
 }
 
 // Use to deploy a new LP Oracle
-export async function deployLPOracle(name: string, desc: string, lp: string, tokenAOracle: string, tokenBOracle: string): Promise<ProxyOracle> {
-  const { deployer } = await hre.getNamedAccounts();
-
+export async function deployLPOracle(
+  name: string,
+  desc: string,
+  lp: string,
+  tokenAOracle: string,
+  tokenBOracle: string,
+  deployer: string
+): Promise<ProxyOracle> {
   const ProxyOracle = await wrappedDeploy<ProxyOracle>(`${name}ProxyOracle`, {
     from: deployer,
     args: [],
@@ -220,6 +228,38 @@ export async function deployLPOracle(name: string, desc: string, lp: string, tok
   }
 
   return ProxyOracle;
+}
+
+export async function deployUniswapLikeZeroExSwappers(
+  name: string,
+  degenBox: string,
+  uniswapLikeRouter: string,
+  collateral: string,
+  mim: string,
+  zeroXExchangeProxy: string,
+  deployer: string
+): Promise<BaseContract[]> {
+  const swapperArgs = [degenBox, uniswapLikeRouter, collateral, mim, zeroXExchangeProxy];
+
+  // Liquidation Swapper
+  const Swapper = await wrappedDeploy(`${name}Swapper`, {
+    from: deployer,
+    args: swapperArgs,
+    log: true,
+    contract: "ZeroXUniswapLikeLPSwapper",
+    deterministicDeployment: false,
+  });
+
+  // Leverage Swapper
+  const LevSwapper = await wrappedDeploy(`${name}LevSwapper`, {
+    from: deployer,
+    args: swapperArgs,
+    log: true,
+    contract: "ZeroXUniswapLikeLPLevSwapper",
+    deterministicDeployment: false,
+  });
+
+  return [Swapper, LevSwapper];
 }
 
 export * from "./time";

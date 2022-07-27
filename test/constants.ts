@@ -32,8 +32,9 @@ export const Constants = {
   },
 
   arbitrum: {
-    cauldronV3: "0x233332a01Ebf20f770883ebff68374b015AccB9C",
-    degenBox: "0x74c764D41B77DBbb4fe771daB1939B00b146894A",
+    cauldronV31: "0xd98bfb05DD6aa37BA5624479Eb4264de9a3384Ee",
+    degenBox: "0x7C8FeF8eA9b1fE46A7689bfb8149341C90431D38",
+    weth: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
     mim: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
     usdc: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
     usdt: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
@@ -66,9 +67,11 @@ export const Constants = {
     chainlink: {
       savax: "0x2854Ca10a54800e15A2a25cFa52567166434Ff0a",
       wavax: "0x0a77230d17318075983913bc2145db16c7366156",
+      usdc: "0xf096872672f44d6eba71458d74fe67f9a77a23b9"
     },
     traderjoe: {
       savaxWavax: "0x4b946c91C2B1a7d7C40FB3C130CdfBaf8389094d",
+      wavaxUsdc: "0xf4003F4efBE8691B60249E6afbD307aBE7758adb",
       router: "0x60aE616a2155Ee3d9A68541Ba4544862310933d4",
     },
     platypus: {

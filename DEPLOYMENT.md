@@ -16,6 +16,12 @@
 | CurveVoter      | 0x49640905aAE77308f1D35f370efd5c08a790f1cc |
 | RewardHarvester | 0xE685a35347ddC8D58ed2838a291c8a66d5BdB0ca |
 
+### Stargate MIM Pool
+
+| Contract                 | Address                                    |
+| ------------------------ | ------------------------------------------ |
+| MainnetStargateLpMimPool | 0x185697868e26c2Ec5b6b86504dB2F2d390f54720 |
+
 ### Cauldrons
 
 | Contract                        | Address                                    | Note                                       |
@@ -47,12 +53,12 @@
 | **Stargate USDC**               |                                            |                                            |
 | StargateEthereumUsdcCauldron    | 0xd31E19A0574dBF09310c3B06f3416661B4Dc7324 | 95% LTV 0% initial 0% Interest, 0.5% fee   |
 | StargateEthereumUsdcProxyOracle | 0x16495612e7b35bbc8c672cd76de83bcc81774552 | Using StargateEthereumUsdcLPOracleV1       |
-| StargateEthereumUsdcSwapper     | 0x267A1D1Cf03E7514254eDDE262d229D02fF56a7D | Liquidation Swapper                        |
+| StargateEthereumUsdcSwapperV2   | 0x727f7302c6F5FCE0464F77735b84B2d192b0C89E | Liquidation Swapper                        |
 | StargateEthereumUsdcLevSwapper  | 0xEdEa4518796EA45dFc38D78D9B8b9e070436AD51 | Leverage Swapper                           |
 | **Stargate USDT**               |                                            |                                            |
 | StargateEthereumUsdtCauldron    | 0xc6B2b3fE7c3D7a6f823D9106E22e66660709001e | 95% LTV 0% initial 0% Interest, 0.5% fee   |
 | StargateEthereumUsdtProxyOracle | 0xaBB326cD92b0e48fa6dfC54d69Cd1750a1007a97 | Using StargateEthereumUsdtLPOracleV1       |
-| StargateEthereumUsdtSwapper     | 0x8e266f8310E047B9900b60132E4767FfDD0878bC | Liquidation Swapper                        |
+| StargateEthereumUsdtSwapperV2   | 0xc99A4863173Ef52CCB7EA05440da0e37bA39c139 | Liquidation Swapper                        |
 | StargateEthereumUsdtLevSwapper  | 0x1E188DD74adf8CC95c98714407e88a4a99b759A5 | Leverage Swapper                           |
 
 ### Popsicle Cauldrons
@@ -173,10 +179,10 @@
 
 ## Cauldron MasterContracts
 
-| Contract                         | Address                                    |
+| Contract                         | Address                                    |                                          |
 | -------------------------------- | ------------------------------------------ | ---------------------------------------- |
-| CauldronV3                       | 0x177a24B427876F61983CCe0dD37608611e7de3f7 |
-| WhitelistedCauldronV3            | 0xE8681a8C8d8E24b65526C2f94Fd5eF9D3ec18726 |
+| CauldronV3                       | 0x177a24B427876F61983CCe0dD37608611e7de3f7 |                                          |
+| WhitelistedCauldronV3            | 0xE8681a8C8d8E24b65526C2f94Fd5eF9D3ec18726 |                                          |
 | **Stargate USDC**                |                                            |                                          |
 | StargateAvalancheUsdcCauldron    | 0xF6BB4627A86CE4AC6d748d4F69856980A305EC99 | 95% LTV 0% initial 0% Interest, 0.5% fee |
 | StargateAvalancheUsdcProxyOracle | 0xb69c154030ce89340cdceca8eed93283499a8276 |                                          |
@@ -245,32 +251,37 @@
 
 ## Arbitrum
 
+| Contract | Address                                    |
+| -------- | ------------------------------------------ |
+| DegenBox | 0x7C8FeF8eA9b1fE46A7689bfb8149341C90431D38 |
+
 ## Cauldron MasterContracts
 
-| Contract                  | Address                                    |
-| ------------------------- | ------------------------------------------ |
-| CauldronV3 MasterContract | 0x233332a01Ebf20f770883ebff68374b015AccB9C |
+| Contract                    | Address                                    |
+| --------------------------- | ------------------------------------------ |
+| CauldronV3.1 MasterContract | 0xd98bfb05DD6aa37BA5624479Eb4264de9a3384Ee |
 
 ### Cauldrons
 
-| Contract                        | Address                                    |
+| Contract                        | Address                                    |                                          |
 | ------------------------------- | ------------------------------------------ | ---------------------------------------- |
 | **Stargate USDC**               |                                            |                                          |
-| StargateArbitrumUsdcCauldron    | 0x5170f2037a1F63D2A40cb3585a73292762ddFfEC | 95% LTV 0% initial 0% Interest, 0.5% fee |
+| StargateArbitrumUsdcCauldron    | 0x5B03811a1c42bE81a25410576ecff52323b82580 | 95% LTV 0% initial 0% Interest, 0.5% fee |
 | StargateArbitrumUsdcProxyOracle | 0x0D52048451207106184f0423cAF055aE24a5A38A |                                          |
-| StargateArbitrumUsdcSwapper     | 0x4C44B16422c4cd58a37aAD4Fc3b8b376393a91dC | Liquidation Swapper                      |
-| StargateArbitrumUsdcLevSwapper  | 0xDfa94F2CE5bC1961F2604338F97F468592CA293D | Leverage Swapper                         |
+| StargateArbitrumUsdcSwapper     | 0x85E8A3087C90992BAdD74BE44F18626b2359F490 | Liquidation Swapper                      |
+| StargateArbitrumUsdcLevSwapper  | 0x14D6dF05Ce338f8b32491532E9E0b23838AD213E | Leverage Swapper                         |
 | **Stargate USDT**               |                                            |                                          |
-| StargateArbitrumUsdtCauldron    | 0xB22D606676870c6116ED68757f18622060eaaf9e | 95% LTV 0% initial 0% Interest, 0.5% fee |
+| StargateArbitrumUsdtCauldron    | 0x00913e4d92D5f17778f69Ca18eF2906f2749964b | 95% LTV 0% initial 0% Interest, 0.5% fee |
 | StargateArbitrumUsdtProxyOracle | 0xD6b8bd85A9593cb47c8C15C95bbF3e593c5Dc591 |                                          |
-| StargateArbitrumUsdtSwapper     | 0x56e8004C16b3caD2038c10EA9469f7bad765Be85 | Liquidation Swapper                      |
-| StargateArbitrumUsdtLevSwapper  | 0xa64B73699Cc7334810E382A4C09CAEc53636Ab96 | Leverage Swapper                         |
+| StargateArbitrumUsdtSwapper     | 0x2906ae98fdAf225a697a09158D10843A89CF0FC5 | Liquidation Swapper                      |
+| StargateArbitrumUsdtLevSwapper  | 0xa6247E6FbA04354AfD4D688De946AE1370b3C15E | Leverage Swapper                         |
 
 # Oracles
 
 | Chain | Token                 | Address                                    |
 | ----- | --------------------- | ------------------------------------------ |
 | Avax  | Joe USDC.e/WAVAX LP   | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 |
+| Avax  | Joe WAVAX/USDC LP     | 0xF8B72e847e648BC87c8269FE258cbe908Fa2A71d |
 | Avax  | Pangolin USDC.e/WAVAX | 0x1e21573cfc456f8aDd4C27ff16B50112e3adC7aC |
 
 # Popsicle
@@ -284,15 +295,20 @@
 
 ### Popsicle Cauldrons
 
-| Contract                       | Address                                    | Note                                                                        |
-| ------------------------------ | ------------------------------------------ | --------------------------------------------------------------------------- |
-| **USDC.e/WAVAX**               |                                            |                                                                             |
-| PopsicleUsdcAvaxCauldron       | 0x3Cf232F346934B949b99797d225Bb72734731990 | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest, Using CauldronV3 |
-| Oracle                         | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 | reusing existing Joe USDC/WAVAX jLP oracle                                  |
-| PopsicleUsdcAvaxSwapperV3      | 0x0B76afC2E52f84E04Ee3fb1961277783Fb804750 | Liquidation Swapper using Platypus                                          |
-| PopsicleUsdcAvaxLevSwapperV2   | 0x7d76568d84de8A0F34BBf315F53d7772c1fABcD8 | Leverage Swapper using Platypus                                             |
-| **sAVAX/wAVAX**                |                                            |                                                                             |
-| PopsicleJoeSavaxWavaxCauldron  | 0x562Db5B5E95961760806A0435aa292c34919eC47 | 75% LTV, 12.5% liquidation fee, 1% borrow fee, 1% Interest                  |
-| TraderJoeSAVAXWAVAXProxyOracle | 0x0CC93802f800cCee67914c3072e80d23e920a3e2 | Inverted LP price of 1 sAVAX/wAVAX LP                                       |
-| JoeSavaxWavaxSwapperV1         | 0x1B77fDaBAa7FefD55f4aC075B6E817b8d773315b | Using 0x aggregator                                                         |
-| JoeSavaxWavaxLevSwapperV1      | 0xEf05d8747a6Fc81509fb37EcF6b1a2D39290d881 | Using 0x aggregator                                                         |
+| Contract                       | Address                                    | Note                                                                          |
+| ------------------------------ | ------------------------------------------ | ----------------------------------------------------------------------------- |
+| **USDC.e/WAVAX**               |                                            |                                                                               |
+| PopsicleUsdcAvaxCauldron       | 0x3Cf232F346934B949b99797d225Bb72734731990 | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest, Using CauldronV3   |
+| Oracle                         | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 | reusing existing Joe USDC/WAVAX jLP oracle                                    |
+| PopsicleUsdcAvaxSwapperV3      | 0x0B76afC2E52f84E04Ee3fb1961277783Fb804750 | Liquidation Swapper using Platypus                                            |
+| PopsicleUsdcAvaxLevSwapperV2   | 0x7d76568d84de8A0F34BBf315F53d7772c1fABcD8 | Leverage Swapper using Platypus                                               |
+| **sAVAX/wAVAX**                |                                            |                                                                               |
+| PopsicleJoeSavaxWavaxCauldron  | 0x562Db5B5E95961760806A0435aa292c34919eC47 | 75% LTV, 12.5% liquidation fee, 1% borrow fee, 1% Interest                    |
+| TraderJoeSAVAXWAVAXProxyOracle | 0x0CC93802f800cCee67914c3072e80d23e920a3e2 | Inverted LP price of 1 sAVAX/wAVAX LP                                         |
+| JoeSavaxWavaxSwapperV1         | 0x1B77fDaBAa7FefD55f4aC075B6E817b8d773315b | Using 0x aggregator                                                           |
+| JoeSavaxWavaxLevSwapperV1      | 0xEf05d8747a6Fc81509fb37EcF6b1a2D39290d881 | Using 0x aggregator                                                           |
+| **wAVAX/USDC**                 |                                            |                                                                               |
+| Cauldron                       | 0x0dFb2cebae775c083911DFc39F7B1596E80D0ecB | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest, Using CauldronV3.1 |
+| Oracle                         | 0xF8B72e847e648BC87c8269FE258cbe908Fa2A71d | Inverted LP price of 1 wAVAX/USDC Joe LP                                      |
+| Swapper                        | 0x08a47F1F14292b0655B70588C76b614f64074db4 | Using 0x aggregator                                                           |
+| LevSwapper                     | 0x49Bd7dB43695c38661067765BE9484F8177B13f3 | Using 0x aggregator                                                           |
