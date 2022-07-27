@@ -67,9 +67,11 @@ export const Constants = {
     chainlink: {
       savax: "0x2854Ca10a54800e15A2a25cFa52567166434Ff0a",
       wavax: "0x0a77230d17318075983913bc2145db16c7366156",
+      usdc: "0xf096872672f44d6eba71458d74fe67f9a77a23b9"
     },
     traderjoe: {
       savaxWavax: "0x4b946c91C2B1a7d7C40FB3C130CdfBaf8389094d",
+      wavaxUsdc: "0xf4003F4efBE8691B60249E6afbD307aBE7758adb",
       router: "0x60aE616a2155Ee3d9A68541Ba4544862310933d4",
     },
     platypus: {

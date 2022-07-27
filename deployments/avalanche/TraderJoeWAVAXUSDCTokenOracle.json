@@ -1,0 +1,191 @@
+{
+  "address": "0x588d402C868aDD9053f8F0098c2DC3443c991d17",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IAggregator",
+          "name": "_tokenUSD",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IAggregator",
+          "name": "_denominatorUSD",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "NegativePriceFeed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "WAD",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "denominatorUSD",
+      "outputs": [
+        {
+          "internalType": "contract IAggregator",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "latestAnswer",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "answer",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "latestRoundData",
+      "outputs": [
+        {
+          "internalType": "uint80",
+          "name": "roundId",
+          "type": "uint80"
+        },
+        {
+          "internalType": "int256",
+          "name": "answer",
+          "type": "int256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startedAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "updatedAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint80",
+          "name": "answeredInRound",
+          "type": "uint80"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "oracle0Decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "oracle1Decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "tokenUSD",
+      "outputs": [
+        {
+          "internalType": "contract IAggregator",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x566cc3d422013c804f674d585bff80641a3db3b3c4bb0cf521303fa5ee8277bf",
+  "receipt": {
+    "to": null,
+    "from": "0xfB3485c2e209A5cfBDC1447674256578f1A80eE3",
+    "contractAddress": "0x588d402C868aDD9053f8F0098c2DC3443c991d17",
+    "transactionIndex": 3,
+    "gasUsed": "409654",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x2fe85892649397529440012acde4584ddef9a0fae2dfbf3af5c2a47f20cf58b0",
+    "transactionHash": "0x566cc3d422013c804f674d585bff80641a3db3b3c4bb0cf521303fa5ee8277bf",
+    "logs": [],
+    "blockNumber": 16761520,
+    "cumulativeGasUsed": "702381",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x0a77230d17318075983913bc2145db16c7366156",
+    "0xf096872672f44d6eba71458d74fe67f9a77a23b9"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "13399da6a3fa025ace53173b726b30bd",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.10+commit.fc410830\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IAggregator\",\"name\":\"_tokenUSD\",\"type\":\"address\"},{\"internalType\":\"contract IAggregator\",\"name\":\"_denominatorUSD\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"NegativePriceFeed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"WAD\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"denominatorUSD\",\"outputs\":[{\"internalType\":\"contract IAggregator\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"latestAnswer\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"answer\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"latestRoundData\",\"outputs\":[{\"internalType\":\"uint80\",\"name\":\"roundId\",\"type\":\"uint80\"},{\"internalType\":\"int256\",\"name\":\"answer\",\"type\":\"int256\"},{\"internalType\":\"uint256\",\"name\":\"startedAt\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"updatedAt\",\"type\":\"uint256\"},{\"internalType\":\"uint80\",\"name\":\"answeredInRound\",\"type\":\"uint80\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"oracle0Decimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"oracle1Decimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"tokenUSD\",\"outputs\":[{\"internalType\":\"contract IAggregator\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"title\":\"TokenOracle\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Oracle used for getting the price of 1 token in given denominator using Chainlink\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/oracles/TokenOracle.sol\":\"TokenOracle\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":690},\"remappings\":[]},\"sources\":{\"contracts/interfaces/IAggregator.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface IAggregator {\\r\\n    function decimals() external view returns (uint8);\\r\\n\\r\\n    function latestAnswer() external view returns (int256 answer);\\r\\n\\r\\n    function latestRoundData()\\r\\n        external\\r\\n        view\\r\\n        returns (\\r\\n            uint80 roundId,\\r\\n            int256 answer,\\r\\n            uint256 startedAt,\\r\\n            uint256 updatedAt,\\r\\n            uint80 answeredInRound\\r\\n        );\\r\\n}\\r\\n\",\"keccak256\":\"0xf262d8b896ece8fa15ea14e7851b2c7e013b548bd9f1d2700e44919376d02259\",\"license\":\"MIT\"},\"contracts/oracles/TokenOracle.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity 0.8.10;\\r\\n\\r\\nimport \\\"../interfaces/IAggregator.sol\\\";\\r\\n\\r\\n/// @title TokenOracle\\r\\n/// @notice Oracle used for getting the price of 1 token in given denominator using Chainlink\\r\\ncontract TokenOracle is IAggregator {\\r\\n    error NegativePriceFeed();\\r\\n    \\r\\n    IAggregator public immutable tokenUSD;\\r\\n    IAggregator public immutable denominatorUSD;\\r\\n\\r\\n    uint8 public immutable oracle0Decimals;\\r\\n    uint8 public immutable oracle1Decimals;\\r\\n\\r\\n    uint256 public constant WAD = 18;\\r\\n\\r\\n    constructor(IAggregator _tokenUSD, IAggregator _denominatorUSD) {\\r\\n        tokenUSD = _tokenUSD;\\r\\n        denominatorUSD = _denominatorUSD;\\r\\n\\r\\n        oracle0Decimals = _tokenUSD.decimals();\\r\\n        oracle1Decimals = _denominatorUSD.decimals();\\r\\n    }\\r\\n\\r\\n    function decimals() external pure override returns (uint8) {\\r\\n        return 18;\\r\\n    }\\r\\n\\r\\n    function latestAnswer() external view override returns (int256 answer) {\\r\\n        (, answer, , , ) = latestRoundData();\\r\\n    }\\r\\n\\r\\n    function latestRoundData()\\r\\n        public\\r\\n        view\\r\\n        override\\r\\n        returns (\\r\\n            uint80 roundId,\\r\\n            int256 answer,\\r\\n            uint256 startedAt,\\r\\n            uint256 updatedAt,\\r\\n            uint80 answeredInRound\\r\\n        )\\r\\n    {\\r\\n        (, int256 tokenUSDFeed, , , ) = tokenUSD.latestRoundData();\\r\\n        (, int256 denominatorUSDFeed, , , ) = denominatorUSD.latestRoundData();\\r\\n        \\r\\n        if(tokenUSDFeed < 0 || denominatorUSDFeed < 0) {\\r\\n            revert NegativePriceFeed();\\r\\n        }\\r\\n\\r\\n        uint256 normalizedTokenUSDFeed = uint256(tokenUSDFeed) * (10**(WAD - oracle0Decimals));\\r\\n        uint256 normalizedDenominatorUSDFeed = uint256(denominatorUSDFeed) * (10**(WAD - oracle1Decimals));\\r\\n\\r\\n        return (0, int256((normalizedTokenUSDFeed * 1e18) / normalizedDenominatorUSDFeed), 0, 0, 0);\\r\\n    }\\r\\n}\\r\\n\",\"keccak256\":\"0xf7ebe1a9eb44a535e9cf56d3a3fcad29266f4289d0f4a77e21f795cbbb8e37af\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x61010060405234801561001157600080fd5b506040516107f93803806107f98339810160408190526100309161013e565b6001600160a01b03808316608081905290821660a0526040805163313ce56760e01b8152905163313ce567916004808201926020929091908290030181865afa158015610081573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906100a59190610171565b60ff1660c08160ff1681525050806001600160a01b031663313ce5676040518163ffffffff1660e01b8152600401602060405180830381865afa1580156100f0573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101149190610171565b60ff1660e0525061019b9050565b80516001600160a01b038116811461013957600080fd5b919050565b6000806040838503121561015157600080fd5b61015a83610122565b915061016860208401610122565b90509250929050565b60006020828403121561018357600080fd5b815160ff8116811461019457600080fd5b9392505050565b60805160a05160c05160e05161060b6101ee6000396000818160ac015261038b01526000818161013d0152610344015260008181610164015261027b01526000818160f101526101e4015261060b6000f3fe608060405234801561001057600080fd5b50600436106100885760003560e01c8063a17419911161005b578063a1741991146100ec578063bab42be514610138578063bd355e331461015f578063feaf968c1461018657600080fd5b8063313ce5671461008d5780633a550f88146100a757806350d25bcd146100ce5780636a146024146100e4575b600080fd5b60125b60405160ff90911681526020015b60405180910390f35b6100907f000000000000000000000000000000000000000000000000000000000000000081565b6100d66101c5565b60405190815260200161009e565b6100d6601281565b6101137f000000000000000000000000000000000000000000000000000000000000000081565b60405173ffffffffffffffffffffffffffffffffffffffff909116815260200161009e565b6100907f000000000000000000000000000000000000000000000000000000000000000081565b6101137f000000000000000000000000000000000000000000000000000000000000000081565b61018e6101d9565b6040805169ffffffffffffffffffff968716815260208101959095528401929092526060830152909116608082015260a00161009e565b60006101cf6101d9565b5091949350505050565b6000806000806000807f000000000000000000000000000000000000000000000000000000000000000073ffffffffffffffffffffffffffffffffffffffff1663feaf968c6040518163ffffffff1660e01b815260040160a060405180830381865afa15801561024d573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610271919061041e565b50505091505060007f000000000000000000000000000000000000000000000000000000000000000073ffffffffffffffffffffffffffffffffffffffff1663feaf968c6040518163ffffffff1660e01b815260040160a060405180830381865afa1580156102e4573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610308919061041e565b505050915050600082128061031d5750600081125b1561033b576040516365a6a9cd60e11b815260040160405180910390fd5b600061036b60ff7f0000000000000000000000000000000000000000000000000000000000000000166012610484565b61037690600a610581565b6103809084610594565b905060006103b260ff7f0000000000000000000000000000000000000000000000000000000000000000166012610484565b6103bd90600a610581565b6103c79084610594565b90506000816103de84670de0b6b3a7640000610594565b6103e891906105b3565b909a90995060009850889750879650945050505050565b805169ffffffffffffffffffff8116811461041957600080fd5b919050565b600080600080600060a0868803121561043657600080fd5b61043f866103ff565b9450602086015193506040860151925060608601519150610462608087016103ff565b90509295509295909350565b634e487b7160e01b600052601160045260246000fd5b6000828210156104965761049661046e565b500390565b600181815b808511156104d65781600019048211156104bc576104bc61046e565b808516156104c957918102915b93841c93908002906104a0565b509250929050565b6000826104ed5750600161057b565b816104fa5750600061057b565b8160018114610510576002811461051a57610536565b600191505061057b565b60ff84111561052b5761052b61046e565b50506001821b61057b565b5060208310610133831016604e8410600b8410161715610559575081810a61057b565b610563838361049b565b80600019048211156105775761057761046e565b0290505b92915050565b600061058d83836104de565b9392505050565b60008160001904831182151516156105ae576105ae61046e565b500290565b6000826105d057634e487b7160e01b600052601260045260246000fd5b50049056fea2646970667358221220a288bd582c3029004afb94748e6459939d4c6ac09989b868dd2cc6ab0c64567864736f6c634300080a0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100885760003560e01c8063a17419911161005b578063a1741991146100ec578063bab42be514610138578063bd355e331461015f578063feaf968c1461018657600080fd5b8063313ce5671461008d5780633a550f88146100a757806350d25bcd146100ce5780636a146024146100e4575b600080fd5b60125b60405160ff90911681526020015b60405180910390f35b6100907f000000000000000000000000000000000000000000000000000000000000000081565b6100d66101c5565b60405190815260200161009e565b6100d6601281565b6101137f000000000000000000000000000000000000000000000000000000000000000081565b60405173ffffffffffffffffffffffffffffffffffffffff909116815260200161009e565b6100907f000000000000000000000000000000000000000000000000000000000000000081565b6101137f000000000000000000000000000000000000000000000000000000000000000081565b61018e6101d9565b6040805169ffffffffffffffffffff968716815260208101959095528401929092526060830152909116608082015260a00161009e565b60006101cf6101d9565b5091949350505050565b6000806000806000807f000000000000000000000000000000000000000000000000000000000000000073ffffffffffffffffffffffffffffffffffffffff1663feaf968c6040518163ffffffff1660e01b815260040160a060405180830381865afa15801561024d573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610271919061041e565b50505091505060007f000000000000000000000000000000000000000000000000000000000000000073ffffffffffffffffffffffffffffffffffffffff1663feaf968c6040518163ffffffff1660e01b815260040160a060405180830381865afa1580156102e4573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610308919061041e565b505050915050600082128061031d5750600081125b1561033b576040516365a6a9cd60e11b815260040160405180910390fd5b600061036b60ff7f0000000000000000000000000000000000000000000000000000000000000000166012610484565b61037690600a610581565b6103809084610594565b905060006103b260ff7f0000000000000000000000000000000000000000000000000000000000000000166012610484565b6103bd90600a610581565b6103c79084610594565b90506000816103de84670de0b6b3a7640000610594565b6103e891906105b3565b909a90995060009850889750879650945050505050565b805169ffffffffffffffffffff8116811461041957600080fd5b919050565b600080600080600060a0868803121561043657600080fd5b61043f866103ff565b9450602086015193506040860151925060608601519150610462608087016103ff565b90509295509295909350565b634e487b7160e01b600052601160045260246000fd5b6000828210156104965761049661046e565b500390565b600181815b808511156104d65781600019048211156104bc576104bc61046e565b808516156104c957918102915b93841c93908002906104a0565b509250929050565b6000826104ed5750600161057b565b816104fa5750600061057b565b8160018114610510576002811461051a57610536565b600191505061057b565b60ff84111561052b5761052b61046e565b50506001821b61057b565b5060208310610133831016604e8410600b8410161715610559575081810a61057b565b610563838361049b565b80600019048211156105775761057761046e565b0290505b92915050565b600061058d83836104de565b9392505050565b60008160001904831182151516156105ae576105ae61046e565b500290565b6000826105d057634e487b7160e01b600052601260045260246000fd5b50049056fea2646970667358221220a288bd582c3029004afb94748e6459939d4c6ac09989b868dd2cc6ab0c64567864736f6c634300080a0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "title": "TokenOracle",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "notice": "Oracle used for getting the price of 1 token in given denominator using Chainlink",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
