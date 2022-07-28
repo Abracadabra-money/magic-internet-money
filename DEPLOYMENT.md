@@ -328,7 +328,7 @@
 | Contract     | Address                                    | Note                                                                          |
 | ------------ | ------------------------------------------ | ----------------------------------------------------------------------------- |
 | **vOP/USDC** |                                            |                                                                               |
-| Cauldron     | TBD                                        | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest, Using CauldronV3.1 |
+| Cauldron     | 0x1B18FA0E5E12404AFdeedAA7Af2Ad87aF2F256a2 | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest, Using CauldronV3.1 |
 | Oracle       | 0x04146736FEF83A25e39834a972cf6A5C011ACEad | Inverted LP price of 1 vOP/USDC Velodrome LP                                  |
-| Swapper      | TBD                                        | Using 0x aggregator                                                           |
-| LevSwapper   | TBD                                        | Using 0x aggregator                                                           |
+| Swapper      | 0xC8f5Eb8A632f9600D1c7BC91e97dAD5f8B1e3748 | Using 0x aggregator                                                           |
+| LevSwapper   | 0x710853aA41428c3e0f2bB9258E3E6c9555b25a51 | Using 0x aggregator                                                           |

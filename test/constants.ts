@@ -126,6 +126,9 @@ export const Constants = {
       velo: "0x3c8B650257cFb5f272f799F5e2b4e65093a11a05",
       router: "0xa132DAB612dB5cB9fC9Ac426A0Cc215A3423F9c9",
       vOpUsdc: "0x47029bc8f5CBe3b464004E87eF9c9419a48018cd",
-    }
+    },
+    aggregators: {
+      zeroXExchangProxy: "0xDEF1ABE32c034e558Cdd535791643C58a13aCC10",
+    },
   }
 };
