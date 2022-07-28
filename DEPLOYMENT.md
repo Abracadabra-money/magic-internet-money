@@ -215,7 +215,6 @@
 | MimAvaxSwapper              | 0xBc00ca0d71231c5E23Ba90A90D8C5D9039C39614 | Liquidation Swapper                   |
 | MimAvaxLevSwapper           | 0xBA7fd957ad9b7C0238E6E4413dbA69E83224a582 | Leverage Swapper                      |
 
-
 ## Boba Network
 
 | Contract | Address                                    | Note |
@@ -287,11 +286,11 @@
 
 # Oracles
 
-| Chain | Token                 | Address                                    |
-| ----- | --------------------- | ------------------------------------------ |
-| Avax  | Joe USDC.e/WAVAX LP   | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 |
-| Avax  | Joe WAVAX/USDC LP     | 0xF8B72e847e648BC87c8269FE258cbe908Fa2A71d |
-| Avax  | Pangolin USDC.e/WAVAX | 0x1e21573cfc456f8aDd4C27ff16B50112e3adC7aC |
+| Chain | Token                    | Address                                    |
+| ----- | ------------------------ | ------------------------------------------ |
+| Avax  | Joe USDC.e/WAVAX LP      | 0x0E1eA2269D6e22DfEEbce7b0A4c6c3d415b5bC85 |
+| Avax  | Joe WAVAX/USDC LP        | 0xF8B72e847e648BC87c8269FE258cbe908Fa2A71d |
+| Avax  | Pangolin USDC.e/WAVAX LP | 0x1e21573cfc456f8aDd4C27ff16B50112e3adC7aC |
 
 # Popsicle
 
@@ -303,6 +302,8 @@
 | CauldronV3_1MC_Limone_Avalanche | 0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75 | Cauldron V3.1 MC |
 
 ### Popsicle Cauldrons
+
+#### Avalanche
 
 | Contract                       | Address                                    | Note                                                                          |
 | ------------------------------ | ------------------------------------------ | ----------------------------------------------------------------------------- |
@@ -321,3 +322,13 @@
 | Oracle                         | 0xF8B72e847e648BC87c8269FE258cbe908Fa2A71d | Inverted LP price of 1 wAVAX/USDC Joe LP                                      |
 | Swapper                        | 0x08a47F1F14292b0655B70588C76b614f64074db4 | Using 0x aggregator                                                           |
 | LevSwapper                     | 0x49Bd7dB43695c38661067765BE9484F8177B13f3 | Using 0x aggregator                                                           |
+
+#### Optimism
+
+| Contract     | Address                                    | Note                                                                          |
+| ------------ | ------------------------------------------ | ----------------------------------------------------------------------------- |
+| **vOP/USDC** |                                            |                                                                               |
+| Cauldron     | TBD                                        | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest, Using CauldronV3.1 |
+| Oracle       | 0x04146736FEF83A25e39834a972cf6A5C011ACEad | Inverted LP price of 1 vOP/USDC Velodrome LP                                  |
+| Swapper      | TBD                                        | Using 0x aggregator                                                           |
+| LevSwapper   | TBD                                        | Using 0x aggregator                                                           |

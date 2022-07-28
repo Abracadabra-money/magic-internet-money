@@ -115,6 +115,10 @@ export const Constants = {
     usdc: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
     cauldronV31_DegenBox: "0xAcdd6e28b7440fe17EeFD927337480DD1Ea7A97b",
     cauldronV31_Limone: "0xc7a161Cfd0e133d289B13692b636B8e8B5CD8d8c",
+    chainlink: {
+      op: "0x0D276FC14719f9292D5C1eA2198673d1f4269246",
+      usdc: "0x16a9FA2FDa030272Ce99B29CF780dFA30361E0f3"
+    },
     bridges: {
       anyswapRouter: "0xDC42728B0eA910349ed3c6e1c9Dc06b5FB591f98",
     },
