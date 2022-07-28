@@ -215,11 +215,6 @@
 | MimAvaxSwapper              | 0xBc00ca0d71231c5E23Ba90A90D8C5D9039C39614 | Liquidation Swapper                   |
 | MimAvaxLevSwapper           | 0xBA7fd957ad9b7C0238E6E4413dbA69E83224a582 | Leverage Swapper                      |
 
-### Utilities
-
-| Contract             | Address                                    | Note                                                             |
-| -------------------- | ------------------------------------------ | ---------------------------------------------------------------- |
-| MultichainWithdrawer | 0x2b95bf93B5873c8cB9aE3374e3054736A5b79676 | Withdraw MIM fees from cauldron and bridge to EthereumWithdrawer |
 
 ## Boba Network
 
@@ -235,12 +230,26 @@
 
 ## Optimism
 
+### Utilities
+
+| Contract             | Address                                    | Note                                                             |
+| -------------------- | ------------------------------------------ | ---------------------------------------------------------------- |
+| MultichainWithdrawer | 0x1E217d3cA2a19f2cB0F9f12a65b40f335286758E | Withdraw MIM fees from cauldron and bridge to EthereumWithdrawer |
+
+### Abra
+
 | Contract                               | Address                                    | Note |
 | -------------------------------------- | ------------------------------------------ | ---- |
 | DegenBox                               | 0x233332a01Ebf20f770883ebff68374b015AccB9C |      |
 | CauldronV3_1MC_DegenBox MasterContract | 0xAcdd6e28b7440fe17EeFD927337480DD1Ea7A97b |      |
-| Limone                                 | 0xB3f5c7D0Ac3944a9d9A9623D6B50bCeA85A26753 |      |
-| CauldronV3_1MC_Limone MasterContract   | 0xc7a161Cfd0e133d289B13692b636B8e8B5CD8d8c |      |
+| MultiChain Withdrawer                  | TBD                                        |      |
+
+### Popsicle
+
+| Contract                             | Address                                    | Note |
+| ------------------------------------ | ------------------------------------------ | ---- |
+| Limone                               | 0xB3f5c7D0Ac3944a9d9A9623D6B50bCeA85A26753 |      |
+| CauldronV3_1MC_Limone MasterContract | 0xc7a161Cfd0e133d289B13692b636B8e8B5CD8d8c |      |
 
 ## Polygon
 

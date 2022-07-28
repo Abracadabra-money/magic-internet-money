@@ -1,8 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, network } from "hardhat";
-import { ChainId, setDeploymentSupportedChains } from "../utilities";
-import { xMerlin } from "../test/constants";
+import { ChainId, setDeploymentSupportedChains, wrappedDeploy } from "../utilities";
+import { Constants, xMerlin } from "../test/constants";
 import { MultichainWithdrawer } from "../typechain";
 
 const ParametersPerChain = {
@@ -90,17 +90,26 @@ const ParametersPerChain = {
     degenBoxCauldrons: [],
     owner: xMerlin,
   },
+  [ChainId.Optimism]: {
+    bentoBox: ethers.constants.AddressZero,
+    degenBox: Constants.optimism.degenBox,
+    mim: Constants.optimism.mim,
+    anyswapRouter: Constants.optimism.bridges.anyswapRouter,
+    mimProvider: "0x4217AA01360846A849d2A89809d450D10248B513",
+    bentoBoxCauldronsV2: [],
+    bentoBoxCauldronsV1: [],
+    degenBoxCauldrons: [],
+    owner: xMerlin,
+  },
 };
 
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-
+  const { getNamedAccounts } = hre;
   const { deployer } = await getNamedAccounts();
   const chainId = await hre.getChainId();
   const parameters = ParametersPerChain[parseInt(chainId)];
 
-  await deploy("MultichainWithdrawer", {
+  const MultichainWithdrawer = await wrappedDeploy<MultichainWithdrawer>("MultichainWithdrawer", {
     from: deployer,
     args: [
       parameters.bentoBox,
@@ -116,8 +125,6 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     log: true,
     deterministicDeployment: false,
   });
-
-  const MultichainWithdrawer = await ethers.getContract<MultichainWithdrawer>("MultichainWithdrawer");
 
   if ((await MultichainWithdrawer.owner()) != parameters.owner && network.name !== "hardhat") {
     await MultichainWithdrawer.transferOwnership(parameters.owner, true, false);
