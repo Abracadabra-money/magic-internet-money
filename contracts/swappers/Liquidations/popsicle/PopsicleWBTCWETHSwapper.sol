@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "@rari-capital/solmate/src/tokens/ERC20.sol";
-import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import "solmate/src/tokens/ERC20.sol";
+import "solmate/src/utils/SafeTransferLib.sol";
 
 import "../../../interfaces/ISwapperGeneric.sol";
 import "../../../interfaces/IPopsicle.sol";

@@ -2,7 +2,7 @@
 // Inspired by Yearn yveCRV-DAO and xSushi
 pragma solidity ^0.8.10;
 
-import "@rari-capital/solmate/src/tokens/ERC20.sol";
+import "solmate/src/tokens/ERC20.sol";
 
 interface ICurveVoter {
     function lock() external;

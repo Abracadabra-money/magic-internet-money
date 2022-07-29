@@ -4,8 +4,8 @@
 // solhint-disable func-name-mixedcase
 pragma solidity ^0.8.10;
 
-import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
-import "@rari-capital/solmate/src/tokens/ERC20.sol";
+import "solmate/src/utils/SafeTransferLib.sol";
+import "solmate/src/tokens/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/ICollateralAmountAware.sol";
 import "../interfaces/ICheckpointTokenV2.sol";

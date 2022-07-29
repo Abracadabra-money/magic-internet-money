@@ -2,8 +2,8 @@
 pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
-import "@rari-capital/solmate/src/tokens/ERC20.sol";
+import "solmate/src/utils/SafeTransferLib.sol";
+import "solmate/src/tokens/ERC20.sol";
 import "../interfaces/IBentoBoxV1Minimal.sol";
 import "../interfaces/ISwapperV2.sol";
 import "../interfaces/ILevSwapperV2.sol";

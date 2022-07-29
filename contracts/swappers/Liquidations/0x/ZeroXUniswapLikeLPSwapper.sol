@@ -2,8 +2,8 @@
 // solhint-disable avoid-low-level-calls
 pragma solidity 0.8.10;
 
-import "@rari-capital/solmate/src/tokens/ERC20.sol";
-import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import "solmate/src/tokens/ERC20.sol";
+import "solmate/src/utils/SafeTransferLib.sol";
 
 import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol";
 import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Router01.sol";

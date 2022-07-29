@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 import "../libraries/BokkyPooBahsDateTimeLibrary.sol";
-import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import "solmate/src/utils/SafeTransferLib.sol";
 
 interface ILayerZeroEndpoint {
     // @notice send a LayerZero message to the specified address at a LayerZero endpoint.

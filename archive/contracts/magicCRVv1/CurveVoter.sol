@@ -2,7 +2,7 @@
 // Inspired by Yearn CurveYCRVVoter and StrategyProxy
 pragma solidity ^0.8.10;
 
-import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import "solmate/src/utils/SafeTransferLib.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/curve/IFeeDistributor.sol";
 import "../interfaces/curve/IVoteEscrow.sol";

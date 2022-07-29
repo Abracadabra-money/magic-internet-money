@@ -2,7 +2,7 @@
 // Inspired by Stable Joe Staking which in turn is derived from the SushiSwap MasterChef contract
 
 pragma solidity 0.8.10;
-import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import "solmate/src/utils/SafeTransferLib.sol";
 import "../libraries/BoringOwnable.sol";
 
 /**
