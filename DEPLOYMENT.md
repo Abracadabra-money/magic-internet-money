@@ -315,20 +315,20 @@
 | **sAVAX/wAVAX**                |                                            |                                                                               |
 | PopsicleJoeSavaxWavaxCauldron  | 0x562Db5B5E95961760806A0435aa292c34919eC47 | 75% LTV, 12.5% liquidation fee, 1% borrow fee, 1% Interest                    |
 | TraderJoeSAVAXWAVAXProxyOracle | 0x0CC93802f800cCee67914c3072e80d23e920a3e2 | Inverted LP price of 1 sAVAX/wAVAX LP                                         |
-| JoeSavaxWavaxSwapperV1         | 0x1B77fDaBAa7FefD55f4aC075B6E817b8d773315b | Using 0x aggregator                                                           |
-| JoeSavaxWavaxLevSwapperV1      | 0xEf05d8747a6Fc81509fb37EcF6b1a2D39290d881 | Using 0x aggregator                                                           |
+| JoeSavaxWavaxSwapperV1         | 0x1B77fDaBAa7FefD55f4aC075B6E817b8d773315b | UniswapLike - Using 0x aggregator                                             |
+| JoeSavaxWavaxLevSwapperV1      | 0xEf05d8747a6Fc81509fb37EcF6b1a2D39290d881 | UniswapLike - Using 0x aggregator                                             |
 | **wAVAX/USDC**                 |                                            |                                                                               |
 | Cauldron                       | 0x0dFb2cebae775c083911DFc39F7B1596E80D0ecB | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest, Using CauldronV3.1 |
 | Oracle                         | 0xF8B72e847e648BC87c8269FE258cbe908Fa2A71d | Inverted LP price of 1 wAVAX/USDC Joe LP                                      |
-| Swapper                        | 0x08a47F1F14292b0655B70588C76b614f64074db4 | Using 0x aggregator                                                           |
-| LevSwapper                     | 0x49Bd7dB43695c38661067765BE9484F8177B13f3 | Using 0x aggregator                                                           |
+| Swapper                        | 0x08a47F1F14292b0655B70588C76b614f64074db4 | UniswapLike - Using 0x aggregator                                             |
+| LevSwapper                     | 0x49Bd7dB43695c38661067765BE9484F8177B13f3 | UniswapLike - sing 0x aggregator                                              |
 
 #### Optimism
 
-| Contract     | Address                                    | Note                                                                          |
-| ------------ | ------------------------------------------ | ----------------------------------------------------------------------------- |
-| **vOP/USDC** |                                            |                                                                               |
-| Cauldron     | 0x1B18FA0E5E12404AFdeedAA7Af2Ad87aF2F256a2 | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest, Using CauldronV3.1 |
-| Oracle       | 0x04146736FEF83A25e39834a972cf6A5C011ACEad | Inverted LP price of 1 vOP/USDC Velodrome LP                                  |
-| Swapper      | 0xC8f5Eb8A632f9600D1c7BC91e97dAD5f8B1e3748 | Using 0x aggregator                                                           |
-| LevSwapper   | 0x710853aA41428c3e0f2bB9258E3E6c9555b25a51 | Using 0x aggregator                                                           |
+| Contract               | Address                                    | Note                                                                          |
+| ---------------------- | ------------------------------------------ | ----------------------------------------------------------------------------- |
+| **Velodrome vOP/USDC** |                                            |                                                                               |
+| Cauldron               | 0x1B18FA0E5E12404AFdeedAA7Af2Ad87aF2F256a2 | 85% LTV, 8% liquidation fee, 1% borrow fee, 1.5% Interest, Using CauldronV3.1 |
+| Oracle                 | 0x04146736FEF83A25e39834a972cf6A5C011ACEad | Inverted LP price of 1 vOP/USDC Velodrome LP                                  |
+| Swapper                | 0x2ed641367f16f9783666409be7d083c8c49cBEc2 | SolidlyLike - Using 0x aggregator                                             |
+| LevSwapper             | 0x70beCf593a0F094Dd7d5F8b8B48fB8582c0EC575 | SolidlyLike - Using 0x aggregator                                             |

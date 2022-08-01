@@ -6,7 +6,7 @@ import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Router01.sol";
 import "../interfaces/IERC20.sol";
 import "./Babylonian.sol";
 
-library UniswapV2OneSidedUsingUniV2 {
+library UniswapV2OneSided {
     struct AddLiquidityAndOneSideRemainingParams {
         IUniswapV2Router01 router;
         IUniswapV2Pair pair;

@@ -239,12 +239,11 @@ export async function deployUniswapLikeZeroExSwappers(
   zeroXExchangeProxy: string,
   deployer: string
 ): Promise<BaseContract[]> {
-  const swapperArgs = [degenBox, uniswapLikeRouter, collateral, mim, zeroXExchangeProxy];
 
   // Liquidation Swapper
   const Swapper = await wrappedDeploy(`${name}Swapper`, {
     from: deployer,
-    args: swapperArgs,
+    args: [degenBox, collateral, mim, zeroXExchangeProxy],
     log: true,
     contract: "ZeroXUniswapLikeLPSwapper",
     deterministicDeployment: false,
@@ -253,9 +252,40 @@ export async function deployUniswapLikeZeroExSwappers(
   // Leverage Swapper
   const LevSwapper = await wrappedDeploy(`${name}LevSwapper`, {
     from: deployer,
-    args: swapperArgs,
+    args: [degenBox, uniswapLikeRouter, collateral, mim, zeroXExchangeProxy],
     log: true,
     contract: "ZeroXUniswapLikeLPLevSwapper",
+    deterministicDeployment: false,
+  });
+
+  return [Swapper, LevSwapper];
+}
+
+export async function deploySolidlyLikeVolatileZeroExSwappers(
+  name: string,
+  degenBox: string,
+  uniswapLikeRouter: string,
+  collateral: string,
+  mim: string,
+  zeroXExchangeProxy: string,
+  deployer: string
+): Promise<BaseContract[]> {
+
+  // Liquidation Swapper
+  const Swapper = await wrappedDeploy(`${name}Swapper`, {
+    from: deployer,
+    args: [degenBox, collateral, mim, zeroXExchangeProxy],
+    log: true,
+    contract: "ZeroXUniswapLikeLPSwapper", // Same API as Solidly
+    deterministicDeployment: false,
+  });
+
+  // Leverage Swapper
+  const LevSwapper = await wrappedDeploy(`${name}LevSwapper`, {
+    from: deployer,
+    args: [degenBox, uniswapLikeRouter, collateral, mim, zeroXExchangeProxy],
+    log: true,
+    contract: "ZeroXSolidlyLikeVolatileLPLevSwapper",
     deterministicDeployment: false,
   });
 

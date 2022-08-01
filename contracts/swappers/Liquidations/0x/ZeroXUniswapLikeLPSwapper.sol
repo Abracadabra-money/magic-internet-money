@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
 // solhint-disable avoid-low-level-calls
-pragma solidity 0.8.10;
+pragma solidity >= 0.8.10;
 
 import "solmate/src/tokens/ERC20.sol";
 import "solmate/src/utils/SafeTransferLib.sol";
 
 import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol";
-import "@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Router01.sol";
 
 import "../../../interfaces/IBentoBoxV1Minimal.sol";
 import "../../../interfaces/ISwapperV2.sol";
@@ -20,28 +19,25 @@ contract ZeroXUniswapLikeLPSwapper is ISwapperV2 {
 
     IBentoBoxV1Minimal public immutable bentoBox;
     IUniswapV2Pair public immutable pair;
-    IUniswapV2Router01 public immutable router;
     ERC20 public immutable mim;
 
     address public immutable zeroXExchangeProxy;
 
     constructor(
-        IBentoBoxV1Minimal _bentoBox,
-        IUniswapV2Router01 _router,
-        IUniswapV2Pair _pair,
-        ERC20 _mim,
+        address _bentoBox,
+        address _pair,
+        address _mim,
         address _zeroXExchangeProxy
     ) {
-        bentoBox = _bentoBox;
-        router = _router;
-        pair = _pair;
-        mim = _mim;
+        bentoBox = IBentoBoxV1Minimal(_bentoBox);
+        pair = IUniswapV2Pair(_pair);
+        mim = ERC20(_mim);
         zeroXExchangeProxy = _zeroXExchangeProxy;
 
-        ERC20(_pair.token0()).safeApprove(_zeroXExchangeProxy, type(uint256).max);
-        ERC20(_pair.token1()).safeApprove(_zeroXExchangeProxy, type(uint256).max);
+        ERC20(pair.token0()).safeApprove(_zeroXExchangeProxy, type(uint256).max);
+        ERC20(pair.token1()).safeApprove(_zeroXExchangeProxy, type(uint256).max);
 
-        _mim.approve(address(_bentoBox), type(uint256).max);
+        mim.approve(address(_bentoBox), type(uint256).max);
     }
 
     /// @inheritdoc ISwapperV2

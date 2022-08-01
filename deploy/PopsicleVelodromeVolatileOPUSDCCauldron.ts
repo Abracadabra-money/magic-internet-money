@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { ChainId, deployCauldron, deployUniswapLikeZeroExSwappers, setDeploymentSupportedChains } from "../utilities";
+import { ChainId, deployCauldron, deploySolidlyLikeVolatileZeroExSwappers, deployUniswapLikeZeroExSwappers, setDeploymentSupportedChains } from "../utilities";
 import { Constants } from "../test/constants";
 
 export const ParametersPerChain = {
@@ -21,8 +21,8 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const { getNamedAccounts } = hre;
   const { deployer } = await getNamedAccounts();
   const chainId = await hre.getChainId();
-  const parameters = ParametersPerChain[parseInt(chainId)];
 
+  const parameters = ParametersPerChain[parseInt(chainId)];
   await deployCauldron(
     parameters.cauldronDeploymentName,
     parameters.degenBox,
@@ -36,7 +36,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     8 // Liquidation
   );
 
-  await deployUniswapLikeZeroExSwappers(
+  await deploySolidlyLikeVolatileZeroExSwappers(
     "OptimismPopsicleVelodromeVolaliteOPUSDC",
     parameters.degenBox,
     parameters.router,
