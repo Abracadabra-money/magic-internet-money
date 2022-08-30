@@ -4,6 +4,7 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
 import "../interfaces/INFTPair.sol";
+import "../interfaces/TokenLoanParamsWithOracle.sol";
 
 // Minimal implementation to set up some tests.
 contract LendingClubMock {
@@ -19,40 +20,47 @@ contract LendingClubMock {
         nftPair.bentoBox().setMasterContractApproval(address(this), address(nftPair.masterContract()), true, 0, bytes32(0), bytes32(0));
     }
 
-    function willLend(uint256 tokenId, TokenLoanParams memory requested) external view returns (bool) {
+    function willLend(
+        uint256 tokenId,
+        uint128 valuation,
+        uint64 duration,
+        uint16 annualInterestBPS,
+        uint16 _ltvBPS,
+        address _oracle
+    ) external view returns (bool) {
         if (msg.sender != address(nftPair)) {
             return false;
         }
-        TokenLoanParams memory accepted = _lendingConditions(tokenId);
+        TokenLoanParamsWithOracle memory accepted = _lendingConditions(tokenId)[0];
         // Valuation has to be an exact match, everything else must be at least
         // as good for the lender as `accepted`.
 
-        return
-            requested.valuation == accepted.valuation &&
-            requested.duration <= accepted.duration &&
-            requested.annualInterestBPS >= accepted.annualInterestBPS;
+        return valuation == accepted.valuation && duration <= accepted.duration && annualInterestBPS >= accepted.annualInterestBPS;
     }
 
-    function _lendingConditions(uint256 tokenId) private pure returns (TokenLoanParams memory) {
-        TokenLoanParams memory conditions;
+    function _lendingConditions(uint256 tokenId) private pure returns (TokenLoanParamsWithOracle[] memory) {
         // No specific conditions given, but we'll take all even-numbered
         // ones at 100% APY:
         if (tokenId % 2 == 0) {
+            TokenLoanParamsWithOracle[] memory conditions = new TokenLoanParamsWithOracle[](1);
             // 256-bit addition fits by the above check.
             // Cast is.. relatively safe: this is a mock implementation,
             // production use is unlikely to follow this pattern for valuing
             // loans, and manipulating the token ID can only break the logic by
             // making the loan "safer" for the lender.
-            conditions.valuation = uint128((tokenId + 1) * 10**18);
-            conditions.duration = 365 days;
-            conditions.annualInterestBPS = 10_000;
+            conditions[0].valuation = uint128((tokenId + 1) * 10**18);
+            conditions[0].duration = 365 days;
+            conditions[0].annualInterestBPS = 10_000;
+            return conditions;
+        } else {
+            TokenLoanParamsWithOracle[] memory conditions;
+            return conditions;
         }
-        return conditions;
     }
 
-    function lendingConditions(address _nftPair, uint256 tokenId) external view returns (TokenLoanParams memory) {
+    function lendingConditions(address _nftPair, uint256 tokenId) external view returns (TokenLoanParamsWithOracle[] memory) {
         if (_nftPair != address(nftPair)) {
-            TokenLoanParams memory empty;
+            TokenLoanParamsWithOracle[] memory empty;
             return empty;
         } else {
             return _lendingConditions(tokenId);
