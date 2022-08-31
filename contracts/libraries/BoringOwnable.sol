@@ -14,7 +14,7 @@ contract BoringOwnable is BoringOwnableData {
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     /// @notice `owner` defaults to msg.sender on construction.
-    constructor() {
+    constructor() public {
         owner = msg.sender;
         emit OwnershipTransferred(address(0), msg.sender);
     }

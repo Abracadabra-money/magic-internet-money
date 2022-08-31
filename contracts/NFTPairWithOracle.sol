@@ -21,14 +21,15 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol";
 import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
+import "@boringcrypto/boring-solidity/contracts/libraries/BoringRebase.sol";
 import "@boringcrypto/boring-solidity/contracts/Domain.sol";
 import "@boringcrypto/boring-solidity/contracts/interfaces/IMasterContract.sol";
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
-import "@sushiswap/bentobox-sdk/contracts/IBentoBoxV1.sol";
+import "./interfaces/IBentoBoxV1Interface.sol";
 import "./interfaces/IERC721.sol";
 import "./interfaces/ILendingClub.sol";
-import "./interfaces/INFTBuyer.sol";
-import "./interfaces/INFTSeller.sol";
+import {INFTBuyer} from "./interfaces/INFTBuyer.sol";
+import {INFTSeller} from "./interfaces/INFTSeller.sol";
 import "./interfaces/INFTPairWithOracle.sol";
 
 /// @title NFTPairWithOracle
@@ -470,7 +471,7 @@ contract NFTPairWithOracle is BoringOwnable, Domain, IMasterContract {
                     params.duration,
                     params.annualInterestBPS,
                     params.ltvBPS,
-                    address(params.oracle)
+                    params.oracle
                 ),
                 "NFTPair: LendingClub refused"
             );

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Taken from OpenZeppelin contracts v3
 
-pragma solidity >=0.6.2 <0.8.0;
+pragma solidity >=0.6.2;
 
 import "./IERC165.sol";
 

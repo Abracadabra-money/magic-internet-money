@@ -3,7 +3,7 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
-import "@sushiswap/bentobox-sdk/contracts/IBentoBoxV1.sol";
+import "../interfaces/IBentoBoxV1Interface.sol";
 import "./NFTMarketMock.sol";
 import "../interfaces/IERC721.sol";
 import "../interfaces/INFTBuyer.sol";
