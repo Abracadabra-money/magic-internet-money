@@ -11,6 +11,7 @@ import "./interfaces/TokenLoanParamsWithOracle.sol";
 
 interface IOps {
     function gelato() external view returns (address payable);
+
     function getFeeDetails() external view returns (uint256, address);
 }
 
@@ -30,7 +31,7 @@ contract LendingClubWETH is BoringOwnable, ILendingClub {
     address payable private immutable gelato;
     IERC20 private immutable WETH;
     ISeaport private constant seaport = ISeaport(0x00000000006c3852cbEf3e08E8dF289169EdE581);
-    
+
     constructor(address _ops, IERC20 _WETH) public {
         ops = _ops;
         WETH = _WETH;
@@ -48,12 +49,15 @@ contract LendingClubWETH is BoringOwnable, ILendingClub {
     }
 
     function init(bytes calldata data) public payable {
-        (nftPair, owner, oracle, annualInterestBPS, ltvBPS, relistBPS, maxDuration) = abi.decode(data, (INFTPair, address, INFTOracle, uint16, uint16, uint16, uint32));
-        
+        (nftPair, owner, oracle, annualInterestBPS, ltvBPS, relistBPS, maxDuration) = abi.decode(
+            data,
+            (INFTPair, address, INFTOracle, uint16, uint16, uint16, uint32)
+        );
+
         emit OwnershipTransferred(address(0), owner);
 
         require(nftPair.asset() == WETH, "only compatible with WETH");
-        
+
         // TODO: check whether this is exploitable (i think not)
         nftPair.collateral().setApprovalForAll(address(seaport), true);
 
@@ -76,7 +80,7 @@ contract LendingClubWETH is BoringOwnable, ILendingClub {
 
         if (!status) return false;
 
-        uint256 _valuation = price * uint256(ltvBPS) / BPS;
+        uint256 _valuation = (price * uint256(ltvBPS)) / BPS;
 
         // valuation can be smaller than what is to be expected, same for duration
 
@@ -89,10 +93,10 @@ contract LendingClubWETH is BoringOwnable, ILendingClub {
             return empty;
         } else {
             TokenLoanParamsWithOracle[] memory conditions = new TokenLoanParamsWithOracle[](4);
-            uint128 valuation = uint128(oracle.peekSpot(_nftPair, tokenId) * uint256(ltvBPS) / BPS);
-            for(uint256 i; i < 4; i++) {
+            uint128 valuation = uint128((oracle.peekSpot(_nftPair, tokenId) * uint256(ltvBPS)) / BPS);
+            for (uint256 i; i < 4; i++) {
                 conditions[i].valuation = valuation;
-                conditions[i].duration = uint64(maxDuration * i / 4);
+                conditions[i].duration = uint64((maxDuration * i) / 4);
                 conditions[i].annualInterestBPS = annualInterestBPS;
                 conditions[i].ltvBPS = ltvBPS;
                 conditions[i].oracle = oracle;
@@ -100,11 +104,14 @@ contract LendingClubWETH is BoringOwnable, ILendingClub {
         }
     }
 
-    function liquidateAndRelist(ISeaport.Order[] calldata orders, bool liquidate, uint256 tokenId) external onlyOps {
+    function liquidateAndRelist(
+        ISeaport.Order[] calldata orders,
+        bool liquidate,
+        uint256 tokenId
+    ) external onlyOps {
+        (uint256 fee, ) = IOps(ops).getFeeDetails();
 
-        (uint256 fee,) = IOps(ops).getFeeDetails();
-
-        if(liquidate) {
+        if (liquidate) {
             nftPair.removeCollateral(tokenId, address(this));
         }
 
