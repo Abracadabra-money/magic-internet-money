@@ -54,7 +54,7 @@
     "*.md": "prettier --write"
   },
   "devDependencies": {
-    "@boringcrypto/boring-solidity": "Abracadabra-money/BoringSolidityOld#ef859ab4303c86ef240c24187e3d3e8e343547be",
+    "@boringcrypto/boring-solidity": "boringcrypto/BoringSolidity#ccb743d4c3363ca37491b87c6c9b24b1f5fa25dc",
     "@commitlint/cli": "^13.2.1",
     "@commitlint/config-conventional": "^13.2.0",
     "@nomiclabs/hardhat-ethers": "yarn:hardhat-deploy-ethers",
@@ -74,6 +74,7 @@
     "@types/yargs": "^17.0.10",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "boring-solidity-old": "Abracadabra-money/BoringSolidityOld#5618a0c7b6aaec548f1244366f6b5d8b8a6b24ae",
     "chai": "^4.3.4",
     "cross-env": "^7.0.3",
     "dotenv": "^10.0.0",
