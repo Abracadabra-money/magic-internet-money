@@ -30,8 +30,7 @@ contract LendingClubWETH is BoringOwnable, ILendingClub {
     address private immutable ops;
     address payable private immutable gelato;
     IERC20 private immutable WETH;
-    ISeaport private constant seaport =
-        ISeaport(0x00000000006c3852cbEf3e08E8dF289169EdE581);
+    ISeaport private constant seaport = ISeaport(0x00000000006c3852cbEf3e08E8dF289169EdE581);
 
     constructor(address _ops, IERC20 _WETH) public {
         ops = _ops;
@@ -50,15 +49,7 @@ contract LendingClubWETH is BoringOwnable, ILendingClub {
     }
 
     function init(bytes calldata data) public payable {
-        (
-            nftPair,
-            owner,
-            oracle,
-            annualInterestBPS,
-            ltvBPS,
-            relistBPS,
-            maxDuration
-        ) = abi.decode(
+        (nftPair, owner, oracle, annualInterestBPS, ltvBPS, relistBPS, maxDuration) = abi.decode(
             data,
             (INFTPair, address, INFTOracle, uint16, uint16, uint16, uint32)
         );
@@ -70,14 +61,7 @@ contract LendingClubWETH is BoringOwnable, ILendingClub {
         // TODO: check whether this is exploitable (i think not)
         nftPair.collateral().setApprovalForAll(address(seaport), true);
 
-        nftPair.bentoBox().setMasterContractApproval(
-            address(this),
-            address(nftPair.masterContract()),
-            true,
-            0,
-            bytes32(0),
-            bytes32(0)
-        );
+        nftPair.bentoBox().setMasterContractApproval(address(this), address(nftPair.masterContract()), true, 0, bytes32(0), bytes32(0));
     }
 
     function willLend(
@@ -100,27 +84,16 @@ contract LendingClubWETH is BoringOwnable, ILendingClub {
 
         // valuation can be smaller than what is to be expected, same for duration
 
-        return
-            oracle == _oracle &&
-            valuation <= _valuation &&
-            duration <= maxDuration &&
-            _annualInterestBPS >= annualInterestBPS;
+        return oracle == _oracle && valuation <= _valuation && duration <= maxDuration && _annualInterestBPS >= annualInterestBPS;
     }
 
-    function lendingConditions(address _nftPair, uint256 tokenId)
-        external
-        view
-        returns (TokenLoanParamsWithOracle[] memory)
-    {
+    function lendingConditions(address _nftPair, uint256 tokenId) external view returns (TokenLoanParamsWithOracle[] memory) {
         if (_nftPair != address(nftPair)) {
             TokenLoanParamsWithOracle[] memory empty;
             return empty;
         } else {
-            TokenLoanParamsWithOracle[]
-                memory conditions = new TokenLoanParamsWithOracle[](4);
-            uint128 valuation = uint128(
-                (oracle.peekSpot(_nftPair, tokenId) * uint256(ltvBPS)) / BPS
-            );
+            TokenLoanParamsWithOracle[] memory conditions = new TokenLoanParamsWithOracle[](4);
+            uint128 valuation = uint128((oracle.peekSpot(_nftPair, tokenId) * uint256(ltvBPS)) / BPS);
             for (uint256 i; i < 4; i++) {
                 conditions[i].valuation = valuation;
                 conditions[i].duration = uint64((maxDuration * i) / 4);
@@ -142,13 +115,7 @@ contract LendingClubWETH is BoringOwnable, ILendingClub {
             nftPair.removeCollateral(tokenId, address(this));
         }
 
-        nftPair.bentoBox().withdraw(
-            IERC20(address(0)),
-            address(this),
-            gelato,
-            fee,
-            0
-        );
+        nftPair.bentoBox().withdraw(IERC20(address(0)), address(this), gelato, fee, 0);
 
         seaport.validate(orders);
     }
@@ -158,12 +125,6 @@ contract LendingClubWETH is BoringOwnable, ILendingClub {
     }
 
     function withdrawFunds(uint256 bentoShares, address to) external onlyOwner {
-        nftPair.bentoBox().withdraw(
-            nftPair.asset(),
-            address(this),
-            to,
-            0,
-            bentoShares
-        );
+        nftPair.bentoBox().withdraw(nftPair.asset(), address(this), to, 0, bentoShares);
     }
 }

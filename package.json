@@ -74,7 +74,7 @@
     "@types/yargs": "^17.0.10",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
-    "boring-solidity-old": "Abracadabra-money/BoringSolidityOld#5618a0c7b6aaec548f1244366f6b5d8b8a6b24ae",
+    "boring-solidity-old": "Abracadabra-money/BoringSolidityOld#95b8b05ec6aaf5fb9c9ccd5960862b85f495d84a",
     "chai": "^4.3.4",
     "cross-env": "^7.0.3",
     "dotenv": "^10.0.0",

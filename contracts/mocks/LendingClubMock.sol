@@ -17,14 +17,7 @@ contract LendingClubMock {
     }
 
     function init() public {
-        nftPair.bentoBox().setMasterContractApproval(
-            address(this),
-            address(nftPair.masterContract()),
-            true,
-            0,
-            bytes32(0),
-            bytes32(0)
-        );
+        nftPair.bentoBox().setMasterContractApproval(address(this), address(nftPair.masterContract()), true, 0, bytes32(0), bytes32(0));
     }
 
     function willLend(
@@ -38,28 +31,18 @@ contract LendingClubMock {
         if (msg.sender != address(nftPair)) {
             return false;
         }
-        TokenLoanParamsWithOracle memory accepted = _lendingConditions(tokenId)[
-            0
-        ];
+        TokenLoanParamsWithOracle memory accepted = _lendingConditions(tokenId)[0];
         // Valuation has to be an exact match, everything else must be at least
         // as good for the lender as `accepted`.
 
-        return
-            valuation == accepted.valuation &&
-            duration <= accepted.duration &&
-            annualInterestBPS >= accepted.annualInterestBPS;
+        return valuation == accepted.valuation && duration <= accepted.duration && annualInterestBPS >= accepted.annualInterestBPS;
     }
 
-    function _lendingConditions(uint256 tokenId)
-        private
-        pure
-        returns (TokenLoanParamsWithOracle[] memory)
-    {
+    function _lendingConditions(uint256 tokenId) private pure returns (TokenLoanParamsWithOracle[] memory) {
         // No specific conditions given, but we'll take all even-numbered
         // ones at 100% APY:
         if (tokenId % 2 == 0) {
-            TokenLoanParamsWithOracle[]
-                memory conditions = new TokenLoanParamsWithOracle[](1);
+            TokenLoanParamsWithOracle[] memory conditions = new TokenLoanParamsWithOracle[](1);
             // 256-bit addition fits by the above check.
             // Cast is.. relatively safe: this is a mock implementation,
             // production use is unlikely to follow this pattern for valuing
@@ -75,11 +58,7 @@ contract LendingClubMock {
         }
     }
 
-    function lendingConditions(address _nftPair, uint256 tokenId)
-        external
-        view
-        returns (TokenLoanParamsWithOracle[] memory)
-    {
+    function lendingConditions(address _nftPair, uint256 tokenId) external view returns (TokenLoanParamsWithOracle[] memory) {
         if (_nftPair != address(nftPair)) {
             TokenLoanParamsWithOracle[] memory empty;
             return empty;
@@ -93,11 +72,6 @@ contract LendingClubMock {
     }
 
     function withdrawFunds(uint256 bentoShares) external {
-        nftPair.bentoBox().transfer(
-            nftPair.asset(),
-            address(this),
-            investor,
-            bentoShares
-        );
+        nftPair.bentoBox().transfer(nftPair.asset(), address(this), investor, bentoShares);
     }
 }

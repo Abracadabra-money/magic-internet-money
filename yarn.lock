@@ -3247,9 +3247,9 @@ borc@^3.0.0:
     json-text-sequence "~0.3.0"
     readable-stream "^3.6.0"
 
-boring-solidity-old@Abracadabra-money/BoringSolidityOld#5618a0c7b6aaec548f1244366f6b5d8b8a6b24ae:
+boring-solidity-old@Abracadabra-money/BoringSolidityOld#95b8b05ec6aaf5fb9c9ccd5960862b85f495d84a:
   version "1.2.4"
-  resolved "https://codeload.github.com/Abracadabra-money/BoringSolidityOld/tar.gz/5618a0c7b6aaec548f1244366f6b5d8b8a6b24ae"
+  resolved "https://codeload.github.com/Abracadabra-money/BoringSolidityOld/tar.gz/95b8b05ec6aaf5fb9c9ccd5960862b85f495d84a"
 
 bowser@^2.11.0:
   version "2.11.0"
