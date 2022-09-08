@@ -2,7 +2,7 @@
 
 pragma solidity >=0.6.12 <0.9.0;
 
-import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
+import "boring-solidity-old/contracts/libraries/BoringERC20.sol";
 import "./IBentoBoxV1Interface.sol";
 import "./IERC721.sol";
 import "./SignatureParams.sol";

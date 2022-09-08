@@ -2,8 +2,8 @@
 pragma solidity >=0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "@boringcrypto/boring-solidity/contracts/ERC20.sol";
-import "@boringcrypto/boring-solidity/contracts/libraries/Rebase.sol";
+import "boring-solidity-old/contracts/ERC20.sol";
+import "boring-solidity-old/contracts/libraries/Rebase.sol";
 interface IBentoBoxV1 {
     function toAmount(
         address _token,

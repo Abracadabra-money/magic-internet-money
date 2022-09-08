@@ -19,12 +19,12 @@
 
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
-import "@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol";
-import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
-import "@boringcrypto/boring-solidity/contracts/libraries/BoringRebase.sol";
-import "@boringcrypto/boring-solidity/contracts/Domain.sol";
-import "@boringcrypto/boring-solidity/contracts/interfaces/IMasterContract.sol";
-import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
+import "boring-solidity-old/contracts/libraries/BoringMath.sol";
+import "boring-solidity-old/contracts/BoringOwnable.sol";
+import "boring-solidity-old/contracts/libraries/BoringRebase.sol";
+import "boring-solidity-old/contracts/Domain.sol";
+import "boring-solidity-old/contracts/interfaces/IMasterContract.sol";
+import "boring-solidity-old/contracts/libraries/BoringERC20.sol";
 import "./interfaces/IBentoBoxV1Interface.sol";
 import "./interfaces/IERC721.sol";
 import "./interfaces/ILendingClub.sol";

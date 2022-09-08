@@ -2,8 +2,8 @@
 
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
-import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
-import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
+import "boring-solidity-old/contracts/libraries/BoringERC20.sol";
+import "boring-solidity-old/contracts/BoringOwnable.sol";
 import "../interfaces/INFTPair.sol";
 import "../interfaces/ILendingClub.sol";
 import "../interfaces/TokenLoanParams.sol";
