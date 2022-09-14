@@ -12,7 +12,7 @@ const endpoints = {
   "42161": "0x3c2269811836af69497E5F486A85D7316753cf62"
 }
 
-const mSpellSender = "0x90218033CE26B3d41c45795e903C7989817f0DD7"
+const mSpellSender = "0x1440ECdFc61386A64116E58326bc7D6074E80815"
 const allowedChainArray = [ "43114", "250", "42161"]
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, getChainId } = hre;

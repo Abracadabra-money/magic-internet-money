@@ -2,7 +2,7 @@
 pragma solidity 0.8.10;
 import "../libraries/BokkyPooBahsDateTimeLibrary.sol";
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
-
+import "../interfaces/IResolver.sol";
 interface ILayerZeroEndpoint {
     // @notice send a LayerZero message to the specified address at a LayerZero endpoint.
     // @param _dstChainId - the destination chain identifier
@@ -14,10 +14,10 @@ interface ILayerZeroEndpoint {
     function send(uint16 _dstChainId, bytes calldata _destination, bytes calldata _payload, address payable _refundAddress, address _zroPaymentAddress, bytes calldata _adapterParams) external payable;
 }
 
-contract mSpellReporter {
+contract mSpellReporter is IResolver{
     using SafeTransferLib for ERC20;
     ILayerZeroEndpoint private immutable endpoint;
-    uint16 private constant destChain = 1;
+    uint16 private constant destChain = 101;
     address private constant refund = 0xfddfE525054efaAD204600d00CA86ADb1Cc2ea8a;
     ERC20 public immutable SPELL;
     address public immutable mSpell;
@@ -52,6 +52,31 @@ contract mSpellReporter {
         require(success, "Failed to send Ether");
     }
 
+    function checker()
+        external
+        view
+        override
+        returns (bool canExec, bytes memory execPayload)
+    {
+        bool wasNotUpdated = BokkyPooBahsDateTimeLibrary.getDay(lastUpdated) < BokkyPooBahsDateTimeLibrary.getDay(block.timestamp) 
+        || BokkyPooBahsDateTimeLibrary.getMonth(lastUpdated) < BokkyPooBahsDateTimeLibrary.getMonth(block.timestamp) 
+        || BokkyPooBahsDateTimeLibrary.getYear(lastUpdated) < BokkyPooBahsDateTimeLibrary.getYear(block.timestamp);
+
+        uint256 weekDay = BokkyPooBahsDateTimeLibrary.getDayOfWeek(block.timestamp);
+        bool isRightDay = weekDay == 1 || weekDay == 3 || weekDay == 5;
+        bool isRightHour = block.timestamp / 1 hours % 24 == 12;
+
+        if (wasNotUpdated && isRightDay && isRightHour) {
+            execPayload = abi.encodeWithSelector(
+            mSpellReporter.sendAmount.selector
+            );
+            return (true, execPayload);
+        } else {
+            return (false, bytes("Not Right Conditions"));
+        }
+        
+    }
+
     function sendAmount () external onlyNoon {
         require(BokkyPooBahsDateTimeLibrary.getDay(lastUpdated) < BokkyPooBahsDateTimeLibrary.getDay(block.timestamp) 
         || BokkyPooBahsDateTimeLibrary.getMonth(lastUpdated) < BokkyPooBahsDateTimeLibrary.getMonth(block.timestamp) 
@@ -64,7 +89,7 @@ contract mSpellReporter {
 
         endpoint.send{value: address(this).balance} (
             destChain,
-            abi.encodePacked(mSpellSender),
+            abi.encodePacked(mSpellSender, address(this)),
             payload,
             payable(this),
             address(0),

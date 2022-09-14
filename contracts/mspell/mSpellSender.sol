@@ -5,6 +5,7 @@ import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 import "../libraries/BoringOwnable.sol";
 // Thank you Bokky
 import "../libraries/BokkyPooBahsDateTimeLibrary.sol";
+import "../interfaces/IResolver.sol";
 
 interface AnyswapRouter {
     function anySwapOutUnderlying(
@@ -40,15 +41,15 @@ interface IWithdrawer {
 interface IMSpell {
     function updateReward() external;
 }
-contract mSpellSender is BoringOwnable, ILayerZeroReceiver {
+contract mSpellSender is BoringOwnable, ILayerZeroReceiver, IResolver {
     using SafeTransferLib for ERC20;
 
     /// EVENTS
     event LogSetOperator(address indexed operator, bool status);
     event LogAddRecipient(address indexed recipient, uint256 chainId, uint256 chainIdLZ);
     event LogBridgeToRecipient(address indexed recipient, uint256 amount, uint256 chainId);
-    event LogSpellStakedReceived(uint16 srcChainId, address indexed fromAddress, uint32 timestamp, uint128 amount);
-    event LogSetReporter(uint256 chainIdLZ, address indexed reporter);
+    event LogSpellStakedReceived(uint16 srcChainId, uint32 timestamp, uint128 amount);
+    event LogSetReporter(uint256 indexed chainIdLZ, bytes reporter);
     event LogChangePurchaser(address _purchaser, address _treasury, uint _treasuryPercentage);
 
     /// CONSTANTS
@@ -80,8 +81,9 @@ contract mSpellSender is BoringOwnable, ILayerZeroReceiver {
 
     MSpellRecipients[] public recipients;
     mapping(uint256 => ActiveChain) public isActiveChain;
-    mapping(uint256 => address) public mSpellReporter;
+    mapping(uint256 => bytes) public mSpellReporter;
     mapping(address => bool) public isOperator;
+    uint256 private lastDistributed;
 
     error NotNoon();
     error NotPastNoon();
@@ -110,6 +112,35 @@ contract mSpellSender is BoringOwnable, ILayerZeroReceiver {
 
     constructor() {
         MIM.approve(address(ANYSWAP_ROUTER), type(uint256).max);
+    }
+
+    function checker()
+        external
+        view
+        override
+        returns (bool canExec, bytes memory execPayload)
+    {
+        uint256 currentDay = BokkyPooBahsDateTimeLibrary.getDay(block.timestamp);
+
+        if (block.timestamp / 1 hours % 24 != 13 && BokkyPooBahsDateTimeLibrary.getDay(lastDistributed) != currentDay) {
+            return (false, bytes("Not Right Hour"));
+        }
+
+        uint256 length = recipients.length;
+        for (uint256 i = 0; i < length; i++) {
+            if(recipients[i].chainId != 1) {
+                if(BokkyPooBahsDateTimeLibrary.getDay(uint256(recipients[i].lastUpdated)) != currentDay) {
+                    return (false, bytes("Not Updated"));
+                }
+            }
+        }
+
+        
+        execPayload = abi.encodeWithSelector(
+        mSpellSender.bridgeMim.selector
+        );
+        return (true, execPayload);
+        
     }
 
     function bridgeMim() external onlyPastNoon {
@@ -152,21 +183,19 @@ contract mSpellSender is BoringOwnable, ILayerZeroReceiver {
                 MIM.transfer(sspellBuyBack, amountsSpell);
             }
         }
+
+        lastDistributed = block.timestamp;
     }
 
     function lzReceive(uint16 _srcChainId, bytes memory _srcAddress, uint64, bytes calldata _payload) external onlyNoon {
         require(msg.sender == ENDPOINT);
         uint position = isActiveChain[uint256(_srcChainId)].position;
         MSpellRecipients storage recipient = recipients[position];
-        address fromAddress;
-        assembly {
-            fromAddress := mload(add(_srcAddress, 20))
-        }
-        require(fromAddress == mSpellReporter[uint256(_srcChainId)]);
+        require(_srcAddress.length == mSpellReporter[uint256(_srcChainId)].length && keccak256(_srcAddress) == keccak256(mSpellReporter[uint256(_srcChainId)]));
         (uint32 timestamp, uint128 amount) = abi.decode(_payload, (uint32, uint128));
         recipient.amountStaked = amount;
         recipient.lastUpdated = timestamp;
-        emit LogSpellStakedReceived(_srcChainId, fromAddress, timestamp, amount);
+        emit LogSpellStakedReceived(_srcChainId, timestamp, amount);
     }
 
     function addMSpellRecipient(address recipient, uint256 chainId, uint256 chainIdLZ) external onlyOwner {
@@ -182,7 +211,7 @@ contract mSpellSender is BoringOwnable, ILayerZeroReceiver {
         emit LogSetOperator(operator, status);
     }
 
-    function addReporter(address reporter, uint256 chainIdLZ) external onlyOwner {
+    function addReporter(bytes calldata reporter, uint256 chainIdLZ) external onlyOwner {
         mSpellReporter[chainIdLZ] = reporter;
         emit LogSetReporter(chainIdLZ, reporter);
     }
