@@ -83,7 +83,7 @@ contract mSpellSender is BoringOwnable, ILayerZeroReceiver, IResolver {
     mapping(uint256 => ActiveChain) public isActiveChain;
     mapping(uint256 => bytes) public mSpellReporter;
     mapping(address => bool) public isOperator;
-    uint256 private lastDistributed;
+    uint256 public lastDistributed;
 
     error NotNoon();
     error NotPastNoon();
@@ -122,7 +122,7 @@ contract mSpellSender is BoringOwnable, ILayerZeroReceiver, IResolver {
     {
         uint256 currentDay = BokkyPooBahsDateTimeLibrary.getDay(block.timestamp);
 
-        if (block.timestamp / 1 hours % 24 != 13 && BokkyPooBahsDateTimeLibrary.getDay(lastDistributed) != currentDay) {
+        if (block.timestamp / 1 hours % 24 != 13 || BokkyPooBahsDateTimeLibrary.getDay(lastDistributed) == currentDay) {
             return (false, bytes("Not Right Hour"));
         }
 
