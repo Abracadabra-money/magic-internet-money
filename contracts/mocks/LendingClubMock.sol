@@ -32,7 +32,11 @@ contract LendingClubMock is ILendingClub {
         if (msg.sender != address(nftPair)) {
             return false;
         }
-        TokenLoanParamsWithOracle memory accepted = _lendingConditions(tokenId)[0];
+        TokenLoanParamsWithOracle[] memory options = _lendingConditions(tokenId);
+        if (options.length == 0) {
+            return false;
+        }
+        TokenLoanParamsWithOracle memory accepted = options[0];
         // Valuation has to be an exact match, everything else must be at least
         // as good for the lender as `accepted`.
 

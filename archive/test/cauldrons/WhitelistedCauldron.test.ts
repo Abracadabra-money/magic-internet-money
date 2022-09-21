@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
 import hre, { ethers, network, deployments, getNamedAccounts } from "hardhat";
-import { advanceTime, ChainId, createMerkleTree, duration, getBigNumber, hashWhitelistNode, impersonate } from "../utilities";
+import { advanceTime, ChainId, createMerkleTree, duration, getBigNumber, getWhitelistNode, impersonate } from "../utilities";
 import {
   DegenBox,
   ERC20Mock,
@@ -163,8 +163,8 @@ describe("WhitelistedCauldronV3", async () => {
 
     await expect(borrow(Cauldron, carol, getBigNumber(55555, 6))).to.be.revertedWith("Whitelisted borrow exceeded");
 
-    const proof1Wrong: string[] = merkleTree.getHexProof(hashWhitelistNode(alice.address, getBigNumber("1233", 6).toString()));
-    const proof1Right: string[] = merkleTree.getHexProof(hashWhitelistNode(alice.address, getBigNumber("1337", 6).toString()));
+    const proof1Wrong: string[] = merkleTree.getHexProof(getWhitelistNode(alice.address, getBigNumber("1233", 6).toString()));
+    const proof1Right: string[] = merkleTree.getHexProof(getWhitelistNode(alice.address, getBigNumber("1337", 6).toString()));
 
     // should not be able to borrow before Whitelister's setMaxBorrow is called with the proof
     await expect(borrow(Cauldron, alice, getBigNumber(1337, 6))).to.be.revertedWith("Whitelisted borrow exceeded");
@@ -183,7 +183,7 @@ describe("WhitelistedCauldronV3", async () => {
     // should be able to borrow
     await expect(borrow(Cauldron, alice, getBigNumber(1337, 6))).to.not.be.reverted;
 
-    const proof2: string[] = merkleTree.getHexProof(hashWhitelistNode(bob.address, getBigNumber("7331", 6).toString()));
+    const proof2: string[] = merkleTree.getHexProof(getWhitelistNode(bob.address, getBigNumber("7331", 6).toString()));
     await expect(borrow(Cauldron, bob, getBigNumber(7331, 6))).to.be.revertedWith("Whitelisted borrow exceeded");
 
     // it's valid that a user can validate for another one

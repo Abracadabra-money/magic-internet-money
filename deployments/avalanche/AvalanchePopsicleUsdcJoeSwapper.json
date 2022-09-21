@@ -1,0 +1,307 @@
+{
+  "address": "0x08a47F1F14292b0655B70588C76b614f64074db4",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IBentoBoxV1Minimal",
+          "name": "_bentoBox",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IUniswapV2Router01",
+          "name": "_router",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IUniswapV2Pair",
+          "name": "_pair",
+          "type": "address"
+        },
+        {
+          "internalType": "contract ERC20",
+          "name": "_mim",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_zeroXExchangeProxy",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "ErrToken0SwapFailed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ErrToken1SwapFailed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "bentoBox",
+      "outputs": [
+        {
+          "internalType": "contract IBentoBoxV1Minimal",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "mim",
+      "outputs": [
+        {
+          "internalType": "contract ERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pair",
+      "outputs": [
+        {
+          "internalType": "contract IUniswapV2Pair",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "router",
+      "outputs": [
+        {
+          "internalType": "contract IUniswapV2Router01",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareToMin",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareFrom",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "swap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "extraShare",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shareReturned",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "swapExact",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "zeroXExchangeProxy",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x93330f68a646e17b685bdd495cb7cb1efdc9f81c3779fcea4733b3f8aa82c932",
+  "receipt": {
+    "to": null,
+    "from": "0xfB3485c2e209A5cfBDC1447674256578f1A80eE3",
+    "contractAddress": "0x08a47F1F14292b0655B70588C76b614f64074db4",
+    "transactionIndex": 3,
+    "gasUsed": "797236",
+    "logsBloom": "0x00000000000000000000000000000001000000040000000020000000040000000000000000000000004000000000000000000000000000000000020000200000000080000000002000000000800000040000000200000000000000000000020000000000000010000000000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000020000000000000000004000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000400000000000000000000000000",
+    "blockHash": "0x1dcd781f8fc7d645384f2854cde18a8f32d571b80ed59ec76f4761ab29ea57b5",
+    "transactionHash": "0x93330f68a646e17b685bdd495cb7cb1efdc9f81c3779fcea4733b3f8aa82c932",
+    "logs": [
+      {
+        "transactionIndex": 3,
+        "blockNumber": 16762398,
+        "transactionHash": "0x93330f68a646e17b685bdd495cb7cb1efdc9f81c3779fcea4733b3f8aa82c932",
+        "address": "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7",
+        "topics": [
+          "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+          "0x00000000000000000000000008a47f1f14292b0655b70588c76b614f64074db4",
+          "0x000000000000000000000000def1c0ded9bec7f1a1670819833240f027b25eff"
+        ],
+        "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "logIndex": 35,
+        "blockHash": "0x1dcd781f8fc7d645384f2854cde18a8f32d571b80ed59ec76f4761ab29ea57b5"
+      },
+      {
+        "transactionIndex": 3,
+        "blockNumber": 16762398,
+        "transactionHash": "0x93330f68a646e17b685bdd495cb7cb1efdc9f81c3779fcea4733b3f8aa82c932",
+        "address": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+        "topics": [
+          "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+          "0x00000000000000000000000008a47f1f14292b0655b70588c76b614f64074db4",
+          "0x000000000000000000000000def1c0ded9bec7f1a1670819833240f027b25eff"
+        ],
+        "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "logIndex": 36,
+        "blockHash": "0x1dcd781f8fc7d645384f2854cde18a8f32d571b80ed59ec76f4761ab29ea57b5"
+      },
+      {
+        "transactionIndex": 3,
+        "blockNumber": 16762398,
+        "transactionHash": "0x93330f68a646e17b685bdd495cb7cb1efdc9f81c3779fcea4733b3f8aa82c932",
+        "address": "0x130966628846BFd36ff31a822705796e8cb8C18D",
+        "topics": [
+          "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+          "0x00000000000000000000000008a47f1f14292b0655b70588c76b614f64074db4",
+          "0x000000000000000000000000d825d06061fdc0585e4373f0a3f01a8c02b0e6a4"
+        ],
+        "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "logIndex": 37,
+        "blockHash": "0x1dcd781f8fc7d645384f2854cde18a8f32d571b80ed59ec76f4761ab29ea57b5"
+      }
+    ],
+    "blockNumber": 16762398,
+    "cumulativeGasUsed": "2845022",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0xD825d06061fdc0585e4373F0A3F01a8C02b0e6A4",
+    "0x60aE616a2155Ee3d9A68541Ba4544862310933d4",
+    "0xf4003F4efBE8691B60249E6afbD307aBE7758adb",
+    "0x130966628846BFd36ff31a822705796e8cb8C18D",
+    "0xDef1C0ded9bec7F1a1670819833240f027b25EfF"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "13399da6a3fa025ace53173b726b30bd",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.10+commit.fc410830\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IBentoBoxV1Minimal\",\"name\":\"_bentoBox\",\"type\":\"address\"},{\"internalType\":\"contract IUniswapV2Router01\",\"name\":\"_router\",\"type\":\"address\"},{\"internalType\":\"contract IUniswapV2Pair\",\"name\":\"_pair\",\"type\":\"address\"},{\"internalType\":\"contract ERC20\",\"name\":\"_mim\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_zeroXExchangeProxy\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"ErrToken0SwapFailed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ErrToken1SwapFailed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"bentoBox\",\"outputs\":[{\"internalType\":\"contract IBentoBoxV1Minimal\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"mim\",\"outputs\":[{\"internalType\":\"contract ERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pair\",\"outputs\":[{\"internalType\":\"contract IUniswapV2Pair\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"router\",\"outputs\":[{\"internalType\":\"contract IUniswapV2Router01\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"shareToMin\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"shareFrom\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"swap\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"extraShare\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"shareReturned\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"swapExact\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"zeroXExchangeProxy\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"swap(address,address,address,uint256,uint256,bytes)\":{\"notice\":\"Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper. Swaps it for at least 'amountToMin' of token 'to'. Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer. Returns the amount of tokens 'to' transferred to BentoBox. (The BentoBox skim function will be used by the caller to get the swapped funds).\"},\"swapExact(address,address,address,address,uint256,uint256,bytes)\":{\"notice\":\"Calculates the amount of token 'from' needed to complete the swap (amountFrom), this should be less than or equal to amountFromMax. Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper. Swaps it for exactly 'exactAmountTo' of token 'to'. Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer. Transfers allocated, but unused 'from' tokens within the BentoBox to 'refundTo' (amountFromMax - amountFrom). Returns the amount of 'from' tokens withdrawn from BentoBox (amountFrom). (The BentoBox skim function will be used by the caller to get the swapped funds).\"}},\"notice\":\"Generic LP liquidation/deleverage swapper for Uniswap like compatible DEX using Matcha/0x aggregator\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/swappers/Liquidations/0x/ZeroXUniswapLikeLPSwapper.sol\":\"ZeroXUniswapLikeLPSwapper\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":690},\"remappings\":[]},\"sources\":{\"@rari-capital/solmate/src/tokens/ERC20.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0-only\\npragma solidity >=0.8.0;\\n\\n/// @notice Modern and gas efficient ERC20 + EIP-2612 implementation.\\n/// @author Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC20.sol)\\n/// @author Modified from Uniswap (https://github.com/Uniswap/uniswap-v2-core/blob/master/contracts/UniswapV2ERC20.sol)\\n/// @dev Do not manually set balances without updating totalSupply, as the sum of all user balances must not exceed it.\\nabstract contract ERC20 {\\n    /*///////////////////////////////////////////////////////////////\\n                                  EVENTS\\n    //////////////////////////////////////////////////////////////*/\\n\\n    event Transfer(address indexed from, address indexed to, uint256 amount);\\n\\n    event Approval(address indexed owner, address indexed spender, uint256 amount);\\n\\n    /*///////////////////////////////////////////////////////////////\\n                             METADATA STORAGE\\n    //////////////////////////////////////////////////////////////*/\\n\\n    string public name;\\n\\n    string public symbol;\\n\\n    uint8 public immutable decimals;\\n\\n    /*///////////////////////////////////////////////////////////////\\n                              ERC20 STORAGE\\n    //////////////////////////////////////////////////////////////*/\\n\\n    uint256 public totalSupply;\\n\\n    mapping(address => uint256) public balanceOf;\\n\\n    mapping(address => mapping(address => uint256)) public allowance;\\n\\n    /*///////////////////////////////////////////////////////////////\\n                             EIP-2612 STORAGE\\n    //////////////////////////////////////////////////////////////*/\\n\\n    bytes32 public constant PERMIT_TYPEHASH =\\n        keccak256(\\\"Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)\\\");\\n\\n    uint256 internal immutable INITIAL_CHAIN_ID;\\n\\n    bytes32 internal immutable INITIAL_DOMAIN_SEPARATOR;\\n\\n    mapping(address => uint256) public nonces;\\n\\n    /*///////////////////////////////////////////////////////////////\\n                               CONSTRUCTOR\\n    //////////////////////////////////////////////////////////////*/\\n\\n    constructor(\\n        string memory _name,\\n        string memory _symbol,\\n        uint8 _decimals\\n    ) {\\n        name = _name;\\n        symbol = _symbol;\\n        decimals = _decimals;\\n\\n        INITIAL_CHAIN_ID = block.chainid;\\n        INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();\\n    }\\n\\n    /*///////////////////////////////////////////////////////////////\\n                              ERC20 LOGIC\\n    //////////////////////////////////////////////////////////////*/\\n\\n    function approve(address spender, uint256 amount) public virtual returns (bool) {\\n        allowance[msg.sender][spender] = amount;\\n\\n        emit Approval(msg.sender, spender, amount);\\n\\n        return true;\\n    }\\n\\n    function transfer(address to, uint256 amount) public virtual returns (bool) {\\n        balanceOf[msg.sender] -= amount;\\n\\n        // Cannot overflow because the sum of all user\\n        // balances can't exceed the max uint256 value.\\n        unchecked {\\n            balanceOf[to] += amount;\\n        }\\n\\n        emit Transfer(msg.sender, to, amount);\\n\\n        return true;\\n    }\\n\\n    function transferFrom(\\n        address from,\\n        address to,\\n        uint256 amount\\n    ) public virtual returns (bool) {\\n        uint256 allowed = allowance[from][msg.sender]; // Saves gas for limited approvals.\\n\\n        if (allowed != type(uint256).max) allowance[from][msg.sender] = allowed - amount;\\n\\n        balanceOf[from] -= amount;\\n\\n        // Cannot overflow because the sum of all user\\n        // balances can't exceed the max uint256 value.\\n        unchecked {\\n            balanceOf[to] += amount;\\n        }\\n\\n        emit Transfer(from, to, amount);\\n\\n        return true;\\n    }\\n\\n    /*///////////////////////////////////////////////////////////////\\n                              EIP-2612 LOGIC\\n    //////////////////////////////////////////////////////////////*/\\n\\n    function permit(\\n        address owner,\\n        address spender,\\n        uint256 value,\\n        uint256 deadline,\\n        uint8 v,\\n        bytes32 r,\\n        bytes32 s\\n    ) public virtual {\\n        require(deadline >= block.timestamp, \\\"PERMIT_DEADLINE_EXPIRED\\\");\\n\\n        // Unchecked because the only math done is incrementing\\n        // the owner's nonce which cannot realistically overflow.\\n        unchecked {\\n            bytes32 digest = keccak256(\\n                abi.encodePacked(\\n                    \\\"\\\\x19\\\\x01\\\",\\n                    DOMAIN_SEPARATOR(),\\n                    keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, nonces[owner]++, deadline))\\n                )\\n            );\\n\\n            address recoveredAddress = ecrecover(digest, v, r, s);\\n\\n            require(recoveredAddress != address(0) && recoveredAddress == owner, \\\"INVALID_SIGNER\\\");\\n\\n            allowance[recoveredAddress][spender] = value;\\n        }\\n\\n        emit Approval(owner, spender, value);\\n    }\\n\\n    function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {\\n        return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : computeDomainSeparator();\\n    }\\n\\n    function computeDomainSeparator() internal view virtual returns (bytes32) {\\n        return\\n            keccak256(\\n                abi.encode(\\n                    keccak256(\\\"EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)\\\"),\\n                    keccak256(bytes(name)),\\n                    keccak256(\\\"1\\\"),\\n                    block.chainid,\\n                    address(this)\\n                )\\n            );\\n    }\\n\\n    /*///////////////////////////////////////////////////////////////\\n                       INTERNAL MINT/BURN LOGIC\\n    //////////////////////////////////////////////////////////////*/\\n\\n    function _mint(address to, uint256 amount) internal virtual {\\n        totalSupply += amount;\\n\\n        // Cannot overflow because the sum of all user\\n        // balances can't exceed the max uint256 value.\\n        unchecked {\\n            balanceOf[to] += amount;\\n        }\\n\\n        emit Transfer(address(0), to, amount);\\n    }\\n\\n    function _burn(address from, uint256 amount) internal virtual {\\n        balanceOf[from] -= amount;\\n\\n        // Cannot underflow because a user's balance\\n        // will never be larger than the total supply.\\n        unchecked {\\n            totalSupply -= amount;\\n        }\\n\\n        emit Transfer(from, address(0), amount);\\n    }\\n}\\n\",\"keccak256\":\"0x698cdbf614109fafc2bf00057b60715fa3aba9dad447c42f4f8b749ae16ce84f\",\"license\":\"AGPL-3.0-only\"},\"@rari-capital/solmate/src/utils/SafeTransferLib.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0-only\\npragma solidity >=0.8.0;\\n\\nimport {ERC20} from \\\"../tokens/ERC20.sol\\\";\\n\\n/// @notice Safe ETH and ERC20 transfer library that gracefully handles missing return values.\\n/// @author Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/SafeTransferLib.sol)\\n/// @author Modified from Gnosis (https://github.com/gnosis/gp-v2-contracts/blob/main/src/contracts/libraries/GPv2SafeERC20.sol)\\n/// @dev Use with caution! Some functions in this library knowingly create dirty bits at the destination of the free memory pointer.\\nlibrary SafeTransferLib {\\n    /*///////////////////////////////////////////////////////////////\\n                            ETH OPERATIONS\\n    //////////////////////////////////////////////////////////////*/\\n\\n    function safeTransferETH(address to, uint256 amount) internal {\\n        bool callStatus;\\n\\n        assembly {\\n            // Transfer the ETH and store if it succeeded or not.\\n            callStatus := call(gas(), to, amount, 0, 0, 0, 0)\\n        }\\n\\n        require(callStatus, \\\"ETH_TRANSFER_FAILED\\\");\\n    }\\n\\n    /*///////////////////////////////////////////////////////////////\\n                           ERC20 OPERATIONS\\n    //////////////////////////////////////////////////////////////*/\\n\\n    function safeTransferFrom(\\n        ERC20 token,\\n        address from,\\n        address to,\\n        uint256 amount\\n    ) internal {\\n        bool callStatus;\\n\\n        assembly {\\n            // Get a pointer to some free memory.\\n            let freeMemoryPointer := mload(0x40)\\n\\n            // Write the abi-encoded calldata to memory piece by piece:\\n            mstore(freeMemoryPointer, 0x23b872dd00000000000000000000000000000000000000000000000000000000) // Begin with the function selector.\\n            mstore(add(freeMemoryPointer, 4), and(from, 0xffffffffffffffffffffffffffffffffffffffff)) // Mask and append the \\\"from\\\" argument.\\n            mstore(add(freeMemoryPointer, 36), and(to, 0xffffffffffffffffffffffffffffffffffffffff)) // Mask and append the \\\"to\\\" argument.\\n            mstore(add(freeMemoryPointer, 68), amount) // Finally append the \\\"amount\\\" argument. No mask as it's a full 32 byte value.\\n\\n            // Call the token and store if it succeeded or not.\\n            // We use 100 because the calldata length is 4 + 32 * 3.\\n            callStatus := call(gas(), token, 0, freeMemoryPointer, 100, 0, 0)\\n        }\\n\\n        require(didLastOptionalReturnCallSucceed(callStatus), \\\"TRANSFER_FROM_FAILED\\\");\\n    }\\n\\n    function safeTransfer(\\n        ERC20 token,\\n        address to,\\n        uint256 amount\\n    ) internal {\\n        bool callStatus;\\n\\n        assembly {\\n            // Get a pointer to some free memory.\\n            let freeMemoryPointer := mload(0x40)\\n\\n            // Write the abi-encoded calldata to memory piece by piece:\\n            mstore(freeMemoryPointer, 0xa9059cbb00000000000000000000000000000000000000000000000000000000) // Begin with the function selector.\\n            mstore(add(freeMemoryPointer, 4), and(to, 0xffffffffffffffffffffffffffffffffffffffff)) // Mask and append the \\\"to\\\" argument.\\n            mstore(add(freeMemoryPointer, 36), amount) // Finally append the \\\"amount\\\" argument. No mask as it's a full 32 byte value.\\n\\n            // Call the token and store if it succeeded or not.\\n            // We use 68 because the calldata length is 4 + 32 * 2.\\n            callStatus := call(gas(), token, 0, freeMemoryPointer, 68, 0, 0)\\n        }\\n\\n        require(didLastOptionalReturnCallSucceed(callStatus), \\\"TRANSFER_FAILED\\\");\\n    }\\n\\n    function safeApprove(\\n        ERC20 token,\\n        address to,\\n        uint256 amount\\n    ) internal {\\n        bool callStatus;\\n\\n        assembly {\\n            // Get a pointer to some free memory.\\n            let freeMemoryPointer := mload(0x40)\\n\\n            // Write the abi-encoded calldata to memory piece by piece:\\n            mstore(freeMemoryPointer, 0x095ea7b300000000000000000000000000000000000000000000000000000000) // Begin with the function selector.\\n            mstore(add(freeMemoryPointer, 4), and(to, 0xffffffffffffffffffffffffffffffffffffffff)) // Mask and append the \\\"to\\\" argument.\\n            mstore(add(freeMemoryPointer, 36), amount) // Finally append the \\\"amount\\\" argument. No mask as it's a full 32 byte value.\\n\\n            // Call the token and store if it succeeded or not.\\n            // We use 68 because the calldata length is 4 + 32 * 2.\\n            callStatus := call(gas(), token, 0, freeMemoryPointer, 68, 0, 0)\\n        }\\n\\n        require(didLastOptionalReturnCallSucceed(callStatus), \\\"APPROVE_FAILED\\\");\\n    }\\n\\n    /*///////////////////////////////////////////////////////////////\\n                         INTERNAL HELPER LOGIC\\n    //////////////////////////////////////////////////////////////*/\\n\\n    function didLastOptionalReturnCallSucceed(bool callStatus) private pure returns (bool success) {\\n        assembly {\\n            // Get how many bytes the call returned.\\n            let returnDataSize := returndatasize()\\n\\n            // If the call reverted:\\n            if iszero(callStatus) {\\n                // Copy the revert message into memory.\\n                returndatacopy(0, 0, returnDataSize)\\n\\n                // Revert with the same message.\\n                revert(0, returnDataSize)\\n            }\\n\\n            switch returnDataSize\\n            case 32 {\\n                // Copy the return data into memory.\\n                returndatacopy(0, 0, returnDataSize)\\n\\n                // Set success to whether it returned true.\\n                success := iszero(iszero(mload(0)))\\n            }\\n            case 0 {\\n                // There was no return data.\\n                success := 1\\n            }\\n            default {\\n                // It returned some malformed input.\\n                success := 0\\n            }\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xcc39d0f5693925ea1e8c517f7cc24211a9899c83a57e62d806180cdb056b6b75\",\"license\":\"AGPL-3.0-only\"},\"@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol\":{\"content\":\"// SPDX-License-Identifier: GPL-3.0\\n\\npragma solidity >=0.5.0;\\n\\ninterface IUniswapV2Pair {\\n    event Approval(address indexed owner, address indexed spender, uint value);\\n    event Transfer(address indexed from, address indexed to, uint value);\\n\\n    function name() external pure returns (string memory);\\n    function symbol() external pure returns (string memory);\\n    function decimals() external pure returns (uint8);\\n    function totalSupply() external view returns (uint);\\n    function balanceOf(address owner) external view returns (uint);\\n    function allowance(address owner, address spender) external view returns (uint);\\n\\n    function approve(address spender, uint value) external returns (bool);\\n    function transfer(address to, uint value) external returns (bool);\\n    function transferFrom(address from, address to, uint value) external returns (bool);\\n\\n    function DOMAIN_SEPARATOR() external view returns (bytes32);\\n    function PERMIT_TYPEHASH() external pure returns (bytes32);\\n    function nonces(address owner) external view returns (uint);\\n\\n    function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;\\n\\n    event Mint(address indexed sender, uint amount0, uint amount1);\\n    event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);\\n    event Swap(\\n        address indexed sender,\\n        uint amount0In,\\n        uint amount1In,\\n        uint amount0Out,\\n        uint amount1Out,\\n        address indexed to\\n    );\\n    event Sync(uint112 reserve0, uint112 reserve1);\\n\\n    function MINIMUM_LIQUIDITY() external pure returns (uint);\\n    function factory() external view returns (address);\\n    function token0() external view returns (address);\\n    function token1() external view returns (address);\\n    function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);\\n    function price0CumulativeLast() external view returns (uint);\\n    function price1CumulativeLast() external view returns (uint);\\n    function kLast() external view returns (uint);\\n\\n    function mint(address to) external returns (uint liquidity);\\n    function burn(address to) external returns (uint amount0, uint amount1);\\n    function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external;\\n    function skim(address to) external;\\n    function sync() external;\\n\\n    function initialize(address, address) external;\\n}\",\"keccak256\":\"0x08f9a63b34855eec941be8d36a04424f1a1725a2c030373fcef3afeb480ca385\",\"license\":\"GPL-3.0\"},\"@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Router01.sol\":{\"content\":\"// SPDX-License-Identifier: GPL-3.0\\n\\npragma solidity >=0.6.2;\\n\\ninterface IUniswapV2Router01 {\\n    function factory() external pure returns (address);\\n    function WETH() external pure returns (address);\\n\\n    function addLiquidity(\\n        address tokenA,\\n        address tokenB,\\n        uint amountADesired,\\n        uint amountBDesired,\\n        uint amountAMin,\\n        uint amountBMin,\\n        address to,\\n        uint deadline\\n    ) external returns (uint amountA, uint amountB, uint liquidity);\\n    function addLiquidityETH(\\n        address token,\\n        uint amountTokenDesired,\\n        uint amountTokenMin,\\n        uint amountETHMin,\\n        address to,\\n        uint deadline\\n    ) external payable returns (uint amountToken, uint amountETH, uint liquidity);\\n    function removeLiquidity(\\n        address tokenA,\\n        address tokenB,\\n        uint liquidity,\\n        uint amountAMin,\\n        uint amountBMin,\\n        address to,\\n        uint deadline\\n    ) external returns (uint amountA, uint amountB);\\n    function removeLiquidityETH(\\n        address token,\\n        uint liquidity,\\n        uint amountTokenMin,\\n        uint amountETHMin,\\n        address to,\\n        uint deadline\\n    ) external returns (uint amountToken, uint amountETH);\\n    function removeLiquidityWithPermit(\\n        address tokenA,\\n        address tokenB,\\n        uint liquidity,\\n        uint amountAMin,\\n        uint amountBMin,\\n        address to,\\n        uint deadline,\\n        bool approveMax, uint8 v, bytes32 r, bytes32 s\\n    ) external returns (uint amountA, uint amountB);\\n    function removeLiquidityETHWithPermit(\\n        address token,\\n        uint liquidity,\\n        uint amountTokenMin,\\n        uint amountETHMin,\\n        address to,\\n        uint deadline,\\n        bool approveMax, uint8 v, bytes32 r, bytes32 s\\n    ) external returns (uint amountToken, uint amountETH);\\n    function swapExactTokensForTokens(\\n        uint amountIn,\\n        uint amountOutMin,\\n        address[] calldata path,\\n        address to,\\n        uint deadline\\n    ) external returns (uint[] memory amounts);\\n    function swapTokensForExactTokens(\\n        uint amountOut,\\n        uint amountInMax,\\n        address[] calldata path,\\n        address to,\\n        uint deadline\\n    ) external returns (uint[] memory amounts);\\n    function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)\\n        external\\n        payable\\n        returns (uint[] memory amounts);\\n    function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)\\n        external\\n        returns (uint[] memory amounts);\\n    function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)\\n        external\\n        returns (uint[] memory amounts);\\n    function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)\\n        external\\n        payable\\n        returns (uint[] memory amounts);\\n\\n    function quote(uint amountA, uint reserveA, uint reserveB) external pure returns (uint amountB);\\n    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) external pure returns (uint amountOut);\\n    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) external pure returns (uint amountIn);\\n    function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts);\\n    function getAmountsIn(uint amountOut, address[] calldata path) external view returns (uint[] memory amounts);\\n}\",\"keccak256\":\"0x12091adc186fe351c639dc62aa0b691f78c7bea054c27bbb4b58acd02e1b2ce7\",\"license\":\"GPL-3.0\"},\"contracts/interfaces/IBentoBoxV1Minimal.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface IBentoBoxV1Minimal {\\r\\n    function toAmount(\\r\\n        address _token,\\r\\n        uint256 _share,\\r\\n        bool _roundUp\\r\\n    ) external view returns (uint256);\\r\\n\\r\\n    function withdraw(\\r\\n        address token,\\r\\n        address from,\\r\\n        address to,\\r\\n        uint256 amount,\\r\\n        uint256 share\\r\\n    ) external returns (uint256, uint256);\\r\\n\\r\\n    function deposit(\\r\\n        address token,\\r\\n        address from,\\r\\n        address to,\\r\\n        uint256 amount,\\r\\n        uint256 share\\r\\n    ) external returns (uint256, uint256);\\r\\n\\r\\n    function deploy(\\r\\n        address masterContract,\\r\\n        bytes calldata data,\\r\\n        bool useCreate2\\r\\n    ) external payable returns (address cloneAddress);\\r\\n\\r\\n    function setMasterContractApproval(\\r\\n        address user,\\r\\n        address masterContract,\\r\\n        bool approved,\\r\\n        uint8 v,\\r\\n        bytes32 r,\\r\\n        bytes32 s\\r\\n    ) external;\\r\\n\\r\\n    function balanceOf(address, address) external view returns (uint256);\\r\\n\\r\\n    function totals(address) external view returns (uint128 elastic, uint128 base);\\r\\n\\r\\n    function flashLoan(\\r\\n        address borrower,\\r\\n        address receiver,\\r\\n        address token,\\r\\n        uint256 amount,\\r\\n        bytes calldata data\\r\\n    ) external;\\r\\n\\r\\n    function toShare(\\r\\n        address token,\\r\\n        uint256 amount,\\r\\n        bool roundUp\\r\\n    ) external view returns (uint256 share);\\r\\n}\",\"keccak256\":\"0x55a1fb58f49bbfd66add21b8796557d5c52bed842b778c3219ef503f51518c42\",\"license\":\"MIT\"},\"contracts/interfaces/ISwapperV2.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma experimental ABIEncoderV2;\\r\\npragma solidity >=0.6.12;\\r\\n\\r\\ninterface ISwapperV2 {\\r\\n    /// @notice Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper.\\r\\n    /// Swaps it for at least 'amountToMin' of token 'to'.\\r\\n    /// Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer.\\r\\n    /// Returns the amount of tokens 'to' transferred to BentoBox.\\r\\n    /// (The BentoBox skim function will be used by the caller to get the swapped funds).\\r\\n    function swap(\\r\\n        address fromToken,\\r\\n        address toToken,\\r\\n        address recipient,\\r\\n        uint256 shareToMin,\\r\\n        uint256 shareFrom,\\r\\n        bytes calldata data\\r\\n    ) external returns (uint256 extraShare, uint256 shareReturned);\\r\\n\\r\\n    /// @notice Calculates the amount of token 'from' needed to complete the swap (amountFrom),\\r\\n    /// this should be less than or equal to amountFromMax.\\r\\n    /// Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper.\\r\\n    /// Swaps it for exactly 'exactAmountTo' of token 'to'.\\r\\n    /// Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer.\\r\\n    /// Transfers allocated, but unused 'from' tokens within the BentoBox to 'refundTo' (amountFromMax - amountFrom).\\r\\n    /// Returns the amount of 'from' tokens withdrawn from BentoBox (amountFrom).\\r\\n    /// (The BentoBox skim function will be used by the caller to get the swapped funds).\\r\\n    function swapExact(\\r\\n        address fromToken,\\r\\n        address toToken,\\r\\n        address recipient,\\r\\n        address refundTo,\\r\\n        uint256 shareFromSupplied,\\r\\n        uint256 shareToExact,\\r\\n        bytes calldata data\\r\\n    ) external returns (uint256 shareUsed, uint256 shareReturned);\\r\\n}\\r\\n\",\"keccak256\":\"0x5cf1bf2c7d1b10ce3cc5072147b2dcbe6acdc19fced9cf06bcb60f0d8fd9dff3\",\"license\":\"MIT\"},\"contracts/swappers/Liquidations/0x/ZeroXUniswapLikeLPSwapper.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\n// solhint-disable avoid-low-level-calls\\r\\npragma solidity 0.8.10;\\r\\n\\r\\nimport \\\"@rari-capital/solmate/src/tokens/ERC20.sol\\\";\\r\\nimport \\\"@rari-capital/solmate/src/utils/SafeTransferLib.sol\\\";\\r\\n\\r\\nimport \\\"@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol\\\";\\r\\nimport \\\"@sushiswap/core/contracts/uniswapv2/interfaces/IUniswapV2Router01.sol\\\";\\r\\n\\r\\nimport \\\"../../../interfaces/IBentoBoxV1Minimal.sol\\\";\\r\\nimport \\\"../../../interfaces/ISwapperV2.sol\\\";\\r\\n\\r\\n/// @notice Generic LP liquidation/deleverage swapper for Uniswap like compatible DEX using Matcha/0x aggregator\\r\\ncontract ZeroXUniswapLikeLPSwapper is ISwapperV2 {\\r\\n    using SafeTransferLib for ERC20;\\r\\n\\r\\n    error ErrToken0SwapFailed();\\r\\n    error ErrToken1SwapFailed();\\r\\n\\r\\n    IBentoBoxV1Minimal public immutable bentoBox;\\r\\n    IUniswapV2Pair public immutable pair;\\r\\n    IUniswapV2Router01 public immutable router;\\r\\n    ERC20 public immutable mim;\\r\\n\\r\\n    address public immutable zeroXExchangeProxy;\\r\\n\\r\\n    constructor(\\r\\n        IBentoBoxV1Minimal _bentoBox,\\r\\n        IUniswapV2Router01 _router,\\r\\n        IUniswapV2Pair _pair,\\r\\n        ERC20 _mim,\\r\\n        address _zeroXExchangeProxy\\r\\n    ) {\\r\\n        bentoBox = _bentoBox;\\r\\n        router = _router;\\r\\n        pair = _pair;\\r\\n        mim = _mim;\\r\\n        zeroXExchangeProxy = _zeroXExchangeProxy;\\r\\n\\r\\n        ERC20(_pair.token0()).safeApprove(_zeroXExchangeProxy, type(uint256).max);\\r\\n        ERC20(_pair.token1()).safeApprove(_zeroXExchangeProxy, type(uint256).max);\\r\\n\\r\\n        _mim.approve(address(_bentoBox), type(uint256).max);\\r\\n    }\\r\\n\\r\\n    /// @inheritdoc ISwapperV2\\r\\n    function swap(\\r\\n        address,\\r\\n        address,\\r\\n        address recipient,\\r\\n        uint256 shareToMin,\\r\\n        uint256 shareFrom,\\r\\n        bytes calldata data\\r\\n    ) public override returns (uint256 extraShare, uint256 shareReturned) {\\r\\n        // 0: token0 -> MIM\\r\\n        // 1: token1 -> MIM\\r\\n        bytes[] memory swapData = abi.decode(data, (bytes[]));\\r\\n\\r\\n        (uint256 amountFrom, ) = bentoBox.withdraw(address(pair), address(this), address(this), 0, shareFrom);\\r\\n\\r\\n        pair.transfer(address(pair), amountFrom);\\r\\n        pair.burn(address(this));\\r\\n\\r\\n        // token0 -> MIM\\r\\n        (bool success, ) = zeroXExchangeProxy.call(swapData[0]);\\r\\n        if (!success) {\\r\\n            revert ErrToken0SwapFailed();\\r\\n        }\\r\\n\\r\\n        // token1 -> MIM\\r\\n        (success, ) = zeroXExchangeProxy.call(swapData[1]);\\r\\n        if (!success) {\\r\\n            revert ErrToken1SwapFailed();\\r\\n        }\\r\\n\\r\\n        (, shareReturned) = bentoBox.deposit(address(mim), address(this), recipient, mim.balanceOf(address(this)), 0);\\r\\n        extraShare = shareReturned - shareToMin;\\r\\n    }\\r\\n\\r\\n    /// @inheritdoc ISwapperV2\\r\\n    function swapExact(\\r\\n        address,\\r\\n        address,\\r\\n        address,\\r\\n        address,\\r\\n        uint256,\\r\\n        uint256,\\r\\n        bytes calldata\\r\\n    ) external pure override returns (uint256, uint256) {\\r\\n        return (0, 0);\\r\\n    }\\r\\n}\\r\\n\",\"keccak256\":\"0xb02c3c06782f2bda70f8688c28afd1fc5349c891354a58354d98ae893e4ddc0a\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x6101206040523480156200001257600080fd5b5060405162000f4038038062000f4083398101604081905262000035916200029e565b6001600160a01b0380861660805284811660c05283811660a081905283821660e0529082166101005260408051630dfe168160e01b81529051620000e992849260001992630dfe1681916004808201926020929091908290030181865afa158015620000a5573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190620000cb91906200031e565b6001600160a01b0316620001b360201b6200068c179092919060201c565b6200013081600019856001600160a01b031663d21220a76040518163ffffffff1660e01b8152600401602060405180830381865afa158015620000a5573d6000803e3d6000fd5b60405163095ea7b360e01b81526001600160a01b038681166004830152600019602483015283169063095ea7b3906044016020604051808303816000875af115801562000181573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190620001a7919062000345565b50505050505062000369565b600060405163095ea7b360e01b81526001600160a01b03841660048201528260248201526000806044836000895af19150620001f190508162000239565b620002335760405162461bcd60e51b815260206004820152600e60248201526d1054141493d59157d1905253115160921b604482015260640160405180910390fd5b50505050565b60003d826200024c57806000803e806000fd5b8060208114620002675780156200027957600092506200027e565b816000803e600051151592506200027e565b600192505b5050919050565b6001600160a01b03811681146200029b57600080fd5b50565b600080600080600060a08688031215620002b757600080fd5b8551620002c48162000285565b6020870151909550620002d78162000285565b6040870151909450620002ea8162000285565b6060870151909350620002fd8162000285565b6080870151909250620003108162000285565b809150509295509295909350565b6000602082840312156200033157600080fd5b81516200033e8162000285565b9392505050565b6000602082840312156200035857600080fd5b815180151581146200033e57600080fd5b60805160a05160c05160e05161010051610b5d620003e36000396000818160cb015281816103a8015261045e01526000818160f2015261055d01526000610186015260008181610141015281816101cf01528181610293015261032e01526000818160870152818161021701526105330152610b5d6000f3fe608060405234801561001057600080fd5b506004361061007d5760003560e01c8063a5d4096b1161005b578063a5d4096b14610114578063a8aa1b311461013c578063c507ffc114610163578063f887ea401461018157600080fd5b80636b2ace87146100825780639997c7f1146100c65780639f67679e146100ed575b600080fd5b6100a97f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b0390911681526020015b60405180910390f35b6100a97f000000000000000000000000000000000000000000000000000000000000000081565b6100a97f000000000000000000000000000000000000000000000000000000000000000081565b6101276101223660046107c9565b6101a8565b604080519283526020830191909152016100bd565b6100a97f000000000000000000000000000000000000000000000000000000000000000081565b610127610171366004610852565b6000809850989650505050505050565b6100a97f000000000000000000000000000000000000000000000000000000000000000081565b600080806101b884860186610932565b60405163097da6d360e41b81526001600160a01b037f00000000000000000000000000000000000000000000000000000000000000008116600483015230602483018190526044830152600060648301819052608483018a90529293507f000000000000000000000000000000000000000000000000000000000000000016906397da6d309060a40160408051808303816000875af115801561025f573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906102839190610a4b565b5060405163a9059cbb60e01b81527f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316600482018190526024820183905291925063a9059cbb906044016020604051808303816000875af11580156102f4573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103189190610a6f565b5060405163226bf2d160e21b81523060048201527f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316906389afcb449060240160408051808303816000875af115801561037e573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103a29190610a4b565b505060007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316836000815181106103e3576103e3610a98565b60200260200101516040516103f89190610aae565b6000604051808303816000865af19150503d8060008114610435576040519150601f19603f3d011682016040523d82523d6000602084013e61043a565b606091505b505090508061045c5760405163c4a632a560e01b815260040160405180910390fd5b7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168360018151811061049957610499610a98565b60200260200101516040516104ae9190610aae565b6000604051808303816000865af19150503d80600081146104eb576040519150601f19603f3d011682016040523d82523d6000602084013e6104f0565b606091505b50508091505080610514576040516326bfc13160e11b815260040160405180910390fd5b6040516370a0823160e01b815230600482018190526001600160a01b037f00000000000000000000000000000000000000000000000000000000000000008116926302b9446c927f00000000000000000000000000000000000000000000000000000000000000009290918f918416906370a0823190602401602060405180830381865afa1580156105aa573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105ce9190610ae9565b6040517fffffffff0000000000000000000000000000000000000000000000000000000060e087901b1681526001600160a01b03948516600482015292841660248401529216604482015260648101919091526000608482015260a40160408051808303816000875af1158015610649573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061066d9190610a4b565b945061067b90508985610b02565b945050505097509795505050505050565b600060405163095ea7b360e01b81526001600160a01b03841660048201528260248201526000806044836000895af19150506106c78161071d565b6107175760405162461bcd60e51b815260206004820152600e60248201527f415050524f56455f4641494c4544000000000000000000000000000000000000604482015260640160405180910390fd5b50505050565b60003d8261072f57806000803e806000fd5b8060208114610747578015610758576000925061075d565b816000803e6000511515925061075d565b600192505b5050919050565b80356001600160a01b038116811461077b57600080fd5b919050565b60008083601f84011261079257600080fd5b50813567ffffffffffffffff8111156107aa57600080fd5b6020830191508360208285010111156107c257600080fd5b9250929050565b600080600080600080600060c0888a0312156107e457600080fd5b6107ed88610764565b96506107fb60208901610764565b955061080960408901610764565b9450606088013593506080880135925060a088013567ffffffffffffffff81111561083357600080fd5b61083f8a828b01610780565b989b979a50959850939692959293505050565b60008060008060008060008060e0898b03121561086e57600080fd5b61087789610764565b975061088560208a01610764565b965061089360408a01610764565b95506108a160608a01610764565b94506080890135935060a0890135925060c089013567ffffffffffffffff8111156108cb57600080fd5b6108d78b828c01610780565b999c989b5096995094979396929594505050565b634e487b7160e01b600052604160045260246000fd5b604051601f8201601f1916810167ffffffffffffffff8111828210171561092a5761092a6108eb565b604052919050565b6000602080838503121561094557600080fd5b823567ffffffffffffffff8082111561095d57600080fd5b8185019150601f868184011261097257600080fd5b823582811115610984576109846108eb565b8060051b610993868201610901565b918252848101860191868101908a8411156109ad57600080fd5b87870192505b83831015610a3d578235868111156109cb5760008081fd5b8701603f81018c136109dd5760008081fd5b888101356040888211156109f3576109f36108eb565b610a04828901601f19168c01610901565b8281528e82848601011115610a195760008081fd5b828285018d83013760009281018c01929092525083525091870191908701906109b3565b9a9950505050505050505050565b60008060408385031215610a5e57600080fd5b505080516020909101519092909150565b600060208284031215610a8157600080fd5b81518015158114610a9157600080fd5b9392505050565b634e487b7160e01b600052603260045260246000fd5b6000825160005b81811015610acf5760208186018101518583015201610ab5565b81811115610ade576000828501525b509190910192915050565b600060208284031215610afb57600080fd5b5051919050565b600082821015610b2257634e487b7160e01b600052601160045260246000fd5b50039056fea2646970667358221220129591afb36af2d0698079cf4b8a8954363b74ff961a6824bb6f4c9d14b0e69a64736f6c634300080a0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061007d5760003560e01c8063a5d4096b1161005b578063a5d4096b14610114578063a8aa1b311461013c578063c507ffc114610163578063f887ea401461018157600080fd5b80636b2ace87146100825780639997c7f1146100c65780639f67679e146100ed575b600080fd5b6100a97f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b0390911681526020015b60405180910390f35b6100a97f000000000000000000000000000000000000000000000000000000000000000081565b6100a97f000000000000000000000000000000000000000000000000000000000000000081565b6101276101223660046107c9565b6101a8565b604080519283526020830191909152016100bd565b6100a97f000000000000000000000000000000000000000000000000000000000000000081565b610127610171366004610852565b6000809850989650505050505050565b6100a97f000000000000000000000000000000000000000000000000000000000000000081565b600080806101b884860186610932565b60405163097da6d360e41b81526001600160a01b037f00000000000000000000000000000000000000000000000000000000000000008116600483015230602483018190526044830152600060648301819052608483018a90529293507f000000000000000000000000000000000000000000000000000000000000000016906397da6d309060a40160408051808303816000875af115801561025f573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906102839190610a4b565b5060405163a9059cbb60e01b81527f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316600482018190526024820183905291925063a9059cbb906044016020604051808303816000875af11580156102f4573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103189190610a6f565b5060405163226bf2d160e21b81523060048201527f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316906389afcb449060240160408051808303816000875af115801561037e573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103a29190610a4b565b505060007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316836000815181106103e3576103e3610a98565b60200260200101516040516103f89190610aae565b6000604051808303816000865af19150503d8060008114610435576040519150601f19603f3d011682016040523d82523d6000602084013e61043a565b606091505b505090508061045c5760405163c4a632a560e01b815260040160405180910390fd5b7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168360018151811061049957610499610a98565b60200260200101516040516104ae9190610aae565b6000604051808303816000865af19150503d80600081146104eb576040519150601f19603f3d011682016040523d82523d6000602084013e6104f0565b606091505b50508091505080610514576040516326bfc13160e11b815260040160405180910390fd5b6040516370a0823160e01b815230600482018190526001600160a01b037f00000000000000000000000000000000000000000000000000000000000000008116926302b9446c927f00000000000000000000000000000000000000000000000000000000000000009290918f918416906370a0823190602401602060405180830381865afa1580156105aa573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105ce9190610ae9565b6040517fffffffff0000000000000000000000000000000000000000000000000000000060e087901b1681526001600160a01b03948516600482015292841660248401529216604482015260648101919091526000608482015260a40160408051808303816000875af1158015610649573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061066d9190610a4b565b945061067b90508985610b02565b945050505097509795505050505050565b600060405163095ea7b360e01b81526001600160a01b03841660048201528260248201526000806044836000895af19150506106c78161071d565b6107175760405162461bcd60e51b815260206004820152600e60248201527f415050524f56455f4641494c4544000000000000000000000000000000000000604482015260640160405180910390fd5b50505050565b60003d8261072f57806000803e806000fd5b8060208114610747578015610758576000925061075d565b816000803e6000511515925061075d565b600192505b5050919050565b80356001600160a01b038116811461077b57600080fd5b919050565b60008083601f84011261079257600080fd5b50813567ffffffffffffffff8111156107aa57600080fd5b6020830191508360208285010111156107c257600080fd5b9250929050565b600080600080600080600060c0888a0312156107e457600080fd5b6107ed88610764565b96506107fb60208901610764565b955061080960408901610764565b9450606088013593506080880135925060a088013567ffffffffffffffff81111561083357600080fd5b61083f8a828b01610780565b989b979a50959850939692959293505050565b60008060008060008060008060e0898b03121561086e57600080fd5b61087789610764565b975061088560208a01610764565b965061089360408a01610764565b95506108a160608a01610764565b94506080890135935060a0890135925060c089013567ffffffffffffffff8111156108cb57600080fd5b6108d78b828c01610780565b999c989b5096995094979396929594505050565b634e487b7160e01b600052604160045260246000fd5b604051601f8201601f1916810167ffffffffffffffff8111828210171561092a5761092a6108eb565b604052919050565b6000602080838503121561094557600080fd5b823567ffffffffffffffff8082111561095d57600080fd5b8185019150601f868184011261097257600080fd5b823582811115610984576109846108eb565b8060051b610993868201610901565b918252848101860191868101908a8411156109ad57600080fd5b87870192505b83831015610a3d578235868111156109cb5760008081fd5b8701603f81018c136109dd5760008081fd5b888101356040888211156109f3576109f36108eb565b610a04828901601f19168c01610901565b8281528e82848601011115610a195760008081fd5b828285018d83013760009281018c01929092525083525091870191908701906109b3565b9a9950505050505050505050565b60008060408385031215610a5e57600080fd5b505080516020909101519092909150565b600060208284031215610a8157600080fd5b81518015158114610a9157600080fd5b9392505050565b634e487b7160e01b600052603260045260246000fd5b6000825160005b81811015610acf5760208186018101518583015201610ab5565b81811115610ade576000828501525b509190910192915050565b600060208284031215610afb57600080fd5b5051919050565b600082821015610b2257634e487b7160e01b600052601160045260246000fd5b50039056fea2646970667358221220129591afb36af2d0698079cf4b8a8954363b74ff961a6824bb6f4c9d14b0e69a64736f6c634300080a0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "swap(address,address,address,uint256,uint256,bytes)": {
+        "notice": "Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper. Swaps it for at least 'amountToMin' of token 'to'. Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer. Returns the amount of tokens 'to' transferred to BentoBox. (The BentoBox skim function will be used by the caller to get the swapped funds)."
+      },
+      "swapExact(address,address,address,address,uint256,uint256,bytes)": {
+        "notice": "Calculates the amount of token 'from' needed to complete the swap (amountFrom), this should be less than or equal to amountFromMax. Withdraws 'amountFrom' of token 'from' from the BentoBox account for this swapper. Swaps it for exactly 'exactAmountTo' of token 'to'. Transfers the swapped tokens of 'to' into the BentoBox using a plain ERC20 transfer. Transfers allocated, but unused 'from' tokens within the BentoBox to 'refundTo' (amountFromMax - amountFrom). Returns the amount of 'from' tokens withdrawn from BentoBox (amountFrom). (The BentoBox skim function will be used by the caller to get the swapped funds)."
+      }
+    },
+    "notice": "Generic LP liquidation/deleverage swapper for Uniswap like compatible DEX using Matcha/0x aggregator",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
