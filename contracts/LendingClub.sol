@@ -107,9 +107,13 @@ contract LendingClubWETH is BoringOwnable, ILendingClub {
     function liquidateAndRelist(
         ISeaport.Order[] calldata orders,
         bool liquidate,
-        uint256 tokenId
+        uint256 tokenId,
+        uint256 maxFee
     ) external onlyOps {
         (uint256 fee, ) = IOps(ops).getFeeDetails();
+        if (maxFee != 0) {
+            require(fee <= maxFee, "Fee too high");
+        }
 
         if (liquidate) {
             nftPair.removeCollateral(tokenId, address(this));
