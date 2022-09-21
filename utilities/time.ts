@@ -28,6 +28,14 @@ export async function advanceTime(time) {
   await advanceBlock()
 }
 
+// Does not mine any blocks, and wall clock time has no effect.
+export async function advanceNextTime(offset) {
+  const { timestamp } = await ethers.provider.getBlock("latest")
+  const next = timestamp + offset
+  await ethers.provider.send("evm_setNextBlockTimestamp", [next])
+  return next
+}
+
 export const duration = {
   seconds: function (val) {
     return BigNumber.from(val)

@@ -262,4 +262,5 @@ export async function deployUniswapLikeZeroExSwappers(
 }
 
 export * from "./time";
+export * from "./math";
 export * from "./whitelistedMerkle";
