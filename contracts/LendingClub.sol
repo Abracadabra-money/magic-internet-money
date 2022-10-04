@@ -64,6 +64,8 @@ contract LendingClubWETH is BoringOwnable, ILendingClub {
         nftPair.bentoBox().setMasterContractApproval(address(this), address(nftPair.masterContract()), true, 0, bytes32(0), bytes32(0));
     }
 
+    // We can assume that if we answer "yes", the loan will proceed. (If it
+    // does not, then it is reverted, and any recordings we make along with it)
     function willLend(
         uint256 tokenId,
         uint128 valuation,
