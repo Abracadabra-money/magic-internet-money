@@ -239,6 +239,20 @@
 | ----------------------------------- | ------------------------------------------ | ---- |
 | DegenBox                            | 0xe56F37Ef2e54ECaA41a9675da1c3445736d60B42 |      |
 | CauldronV2MultiChain MasterContract | 0x9031c0Fd5bD1405132028A3e0eb277C705B3d8f7 |      |
+| NFTPair MasterContract              | 0x4eeBeF03193099825F329A0F7615E69A10a5462A |      |
+| NFTPairWithOracle MasterContract    | 0x32134A95E94489CeED70Df48F0cB89C0115F9C01 |      |
+
+### NFT Pairs
+
+Original: "Female Crofessors":
+
+| Contract                            | Address                                    | Note |
+| ----------------------------------- | ------------------------------------------ | ---- |
+| **NFT: Female Crofessors**          | 0x6e01680531192aa46c7F4936201F55Da2c31dd44 |      |
+| FemaleCrofessorWMaticPair           | 0x48F8D61f68f950AD4BB7aafD4126B0B824D0f8c0 |      |
+| FemaleCrofessorWMaticPairWithOracle | 0x7C94AA94b35d762741d75Ceb8AeA463cE16ae9f9 |      |
+
+
 
 ## Arbitrum
 
