@@ -22,9 +22,11 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const degenDeploy = async (name, masterAddress, initData) => {
     try {
       await deployments.get(name);
+      console.log("Degenbox: already found", name);
       return;
     } catch {}
-    const deployTx = await degenBox.deploy(masterAddress, initData, true).then((tx) => tx.wait());
+    console.log("Degenbox: trying to deploy", name);
+    const deployTx = await degenBox.deploy(masterAddress, initData, false).then((tx) => tx.wait());
     for (const e of deployTx.events || []) {
       if (e.eventSignature == "LogDeploy(address,bytes,address)") {
         const address = e.args!.cloneAddress;
@@ -39,11 +41,11 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     throw new Error("Failed to either find or execute deployment");
   };
 
-  await degenDeploy("FemaleCrofessorWMaticPair", NFT_PAIR, ethers.utils.defaultAbiCoder.encode(["address", "address"], [WMATIC, CROFESSORS]));
+  await degenDeploy("FemaleCrofessorWMaticPair", NFT_PAIR, ethers.utils.defaultAbiCoder.encode(["address", "address"], [CROFESSORS, WMATIC]));
   await degenDeploy(
     "FemaleCrofessorWMaticPairWithOracle",
     NFT_PAIR_WITH_ORACLE,
-    ethers.utils.defaultAbiCoder.encode(["address", "address"], [WMATIC, CROFESSORS])
+    ethers.utils.defaultAbiCoder.encode(["address", "address"], [CROFESSORS, WMATIC])
   );
 };
 

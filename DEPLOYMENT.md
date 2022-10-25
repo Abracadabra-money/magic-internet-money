@@ -244,13 +244,11 @@
 
 ### NFT Pairs
 
-Original: "Female Crofessors":
-
 | Contract                            | Address                                    | Note |
 | ----------------------------------- | ------------------------------------------ | ---- |
 | **NFT: Female Crofessors**          | 0x6e01680531192aa46c7F4936201F55Da2c31dd44 |      |
-| FemaleCrofessorWMaticPair           | 0x48F8D61f68f950AD4BB7aafD4126B0B824D0f8c0 |      |
-| FemaleCrofessorWMaticPairWithOracle | 0x7C94AA94b35d762741d75Ceb8AeA463cE16ae9f9 |      |
+| FemaleCrofessorWMaticPair           | 0x0930C8295f0c5ee8463928be5C970BDFB3D2c5D5 |      |
+| FemaleCrofessorWMaticPairWithOracle | 0x56FEc86890b715751fB91cF574Fff910c62031CB |      |
 
 
 
