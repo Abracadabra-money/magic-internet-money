@@ -87,7 +87,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     for (const e of deployTx.events || []) {
       if (e.eventSignature == "LogDeploy(address,bytes,address)") {
         const address = e.args!.cloneAddress;
-        console.log('BentoBox deployment:', name, 'at', address);
+        console.log("BentoBox deployment:", name, "at", address);
         await deployments.save(name, {
           abi: [],
           address,
@@ -98,7 +98,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     throw new Error("Failed to either find or execute deployment");
   };
   const deployPairs = async (prefix, collateral, asset) => {
-    const name = (prefix + "NFTPairMock");
+    const name = prefix + "NFTPairMock";
     const nameWithOracle = name + "WithOracle";
     const oracleName = prefix + "NFTOracleMock";
 
