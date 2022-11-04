@@ -1,17 +1,16 @@
-const DEGENBOX = "0xe56F37Ef2e54ECaA41a9675da1c3445736d60B42";
-const NFT_PAIR_WITH_ORACLE = "0x32134A95E94489CeED70Df48F0cB89C0115F9C01";
-const WMATIC = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
-const CROFESSORS = "0x6e01680531192aa46c7F4936201F55Da2c31dd44";
-
-// WARNING: There was a bug in this contract! If you use this as a base for
-//          further deployments, find the right address and remove this comment
-const NFT_PAIR = "0x4eeBeF03193099825F329A0F7615E69A10a5462A";
-
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, network } from "hardhat";
 import { ChainId } from "../utilities";
 import { DegenBox } from "../typechain";
+
+const DEGENBOX = "0xe56F37Ef2e54ECaA41a9675da1c3445736d60B42";
+const WMATIC = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
+const CROFESSORS = "0x6e01680531192aa46c7F4936201F55Da2c31dd44";
+
+// This is a fix to the master contract and the one pair we had deployed at
+// the time. If you reuse this as a template, take out the master contract
+// deployment and replace it with a hardcoded address.
 
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
@@ -19,7 +18,18 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   const { deployer } = await getNamedAccounts();
 
+  // Master contract
+  const nftPair = await deploy("NFTPairV2", {
+    contract: "NFTPair",
+    from: deployer,
+    args: [DEGENBOX],
+    log: true,
+    deterministicDeployment: false,
+  });
   const degenBox = await ethers.getContractAt<DegenBox>("DegenBox", DEGENBOX);
+
+  // TODO: Do this as the Degenbox owner:
+  // await degenBox.whitelistMasterContract(nftPair.address, true);
 
   // Pairs - deployed by the DegenBox:
   const degenDeploy = async (name, masterAddress, initData) => {
@@ -44,10 +54,9 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     throw new Error("Failed to either find or execute deployment");
   };
 
-  await degenDeploy("FemaleCrofessorWMaticPair", NFT_PAIR, ethers.utils.defaultAbiCoder.encode(["address", "address"], [CROFESSORS, WMATIC]));
   await degenDeploy(
-    "FemaleCrofessorWMaticPairWithOracle",
-    NFT_PAIR_WITH_ORACLE,
+    "FemaleCrofessorWMaticPairV2",
+    nftPair.address,
     ethers.utils.defaultAbiCoder.encode(["address", "address"], [CROFESSORS, WMATIC])
   );
 };
@@ -67,5 +76,5 @@ if (network.name !== "hardhat" || process.env.HARDHAT_LOCAL_NODE) {
     });
 }
 
-deployFunction.tags = ["NFTraderFemaleCrofessor"];
+deployFunction.tags = ["NFTPairContractsV2"];
 deployFunction.dependencies = [];
