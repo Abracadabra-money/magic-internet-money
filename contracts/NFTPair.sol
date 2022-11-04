@@ -525,6 +525,11 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         _requireCollateral(borrower, tokenId, false);
     }
 
+    // Invalidates all outstanding signatures for msg.sender
+    function incrementBatchId() external {
+        currentBatchIds[msg.sender] += 1;
+    }
+
     // Approximates continuous compounding. Uses Horner's method to evaluate
     // the truncated Maclaurin series for exp - 1, accumulating rounding
     // errors along the way. The following is always guaranteed:
