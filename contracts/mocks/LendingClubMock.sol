@@ -2,12 +2,13 @@
 
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
-import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
+import "boring-solidity-old/contracts/libraries/BoringERC20.sol";
+import {INFTOracle} from "../interfaces/INFTOracle.sol";
 import "../interfaces/INFTPair.sol";
-import "../interfaces/TokenLoanParamsWithOracle.sol";
+import "../interfaces/ILendingClub.sol";
 
 // Minimal implementation to set up some tests.
-contract LendingClubMock {
+contract LendingClubMock is ILendingClub {
     INFTPair private immutable nftPair;
     address private immutable investor;
 
@@ -26,8 +27,8 @@ contract LendingClubMock {
         uint64 duration,
         uint16 annualInterestBPS,
         uint16 _ltvBPS,
-        address _oracle
-    ) external view returns (bool) {
+        INFTOracle _oracle
+    ) external override returns (bool) {
         if (msg.sender != address(nftPair)) {
             return false;
         }
@@ -62,7 +63,7 @@ contract LendingClubMock {
         }
     }
 
-    function lendingConditions(address _nftPair, uint256 tokenId) external view returns (TokenLoanParamsWithOracle[] memory) {
+    function lendingConditions(address _nftPair, uint256 tokenId) external view override returns (TokenLoanParamsWithOracle[] memory) {
         if (_nftPair != address(nftPair)) {
             TokenLoanParamsWithOracle[] memory empty;
             return empty;

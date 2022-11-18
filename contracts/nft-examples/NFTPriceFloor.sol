@@ -2,8 +2,8 @@
 
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
-import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
-import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
+import "boring-solidity-old/contracts/libraries/BoringERC20.sol";
+import "boring-solidity-old/contracts/BoringOwnable.sol";
 import "../interfaces/INFTPair.sol";
 import "../interfaces/ILendingClub.sol";
 import "../interfaces/TokenLoanParams.sol";
@@ -30,8 +30,8 @@ contract NFTPriceFloor is BoringOwnable, ILendingClub {
         uint64 duration,
         uint16 annualInterestBPS,
         uint16 _ltvBPS,
-        address oracle
-    ) external view override returns (bool) {
+        INFTOracle oracle
+    ) external override returns (bool) {
         if (msg.sender != address(pair)) {
             return false;
         }
@@ -45,7 +45,7 @@ contract NFTPriceFloor is BoringOwnable, ILendingClub {
         if (annualInterestBPS < params.annualInterestBPS) {
             return false;
         }
-        if (oracle != address(0)) {
+        if (oracle != INFTOracle(address(0))) {
             return false;
         }
         // (If we don't have the funds, just let the transaction revert)

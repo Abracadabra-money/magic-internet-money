@@ -12,10 +12,19 @@ const hashUtf8String = (s: string) => keccak256(toUtf8Bytes(s));
 
 const zeroSign = (deadline) => ({ r: HashZero, s: HashZero, v: 0, deadline });
 
-const paramsArray = (params: ILoanParams) => [params.valuation, params.duration, params.annualInterestBPS];
+const paramsArray = (params: ILoanParams) => [params.valuation, params.duration, params.annualInterestBPS, params.ltvBPS, params.oracle];
 
 import { BigRational, advanceNextTime, duration, encodeParameters, expApprox, getBigNumber, impersonate } from "../utilities";
-import { BentoBoxMock, ERC20Mock, ERC721Mock, LendingClubMock, NFTMarketMock, NFTBuyerSellerMock, WETH9Mock, NFTPair } from "../typechain";
+import {
+  BentoBoxMock,
+  ERC20Mock,
+  ERC721Mock,
+  LendingClubMock,
+  NFTMarketMock,
+  NFTBuyerSellerMock,
+  WETH9Mock,
+  NFTPairWithOracle,
+} from "../typechain";
 import { describeSnapshot } from "./helpers";
 
 const LoanStatus = {
@@ -63,11 +72,8 @@ interface ILoanParams {
   valuation: BigNumber;
   duration: number;
   annualInterestBPS: number;
-}
-interface IPartialLoanParams {
-  valuation?: BigNumber;
-  duration?: number;
-  annualInterestBPS?: number;
+  ltvBPS: number;
+  oracle: string;
 }
 
 interface ISignature {
@@ -84,13 +90,13 @@ const YEAR = 365 * DAY;
 const nextYear = Math.floor(new Date().getTime() / 1000) + YEAR;
 const nextDecade = Math.floor(new Date().getTime() / 1000) + YEAR * 10;
 
-describe("NFT Pair", async () => {
+describe("NFT Pair With Oracle", async () => {
   let chainId: BigNumberish;
   let apes: ERC721Mock;
   let guineas: ERC20Mock;
   let weth: WETH9Mock;
   let bentoBox: BentoBoxMock;
-  let masterContract: NFTPair;
+  let masterContract: NFTPairWithOracle;
   let deployer: SignerWithAddress;
   let alice: SignerWithAddress;
   let bob: SignerWithAddress;
@@ -120,18 +126,20 @@ describe("NFT Pair", async () => {
       .then((tx) => tx.wait());
     for (const e of deployTx.events || []) {
       if (e.eventSignature == "LogDeploy(address,bytes,address)") {
-        return ethers.getContractAt<NFTPair>("NFTPair", e.args?.cloneAddress);
+        return ethers.getContractAt<NFTPairWithOracle>("NFTPairWithOracle", e.args?.cloneAddress);
       }
     }
     throw new Error("Deploy event not found"); // (For the typechecker..)
   };
 
-  const addToken = (pool, tokenId, params: IPartialLoanParams) =>
+  const addToken = (pool, tokenId, params: Partial<ILoanParams>) =>
     pool.connect(alice).updateLoanParams(tokenId, {
       valuation: 0,
       duration: YEAR,
       openFeeBPS: 1000,
       annualInterestBPS: 2000,
+      ltvBPS: 6000,
+      oracle: AddressZero,
       ...params,
     });
 
@@ -143,7 +151,7 @@ describe("NFT Pair", async () => {
   };
   const mintApe = (ownerAddress) => mintToken(apes, ownerAddress);
 
-  const signLendRequest = async (pair, wallet, { tokenId, anyTokenId, valuation, duration, annualInterestBPS, deadline }) => {
+  const signLendRequest = async (pair, wallet, { tokenId, anyTokenId, valuation, duration, annualInterestBPS, ltvBPS, oracle, deadline }) => {
     const sigTypes = [
       { name: "contract", type: "address" },
       { name: "tokenId", type: "uint256" },
@@ -151,6 +159,8 @@ describe("NFT Pair", async () => {
       { name: "valuation", type: "uint128" },
       { name: "duration", type: "uint64" },
       { name: "annualInterestBPS", type: "uint16" },
+      { name: "ltvBPS", type: "uint16" },
+      { name: "oracle", type: "address" },
       { name: "batchId", type: "uint256" },
       { name: "deadline", type: "uint256" },
     ];
@@ -161,6 +171,8 @@ describe("NFT Pair", async () => {
       valuation,
       duration,
       annualInterestBPS,
+      ltvBPS,
+      oracle,
       batchId: 0,
       deadline,
     };
@@ -175,13 +187,15 @@ describe("NFT Pair", async () => {
     return { deadline, ...splitSignature(sig) };
   };
 
-  const signBorrowRequest = async (pair, wallet, { tokenId, valuation, duration, annualInterestBPS, deadline }) => {
+  const signBorrowRequest = async (pair, wallet, { tokenId, valuation, duration, annualInterestBPS, ltvBPS, oracle, deadline }) => {
     const sigTypes = [
       { name: "contract", type: "address" },
       { name: "tokenId", type: "uint256" },
       { name: "valuation", type: "uint128" },
       { name: "duration", type: "uint64" },
       { name: "annualInterestBPS", type: "uint16" },
+      { name: "ltvBPS", type: "uint16" },
+      { name: "oracle", type: "address" },
       { name: "batchId", type: "uint256" },
       { name: "deadline", type: "uint256" },
     ];
@@ -196,6 +210,8 @@ describe("NFT Pair", async () => {
       valuation,
       duration,
       annualInterestBPS,
+      ltvBPS,
+      oracle,
       batchId: 0,
       deadline,
     };
@@ -232,7 +248,7 @@ describe("NFT Pair", async () => {
     await weth.deposit({ value: getBigNumber(1) });
 
     bentoBox = await deployContract("BentoBoxMock", weth.address);
-    masterContract = await deployContract("NFTPair", bentoBox.address);
+    masterContract = await deployContract("NFTPairWithOracle", bentoBox.address);
     await bentoBox.whitelistMasterContract(masterContract.address, true);
     apes = await deployContract("ERC721Mock");
     guineas = await deployContract("ERC20Mock", MaxUint256);
@@ -275,7 +291,7 @@ describe("NFT Pair", async () => {
   });
 
   describeSnapshot("Deployment", () => {
-    let pool: NFTPair;
+    let pool: NFTPairWithOracle;
 
     before(async () => {
       pool = await deployPair();
@@ -299,7 +315,7 @@ describe("NFT Pair", async () => {
 
   describeSnapshot("Request Loan", () => {
     let tomorrow: number;
-    let pair: NFTPair;
+    let pair: NFTPairWithOracle;
 
     before(async () => {
       tomorrow = Math.floor(new Date().getTime() / 1000) + 86400;
@@ -316,6 +332,8 @@ describe("NFT Pair", async () => {
         valuation: getBigNumber(10),
         duration: DAY,
         annualInterestBPS: 2000,
+        ltvBPS: 6000,
+        oracle: AddressZero,
       };
       await expect(pair.connect(alice).requestLoan(apeIds.aliceOne, params, alice.address, false))
         .to.emit(apes, "Transfer")
@@ -332,6 +350,8 @@ describe("NFT Pair", async () => {
         valuation: getBigNumber(10),
         duration: DAY,
         annualInterestBPS: 2000,
+        ltvBPS: 6000,
+        oracle: AddressZero,
       };
       await apes.connect(alice).transferFrom(alice.address, pair.address, apeIds.aliceOne);
       await expect(pair.connect(alice).requestLoan(apeIds.aliceOne, params, alice.address, true)).to.emit(pair, "LogRequestLoan");
@@ -342,6 +362,8 @@ describe("NFT Pair", async () => {
         valuation: getBigNumber(10),
         duration: DAY,
         annualInterestBPS: 2000,
+        ltvBPS: 6000,
+        oracle: AddressZero,
       };
       await expect(pair.connect(alice).requestLoan(apeIds.aliceOne, params, alice.address, true)).to.be.revertedWith("NFTPair: skim failed");
     });
@@ -351,6 +373,8 @@ describe("NFT Pair", async () => {
         valuation: getBigNumber(10),
         duration: DAY,
         annualInterestBPS: 2000,
+        ltvBPS: 6000,
+        oracle: AddressZero,
       };
       await expect(pair.connect(alice).requestLoan(apeIds.aliceOne, params, alice.address, false)).to.emit(pair, "LogRequestLoan");
       await expect(pair.connect(bob).requestLoan(apeIds.aliceOne, params, bob.address, true)).to.be.revertedWith("NFTPair: loan exists");
@@ -361,6 +385,8 @@ describe("NFT Pair", async () => {
         valuation: getBigNumber(10),
         duration: DAY,
         annualInterestBPS: 2000,
+        ltvBPS: 6000,
+        oracle: AddressZero,
       };
       await expect(pair.connect(alice).requestLoan(apeIds.bobOne, params, alice.address, false)).to.be.revertedWith("From not owner");
     });
@@ -369,7 +395,7 @@ describe("NFT Pair", async () => {
   describeSnapshot("Lend", async () => {
     let tomorrow: number;
     let params1: ILoanParams;
-    let pair: NFTPair;
+    let pair: NFTPairWithOracle;
 
     before(async () => {
       pair = await deployPair();
@@ -383,6 +409,8 @@ describe("NFT Pair", async () => {
         valuation: getBigNumber(1000),
         duration: DAY,
         annualInterestBPS: 2000,
+        ltvBPS: 6000,
+        oracle: AddressZero,
       };
 
       await pair.connect(alice).requestLoan(apeIds.aliceOne, params1, alice.address, false);
@@ -509,7 +537,7 @@ describe("NFT Pair", async () => {
   describeSnapshot("Update Loan Params", () => {
     let tomorrow: number;
     let params1: ILoanParams;
-    let pair: NFTPair;
+    let pair: NFTPairWithOracle;
 
     before(async () => {
       pair = await deployPair();
@@ -523,6 +551,8 @@ describe("NFT Pair", async () => {
         valuation: getBigNumber(1000),
         duration: DAY,
         annualInterestBPS: 2000,
+        ltvBPS: 6000,
+        oracle: AddressZero,
       };
 
       await pair.connect(alice).requestLoan(apeIds.aliceOne, params1, alice.address, false);
@@ -612,10 +642,12 @@ describe("NFT Pair", async () => {
   });
 
   describeSnapshot("Remove Collateral", () => {
-    let pair: NFTPair;
+    let pair: NFTPairWithOracle;
     const params: ILoanParams = {
       valuation: getBigNumber(123),
       annualInterestBPS: 10_000,
+      ltvBPS: 6000,
+      oracle: AddressZero,
       duration: DAY,
     };
     let startTime: number;
@@ -643,6 +675,7 @@ describe("NFT Pair", async () => {
     });
 
     it("Should not allow others to remove unused collateral", async () => {
+      // Zero oracle
       await expect(pair.connect(bob).removeCollateral(apeIds.aliceTwo, alice.address)).to.be.revertedWith("NFTPair: not the borrower");
     });
 
@@ -670,10 +703,21 @@ describe("NFT Pair", async () => {
         .withArgs(pair.address, bob.address, apeIds.aliceOne);
     });
 
-    it("Should not allow lenders to seize collateral otherwise", async () => {
+    it("Should not allow lenders to seize collateral early without oracle", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [startTime + params.duration]);
-      await expect(pair.connect(bob).removeCollateral(apeIds.aliceOne, bob.address)).to.be.revertedWith("NFTPair: not expired");
+      // (Reverts for calling a non-contract account)
+      await expect(pair.connect(bob).removeCollateral(apeIds.aliceOne, bob.address)).to.be.reverted;
     });
+
+    // TODO: Move to separate section with an oracle set up
+    // it("Should not allow lenders to seize collateral otherwise", async () => {
+    //   await ethers.provider.send("evm_setNextBlockTimestamp", [
+    //     startTime + params.duration,
+    //   ]);
+    //   await expect(
+    //     pair.connect(bob).removeCollateral(apeIds.aliceOne, bob.address)
+    //   ).to.be.revertedWith("NFTPair: not expired");
+    // });
 
     it("Should not allow others to seize collateral ever", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [startTime + params.duration]);
@@ -692,12 +736,14 @@ describe("NFT Pair", async () => {
   });
 
   describeSnapshot("Repay", () => {
-    let pair: NFTPair;
+    let pair: NFTPairWithOracle;
     let startTime: number;
 
     const params: ILoanParams = {
       valuation: getBigNumber(1),
       annualInterestBPS: 10_000,
+      ltvBPS: 6000,
+      oracle: AddressZero,
       duration: YEAR,
     };
     const valuationShare = params.valuation.mul(9).div(20);
@@ -1000,6 +1046,8 @@ describe("NFT Pair", async () => {
       const large: ILoanParams = {
         valuation: getBigNumber(1_000_000_000),
         annualInterestBPS: 65_535,
+        ltvBPS: 6000,
+        oracle: AddressZero,
         duration: 2 * fiveYears,
       };
 
@@ -1141,7 +1189,7 @@ describe("NFT Pair", async () => {
   });
 
   describeSnapshot("Signed Lend/Borrow", () => {
-    let pair: NFTPair;
+    let pair: NFTPairWithOracle;
     let DOMAIN_SEPARATOR: string;
     let BORROW_SIGNATURE_HASH: string;
     let LEND_SIGNATURE_HASH: string;
@@ -1173,6 +1221,8 @@ describe("NFT Pair", async () => {
         const valuation = getBigNumber(100);
         const duration = 365 * 24 * 3600;
         const annualInterestBPS = 15000;
+        const ltvBPS = 6000;
+        const oracle = AddressZero;
         const deadline = timestamp + 3600;
 
         const sigParams = await signLendRequest(pair, bob, {
@@ -1181,6 +1231,8 @@ describe("NFT Pair", async () => {
           valuation,
           duration,
           annualInterestBPS,
+          ltvBPS,
+          oracle,
           deadline,
         });
 
@@ -1188,7 +1240,15 @@ describe("NFT Pair", async () => {
         await expect(
           pair
             .connect(carol)
-            .requestAndBorrow(apeIds.carolOne, bob.address, carol.address, { valuation, duration, annualInterestBPS }, false, false, sigParams)
+            .requestAndBorrow(
+              apeIds.carolOne,
+              bob.address,
+              carol.address,
+              { valuation, duration, annualInterestBPS, ltvBPS, oracle },
+              false,
+              false,
+              sigParams
+            )
         ).to.emit(pair, "LogLend");
       });
 
@@ -1200,6 +1260,8 @@ describe("NFT Pair", async () => {
         const valuation = getBigNumber(100);
         const duration = 365 * 24 * 3600;
         const annualInterestBPS = 15000;
+        const ltvBPS = 6000;
+        const oracle = AddressZero;
         const deadline = timestamp + 3600;
 
         const sigParams = await signLendRequest(pair, bob, {
@@ -1208,6 +1270,8 @@ describe("NFT Pair", async () => {
           valuation,
           duration,
           annualInterestBPS,
+          ltvBPS,
+          oracle,
           deadline,
         });
 
@@ -1215,7 +1279,15 @@ describe("NFT Pair", async () => {
         await expect(
           pair
             .connect(carol)
-            .requestAndBorrow(apeIds.carolOne, bob.address, carol.address, { valuation, duration, annualInterestBPS }, false, true, sigParams)
+            .requestAndBorrow(
+              apeIds.carolOne,
+              bob.address,
+              carol.address,
+              { valuation, duration, annualInterestBPS, ltvBPS, oracle },
+              false,
+              true,
+              sigParams
+            )
         ).to.emit(pair, "LogLend");
       });
 
@@ -1224,6 +1296,8 @@ describe("NFT Pair", async () => {
         const valuation = getBigNumber(100);
         const duration = 365 * 24 * 3600;
         const annualInterestBPS = 15000;
+        const ltvBPS = 6000;
+        const oracle = AddressZero;
         const deadline = timestamp + 3600;
 
         const sigParams = await signLendRequest(pair, bob, {
@@ -1232,10 +1306,18 @@ describe("NFT Pair", async () => {
           valuation,
           duration,
           annualInterestBPS,
+          ltvBPS,
+          oracle,
           deadline,
         });
 
-        const loanParams = { valuation, duration, annualInterestBPS };
+        const loanParams = {
+          valuation,
+          duration,
+          annualInterestBPS,
+          ltvBPS,
+          oracle,
+        };
         // Carol tries to take the loan, but fails because oneo of the
         // parameters is different. This pretty much only tests that we do the
         // signature check at all, and it feels a bit silly to check every
@@ -1244,7 +1326,7 @@ describe("NFT Pair", async () => {
         // (Similarly, we could check the token ID, contract, token contracts,
         // etc, but we don't, because we know we are hashing those.)
         for (const [key, value] of Object.entries(loanParams)) {
-          const altered = BigNumber.from(value).add(1);
+          const altered = key == "oracle" ? alice.address : BigNumber.from(value).add(1);
           const badLoanParams = { ...loanParams, [key]: altered };
           await expect(
             pair.connect(carol).requestAndBorrow(apeIds.carolOne, bob.address, carol.address, badLoanParams, false, false, sigParams)
@@ -1257,6 +1339,8 @@ describe("NFT Pair", async () => {
         const valuation = getBigNumber(100);
         const duration = 365 * 24 * 3600;
         const annualInterestBPS = 15000;
+        const ltvBPS = 6000;
+        const oracle = AddressZero;
         const deadline = timestamp + 3600;
 
         const sigParams = await signLendRequest(pair, bob, {
@@ -1265,10 +1349,18 @@ describe("NFT Pair", async () => {
           valuation,
           duration,
           annualInterestBPS,
+          ltvBPS,
+          oracle,
           deadline,
         });
 
-        const loanParams = { valuation, duration, annualInterestBPS };
+        const loanParams = {
+          valuation,
+          duration,
+          annualInterestBPS,
+          ltvBPS,
+          oracle,
+        };
         // Carol tries to take the loan from Alice instead and fails:
         await expect(
           pair.connect(carol).requestAndBorrow(apeIds.carolOne, alice.address, carol.address, loanParams, false, false, sigParams)
@@ -1280,6 +1372,8 @@ describe("NFT Pair", async () => {
         const valuation = getBigNumber(100);
         const duration = 365 * 24 * 3600;
         const annualInterestBPS = 15000;
+        const ltvBPS = 6000;
+        const oracle = AddressZero;
         const deadline = timestamp + 3600;
 
         const sigParams = await signLendRequest(pair, bob, {
@@ -1288,10 +1382,18 @@ describe("NFT Pair", async () => {
           valuation,
           duration,
           annualInterestBPS,
+          ltvBPS,
+          oracle,
           deadline,
         });
 
-        const loanParams = { valuation, duration, annualInterestBPS };
+        const loanParams = {
+          valuation,
+          duration,
+          annualInterestBPS,
+          ltvBPS,
+          oracle,
+        };
         const successParams = [apeIds.carolOne, bob.address, carol.address, loanParams, false, false, sigParams] as const;
 
         // Request fails because the deadline has expired:
@@ -1304,6 +1406,8 @@ describe("NFT Pair", async () => {
         const valuation = getBigNumber(100);
         const duration = 365 * 24 * 3600;
         const annualInterestBPS = 15000;
+        const ltvBPS = 6000;
+        const oracle = AddressZero;
         const deadline = timestamp + 3600;
 
         const sigParams = await signLendRequest(pair, bob, {
@@ -1312,10 +1416,18 @@ describe("NFT Pair", async () => {
           valuation,
           duration,
           annualInterestBPS,
+          ltvBPS,
+          oracle,
           deadline,
         });
 
-        const loanParams = { valuation, duration, annualInterestBPS };
+        const loanParams = {
+          valuation,
+          duration,
+          annualInterestBPS,
+          ltvBPS,
+          oracle,
+        };
         const successParams = [apeIds.carolOne, bob.address, carol.address, loanParams, false, false, sigParams] as const;
 
         // It works the first time:
@@ -1328,6 +1440,50 @@ describe("NFT Pair", async () => {
         // Bob has not changed the batch ID (revoking all signatures), so it
         // works again a second time:
         await expect(pair.connect(carol).requestAndBorrow(...successParams)).to.emit(pair, "LogLend");
+      });
+
+      it("Should allow signers to revoke signatures", async () => {
+        const { timestamp } = await ethers.provider.getBlock("latest");
+        const valuation = getBigNumber(100);
+        const duration = 365 * 24 * 3600;
+        const annualInterestBPS = 15000;
+        const ltvBPS = 6000;
+        const oracle = AddressZero;
+        const deadline = timestamp + 3600;
+
+        const sigParams = await signLendRequest(pair, bob, {
+          tokenId: apeIds.carolOne,
+          anyTokenId: false,
+          valuation,
+          duration,
+          annualInterestBPS,
+          ltvBPS,
+          oracle,
+          deadline,
+        });
+
+        const loanParams = {
+          valuation,
+          duration,
+          annualInterestBPS,
+          ltvBPS,
+          oracle,
+        };
+        const successParams = [apeIds.carolOne, bob.address, carol.address, loanParams, false, false, sigParams] as const;
+
+        // It works the first time:
+        await expect(pair.connect(carol).requestAndBorrow(...successParams)).to.emit(pair, "LogLend");
+
+        // Carol repays the loan to get the token back:
+        await expect(pair.connect(carol).repay(apeIds.carolOne, 0, carol.address, false)).to.emit(pair, "LogRepay");
+        expect(await apes.ownerOf(apeIds.carolOne)).to.equal(carol.address);
+
+        // Bob increments his batch ID, which renders all signatures with the
+        // previous batch ID invalid
+        await pair.connect(bob).incrementBatchId();
+
+        // Consequentially, Carol cannot use the signature anymore:
+        await expect(pair.connect(carol).requestAndBorrow(...successParams)).to.be.revertedWith("NFTPair: signature invalid");
       });
     });
 
@@ -1346,6 +1502,8 @@ describe("NFT Pair", async () => {
         const valuation = getBigNumber(100);
         const duration = 365 * 24 * 3600;
         const annualInterestBPS = 15000;
+        const ltvBPS = 6000;
+        const oracle = AddressZero;
         const deadline = timestamp + 3600;
 
         const sigParams = await signBorrowRequest(pair, bob, {
@@ -1353,12 +1511,16 @@ describe("NFT Pair", async () => {
           valuation,
           duration,
           annualInterestBPS,
+          ltvBPS,
+          oracle,
           deadline,
         });
 
         // Alice takes the loan:
         await expect(
-          pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, { valuation, duration, annualInterestBPS }, false, sigParams)
+          pair
+            .connect(alice)
+            .takeCollateralAndLend(apeIds.bobTwo, bob.address, { valuation, duration, annualInterestBPS, ltvBPS, oracle }, false, sigParams)
         ).to.emit(pair, "LogLend");
       });
 
@@ -1367,6 +1529,8 @@ describe("NFT Pair", async () => {
         const valuation = getBigNumber(100);
         const duration = 365 * 24 * 3600;
         const annualInterestBPS = 15000;
+        const ltvBPS = 6000;
+        const oracle = AddressZero;
         const deadline = timestamp + 3600;
 
         const sigParams = await signBorrowRequest(pair, bob, {
@@ -1374,12 +1538,20 @@ describe("NFT Pair", async () => {
           valuation,
           duration,
           annualInterestBPS,
+          ltvBPS,
+          oracle,
           deadline,
         });
 
-        const loanParams = { valuation, duration, annualInterestBPS };
+        const loanParams = {
+          valuation,
+          duration,
+          annualInterestBPS,
+          ltvBPS,
+          oracle,
+        };
         for (const [key, value] of Object.entries(loanParams)) {
-          const altered = BigNumber.from(value).add(1);
+          const altered = key == "oracle" ? carol.address : BigNumber.from(value).add(1);
           const badLoanParams = { ...loanParams, [key]: altered };
           await expect(
             pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, badLoanParams, false, sigParams)
@@ -1392,6 +1564,8 @@ describe("NFT Pair", async () => {
         const valuation = getBigNumber(100);
         const duration = 365 * 24 * 3600;
         const annualInterestBPS = 15000;
+        const ltvBPS = 6000;
+        const oracle = AddressZero;
         const deadline = timestamp + 3600;
 
         const sigParams = await signBorrowRequest(pair, bob, {
@@ -1399,10 +1573,18 @@ describe("NFT Pair", async () => {
           valuation,
           duration,
           annualInterestBPS,
+          ltvBPS,
+          oracle,
           deadline,
         });
 
-        const loanParams = { valuation, duration, annualInterestBPS };
+        const loanParams = {
+          valuation,
+          duration,
+          annualInterestBPS,
+          ltvBPS,
+          oracle,
+        };
         // Alice tries to lend to Carol instead and fails:
         await expect(pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, carol.address, loanParams, false, sigParams)).to.be.revertedWith(
           "NFTPair: signature invalid"
@@ -1414,6 +1596,8 @@ describe("NFT Pair", async () => {
         const valuation = getBigNumber(100);
         const duration = 365 * 24 * 3600;
         const annualInterestBPS = 15000;
+        const ltvBPS = 6000;
+        const oracle = AddressZero;
         const deadline = timestamp + 3600;
 
         const sigParams = await signBorrowRequest(pair, bob, {
@@ -1421,10 +1605,18 @@ describe("NFT Pair", async () => {
           valuation,
           duration,
           annualInterestBPS,
+          ltvBPS,
+          oracle,
           deadline,
         });
 
-        const loanParams = { valuation, duration, annualInterestBPS };
+        const loanParams = {
+          valuation,
+          duration,
+          annualInterestBPS,
+          ltvBPS,
+          oracle,
+        };
 
         await advanceNextTime(3601);
         await expect(pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, loanParams, false, sigParams)).to.be.revertedWith(
@@ -1432,11 +1624,13 @@ describe("NFT Pair", async () => {
         );
       });
 
-      it("Should not accept the same signature twice", async () => {
+      it("Should allow signature reuse unless revoked by signer", async () => {
         const { timestamp } = await ethers.provider.getBlock("latest");
         const valuation = getBigNumber(100);
         const duration = 365 * 24 * 3600;
         const annualInterestBPS = 15000;
+        const ltvBPS = 6000;
+        const oracle = AddressZero;
         const deadline = timestamp + 3600;
 
         const sigParams = await signBorrowRequest(pair, bob, {
@@ -1444,10 +1638,18 @@ describe("NFT Pair", async () => {
           valuation,
           duration,
           annualInterestBPS,
+          ltvBPS,
+          oracle,
           deadline,
         });
 
-        const loanParams = { valuation, duration, annualInterestBPS };
+        const loanParams = {
+          valuation,
+          duration,
+          annualInterestBPS,
+          ltvBPS,
+          oracle,
+        };
 
         await expect(pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, loanParams, false, sigParams)).to.emit(
           pair,
@@ -1470,6 +1672,8 @@ describe("NFT Pair", async () => {
         const valuation = getBigNumber(100);
         const duration = 365 * 24 * 3600;
         const annualInterestBPS = 15000;
+        const ltvBPS = 6000;
+        const oracle = AddressZero;
         const deadline = timestamp + 3600;
 
         const sigParams = await signBorrowRequest(pair, bob, {
@@ -1477,10 +1681,18 @@ describe("NFT Pair", async () => {
           valuation,
           duration,
           annualInterestBPS,
+          ltvBPS,
+          oracle,
           deadline,
         });
 
-        const loanParams = { valuation, duration, annualInterestBPS };
+        const loanParams = {
+          valuation,
+          duration,
+          annualInterestBPS,
+          ltvBPS,
+          oracle,
+        };
 
         await expect(pair.connect(alice).takeCollateralAndLend(apeIds.bobTwo, bob.address, loanParams, false, sigParams)).to.emit(
           pair,
@@ -1509,11 +1721,13 @@ describe("NFT Pair", async () => {
   });
 
   describeSnapshot("Withdraw Fees", () => {
-    let pair: NFTPair;
+    let pair: NFTPairWithOracle;
 
     const params: ILoanParams = {
       valuation: getBigNumber(3),
       annualInterestBPS: 5_000,
+      ltvBPS: 6000,
+      oracle: AddressZero,
       duration: YEAR,
     };
     const valuationShare = params.valuation.mul(9).div(20);
@@ -1583,7 +1797,7 @@ describe("NFT Pair", async () => {
 
   describeSnapshot("Edge Cases", () => {
     // For coverage mostly - entire scenario not really necessary:
-    let pair: NFTPair;
+    let pair: NFTPairWithOracle;
 
     before(async () => {
       pair = await deployPair();
@@ -1600,7 +1814,7 @@ describe("NFT Pair", async () => {
 
   describeSnapshot("Other Cook Scenarios", () => {
     // Uses its own
-    let pair: NFTPair;
+    let pair: NFTPairWithOracle;
     let market: NFTMarketMock;
     let DOMAIN_SEPARATOR: string;
     let BORROW_SIGNATURE_HASH: string;
@@ -1688,7 +1902,7 @@ describe("NFT Pair", async () => {
         values.push(0);
         datas.push(
           encodeParameters(
-            ["uint256", "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS)", "address", "bool"],
+            ["uint256", "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS, uint16 ltvBPS, address oracle)", "address", "bool"],
             [tokenId, params, recipient, skim]
           )
         );
@@ -1726,7 +1940,7 @@ describe("NFT Pair", async () => {
         const [params, skim] = getArgs(i);
         datas.push(
           encodeParameters(
-            ["uint256", "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS)", "bool"],
+            ["uint256", "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS, uint16 ltvBPS, address oracle)", "bool"],
             [tokenIds[i], params, skim]
           )
         );
@@ -1744,6 +1958,8 @@ describe("NFT Pair", async () => {
             valuation: getBigNumber((i + 1) * 12),
             duration: YEAR,
             annualInterestBPS: i * 500,
+            ltvBPS: 6000,
+            oracle: AddressZero,
           },
           [alice.address, bob.address, carol.address][i % 3],
           false,
@@ -1763,6 +1979,8 @@ describe("NFT Pair", async () => {
             valuation: getBigNumber(7 * 12),
             duration: YEAR,
             annualInterestBPS: 6 * 500,
+            ltvBPS: 6000,
+            oracle: AddressZero,
           })
         )
         .to.emit(pair, "LogRequestLoan")
@@ -1773,6 +1991,8 @@ describe("NFT Pair", async () => {
             valuation: getBigNumber(8 * 12),
             duration: YEAR,
             annualInterestBPS: 7 * 500,
+            ltvBPS: 6000,
+            oracle: AddressZero,
           })
         )
         .to.emit(pair, "LogRequestLoan")
@@ -1783,6 +2003,8 @@ describe("NFT Pair", async () => {
             valuation: getBigNumber(9 * 12),
             duration: YEAR,
             annualInterestBPS: 8 * 500,
+            ltvBPS: 6000,
+            oracle: AddressZero,
           })
         );
     });
@@ -1833,6 +2055,8 @@ describe("NFT Pair", async () => {
           valuation: getBigNumber((i + 1) * 12),
           duration: YEAR,
           annualInterestBPS: i * 500,
+          ltvBPS: 6000,
+          oracle: AddressZero,
         },
         bob.address,
         false,
@@ -1843,6 +2067,8 @@ describe("NFT Pair", async () => {
             valuation: getBigNumber((i + 1) * 12),
             duration: YEAR,
             annualInterestBPS: i * 500,
+            ltvBPS: 6000,
+            oracle: AddressZero,
           },
           false,
         ])
@@ -1856,6 +2082,8 @@ describe("NFT Pair", async () => {
             valuation: getBigNumber(12),
             duration: YEAR,
             annualInterestBPS: 0,
+            ltvBPS: 6000,
+            oracle: AddressZero,
           })
         );
     });
@@ -1866,6 +2094,8 @@ describe("NFT Pair", async () => {
           valuation: getBigNumber((i + 1) * 12),
           duration: YEAR,
           annualInterestBPS: i * 500,
+          ltvBPS: 6000,
+          oracle: AddressZero,
         },
         bob.address,
         false,
@@ -1879,6 +2109,8 @@ describe("NFT Pair", async () => {
             // Last request is bad in that the lender now wants more interest
             // than the borrower is willing to pay:
             annualInterestBPS: i * 500 + (i == tokenIds.length - 1 ? 1 : 0),
+            ltvBPS: 6000,
+            oracle: AddressZero,
           },
           false,
         ])
@@ -1924,13 +2156,15 @@ describe("NFT Pair", async () => {
   });
 
   describeSnapshot("Flash Repay", () => {
-    let pair: NFTPair;
+    let pair: NFTPairWithOracle;
     let swapper: NFTBuyerSellerMock;
 
     const params1 = {
       valuation: getBigNumber(10),
       duration: YEAR,
       annualInterestBPS: 2000,
+      ltvBPS: 6000,
+      oracle: AddressZero,
     };
     const params2 = { ...params1, valuation: getBigNumber(25) };
 
@@ -2184,13 +2418,15 @@ describe("NFT Pair", async () => {
   });
 
   describeSnapshot("Flash Borrow", () => {
-    let pair: NFTPair;
+    let pair: NFTPairWithOracle;
     let swapper: NFTBuyerSellerMock;
 
     const params1 = {
       valuation: getBigNumber(10),
       duration: YEAR,
       annualInterestBPS: 2000,
+      ltvBPS: 6000,
+      oracle: AddressZero,
     };
     const params2 = { ...params1, valuation: getBigNumber(25) };
 
@@ -2379,7 +2615,7 @@ describe("NFT Pair", async () => {
             "uint256",
             "address",
             "address",
-            "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS)",
+            "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS, uint16 ltvBPS, address oracle)",
             "bool",
             "bool",
             "tuple(uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
@@ -2466,7 +2702,7 @@ describe("NFT Pair", async () => {
             "uint256",
             "address",
             "address",
-            "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS)",
+            "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS, uint16 ltvBPS, address oracle)",
             "bool",
             "bool",
             "tuple(uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
@@ -2541,7 +2777,7 @@ describe("NFT Pair", async () => {
             "uint256",
             "address",
             "address",
-            "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS)",
+            "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS, uint16 ltvBPS, address oracle)",
             "bool",
             "bool",
             "tuple(uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
@@ -2629,7 +2865,7 @@ describe("NFT Pair", async () => {
             "uint256",
             "address",
             "address",
-            "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS)",
+            "tuple(uint128 valuation, uint64 duration, uint16 annualInterestBPS, uint16 ltvBPS, address oracle)",
             "bool",
             "bool",
             "tuple(uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
@@ -2682,7 +2918,7 @@ describe("NFT Pair", async () => {
   });
 
   describeSnapshot("Lending Club", () => {
-    let pair: NFTPair;
+    let pair: NFTPairWithOracle;
     let lendingClub: LendingClubMock;
     let emptyLendingClub: LendingClubMock;
 
@@ -2719,12 +2955,16 @@ describe("NFT Pair", async () => {
       const valuation = getBigNumber(1).add(apeIds.aliceOne);
       const duration = 7 * DAY;
       const annualInterestBPS = 20_000;
+      const ltvBPS = 6_000;
+      const oracle = AddressZero;
 
       await expect(
         borrow(alice, emptyLendingClub, apeIds.aliceOne, {
           valuation,
           duration,
           annualInterestBPS,
+          ltvBPS,
+          oracle,
         })
       ).to.be.revertedWith("NFTPair: LendingClub refused");
 
@@ -2733,6 +2973,8 @@ describe("NFT Pair", async () => {
           valuation,
           duration,
           annualInterestBPS,
+          ltvBPS,
+          oracle,
         })
       ).to.emit(pair, "LogLend");
 
@@ -2742,6 +2984,8 @@ describe("NFT Pair", async () => {
           valuation,
           duration,
           annualInterestBPS,
+          ltvBPS,
+          oracle,
         })
       ).to.be.revertedWith("NFTPair: LendingClub refused");
     });

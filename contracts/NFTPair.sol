@@ -19,16 +19,17 @@
 
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
-import "@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol";
-import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
-import "@boringcrypto/boring-solidity/contracts/Domain.sol";
-import "@boringcrypto/boring-solidity/contracts/interfaces/IMasterContract.sol";
-import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
-import "@sushiswap/bentobox-sdk/contracts/IBentoBoxV1.sol";
+import "boring-solidity-old/contracts/libraries/BoringMath.sol";
+import "boring-solidity-old/contracts/BoringOwnable.sol";
+import "boring-solidity-old/contracts/libraries/BoringRebase.sol";
+import "boring-solidity-old/contracts/Domain.sol";
+import "boring-solidity-old/contracts/interfaces/IMasterContract.sol";
+import "boring-solidity-old/contracts/libraries/BoringERC20.sol";
+import "./interfaces/IBentoBoxV1Interface.sol";
 import "./interfaces/IERC721.sol";
 import "./interfaces/ILendingClub.sol";
-import "./interfaces/INFTBuyer.sol";
-import "./interfaces/INFTSeller.sol";
+import {INFTBuyer} from "./interfaces/INFTBuyer.sol";
+import {INFTSeller} from "./interfaces/INFTSeller.sol";
 import "./interfaces/INFTPair.sol";
 
 /// @title NFTPair
@@ -140,7 +141,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     uint8 private constant COMPOUND_INTEREST_TERMS = 6;
 
     // For signed lend / borrow requests:
-    mapping(address => uint256) public nonces;
+    mapping(address => uint256) public currentBatchIds;
 
     /// @notice The constructor is only used for the initial master contract.
     /// @notice Subsequent clones are initialised via `init`.
@@ -331,11 +332,11 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
     // chain ID and master contract are a match, so we explicitly include the
     // clone address
 
-    // keccak256("Lend(address contract,uint256 tokenId,bool anyTokenId,uint128 valuation,uint64 duration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
-    bytes32 private constant LEND_SIGNATURE_HASH = 0x06bcca6f35b7c1b98f11abbb10957d273a681069ba90358de25404f49e2430f8;
+    // keccak256("Lend(address contract,uint256 tokenId,bool anyTokenId,uint128 valuation,uint64 duration,uint16 annualInterestBPS,uint256 batchId,uint256 deadline)")
+    bytes32 private constant LEND_SIGNATURE_HASH = 0x51bdf8c1d18fdb31c98b3fa9c0eafb21834eebc55f0e77bd59fa99bc434ddf92;
 
-    // keccak256("Borrow(address contract,uint256 tokenId,uint128 valuation,uint64 duration,uint16 annualInterestBPS,uint256 nonce,uint256 deadline)")
-    bytes32 private constant BORROW_SIGNATURE_HASH = 0xf2c9128b0fb8406af3168320897e5ff08f3bb536dd5f804c29ed276e93ec4336;
+    // keccak256("Borrow(address contract,uint256 tokenId,uint128 valuation,uint64 duration,uint16 annualInterestBPS,uint256 batchId,uint256 deadline)")
+    bytes32 private constant BORROW_SIGNATURE_HASH = 0x31609c8787e5709f4c4e0d7c6f3239ad028b96968335012bb862a64361421ef9;
 
     /// @notice Request and immediately borrow from a pre-committed lender
 
@@ -446,13 +447,13 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
                     params.annualInterestBPS,
                     // Oracle-specific values, not relevant here:
                     0,
-                    address(0)
+                    INFTOracle(address(0))
                 ),
                 "NFTPair: LendingClub refused"
             );
         } else {
             require(block.timestamp <= signature.deadline, "NFTPair: signature expired");
-            uint256 nonce = nonces[lender]++;
+            uint256 batchId = currentBatchIds[lender];
             bytes32 dataHash = keccak256(
                 abi.encode(
                     LEND_SIGNATURE_HASH,
@@ -462,7 +463,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
                     params.valuation,
                     params.duration,
                     params.annualInterestBPS,
-                    nonce,
+                    batchId,
                     signature.deadline
                 )
             );
@@ -480,7 +481,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         SignatureParams memory signature
     ) private {
         require(block.timestamp <= signature.deadline, "NFTPair: signature expired");
-        uint256 nonce = nonces[borrower]++;
+        uint256 batchId = currentBatchIds[borrower];
         bytes32 dataHash = keccak256(
             abi.encode(
                 BORROW_SIGNATURE_HASH,
@@ -489,7 +490,7 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
                 params.valuation,
                 params.duration,
                 params.annualInterestBPS,
-                nonce,
+                batchId,
                 signature.deadline
             )
         );
@@ -522,6 +523,11 @@ contract NFTPair is BoringOwnable, Domain, IMasterContract {
         // Taking collateral from someone other than msg.sender is safe: the
         // borrower signed a message giving permission.
         _requireCollateral(borrower, tokenId, false);
+    }
+
+    // Invalidates all outstanding signatures for msg.sender
+    function incrementBatchId() external {
+        currentBatchIds[msg.sender] += 1;
     }
 
     // Approximates continuous compounding. Uses Horner's method to evaluate

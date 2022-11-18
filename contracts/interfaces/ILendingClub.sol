@@ -4,7 +4,7 @@ pragma solidity >=0.6.12 <0.9.0;
 pragma experimental ABIEncoderV2;
 
 import "./TokenLoanParamsWithOracle.sol";
-
+import {INFTOracle} from "./INFTOracle.sol";
 interface ILendingClub {
     // Per token settings.
     function willLend(
@@ -13,10 +13,9 @@ interface ILendingClub {
         uint64 duration,
         uint16 annualInterestBPS,
         uint16 ltvBPS,
-        address oracle
+        INFTOracle oracle
     )
         external
-        view
         returns (bool);
 
     function lendingConditions(address nftPair, uint256 tokenId)

@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.6.12;
+pragma experimental ABIEncoderV2;
 
-import "./IERC20.sol";
-
+import "boring-solidity-old/contracts/ERC20.sol";
+import "boring-solidity-old/contracts/libraries/Rebase.sol";
 interface IBentoBoxV1 {
     function toAmount(
         address _token,
@@ -24,7 +25,7 @@ interface IBentoBoxV1 {
         address to,
         uint256 amount,
         uint256 share
-    ) external returns (uint256, uint256);
+    ) external payable returns (uint256, uint256);
 
 
     function transfer(
@@ -51,7 +52,7 @@ interface IBentoBoxV1 {
 
     function balanceOf(IERC20, address) external view returns (uint256);
 
-    function totals(IERC20) external view returns (uint128 elastic, uint128 base);
+    function totals(IERC20) external view returns (Rebase memory asset);
 
     function flashLoan(
         address borrower,
@@ -61,8 +62,15 @@ interface IBentoBoxV1 {
         bytes calldata data
     ) external;
 
+    function transferMultiple(
+        IERC20 token,
+        address from,
+        address[] calldata tos,
+        uint256[] calldata shares
+    ) external;
+
     function toShare(
-        address token,
+        IERC20 token,
         uint256 amount,
         bool roundUp
     ) external view returns (uint256 share);

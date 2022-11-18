@@ -1,0 +1,242 @@
+{
+  "address": "0x5b094A7c4B932a1493de6036805F5d073a7e318d",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_pair",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "get",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "rate",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_pair",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "peek",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_pair",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "peekSpot",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "rates",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "rate",
+          "type": "uint256"
+        }
+      ],
+      "name": "set",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "val",
+          "type": "bool"
+        }
+      ],
+      "name": "setSuccess",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "success",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x8174029b7772b70b857fdc4385ce1a48ceaba913c2d8559482be6bec7961391b",
+  "receipt": {
+    "to": null,
+    "from": "0x3609D20FC8Ba02Bb653593162028cf0D1c172892",
+    "contractAddress": "0x5b094A7c4B932a1493de6036805F5d073a7e318d",
+    "transactionIndex": 0,
+    "gasUsed": "218349",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000001000000000000800000000000010000000100000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000004000000000000000000001000000000000080000000000000000100000000000000000000000000000200000000000000000000000000004000000000000100020",
+    "blockHash": "0x2335fd352263febab8c67d21c342cff185395fec244af4280f2d4185bf89b620",
+    "transactionHash": "0x8174029b7772b70b857fdc4385ce1a48ceaba913c2d8559482be6bec7961391b",
+    "logs": [
+      {
+        "transactionIndex": 0,
+        "blockNumber": 34180312,
+        "transactionHash": "0x8174029b7772b70b857fdc4385ce1a48ceaba913c2d8559482be6bec7961391b",
+        "address": "0x0000000000000000000000000000000000001010",
+        "topics": [
+          "0x4dfe1bbbcf077ddc3e01291eea2d5c70c2b422b415d95645b9adcfd678cb1d63",
+          "0x0000000000000000000000000000000000000000000000000000000000001010",
+          "0x0000000000000000000000003609d20fc8ba02bb653593162028cf0d1c172892",
+          "0x000000000000000000000000127685d6dd6683085da4b6a041efcef1681e5c9c"
+        ],
+        "data": "0x000000000000000000000000000000000000000000000000004d92b9d21021d1000000000000000000000000000000000000000000000000bc04e7bfcceabc0000000000000000000000000000000000000000000000053c12647b6d70776f45000000000000000000000000000000000000000000000000bbb75505fada9a2f00000000000000000000000000000000000000000000053c12b20e2742879116",
+        "logIndex": 0,
+        "blockHash": "0x2335fd352263febab8c67d21c342cff185395fec244af4280f2d4185bf89b620"
+      }
+    ],
+    "blockNumber": 34180312,
+    "cumulativeGasUsed": "218349",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "957d564936a9a51fa0a705bb7246fd40",
+  "metadata": "{\"compiler\":{\"version\":\"0.6.12+commit.27d51765\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_pair\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"get\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"rate\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_pair\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"peek\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_pair\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"peekSpot\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"rates\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"rate\",\"type\":\"uint256\"}],\"name\":\"set\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bool\",\"name\":\"val\",\"type\":\"bool\"}],\"name\":\"setSuccess\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"success\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/mocks/NFTOracleMock.sol\":\"NFTOracleMock\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":690},\"remappings\":[]},\"sources\":{\"@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.6.12;\\n\\n/// @notice A library for performing overflow-/underflow-safe math,\\n/// updated with awesomeness from of DappHub (https://github.com/dapphub/ds-math).\\nlibrary BoringMath {\\n    function add(uint256 a, uint256 b) internal pure returns (uint256 c) {\\n        require((c = a + b) >= b, \\\"BoringMath: Add Overflow\\\");\\n    }\\n\\n    function sub(uint256 a, uint256 b) internal pure returns (uint256 c) {\\n        require((c = a - b) <= a, \\\"BoringMath: Underflow\\\");\\n    }\\n\\n    function mul(uint256 a, uint256 b) internal pure returns (uint256 c) {\\n        require(b == 0 || (c = a * b) / b == a, \\\"BoringMath: Mul Overflow\\\");\\n    }\\n\\n    function to128(uint256 a) internal pure returns (uint128 c) {\\n        require(a <= uint128(-1), \\\"BoringMath: uint128 Overflow\\\");\\n        c = uint128(a);\\n    }\\n\\n    function to64(uint256 a) internal pure returns (uint64 c) {\\n        require(a <= uint64(-1), \\\"BoringMath: uint64 Overflow\\\");\\n        c = uint64(a);\\n    }\\n\\n    function to32(uint256 a) internal pure returns (uint32 c) {\\n        require(a <= uint32(-1), \\\"BoringMath: uint32 Overflow\\\");\\n        c = uint32(a);\\n    }\\n}\\n\\n/// @notice A library for performing overflow-/underflow-safe addition and subtraction on uint128.\\nlibrary BoringMath128 {\\n    function add(uint128 a, uint128 b) internal pure returns (uint128 c) {\\n        require((c = a + b) >= b, \\\"BoringMath: Add Overflow\\\");\\n    }\\n\\n    function sub(uint128 a, uint128 b) internal pure returns (uint128 c) {\\n        require((c = a - b) <= a, \\\"BoringMath: Underflow\\\");\\n    }\\n}\\n\\n/// @notice A library for performing overflow-/underflow-safe addition and subtraction on uint64.\\nlibrary BoringMath64 {\\n    function add(uint64 a, uint64 b) internal pure returns (uint64 c) {\\n        require((c = a + b) >= b, \\\"BoringMath: Add Overflow\\\");\\n    }\\n\\n    function sub(uint64 a, uint64 b) internal pure returns (uint64 c) {\\n        require((c = a - b) <= a, \\\"BoringMath: Underflow\\\");\\n    }\\n}\\n\\n/// @notice A library for performing overflow-/underflow-safe addition and subtraction on uint32.\\nlibrary BoringMath32 {\\n    function add(uint32 a, uint32 b) internal pure returns (uint32 c) {\\n        require((c = a + b) >= b, \\\"BoringMath: Add Overflow\\\");\\n    }\\n\\n    function sub(uint32 a, uint32 b) internal pure returns (uint32 c) {\\n        require((c = a - b) <= a, \\\"BoringMath: Underflow\\\");\\n    }\\n}\\n\",\"keccak256\":\"0x6bc52950e23c70a90a5b039697b77ba76360b62da6a06a61d3a1714b9c6c26b9\",\"license\":\"MIT\"},\"contracts/interfaces/INFTOracle.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity >=0.6.12;\\n\\ninterface INFTOracle {\\n    /// @notice Get the latest exchange rate.\\n    /// @param pair address of the NFTPair calling the oracle\\n    /// @param tokenId tokenId of the NFT in question\\n    /// @return success if no valid (recent) rate is available, return false else true.\\n    /// @return rate The rate of the requested asset / pair / pool.\\n    function get(address pair, uint256 tokenId) external returns (bool success, uint256 rate);\\n\\n    /// @notice Check the last exchange rate without any state changes.\\n    /// @param pair address of the NFTPair calling the oracle\\n    /// @param tokenId tokenId of the NFT in question\\n    /// @return success if no valid (recent) rate is available, return false else true.\\n    /// @return rate The rate of the requested asset / pair / pool.\\n    function peek(address pair, uint256 tokenId) external view returns (bool success, uint256 rate);\\n\\n    /// @notice Check the current spot exchange rate without any state changes. For oracles like TWAP this will be different from peek().\\n    /// @param pair address of the NFTPair calling the oracle\\n    /// @param tokenId tokenId of the NFT in question\\n    /// (string memory collateralSymbol, string memory assetSymbol, uint256 division) = abi.decode(data, (string, string, uint256));\\n    /// @return rate The rate of the requested asset / pair / pool.\\n    function peekSpot(address pair, uint256 tokenId) external view returns (uint256 rate);\\n}\\n\",\"keccak256\":\"0xe1749500add98160db195b8e17f16ce01e0410d864173d5af9622181dc4d0aec\",\"license\":\"MIT\"},\"contracts/mocks/NFTOracleMock.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.6.12;\\nimport \\\"@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol\\\";\\nimport \\\"../interfaces/INFTOracle.sol\\\";\\n\\n// WARNING: This oracle is only for testing\\n// WARNING: The `_pair` parameter is always ignored!\\ncontract NFTOracleMock is INFTOracle {\\n    using BoringMath for uint256;\\n\\n    mapping(uint256 => uint256) public rates;\\n    bool public success;\\n\\n    constructor() public {\\n        success = true;\\n    }\\n\\n    function set(uint256 tokenId, uint256 rate) public {\\n        rates[tokenId] = rate;\\n    }\\n\\n    function setSuccess(bool val) public {\\n        success = val;\\n    }\\n\\n    function get(address _pair, uint256 tokenId) external override returns (bool success, uint256 rate) {\\n        return (success, rates[tokenId]);\\n    }\\n\\n    // Check the last exchange rate without any state changes\\n    function peek(address _pair, uint256 tokenId) public view override returns (bool, uint256) {\\n        return (success, rates[tokenId]);\\n    }\\n\\n    function peekSpot(address _pair, uint256 tokenId) public view override returns (uint256) {\\n        return rates[tokenId];\\n    }\\n}\\n\",\"keccak256\":\"0x1b66749a10b3c412ae684c7713eac199a545dab7936ab30d8e10f656bb93e341\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506001805460ff1916811790556102958061002c6000396000f3fe608060405234801561001057600080fd5b506004361061007d5760003560e01c8063a3f205571161005b578063a3f20557146100e2578063b464631b14610136578063dd418ae21461016f578063fcbc2f181461019e5761007d565b80630b93381b146100825780631ab06ee51461009e5780637bcc7f81146100c3575b600080fd5b61008a6101d7565b604080519115158252519081900360200190f35b6100c1600480360360408110156100b457600080fd5b50803590602001356101e0565b005b6100c1600480360360208110156100d957600080fd5b503515156101f2565b61011b600480360360408110156100f857600080fd5b5073ffffffffffffffffffffffffffffffffffffffff8135169060200135610205565b60408051921515835260208301919091528051918290030190f35b61011b6004803603604081101561014c57600080fd5b5073ffffffffffffffffffffffffffffffffffffffff8135169060200135610223565b61018c6004803603602081101561018557600080fd5b5035610239565b60408051918252519081900360200190f35b61018c600480360360408110156101b457600080fd5b5073ffffffffffffffffffffffffffffffffffffffff813516906020013561024b565b60015460ff1681565b60009182526020829052604090912055565b6001805460ff1916911515919091179055565b6001546000918252602082905260409091205460ff90911692909150565b6000818152602081905260408120549250929050565b60006020819052908152604090205481565b60009081526020819052604090205491905056fea2646970667358221220f22f8cb31697bb3fe114ebefbb85fd75fa27b62e5ead0951bb145248a0639e2064736f6c634300060c0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061007d5760003560e01c8063a3f205571161005b578063a3f20557146100e2578063b464631b14610136578063dd418ae21461016f578063fcbc2f181461019e5761007d565b80630b93381b146100825780631ab06ee51461009e5780637bcc7f81146100c3575b600080fd5b61008a6101d7565b604080519115158252519081900360200190f35b6100c1600480360360408110156100b457600080fd5b50803590602001356101e0565b005b6100c1600480360360208110156100d957600080fd5b503515156101f2565b61011b600480360360408110156100f857600080fd5b5073ffffffffffffffffffffffffffffffffffffffff8135169060200135610205565b60408051921515835260208301919091528051918290030190f35b61011b6004803603604081101561014c57600080fd5b5073ffffffffffffffffffffffffffffffffffffffff8135169060200135610223565b61018c6004803603602081101561018557600080fd5b5035610239565b60408051918252519081900360200190f35b61018c600480360360408110156101b457600080fd5b5073ffffffffffffffffffffffffffffffffffffffff813516906020013561024b565b60015460ff1681565b60009182526020829052604090912055565b6001805460ff1916911515919091179055565b6001546000918252602082905260409091205460ff90911692909150565b6000818152602081905260408120549250929050565b60006020819052908152604090205481565b60009081526020819052604090205491905056fea2646970667358221220f22f8cb31697bb3fe114ebefbb85fd75fa27b62e5ead0951bb145248a0639e2064736f6c634300060c0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 19712,
+        "contract": "contracts/mocks/NFTOracleMock.sol:NFTOracleMock",
+        "label": "rates",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_uint256,t_uint256)"
+      },
+      {
+        "astId": 19714,
+        "contract": "contracts/mocks/NFTOracleMock.sol:NFTOracleMock",
+        "label": "success",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_bool"
+      }
+    ],
+    "types": {
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_uint256,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
